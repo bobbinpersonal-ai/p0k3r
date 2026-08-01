@@ -20,11 +20,10 @@ Store: `0bszkx-cb.myshopify.com` (Basic plan, USD, US)
 
 Note: Shopify collections are flat (no native parent/child). Subcollection titles are prefixed by category (e.g. "Blackjack Layouts") to stay unique and avoid collisions like "Layouts"/"Accessories"/"Dice" repeating across categories. True nested navigation (Poker > Poker Sets as a dropdown) still needs an Online Store navigation menu built separately — not done yet, do this once we're closer to going live.
 
-### Store name decision (blocking GMC submission — needs lock-in by EOD)
-- Working title "0bsz" (from myshopify subdomain fragment) flagged as risky for GMC business-identity verification — reads as a placeholder/auto-generated string, not a real business name.
-- Project codename "Joker Poker" checked against trademark concerns: it's a generic/widely-used video poker game variant name (IGT and others use it, plus unrelated indie games), not one company's exclusive mark — so not an infringement risk, but still a bad brand pick because it reads as a gambling game, not an equipment retailer, which is exactly the confusion GMC's dishonest-behavior reviewers flag.
-- Candidates proposed, none finalized yet: The Home Casino Co., Rail & Rack, Felt & Fold Supply Co., Table Stakes Supply, Green Felt Co., Case & Chip Co.
-- **Owner action needed:** confirm final name, verify domain + USPTO TESS availability (no live WHOIS/trademark-registry access in this session), then update Shopify store name + begin custom domain purchase.
+### Store name — LOCKED IN
+- **Brand: "Spadra"** (public-facing form for vendor field, SEO titles, page copy). Domain: **SpadraHouse.com** (owner registering).
+- Working title "0bsz" (myshopify subdomain fragment) and project codename "Joker Poker" both ruled out — see prior research: "Joker Poker" is a generic video poker game variant name (IGT and others), not trademark-infringing, but reads as a gambling game rather than an equipment retailer, which is the exact confusion GMC's dishonest-behavior reviewers flag.
+- **Owner action needed (not API-editable):** Shopify's account-level store name field is read-only via the public Admin API. Set it manually in Settings → Store details, then add SpadraHouse.com under Settings → Domains once registered.
 
 ### Cleanup still outstanding (carried over, unresolved)
 - Custom-distribution app "Casino Store Admin" — inert, safe to leave or uninstall.
