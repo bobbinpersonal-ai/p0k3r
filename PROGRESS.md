@@ -29,9 +29,21 @@ Note: Shopify collections are flat (no native parent/child). Subcollection title
 - Custom-distribution app "Casino Store Admin" — inert, safe to leave or uninstall.
 - Dev-dashboard app "Store Automation" (client IDs `f9ffa25bfe71c3bcfe67fae24b050fac` and `1e729da65ab1508ed671ac1ccd3e7cfb`) — secrets were pasted in plaintext chat earlier, still need rotation as a precaution.
 
+### Legal pages — DRAFTED, not published
+Six pages drafted in `/legal-pages/` (About, Contact, Shipping, Refund, Privacy, Terms) as editable markdown with `[bracketed]` placeholders for owner-supplied facts (legal entity name, business address, governing-law state, support email, actual return window). Privacy Policy and Terms of Service explicitly flagged as starting drafts, not legal advice — recommend review before publishing, especially the GDPR/CCPA angle on Privacy and the gambling-equipment disclaimer + governing-law clause on Terms. Not yet created as Shopify pages (staying in repo for review first to avoid churn on live pages).
+
+### "Full launch" — not achievable yet, concrete blockers
+User asked to push the site fully live. Real blockers, not just caution:
+- Store name still shows Shopify default "My Store" — not API-writable, owner must set manually in Settings → Store details.
+- SpadraHouse.com not registered/connected — no domain registrar access available to this session.
+- Zero products exist — collections are empty shells.
+- Legal pages drafted but not reviewed/approved (see above).
+Agreed path forward: legal pages first (this session), then products, then name/domain (owner-only steps), then actually publish.
+
 ### Not yet done
 - Products (waiting on user to source from CJ and hand off for listing creation).
-- GMC listing drafts, page copy (Shipping/Refund/Privacy/Contact/About/Terms — legal text is owner's to write).
+- GMC listing drafts.
 - Discounts.
 - Navigation menu (nested category dropdowns).
 - Domain finalization, Google Ads setup.
+- Publishing collections/pages to Online Store (deliberately held until the above is further along).
