@@ -2,6 +2,14 @@
 
 Store: `0bszkx-cb.myshopify.com` (Basic plan, USD, US)
 
+## Status: Phase 4 — Navigation + sourcing targets
+
+Main menu rebuilt (`menuUpdate`) with full nested structure: Home, then Poker/Blackjack/Roulette/Craps/Baccarat/Game Room each as a dropdown linking to the parent collection with all its subcollections nested underneath, Clearance flat, Contact kept pointing at the existing default page (not our unpublished draft) so the link doesn't 404.
+
+Added a target buy-price table to SOURCING.md for all 27 SKUs — 30% of retail as the target landed cost (product + shipping), 40% as the ceiling, sized for a paid-traffic dropship model. Flagged the 5 table/furniture SKUs (foldable tables + bar stool) as the real risk for blowing past the ceiling on freight shipping alone — need real CJ quotes before committing.
+
+Guidance given on CJ's image-search sourcing tool: fine to reverse-image-search competitor photos to locate the matching CJ listing, but use CJ's own listing photos (or original photos) for the actual store — not competitors' own branded/original photography.
+
 ## Status: Phase 3 — Catalog published to Online Store
 
 All 27 products set to ACTIVE and all 27 products + 33 collections published to the "Online Store" sales channel (`publishablePublish`), so the storefront at 0bszkx-cb.myshopify.com now shows the real Spadra catalog instead of the Horizon theme's placeholder demo content. Legal pages remain unpublished (still have bracketed placeholders). Navigation menu not yet rebuilt — top nav still shows the theme's default Home/Catalog/Contact links rather than the category tree; browsing via Catalog or direct collection URLs will show real products.

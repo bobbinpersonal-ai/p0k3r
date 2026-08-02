@@ -1,5 +1,44 @@
 # Spadra — Product Sourcing Brief
 
+## Target buy price (product + shipping landed cost), all 27 live SKUs
+
+Framework: for a paid-traffic dropship business, landed cost (CJ product price + CJ shipping to you or direct-to-customer) should stay at or under **~30% of retail** — that leaves ~70% gross margin to absorb Google/Meta ad spend, payment processing (~3%), returns, and actual profit. **40% is the workable ceiling** — above that, ad-funded acquisition gets very hard to sustain. Treat 30% as the number you're negotiating toward, 40% as the walk-away line.
+
+| SKU | Product | Retail | Target (30%) | Ceiling (40%) |
+|---|---|---|---|---|
+| SPDR-001 | Tournament Chip Set 500pc Clay Composite | $79.99 | $24.00 | $32.00 |
+| SPDR-002 | Player's Chip Set 300pc ABS | $34.99 | $10.50 | $14.00 |
+| SPDR-003 | Ceramic Chip Set 200pc | $89.99 | $27.00 | $36.00 |
+| SPDR-004 | Plastic Playing Cards, 2 Decks | $14.99 | $4.50 | $6.00 |
+| SPDR-005 | Octagon Poker Table 8-Seat | $249.99 | $75.00 | $100.00 |
+| SPDR-006 | Roll-Up Felt Table Top 48" | $29.99 | $9.00 | $12.00 |
+| SPDR-007 | Dealer Kit (tray/button/cut cards) | $12.99 | $3.90 | $5.20 |
+| SPDR-008 | Blackjack Felt Layout 36"x72" | $29.99 | $9.00 | $12.00 |
+| SPDR-009 | Foldable Blackjack Table | $199.99 | $60.00 | $80.00 |
+| SPDR-010 | Acrylic Card Shoe 6-Deck | $44.99 | $13.50 | $18.00 |
+| SPDR-011 | Blackjack Dealer Accessory Kit | $14.99 | $4.50 | $6.00 |
+| SPDR-012 | Roulette Wheel & Table Set 16" | $89.99 | $27.00 | $36.00 |
+| SPDR-013 | Roulette Felt Layout | $24.99 | $7.50 | $10.00 |
+| SPDR-014 | Roulette Chip Set 300pc | $29.99 | $9.00 | $12.00 |
+| SPDR-015 | Roulette Accessory Kit | $12.99 | $3.90 | $5.20 |
+| SPDR-016 | Casino Dice Set 19mm x5 | $24.99 | $7.50 | $10.00 |
+| SPDR-017 | Foldable Craps Table 6ft | $349.99 | $105.00 | $140.00 |
+| SPDR-018 | Craps Felt Layout | $34.99 | $10.50 | $14.00 |
+| SPDR-019 | Craps Accessory Kit | $14.99 | $4.50 | $6.00 |
+| SPDR-020 | Acrylic Card Shoe 8-Deck Baccarat | $79.99 | $24.00 | $32.00 |
+| SPDR-021 | Foldable Baccarat Table | $379.99 | $114.00 | $152.00 |
+| SPDR-022 | Baccarat Accessory Kit | $14.99 | $4.50 | $6.00 |
+| SPDR-023 | Oversized Wooden Dice, Set of 2 | $34.99 | $10.50 | $14.00 |
+| SPDR-024 | Dealer Button Set | $14.99 | $4.50 | $6.00 |
+| SPDR-025 | Casino-Style Folding Bar Stool | $99.99 | $30.00 | $40.00 |
+| SPDR-026 | Chip Carrying Case, Empty 500-ct | $24.99 | $7.50 | $10.00 |
+| SPDR-027 | Neon Game Room Sign LED | $39.99 | $12.00 | $16.00 |
+
+**Two caveats before you commit:**
+1. **Sub-$15 items** (dealer kits, accessory kits, cut card sets) have a hard floor on shipping cost regardless of the 30%/40% math — CJ's cheapest parcel shipping rarely goes below ~$3-5 even for tiny/light items. For these, the ceiling column matters more than the target column; if the actual landed cost blows past ceiling, consider bundling 2-3 accessory SKUs into one listing instead of selling them separately.
+2. **The five table/furniture SKUs** (009, 017, 021, 005, 025 — foldable tables and the bar stool) are the real risk. Large/bulky freight from China can run well past $100-150 in actual shipping alone, independent of the product cost — these are exactly the items likely to blow through even the 40% ceiling. Get a real CJ freight quote on these five before listing; if the number doesn't work, either raise retail price or hold them back as pre-order/later additions rather than eating the loss.
+
+
 Benchmark: pokermerchant.com (EU poker specialist, 9.2/10 rated, "World's Largest Poker Store"). Their live catalog couldn't be scraped directly (403 on every fetch attempt, same as Phase 1) — this is built from indexed search snippets of their site plus verified competitor listings (casinosupply.com, kardwell.com, chipcave.com, gaming-supplies.com, CGS-brand dice on Amazon/Walmart/eBay). CJdropshipping's own search pages also blocked automated fetch — you'll need to run these searches live in the CJ app/browser extension yourself. Real CJ SKU verification is still the one thing only you can close out.
 
 ## What PokerMerchant validates
