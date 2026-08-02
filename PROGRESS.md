@@ -2,6 +2,10 @@
 
 Store: `0bszkx-cb.myshopify.com` (Basic plan, USD, US)
 
+## Status: Phase 3 — Catalog published to Online Store
+
+All 27 products set to ACTIVE and all 27 products + 33 collections published to the "Online Store" sales channel (`publishablePublish`), so the storefront at 0bszkx-cb.myshopify.com now shows the real Spadra catalog instead of the Horizon theme's placeholder demo content. Legal pages remain unpublished (still have bracketed placeholders). Navigation menu not yet rebuilt — top nav still shows the theme's default Home/Catalog/Contact links rather than the category tree; browsing via Catalog or direct collection URLs will show real products.
+
 ## Status: Phase 2 — Store structure
 
 ### Done
