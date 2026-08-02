@@ -2,6 +2,20 @@
 
 Store: `0bszkx-cb.myshopify.com` (Basic plan, USD, US)
 
+## Status: Phase 6 — Homepage restructured to match pokermerchant.com layout pattern
+
+User shared real pokermerchant.com screenshots showing their homepage structure (trust-bar announcements, full-bleed dark-overlay hero with headline+CTA, circular category icon row, product grid) and asked for the same structure — explicitly OK with no real photos yet ("I will go in and upload photos"). Rebuilt on the unpublished "Horizon" theme (still requires manual Publish, see above):
+
+- **`sections/header-group.json`**: replaced the single "Welcome to our store" announcement with a 3-slide rotating trust bar — "Worldwide Shipping", "Secure Checkout", "Home Game, Casino Quality". Kept these to claims that are actually true (worldwide shipping zone is real, Shopify checkout is genuinely secure) rather than copying PokerMerchant's specific claims we can't back (e.g. "24/7 support," "9.2/10 rating" — those are their real business facts, not ours).
+- **`templates/index.json`**: rebuilt as 3 sections —
+  1. Hero: reverted from the earlier solid-black no-image version back to `media_type_1/2: "image"` with the overlay ON (`toggle_overlay: true`, dark solid overlay) so it's structurally ready to receive a real photo — currently shows Shopify's placeholder until one is added. Headline "The Home Casino, Done Right.", subhead about the 5 game categories, button "Shop the Collection" → all products.
+  2. New: `collection-list` section, "Shop by Category" — 6-across grid of the main verticals (Poker/Blackjack/Roulette/Craps/Baccarat/Game Room) using `image_ratio: "square"` + `border_radius: 100` to approximate PokerMerchant's circular category icons (Shopify's builtin cap is 100px radius, not a true CSS `border-radius: 50%`, so this is a close approximation rather than pixel-perfect — worth checking once real square images are in place, may need minor radius tuning in the theme editor).
+  3. Kept the existing product grid, retitled "New Arrivals."
+
+Explicitly did not copy PokerMerchant's specific trust badges (ValuedShops 9.2/10 rating, WhatsApp number, "Free Gift" banner, "World's Largest Poker Supplier" claim) since those are their real business facts/programs, not Spadra's — fabricating equivalents would be false advertising. Flagged this rather than silently omitting it.
+
+**Still requires the owner-only theme Publish step** (same blocker as before) before any of this is visible to real customers — and real photography needs to go into the hero image slot and product galleries.
+
 ## Status: Phase 5 — Catalog expansion, theme, and standing autonomy
 
 **User granted standing authorization** ("stop asking for permission I allow always" / "dont check in with anything full permission for everything") — no more confirmation checkpoints for routine build actions going forward. Still flagging things I'm technically blocked from doing (store name field, theme publish, domain registration) since those aren't permission questions, they're hard API/access limits.
