@@ -2,6 +2,19 @@
 
 Store: `0bszkx-cb.myshopify.com` (Basic plan, USD, US)
 
+## Status: Phase 9 — Product status realigned to Poker & Bundles launch strategy
+
+User gave an explicit ON/OFF list superseding Phase 8's narrower cut. Set 19 products ACTIVE (bundles, all 4 chip-count tiers 300/500/750/1000pc, ABS + ceramic chip sets, cards, leather case, felt mat, chip carrying case, both card shufflers, 6-deck shoe, cut cards, dealer button, neon sign, bar stool) and 15 products DRAFT by keyword match on title/productType: all Roulette (4), all Craps (4, matched via `productType` containing "Craps" even where title didn't, e.g. the 19mm dice set), all Baccarat (3), Octagon Poker Table, Foldable Blackjack Table, both Poker Plaques items (the last 4 were already draft from Phase 8, no-op). 34/34 succeeded, zero errors.
+
+**Flagged before executing, not silently absorbed:**
+- Splits the "Acrylic Dealing Shoes (6 & 8 Deck)" collection built in Phase 7 — the 8-deck shoe's title contains "Baccarat" so it drafted per the keyword rule, leaving only the 6-deck shoe active in that collection.
+- Empties 3 of 8 links in the "Game Room" nav dropdown (Craps/Roulette/Baccarat) — those collections now have zero active products, even though Phase 7's spec explicitly kept them as "grouped secondary" rather than removing them.
+- "Spadra Oversized Wooden Dice — Set of 2" is filed as `Game Room Dice`/tags `decor, game room, wood`, not Craps — despite the instruction's parenthetical example listing "Wooden Dice" under the Craps keyword. Left it active since it doesn't literal-match any stated keyword.
+
+Cleaned the "Featured" homepage collection twice in this phase — first removing the Foldable Blackjack Table (drafted in Phase 8), then removing the Roulette Wheel Set + 19mm Craps Dice (drafted in this phase) and backfilling with the 300pc chip set and Advanced Card Shuffler so it stays a full set of relevant, active picks (currently 7 items).
+
+Live catalog: 27 active / 9 draft (36 total).
+
 ## Status: Phase 8 — Deactivated products outside the new spec's scope
 
 Set 11 products to DRAFT (inactive) since they fall outside what the latest nav spec explicitly named for Poker / Blackjack & Accessories: Player's Chip Set 300pc ABS, Ceramic Chip Set 200pc, Octagon Poker Table, Dealer Kit, Foldable Blackjack Table, Poker Plaques Set + Single Plaque, Leather Playing Card Case, Card Shuffler — Advanced Multi-Deck, Tournament Chip Set 750pc + 1000pc. Craps/Roulette/Baccarat/Game Room products were left active — the spec kept those as a "grouped secondary" nav item, not removed them.
