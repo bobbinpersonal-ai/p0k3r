@@ -2,6 +2,16 @@
 
 Store: `0bszkx-cb.myshopify.com` (Basic plan, USD, US)
 
+## Status: Phase 8 — Deactivated products outside the new spec's scope
+
+Set 11 products to DRAFT (inactive) since they fall outside what the latest nav spec explicitly named for Poker / Blackjack & Accessories: Player's Chip Set 300pc ABS, Ceramic Chip Set 200pc, Octagon Poker Table, Dealer Kit, Foldable Blackjack Table, Poker Plaques Set + Single Plaque, Leather Playing Card Case, Card Shuffler — Advanced Multi-Deck, Tournament Chip Set 750pc + 1000pc. Craps/Roulette/Baccarat/Game Room products were left active — the spec kept those as a "grouped secondary" nav item, not removed them.
+
+**Deliberately kept active**: Card Shuffler — Single Deck, even though it isn't nav-linked either, because it's a live dependency of the cart-drawer upsell module (`all_products['spadra-automatic-card-shuffler-single-deck']`) — deactivating it would silently break that "+ Add to Order" button.
+
+Cleaned up the curated "Featured" homepage collection, which had the now-DRAFT Foldable Blackjack Table as one of its 8 manually-picked items — removed it via `collectionRemoveProducts` so the picks stay accurate (7 active items remain; storefront rendering auto-hides non-active products from collections regardless, so this was a data-hygiene fix rather than a rendering bug).
+
+Live catalog is now 25 active products (36 total, 11 draft).
+
 ## Status: Phase 7 — New nav spec, bundles, cart upsell, multi-currency
 
 **IMPORTANT: theme roles flipped.** The user published "Horizon" (previously unpublished) at some point after Phase 6 — it's now `role: MAIN` (live), and "Copy of Horizon" is now `role: UNPUBLISHED` (the new draft). This means everything from Phase 6 (black/white hero, trust bar, 6-category grid) **is now actually live**. All work in this phase went to the new draft ("Copy of Horizon", id ...671499) since theme writes are blocked on MAIN — the draft needed the Phase 6 homepage/header changes re-applied first since it was a stale pre-edit snapshot, then the new changes on top. **Owner must publish "Copy of Horizon" again** to make this phase's changes live.
