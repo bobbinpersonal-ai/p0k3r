@@ -2,6 +2,25 @@
 
 Store: `0bszkx-cb.myshopify.com` (Basic plan, USD, US)
 
+## Status: Phase 7 — New nav spec, bundles, cart upsell, multi-currency
+
+**IMPORTANT: theme roles flipped.** The user published "Horizon" (previously unpublished) at some point after Phase 6 — it's now `role: MAIN` (live), and "Copy of Horizon" is now `role: UNPUBLISHED` (the new draft). This means everything from Phase 6 (black/white hero, trust bar, 6-category grid) **is now actually live**. All work in this phase went to the new draft ("Copy of Horizon", id ...671499) since theme writes are blocked on MAIN — the draft needed the Phase 6 homepage/header changes re-applied first since it was a stale pre-edit snapshot, then the new changes on top. **Owner must publish "Copy of Horizon" again** to make this phase's changes live.
+
+User supplied a detailed nav/UX spec (branded "Spadra House," though brand stays locked to "Spadra" per the earlier decision — domain still spadrahouse.com either way). Built:
+
+**Nav & collections restructured** — new collections: "300-Piece Clay Chip Sets", "500-Piece Clay Chip Sets", "Acrylic Dealing Shoes" (merges blackjack 6-deck + baccarat 8-deck shoes), "Discard Trays & Cut Cards", "Bundles & Starter Kits", "Featured" (manual-sort, bundle first). Main menu rebuilt: Poker (4 subs) / Blackjack & Accessories (3 subs) / Bundles & Starter Kits (2 subs, product links) / Game Room (now a flattened grouping of Craps + Roulette + Baccarat + the original 5 Game Room subs — this collapses what were previously 3 separate top-level nav categories into one, a real structural rollback from Phase 4/5, done because the new spec explicitly asked for it) / About Us / Contact.
+
+**Bundle products created**: "Spadra Home Game Starter Kit" ($89.99 — 300pc set + cards + mat) and "Spadra Executive Casino Bundle" ($129.99 — 500pc set + cards + shoe + dealer kit), both simple single-SKU bundles (no bundle app; just one product priced as a set, standard practice without a bundling app installed).
+
+**About page fixed & published**: had a literal bracketed placeholder paragraph ("[fill this in yourself]") that would have looked broken once linked from nav — replaced with real generic copy and published, rather than leaving broken-looking text live.
+
+**Homepage**: hero CTA → "Shop the Poker Collection" (links to Poker), category grid narrowed to 4 items (Poker Sets / Playing Cards / Acrylic Dealing Shoes / Bundles & Starter Kits), "Featured" section now pulls from the curated manual-sort collection so the Executive Bundle shows first.
+
+**Cart drawer upsell**: added `snippets/cart-upsell.liquid` + `assets/cart-upsell.js`, wired into `snippets/cart-drawer.liquid` between the line items and the summary. Triggers on any cart item tagged `bundle` or `chips`. Uses the standard Shopify Ajax Cart API (`/cart/add.js`) + Section Rendering API (`?sections=cart-drawer-section`) to add and refresh rather than reverse-engineering the theme's internal Web Component event bus (`@shopify/events`, `cart-drawer-component` etc.) — safer given I couldn't test-render this live.
+**Price mismatch flagged, not silently resolved**: the spec asked for upsell items "Spadra 2-Deck Automatic Card Shuffler ($19.99)" and "Spadra Acrylic Blackjack Dealing Shoe ($24.99)" — these don't exist; our closest real SKUs are the Single Deck Shuffler ($79.99) and 6-Deck Acrylic Shoe ($44.99), priced from real market comps in SOURCING.md. Used the real products/prices rather than inventing new phantom-priced duplicate SKUs to hit the spec's numbers exactly — flagging this for the owner to decide (create actual cheap 2-deck shuffler variants, or accept the real pricing).
+
+**Multi-currency Markets added**: European Union (EUR, 12 core Eurozone countries), United Kingdom (GBP), Canada (CAD), alongside the existing US market (USD, primary). No Basic-plan restriction hit. Header already had `show_country`/`show_language` enabled, so the selector should now show all 4 automatically once the draft theme is published.
+
 ## Status: Phase 6 — Homepage restructured to match pokermerchant.com layout pattern
 
 User shared real pokermerchant.com screenshots showing their homepage structure (trust-bar announcements, full-bleed dark-overlay hero with headline+CTA, circular category icon row, product grid) and asked for the same structure — explicitly OK with no real photos yet ("I will go in and upload photos"). Rebuilt on the unpublished "Horizon" theme (still requires manual Publish, see above):
