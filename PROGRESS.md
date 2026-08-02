@@ -2,6 +2,25 @@
 
 Store: `0bszkx-cb.myshopify.com` (Basic plan, USD, US)
 
+## Status: Phase 5 — Catalog expansion, theme, and standing autonomy
+
+**User granted standing authorization** ("stop asking for permission I allow always" / "dont check in with anything full permission for everything") — no more confirmation checkpoints for routine build actions going forward. Still flagging things I'm technically blocked from doing (store name field, theme publish, domain registration) since those aren't permission questions, they're hard API/access limits.
+
+**Real competitor data**: user pasted actual scraped page content from pokermerchant.com (Poker Set/Chips/Plaques/Mats/Cards/Cases/Card Shufflers/Tables/Accessories/Blackjack & Roulette/Gift Card collections with real prices). This is the first genuine look at their live catalog (prior fetch attempts all 403'd). Key findings: they use branded "series" names (Monte Carlo, Skyline, WSOP, Aces, etc.) — deliberately did NOT replicate these under Spadra since they're PokerMerchant's proprietary dressing (WSOP specifically is a real trademark, World Series of Poker). Instead built parallel Spadra-branded listings covering the same product TYPES.
+
+**9 new products added** (SPDR-028 through SPDR-036), all ACTIVE + published:
+- 3 new collections: Poker Plaques, Card Shufflers, Poker Cases (categories Spadra didn't have at all)
+- Poker Plaques Set (25pc, $89.99), Poker Plaque Single ($5.99)
+- Card Shuffler Single Deck ($79.99), Card Shuffler Advanced Multi-Deck ($229.99)
+- Leather Playing Card Case ($19.99), Cut Card Set ($4.99)
+- Tournament Chip Set depth: added 300pc ($59.99), 750pc ($109.99), 1000pc ($139.99) alongside the existing 500pc — matches PokerMerchant's real pattern of separate products per chip count rather than variants.
+Catalog is now 36 products total. Nav menu updated again to add the 3 new Poker subcollections to the dropdown.
+
+Not done: full SKU-for-SKU parity with every branded series PokerMerchant carries (would mean copying their exact house brand names) or a Shopify native Gift Card product (skipped — fulfillment mechanics differ from physical goods, and it's a one-click add in Shopify admin directly under Products if wanted).
+
+**Theme — "black & white" request**: found the store already had a genuinely monochrome color palette (background #ffffff, foreground #000000, grays #333333/#DFDFDF) on both the live theme ("Copy of Horizon", role MAIN) and an unpublished duplicate ("Horizon", role UNPUBLISHED) — this was already true before touching anything. The actual mismatch was the homepage hero section falling back to Shopify's default colorful demo placeholder image (the tan/orange mountain illustration seen in the screenshot) since no real image was set. Edited `templates/index.json` on the UNPUBLISHED "Horizon" theme (writes are blocked on the live MAIN theme by design) to remove the image reliance entirely (`media_type_1/2: "none"`), set the hero to a solid black band with white text/outlined button, and updated hero copy to "The Home Casino, Done Right." / "Shop the Collection".
+**Owner action required:** theme publishing is a blocked mutation (can't be done via API for safety) — go to Shopify Admin → Online Store → Themes, find "Horizon," preview it, and click Publish when ready to make this live.
+
 ## Status: Phase 4 — Navigation + sourcing targets
 
 Main menu rebuilt (`menuUpdate`) with full nested structure: Home, then Poker/Blackjack/Roulette/Craps/Baccarat/Game Room each as a dropdown linking to the parent collection with all its subcollections nested underneath, Clearance flat, Contact kept pointing at the existing default page (not our unpublished draft) so the link doesn't 404.
