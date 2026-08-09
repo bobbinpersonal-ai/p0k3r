@@ -2,6 +2,24 @@
 
 Store: `0bszkx-cb.myshopify.com` (Basic plan, USD, US)
 
+## Status: Phase 11 — Bugfix pass + catalog expansion to 4 pillars, synced to new draft theme
+
+**Theme flipped to MAIN again mid-session** (owner published `152649007243` "Horizon" while I was still building on it) — same recurring pattern as prior phases. All Phase 10 work is now live at `0bszkx-cb.myshopify.com`, but a follow-up build/bugfix round had to be re-applied to the new unpublished theme, `152662671499` ("Copy of Horizon"), since `themeFilesUpsert` is hard-blocked on the live/MAIN theme. There is no cross-theme file-copy mutation, so every SPADRA file (~20) was re-uploaded to `152662671499` file-by-file. **Owner must publish `152662671499` for this phase to go live.**
+
+**Catalog expanded to 4 real pillars (11 products total)**, replacing the earlier ad-hoc muscle/gut/energy tag scheme with `filter-men` / `filter-women` / `filter-performance` / `filter-glp1`:
+- Added 5 new products: Nitric Oxide (Men), Men's Hormone Pack, Women's Hormone Pack, Women's Wellness, Performance Pack.
+- Retagged + retrimmed component lists on the original 6 GLP-1/Brain/Sleep products to match the new pillar spec (e.g., GLP-1 Muscle Support dropped DHEA; Brain Pack dropped Resveratrol).
+- Added 4 new smart collections (Men's Vitality, Women's Vitality, Brain & Performance, GLP-1 Supportive Care), tag-ruled, published, wired into a rebuilt `main-menu` "Protocols" dropdown.
+- Created a real, live **SPADRA15** discount code (15% off, once per customer) so the quiz's offer is genuine.
+- Hero copy tightened to drop trademarked drug names entirely (Ozempic®/Wegovy®/Zepbound® no longer appear outside the footer's legal disclaimer) per the owner's own stricter compliance framing; quiz reframed as "Daily Protocol Selection Assessment" with a branching Men's/Women's flow.
+
+**3 critical bugs fixed** (reported after the owner reviewed the live-but-broken Phase 10 build):
+1. **Product grid showed "No protocols match this filter yet."** Root cause: relying solely on a hand-set `product_list` section setting is fragile. Fixed `sections/product-grid-packs.liquid` with a 3-tier fallback (explicit collection → manual product list → `collections.all.products | where: 'tags', 'pack'`), so the grid always renders real published products regardless of section-setting binding. Also added a subtitle line (pillar name), a "Subscribe & Save 20%" checkbox affordance, and renamed the CTA to "Add Protocol to Cart".
+2. **Header CTA/branding**: `sections/found-header.liquid` (Protocols dropdown + quiz CTA) was never actually wired into the site's real render path — Horizon's live header is the section-group at `sections/header-group.json`, and `found-header.liquid` was only ever an available-but-unused section. Fixed by rendering `native-quiz-modal` and a fixed-position "Take 30-Sec Assessment" CTA button **globally via `layout/theme.liquid`** (so the modal + trigger work on every page, not just the homepage), and removed the now-redundant per-section click listener/duplicate modal render that was previously only in `templates/index.json`. Store name ("My Store") is still not API-writable (no `shopUpdate` mutation exists) — worked around by hardcoding the header logo's text fallback to "SPADRA" directly in `blocks/_header-logo.liquid` (the only place `shop.name` was rendered), rather than leaving the un-fixable field as a silent gap.
+3. **UGC video placeholders looked like blank boxes**: added 4 rotating brand-gradient backgrounds (forest/mint/cyan) with a bottom vignette and a proper white circular play button (drop shadow + ring) to both `sections/ugc-video-proof.liquid` and `templates/page.reviews.liquid`'s static grid, so empty video slots read as styled poster thumbnails instead of flat color blocks.
+
+**Not done / flagged rather than faked**: "Subscribe & Save 20%" has no real subscription mechanics — confirmed via a blocked discount-mutation field (`applies_on_subscription` rejected, no subscriptions app installed) — it's a static badge/checkbox only. Real product photography is still absent (gradient/placeholder treatment is the honest stand-in, not a real image).
+
 ## Status: Phase 10 — Full pivot: casino equipment → SPADRA (GLP-1 companion / daily-wellness supplement brand)
 
 **Everything below Phase 9 is historical** — the store was originally "Spadra"/"Spadra House," a home-casino equipment retailer. The user requested a full pivot, first to a luxury streetwear concept (immediately superseded, no lasting build work), then to the current business: **SPADRA**, a clinical daily-supplement brand modeled on Found (joinfound.com), selling pre-sorted daily supplement pouches manufactured/packed by **OKCapsule** (confirmed by the owner as a real supplier relationship).
