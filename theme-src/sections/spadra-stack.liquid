@@ -1,0 +1,250 @@
+{%- comment -%}
+  Sits between the buy button and the long-form product content.
+
+  Two jobs:
+    1. Tell a shopper when a pack is formulated for one audience, and link to the
+       equivalent for the other, so nobody buys the wrong one by accident.
+    2. "Complete Your Stack" — checkbox add-on picker that adds this product plus
+       any ticked companions in a single cart request.
+
+  Data comes from spadra.audience, spadra.counterpart and spadra.related.
+{%- endcomment -%}
+
+{%- liquid
+  assign audience = product.metafields.spadra.audience.value
+  assign counterpart_handle = product.metafields.spadra.counterpart.value
+  assign related = product.metafields.spadra.related.value
+  assign counterpart = nil
+  if counterpart_handle != blank
+    assign counterpart = all_products[counterpart_handle]
+  endif
+
+  assign pair_handles = ''
+  if counterpart_handle != blank
+    assign pair_handles = counterpart_handle
+  endif
+  if related
+    for h in related
+      if h != product.handle and h != counterpart_handle
+        assign pair_handles = pair_handles | append: ',' | append: h
+      endif
+    endfor
+  endif
+  assign pair_list = pair_handles | split: ','
+-%}
+
+{%- capture stack_rows -%}
+  {%- assign shown = 0 -%}
+  {%- for h in pair_list -%}
+    {%- if h == blank or shown >= 2 -%}{%- continue -%}{%- endif -%}
+    {%- assign sp = all_products[h] -%}
+    {%- if sp == empty or sp.handle == product.handle -%}{%- continue -%}{%- endif -%}
+    {%- unless sp.available -%}{%- continue -%}{%- endunless -%}
+    {%- assign shown = shown | plus: 1 -%}
+    <li class="spadra-stack__row">
+      <label class="spadra-stack__label">
+        <input type="checkbox" class="spadra-stack__check" data-stack-vid="{{ sp.selected_or_first_available_variant.id }}">
+        <span class="spadra-stack__media">
+          {%- if sp.featured_image -%}
+            {{ sp.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: sp.title, class: 'spadra-stack__img' }}
+          {%- endif -%}
+        </span>
+        <span class="spadra-stack__text">
+          <span class="spadra-stack__title">{{ sp.title }}</span>
+          {%- if h == counterpart_handle -%}
+            <span class="spadra-stack__why">The matching protocol for a partner.</span>
+          {%- elsif sp.metafields.spadra.subtitle.value != blank -%}
+            <span class="spadra-stack__why">{{ sp.metafields.spadra.subtitle.value }}</span>
+          {%- endif -%}
+        </span>
+        <span class="spadra-stack__price">+{{ sp.price | money }}</span>
+      </label>
+    </li>
+  {%- endfor -%}
+{%- endcapture -%}
+
+{%- assign has_rows = false -%}
+{%- if stack_rows contains 'spadra-stack__row' -%}{%- assign has_rows = true -%}{%- endif -%}
+
+{%- if audience != blank or has_rows -%}
+  <section class="spadra-stack-section">
+    <div class="spadra-stack-section__inner">
+
+      {%- if audience != blank and counterpart != blank and counterpart != empty -%}
+        <p class="spadra-audience-note">
+          {%- if audience == 'men' -%}
+            This protocol is formulated for men.
+            <a href="{{ counterpart.url }}">Looking for the version for women?</a>
+          {%- else -%}
+            This protocol is formulated for women.
+            <a href="{{ counterpart.url }}">Looking for the version for men?</a>
+          {%- endif -%}
+        </p>
+      {%- endif -%}
+
+      {%- if has_rows and product.available -%}
+        <div class="spadra-stack" data-spadra-stack>
+          <p class="spadra-stack__eyebrow">Complete Your Stack</p>
+          <h2 class="spadra-stack__heading">Frequently taken alongside {{ product.title }}</h2>
+          <ul class="spadra-stack__list">{{ stack_rows }}</ul>
+          <button
+            type="button"
+            class="spadra-stack__cta"
+            data-stack-add
+            data-self-vid="{{ product.selected_or_first_available_variant.id }}"
+          >Add {{ product.title }} to cart</button>
+          <p class="spadra-stack__error" data-stack-error hidden>
+            We could not add that to your cart. Please try again.
+          </p>
+        </div>
+      {%- endif -%}
+
+    </div>
+  </section>
+{%- endif -%}
+
+<script>
+  (function () {
+    var stack = document.querySelector('[data-spadra-stack]');
+    if (!stack) return;
+
+    var addBtn = stack.querySelector('[data-stack-add]');
+    var errEl = stack.querySelector('[data-stack-error]');
+    var checks = Array.prototype.slice.call(stack.querySelectorAll('[data-stack-vid]'));
+    if (!addBtn) return;
+    var baseTitle = addBtn.textContent.trim();
+
+    // Keep the label honest about how many items the click will actually add.
+    var sync = function () {
+      var n = checks.filter(function (c) { return c.checked; }).length;
+      addBtn.textContent = n === 0 ? baseTitle : 'Add ' + (n + 1) + ' protocols to cart';
+    };
+    checks.forEach(function (c) { c.addEventListener('change', sync); });
+
+    addBtn.addEventListener('click', function () {
+      var ids = [addBtn.getAttribute('data-self-vid')];
+      checks.forEach(function (c) {
+        if (c.checked) ids.push(c.getAttribute('data-stack-vid'));
+      });
+      ids = ids.filter(Boolean);
+      if (!ids.length) return;
+
+      if (errEl) errEl.hidden = true;
+      var label = addBtn.textContent;
+      addBtn.disabled = true;
+      addBtn.textContent = 'Adding…';
+
+      fetch('/cart/add.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          items: ids.map(function (id) { return { id: Number(id), quantity: 1 }; })
+        })
+      })
+        .then(function (r) {
+          if (!r.ok) throw new Error('cart');
+          return r.json();
+        })
+        .then(function () { window.location.href = '/cart'; })
+        .catch(function () {
+          addBtn.disabled = false;
+          addBtn.textContent = label;
+          if (errEl) errEl.hidden = false;
+        });
+    });
+  })();
+</script>
+
+{% stylesheet %}
+  .spadra-stack-section { background: #FFFFFF; padding: 0 20px; }
+  .spadra-stack-section__inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-top: 8px;
+  }
+  .spadra-audience-note {
+    margin: 0;
+    padding: 12px 16px;
+    background: #F1F5F9;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #33383F;
+  }
+  .spadra-audience-note a { color: #00A344; font-weight: 600; }
+  .spadra-stack {
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    padding: 22px;
+    background: #FCFCFB;
+  }
+  .spadra-stack__eyebrow {
+    margin: 0 0 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #00A344;
+  }
+  .spadra-stack__heading {
+    margin: 0 0 16px;
+    font-size: 1.25rem;
+    line-height: 1.3;
+    color: #000000;
+    text-wrap: pretty;
+  }
+  .spadra-stack__list { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .spadra-stack__label {
+    display: grid;
+    grid-template-columns: auto 56px 1fr auto;
+    align-items: center;
+    gap: 12px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    cursor: pointer;
+  }
+  .spadra-stack__label:hover { border-color: #00C853; }
+  .spadra-stack__check { width: 18px; height: 18px; accent-color: #00C853; }
+  .spadra-stack__media { width: 56px; height: 56px; border-radius: 8px; overflow: hidden; background: #F8F7F4; }
+  .spadra-stack__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .spadra-stack__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .spadra-stack__title { font-size: 0.92rem; font-weight: 600; color: #000000; }
+  .spadra-stack__why { font-size: 0.78rem; color: #5B6470; line-height: 1.4; }
+  .spadra-stack__price { font-size: 0.88rem; font-weight: 600; color: #33383F; white-space: nowrap; }
+  .spadra-stack__cta {
+    width: 100%;
+    background: #000000;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 100px;
+    padding: 14px 20px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .spadra-stack__cta:hover { background: #00C853; color: #000000; }
+  .spadra-stack__cta[disabled] { opacity: 0.6; cursor: default; }
+  .spadra-stack__error { margin: 10px 0 0; font-size: 0.82rem; color: #B42318; }
+
+  @media screen and (max-width: 749px) {
+    .spadra-stack-section { padding: 0 16px; }
+    .spadra-stack { padding: 16px; }
+    .spadra-stack__heading { font-size: 1.1rem; }
+    .spadra-stack__label { grid-template-columns: auto 44px 1fr; row-gap: 4px; }
+    .spadra-stack__media { width: 44px; height: 44px; }
+    .spadra-stack__price { grid-column: 2 / -1; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SPADRA stack",
+  "tag": "section",
+  "settings": []
+}
+{% endschema %}

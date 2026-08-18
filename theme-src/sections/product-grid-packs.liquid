@@ -1,0 +1,129 @@
+{%- comment -%}
+  SPADRA protocol grid.
+
+  The category pills are real links to their collections (not JS filters), so
+  every pill lands on a page that definitely has products. Each one carries its
+  live product count, so a shopper can see there is something behind it before
+  clicking.
+{%- endcomment -%}
+
+{%- liquid
+  assign cat_handles = 'bedroom-performance,glp1-care,focus-brain,longevity-beauty,detox-recovery,mens-womens-health,immune-structural' | split: ','
+-%}
+
+<div class="spadra-protocols" id="spadra-protocols" style="background: {{ section.settings.background_color }};">
+  <div class="spadra-protocols__intro">
+    <h2 class="spadra-protocols__title">{{ section.settings.title }}</h2>
+    {%- if section.settings.subtext != blank -%}
+      <p class="spadra-protocols__subtext">{{ section.settings.subtext }}</p>
+    {%- endif -%}
+  </div>
+
+  <nav class="spadra-protocols__filters" aria-label="Protocol categories">
+    <a class="spadra-filter-btn" href="{{ routes.all_products_collection_url }}">
+      All protocols
+    </a>
+    {%- for handle in cat_handles -%}
+      {%- assign cat = collections[handle] -%}
+      {%- if cat != empty and cat.all_products_count > 0 -%}
+        <a class="spadra-filter-btn" href="{{ cat.url }}">
+          {{ cat.title }}
+          <span class="spadra-filter-btn__count">{{ cat.all_products_count }}</span>
+        </a>
+      {%- endif -%}
+    {%- endfor -%}
+  </nav>
+
+  {%- comment -%}
+    collections.all.products is capped at 50 items by Liquid, which silently drops
+    packs once the catalog grows past that. Each category collection sits well under
+    the cap, so they are pulled separately and joined to render the full catalog.
+  {%- endcomment -%}
+  {%- liquid
+    assign pack_collection = collections[section.settings.collection]
+    assign pack_products = blank
+
+    if pack_collection != blank and pack_collection.products.size > 0
+      assign pack_products = pack_collection.products
+    elsif section.settings.manual_products != blank and section.settings.manual_products.size > 0
+      assign pack_products = section.settings.manual_products
+    else
+      assign pack_products = collections['bedroom-performance'].products
+      assign pack_products = pack_products | concat: collections['glp1-care'].products
+      assign pack_products = pack_products | concat: collections['focus-brain'].products
+      assign pack_products = pack_products | concat: collections['longevity-beauty'].products
+      assign pack_products = pack_products | concat: collections['detox-recovery'].products
+      assign pack_products = pack_products | concat: collections['mens-womens-health'].products
+      assign pack_products = pack_products | concat: collections['immune-structural'].products
+    endif
+  -%}
+  {%- render 'spadra-product-catalog', products: pack_products -%}
+</div>
+
+{% stylesheet %}
+  .spadra-protocols { padding: 64px 24px; }
+  .spadra-protocols__intro { max-width: 680px; margin: 0 auto 28px; text-align: center; }
+  .spadra-protocols__title {
+    font-family: var(--font-heading--family);
+    color: #000000;
+    margin: 0 0 12px;
+    text-wrap: pretty;
+  }
+  .spadra-protocols__subtext {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.65;
+    color: #33383F;
+    text-wrap: pretty;
+  }
+  .spadra-protocols__filters { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 32px; }
+  .spadra-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: transparent;
+    border: 1px solid #E2E8F0;
+    color: #1A1A1A;
+    border-radius: 100px;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .spadra-filter-btn:hover { border-color: #00C853; color: #00A544; }
+  .spadra-filter-btn__count {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #6B7280;
+    background: #F1F5F9;
+    border-radius: 100px;
+    padding: 1px 8px;
+  }
+  .spadra-filter-btn:hover .spadra-filter-btn__count { background: #E4F7EA; color: #00A544; }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Protocol Grid",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Title", "default": "Find Your Protocol. Target Your Root Cause." },
+    {
+      "type": "textarea",
+      "id": "subtext",
+      "label": "Intro text",
+      "default": "We don't treat symptoms; we address the cellular breakdown causing them. Select your primary health goal below to see the science-backed protocols designed to rebuild your foundation."
+    },
+    { "type": "collection", "id": "collection", "label": "Collection (optional, overrides manual list)" },
+    {
+      "type": "product_list",
+      "id": "manual_products",
+      "label": "Products",
+      "limit": 24
+    },
+    { "type": "color", "id": "background_color", "label": "Background color", "default": "#F8F7F4" }
+  ],
+  "presets": [
+    { "name": "Protocol Grid" }
+  ]
+}
+{% endschema %}
