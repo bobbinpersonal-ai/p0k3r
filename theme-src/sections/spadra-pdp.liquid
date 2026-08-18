@@ -1,0 +1,650 @@
+{%- comment -%}
+  SPADRA V2 product detail page.
+  Renders sections B-F of the product spec beneath the stock hero:
+    B. The Problem      C. The Solution      D. What's Inside
+    E. 30-60-90 Day Protocol Plan            F. You May Also Like
+  Content sources:
+    - Problem / Benefit / Solution parsed out of product.description
+    - spadra.components   -> What's Inside
+    - spadra.protocol_90  -> per-phase, product-specific example
+    - spadra.related      -> category cross-sells (overridden by quiz matches client-side)
+{%- endcomment -%}
+
+{%- liquid
+  assign filt = product.metafields.spadra.filter.value | default: 'all'
+  assign comps = product.metafields.spadra.components.value
+  assign proto = product.metafields.spadra.protocol_90.value
+  assign related = product.metafields.spadra.related.value
+
+  assign desc = product.description
+  assign problem = ''
+  assign benefit = ''
+  assign solution = ''
+
+  assign chunks = desc | split: 'The Problem</strong>'
+  if chunks.size > 1
+    assign problem = chunks[1] | split: '</p>' | first
+  endif
+  assign chunks = desc | split: 'The Benefit</strong>'
+  if chunks.size > 1
+    assign benefit = chunks[1] | split: '</p>' | first
+  endif
+  assign chunks = desc | split: 'The Solution</strong>'
+  if chunks.size > 1
+    assign solution = chunks[1] | split: '</p>' | first
+  endif
+
+  assign problem = problem | replace: '<br />', '' | replace: '<br/>', '' | replace: '<br>', '' | strip
+  assign benefit = benefit | replace: '<br />', '' | replace: '<br/>', '' | replace: '<br>', '' | strip
+  assign solution = solution | replace: '<br />', '' | replace: '<br/>', '' | replace: '<br>', '' | strip
+
+  if solution == blank
+    assign solution = product.metafields.spadra.science.value
+  endif
+-%}
+
+{%- liquid
+  case filt
+  when 'glp1-care'
+    assign o1 = 'Establish tolerance and a consistent daily rhythm.'
+    assign e1 = 'Most people notice digestive comfort settling first. The goal in month one is not transformation, it is adherence: taking the pouch at the same time daily so absorption becomes predictable alongside your GLP-1 schedule.'
+    assign o2 = 'Let nutrient status and metabolic signaling normalize.'
+    assign e2 = 'By month two the slower-acting micronutrients reach steadier tissue levels. Energy through the afternoon typically becomes less volatile as glucose handling and nutrient repletion catch up with reduced food intake.'
+    assign o3 = 'Reassess body composition and decide the next phase.'
+    assign e3 = 'A full quarter is the point where lean-mass preservation and nutrient adequacy can be judged honestly. Review how appetite, energy, and strength have tracked, then keep, adjust, or stack accordingly.'
+  when 'focus-brain'
+    assign o1 = 'Stabilize the daily baseline before expecting sharpness.'
+    assign e1 = 'Calming and precursor ingredients act quickly, so the first change is usually a smoother stress response rather than dramatic cognitive lift. Consistency at the same time each day matters more than dose size.'
+    assign o2 = 'Build the neural infrastructure that sustains focus.'
+    assign e2 = 'Neurotrophic and mitochondrial ingredients need weeks of continuous presence. Month two is when working memory and afternoon stamina typically feel less effortful to maintain.'
+    assign o3 = 'Consolidate the gains into a durable cognitive baseline.'
+    assign e3 = 'By the end of the quarter the difference is usually judged by what stopped happening — fewer crashes, less mental static — rather than by a single dramatic moment.'
+  when 'bedroom-performance'
+    assign o1 = 'Prime the nitric oxide pathway and establish consistency.'
+    assign e1 = 'Nitric oxide substrate acts quickly and is often noticed within the first weeks, but the effect is dose-dependent on consistent daily saturation rather than occasional use.'
+    assign o2 = 'Let vascular tone and hormonal signaling compound.'
+    assign e2 = 'Month two is where endothelial responsiveness and the slower hormonal precursors begin working together, which is when responsiveness typically feels more reliable than situational.'
+    assign o3 = 'Evaluate sustained vascular and hormonal baseline.'
+    assign e3 = 'A quarter of consistent daily intake is the honest window for judging circulation, stamina, and drive as a baseline rather than a one-off.'
+  when 'longevity-beauty'
+    assign o1 = 'Saturate the antioxidant and hydration substrate.'
+    assign e1 = 'Visible change is rare this early — skin and hair are downstream of cellular processes with long turnover cycles. The first month is about establishing consistent nutrient presence.'
+    assign o2 = 'Support the cell turnover cycle already underway.'
+    assign e2 = 'Skin renews on roughly a 28-40 day cycle and hair follicles cycle far more slowly. Month two is typically when hydration and clarity changes start becoming noticeable in the mirror.'
+    assign o3 = 'Judge structural change on its real timeline.'
+    assign e3 = 'Hair density and dermal matrix changes need a full growth-cycle window. Ninety days is the first fair checkpoint, and photographs taken at day one are far more reliable than memory.'
+  when 'detox-recovery'
+    assign o1 = 'Open and support the clearance pathways.'
+    assign e1 = 'Binders and hepatic support act relatively quickly. Some people notice digestion and morning clarity shifting first as elimination becomes more regular.'
+    assign o2 = 'Rebuild the antioxidant reserves clearance consumes.'
+    assign e2 = 'Glutathione and antioxidant status take weeks to rebuild. Month two is where the burden of ongoing exposure typically starts feeling less cumulative.'
+    assign o3 = 'Assess baseline resilience, not a one-time cleanse.'
+    assign e3 = 'Detoxification is continuous, not an event. The quarter mark is where you judge whether your everyday baseline — energy, digestion, clarity — has moved.'
+  when 'mens-womens-health'
+    assign o1 = 'Begin hormonal support without expecting fast change.'
+    assign e1 = 'Hormone precursors and metabolism modulators work on endocrine timelines, not daily ones. Month one is foundation: consistent intake and, where relevant, tracking your cycle or symptoms.'
+    assign o2 = 'Allow one to two full endocrine cycles to complete.'
+    assign e2 = 'Meaningful hormonal shifts require at least one complete cycle, often two. Month two is the earliest honest checkpoint for changes in mood, cycle regularity, or drive.'
+    assign o3 = 'Review across a full quarter with your provider.'
+    assign e3 = 'Three months spans multiple cycles and is the standard window clinicians use to assess hormonal support. Bring your notes to your provider before extending or adjusting.'
+  when 'immune-structural'
+    assign o1 = 'Close the nutrient gaps defense and structure depend on.'
+    assign e1 = 'Immune and structural tissue rely on cofactors that must first be repleted. Month one is largely invisible work — filling stores before function can improve.'
+    assign o2 = 'Let repleted cofactors translate into function.'
+    assign e2 = 'Once mineral and vitamin status normalizes, the downstream processes — barrier integrity, immune signaling, tissue maintenance — have what they need to operate.'
+    assign o3 = 'Measure resilience over a season, not a week.'
+    assign e3 = 'Structural tissue remodels slowly and immune resilience is judged across exposure over time. A quarter is the minimum meaningful window.'
+  else
+    assign o1 = 'Establish a consistent daily rhythm.'
+    assign e1 = 'Month one is about adherence. Taking the pouch at the same time each day is what makes everything that follows measurable.'
+    assign o2 = 'Let the slower-acting ingredients reach steady levels.'
+    assign e2 = 'Nutrient status normalizes gradually. Month two is typically where day-to-day consistency starts to feel less effortful.'
+    assign o3 = 'Reassess against a full quarter of data.'
+    assign e3 = 'Ninety days is the first honest checkpoint. Review how you have actually tracked, then keep, adjust, or stack accordingly.'
+  endcase
+-%}
+
+<section class="spadra-pdp" data-spadra-pdp data-handle="{{ product.handle }}">
+  <div class="spadra-pdp__inner">
+
+    {%- if problem != blank -%}
+      <div class="spadra-pdp__block spadra-pdp__block--problem">
+        <p class="spadra-pdp__eyebrow">The Problem</p>
+        <h2 class="spadra-pdp__h2">What this protocol is built to address</h2>
+        <p class="spadra-pdp__lede">{{ problem }}</p>
+      </div>
+    {%- endif -%}
+
+    {%- if solution != blank -%}
+      <div class="spadra-pdp__block spadra-pdp__block--solution">
+        <p class="spadra-pdp__eyebrow">The Solution</p>
+        <h2 class="spadra-pdp__h2">How {{ product.title }} works</h2>
+        {%- if benefit != blank -%}
+          <p class="spadra-pdp__callout">{{ benefit }}</p>
+        {%- endif -%}
+        <p class="spadra-pdp__body">{{ solution }}</p>
+      </div>
+    {%- endif -%}
+
+    {%- if comps and comps.size > 0 -%}
+      <div class="spadra-pdp__block spadra-pdp__block--inside">
+        <p class="spadra-pdp__eyebrow">What's Inside</p>
+        <h2 class="spadra-pdp__h2">{{ comps.size }} active{% if comps.size != 1 %}s{% endif %}, pre-sorted into one daily pouch</h2>
+        <ul class="spadra-ing-list">
+          {%- for c in comps -%}
+            {%- liquid
+              case c
+                when 'Theanine'
+                  assign ing_benefit = 'Supports alpha-wave calm without sedation.'
+                when 'Tyrosine'
+                  assign ing_benefit = 'Supports dopamine and norepinephrine precursor supply.'
+                when 'Rhodiola'
+                  assign ing_benefit = 'Supports adaptogenic buffering of the stress response.'
+                when 'Ashwagandha'
+                  assign ing_benefit = 'Supports cortisol regulation under sustained load.'
+                when 'Ginger Root'
+                  assign ing_benefit = 'Supports settling of gastric irritation and nausea signaling.'
+                when 'Melatonin SR'
+                  assign ing_benefit = 'Supports circadian re-synchronization.'
+                when 'Herbal Sleep Blend'
+                  assign ing_benefit = 'GABAergic wind-down support.'
+                when 'Magnesium'
+                  assign ing_benefit = 'Supports muscular relaxation and NMDA-receptor calming.'
+                when 'Creatine'
+                  assign ing_benefit = 'Supports phosphocreatine reloading for rapid ATP turnover.'
+                when 'BCAA'
+                  assign ing_benefit = 'Supports amino substrate for muscle protein synthesis.'
+                when 'Citrulline'
+                  assign ing_benefit = 'Supports nitric oxide substrate delivery.'
+                when 'Arginine'
+                  assign ing_benefit = 'Supports endothelial nitric oxide production.'
+                when 'Big Libido'
+                  assign ing_benefit = 'Botanical libido support.'
+                when 'Taurine'
+                  assign ing_benefit = 'Supports neurotransmitter and hydration rebalancing.'
+                when 'Green Coffee Extract'
+                  assign ing_benefit = 'Chlorogenic acid support for fatty-acid oxidation.'
+                when 'Soothing Fiber'
+                  assign ing_benefit = 'Supports gentle binding and transit regulation.'
+                when 'Triphala'
+                  assign ing_benefit = 'Overnight evacuation support.'
+                when 'Glutamine'
+                  assign ing_benefit = 'Supports tight-junction repair along the gut wall.'
+                when 'Forslean'
+                  assign ing_benefit = 'Cyclic-AMP signaling support.'
+                when 'Methyl B-Complex'
+                  assign ing_benefit = 'Supports bioactive B-vitamin cofactor repletion.'
+                when 'Vitamin C'
+                  assign ing_benefit = 'Supports antioxidant recycling and collagen cofactor supply.'
+                when 'NAC'
+                  assign ing_benefit = 'Supports glutathione precursor loading.'
+                when 'Quercetin'
+                  assign ing_benefit = 'Supports mast-cell stabilization and inflammatory damping.'
+                when '10B Probiotic'
+                  assign ing_benefit = 'Supports microbial diversity rebuilding.'
+                when 'Milk Thistle'
+                  assign ing_benefit = 'Supports hepatocyte membrane stabilization.'
+                when 'Alpha Lipoic Acid'
+                  assign ing_benefit = 'Supports intracellular antioxidant regeneration.'
+                when 'Turmeric'
+                  assign ing_benefit = 'Supports inflammatory signaling downregulation.'
+                when 'Green Tea Extract'
+                  assign ing_benefit = 'Supports catechin-driven antioxidant defense.'
+                when 'Cordyceps'
+                  assign ing_benefit = 'Supports oxygen-utilization efficiency.'
+                when 'Berberine 500'
+                  assign ing_benefit = 'Supports AMPK activation for glucose disposal.'
+                when 'Chromium'
+                  assign ing_benefit = 'Insulin-receptor sensitivity support.'
+                when 'Carnitine'
+                  assign ing_benefit = 'Supports fatty-acid transport into mitochondria.'
+                when 'CoQ10'
+                  assign ing_benefit = 'Supports electron-transport chain efficiency.'
+                when 'Multivitamin'
+                  assign ing_benefit = 'Supports broad micronutrient gap closure.'
+                when 'Mushroom Immune'
+                  assign ing_benefit = 'Supports beta-glucan immune priming.'
+                when 'Omega 3'
+                  assign ing_benefit = 'Supports cell-membrane fluidity and resolution of inflammation.'
+                when "Lion's Mane"
+                  assign ing_benefit = 'Supports nerve growth factor expression.'
+                when 'NR'
+                  assign ing_benefit = 'Supports NAD+ pool replenishment.'
+                when 'Resveratrol'
+                  assign ing_benefit = 'Supports sirtuin pathway activation.'
+                when 'Zinc'
+                  assign ing_benefit = 'Supports enzymatic and hormonal cofactor saturation.'
+                when 'Iron'
+                  assign ing_benefit = 'Supports oxygen-carrying capacity restoration.'
+                when 'D Complex'
+                  assign ing_benefit = 'Supports fat-soluble vitamin status normalization.'
+                when 'Trace Minerals'
+                  assign ing_benefit = 'Supports enzymatic mineral cofactor repletion.'
+                when 'Calcium Citrate'
+                  assign ing_benefit = 'Supports bone mineral matrix supply.'
+                when 'Boron'
+                  assign ing_benefit = 'Supports SHBG regulation and vitamin D utilization.'
+                when 'DHEA'
+                  assign ing_benefit = 'Upstream hormone precursor support.'
+                when 'DIM'
+                  assign ing_benefit = 'Supports estrogen metabolism toward the 2-hydroxy pathway.'
+                when 'Fenugreek'
+                  assign ing_benefit = 'Hormonal and libido botanical support.'
+                when 'Tribulus'
+                  assign ing_benefit = 'Androgenic signaling support.'
+                when 'Saw Palmetto'
+                  assign ing_benefit = 'Supports DHT signaling moderation.'
+                when 'Biotin'
+                  assign ing_benefit = 'Supports keratin infrastructure supply.'
+                when 'Hyaluronic Acid'
+                  assign ing_benefit = 'Supports extracellular matrix hydration.'
+                when 'Glucosamine'
+                  assign ing_benefit = 'Supports proteoglycan matrix renewal.'
+              else
+                  assign ing_benefit = ''
+              endcase
+            -%}
+            <li class="spadra-ing">
+              <span class="spadra-ing__name">+ {{ c }}</span>
+              {%- if ing_benefit != blank -%}
+                <span class="spadra-ing__benefit">{{ ing_benefit }}</span>
+              {%- endif -%}
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+
+    <div class="spadra-pdp__block spadra-pdp__block--protocol">
+      <p class="spadra-pdp__eyebrow">Your Protocol Plan</p>
+      <h2 class="spadra-pdp__h2">What to expect at 30, 60, and 90 days</h2>
+      <p class="spadra-pdp__body spadra-pdp__body--intro">Supplements work on biological timelines, not marketing ones. Here is an honest map of what changes when &mdash; and what to judge at each checkpoint.</p>
+
+      <ol class="spadra-phases">
+        <li class="spadra-phase">
+          <div class="spadra-phase__marker" aria-hidden="true"><span>1</span></div>
+          <div class="spadra-phase__content">
+            <p class="spadra-phase__range">Days 1&ndash;30</p>
+            <h3 class="spadra-phase__title">Initiation Phase</h3>
+            <dl class="spadra-phase__dl">
+              <dt>Objective</dt>
+              <dd>{{ o1 }}</dd>
+              <dt>Expected Experience</dt>
+              <dd>{{ e1 }}</dd>
+              {%- if proto.d30 != blank -%}
+                <dt>Example</dt>
+                <dd>{% render 'spadra-us', text: proto.d30 %}</dd>
+              {%- endif -%}
+            </dl>
+          </div>
+        </li>
+        <li class="spadra-phase">
+          <div class="spadra-phase__marker" aria-hidden="true"><span>2</span></div>
+          <div class="spadra-phase__content">
+            <p class="spadra-phase__range">Days 31&ndash;60</p>
+            <h3 class="spadra-phase__title">Consolidation Phase</h3>
+            <dl class="spadra-phase__dl">
+              <dt>Objective</dt>
+              <dd>{{ o2 }}</dd>
+              <dt>Expected Experience</dt>
+              <dd>{{ e2 }}</dd>
+              {%- if proto.d60 != blank -%}
+                <dt>Example</dt>
+                <dd>{% render 'spadra-us', text: proto.d60 %}</dd>
+              {%- endif -%}
+            </dl>
+          </div>
+        </li>
+        <li class="spadra-phase">
+          <div class="spadra-phase__marker" aria-hidden="true"><span>3</span></div>
+          <div class="spadra-phase__content">
+            <p class="spadra-phase__range">Days 61&ndash;90</p>
+            <h3 class="spadra-phase__title">Refinement Phase</h3>
+            <dl class="spadra-phase__dl">
+              <dt>Objective</dt>
+              <dd>{{ o3 }}</dd>
+              <dt>Expected Experience</dt>
+              <dd>{{ e3 }}</dd>
+              {%- if proto.d90 != blank -%}
+                <dt>Example</dt>
+                <dd>{% render 'spadra-us', text: proto.d90 %}</dd>
+              {%- endif -%}
+            </dl>
+          </div>
+        </li>
+      </ol>
+    </div>
+
+    {%- if related and related.size > 0 -%}
+      <div class="spadra-pdp__block spadra-pdp__block--related">
+        <p class="spadra-pdp__eyebrow" data-spadra-rel-eyebrow>You May Also Like</p>
+        <h2 class="spadra-pdp__h2" data-spadra-rel-heading>Protocols that pair well with this one</h2>
+        <div class="spadra-rel-grid" data-spadra-rel-grid>
+          {%- for h in related -%}
+            {%- assign rp = all_products[h] -%}
+            {%- if rp != empty and rp.handle != product.handle -%}
+              <a class="spadra-rel-card" href="{{ rp.url }}">
+                <span class="spadra-rel-card__media">
+                  {%- if rp.featured_image -%}
+                    {{ rp.featured_image | image_url: width: 400 | image_tag: loading: 'lazy', alt: rp.title, class: 'spadra-rel-card__img' }}
+                  {%- else -%}
+                    <span class="spadra-rel-card__placeholder"></span>
+                  {%- endif -%}
+                </span>
+                <span class="spadra-rel-card__label">{{ rp.metafields.spadra.category_label.value }}</span>
+                <span class="spadra-rel-card__title">{{ rp.title }}</span>
+                <span class="spadra-rel-card__price">{{ rp.price | money }}</span>
+              </a>
+            {%- endif -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+
+    <div class="spadra-pdp__block spadra-pdp__block--legal">
+      <h2 class="spadra-legal__h">Important information</h2>
+      <p class="spadra-legal__p">These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.</p>
+      <p class="spadra-legal__p">SPADRA supplement packs are not a substitute for prescription medication and should be used with your healthcare provider.</p>
+      {%- if filt == 'glp1-care' -%}
+        <p class="spadra-legal__p">Ozempic&reg;, Wegovy&reg; and Mounjaro&reg; are registered trademarks of their respective manufacturers. SPADRA is not affiliated with, endorsed by, or sponsored by any of these manufacturers.</p>
+      {%- endif -%}
+    </div>
+
+  </div>
+</section>
+
+<script>
+  (function () {
+    var root = document.querySelector('[data-spadra-pdp]');
+    if (!root) return;
+    var grid = root.querySelector('[data-spadra-rel-grid]');
+    if (!grid) return;
+
+    var raw;
+    try { raw = window.sessionStorage.getItem('spadraQuizMatches'); } catch (e) { return; }
+    if (!raw) return;
+
+    var handles;
+    try { handles = JSON.parse(raw); } catch (e) { return; }
+    if (!Array.isArray(handles) || !handles.length) return;
+
+    var self = root.getAttribute('data-handle');
+    handles = handles.filter(function (h) { return h && h !== self; }).slice(0, 4);
+    if (!handles.length) return;
+
+    var money = function (cents) {
+      return '$' + (cents / 100).toFixed(2);
+    };
+
+    Promise.all(handles.map(function (h) {
+      return fetch('/products/' + h + '.js')
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .catch(function () { return null; });
+    })).then(function (items) {
+      items = items.filter(Boolean);
+      if (!items.length) return;
+
+      grid.innerHTML = items.map(function (p) {
+        var img = p.featured_image
+          ? '<span class="spadra-rel-card__media"><img class="spadra-rel-card__img" loading="lazy" alt="" src="' + p.featured_image + '"></span>'
+          : '<span class="spadra-rel-card__media"><span class="spadra-rel-card__placeholder"></span></span>';
+        return '<a class="spadra-rel-card" href="/products/' + p.handle + '">' + img +
+          '<span class="spadra-rel-card__label">Matched to your quiz</span>' +
+          '<span class="spadra-rel-card__title">' + p.title + '</span>' +
+          '<span class="spadra-rel-card__price">' + money(p.price) + '</span></a>';
+      }).join('');
+
+      var eyebrow = root.querySelector('[data-spadra-rel-eyebrow]');
+      var heading = root.querySelector('[data-spadra-rel-heading]');
+      if (eyebrow) eyebrow.textContent = 'Based On Your Quiz';
+      if (heading) heading.textContent = 'Recommended for your protocol';
+    });
+  })();
+</script>
+
+{% stylesheet %}
+  .spadra-pdp {
+    background: #FFFFFF;
+    color: #1A1A1A;
+    padding: 8px 20px 64px;
+  }
+  .spadra-pdp__inner {
+    max-width: 860px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+  }
+  .spadra-pdp__block { scroll-margin-top: 80px; }
+  .spadra-pdp__eyebrow {
+    margin: 0 0 8px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #00A344;
+  }
+  .spadra-pdp__h2 {
+    margin: 0 0 16px;
+    font-size: 1.6rem;
+    line-height: 1.25;
+    color: #000000;
+    text-wrap: pretty;
+  }
+  .spadra-pdp__lede,
+  .spadra-pdp__body {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #33383F;
+    text-wrap: pretty;
+  }
+  .spadra-pdp__body--intro { margin-bottom: 28px; }
+  .spadra-pdp__callout {
+    margin: 0 0 16px;
+    padding: 16px 18px;
+    border-left: 3px solid #00C853;
+    background: #F4FBF6;
+    border-radius: 0 10px 10px 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #1A1A1A;
+  }
+
+  /* --- What's Inside --- */
+  .spadra-ing-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+  .spadra-ing {
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    background: #FCFCFB;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .spadra-ing__name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: #000000;
+  }
+  .spadra-ing__benefit {
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: #5B6470;
+  }
+
+  /* --- 30-60-90 --- */
+  .spadra-phases {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .spadra-phase {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    gap: 18px;
+    position: relative;
+    padding-bottom: 32px;
+  }
+  .spadra-phase:last-child { padding-bottom: 0; }
+  .spadra-phase::before {
+    content: '';
+    position: absolute;
+    left: 21px;
+    top: 44px;
+    bottom: 0;
+    width: 2px;
+    background: #E2E8F0;
+  }
+  .spadra-phase:last-child::before { display: none; }
+  .spadra-phase__marker {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: #000000;
+    color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+  .spadra-phase__range {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6B7280;
+  }
+  .spadra-phase__title {
+    margin: 2px 0 12px;
+    font-size: 1.15rem;
+    color: #000000;
+  }
+  .spadra-phase__dl { margin: 0; }
+  .spadra-phase__dl dt {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #00A344;
+    margin-top: 12px;
+  }
+  .spadra-phase__dl dt:first-child { margin-top: 0; }
+  .spadra-phase__dl dd {
+    margin: 4px 0 0;
+    font-size: 0.95rem;
+    line-height: 1.65;
+    color: #33383F;
+    text-wrap: pretty;
+  }
+
+  /* --- You May Also Like --- */
+  .spadra-rel-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .spadra-rel-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    overflow: hidden;
+    padding-bottom: 12px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .spadra-rel-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+  .spadra-rel-card__media {
+    display: block;
+    aspect-ratio: 4 / 5;
+    background: #F8F7F4;
+  }
+  .spadra-rel-card__img,
+  .spadra-rel-card__placeholder {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .spadra-rel-card__label {
+    margin-top: 10px;
+    padding: 0 12px;
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #6B7280;
+  }
+  .spadra-rel-card__title {
+    padding: 0 12px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    line-height: 1.35;
+    color: #000000;
+  }
+  .spadra-rel-card__price {
+    padding: 0 12px;
+    font-size: 0.85rem;
+    color: #33383F;
+  }
+
+  /* --- Legal --- */
+  .spadra-pdp__block--legal {
+    border-top: 1px solid #E2E8F0;
+    padding-top: 28px;
+  }
+  .spadra-legal__h {
+    margin: 0 0 12px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6B7280;
+  }
+  .spadra-legal__p {
+    margin: 0 0 10px;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    color: #6B7280;
+  }
+  .spadra-legal__p:last-child { margin-bottom: 0; }
+
+  /* --- Mobile --- */
+  @media screen and (max-width: 749px) {
+    .spadra-pdp { padding: 8px 16px 48px; }
+    .spadra-pdp__inner { gap: 44px; }
+    .spadra-pdp__h2 { font-size: 1.35rem; }
+    .spadra-ing-list { grid-template-columns: 1fr; }
+    .spadra-rel-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .spadra-phase { grid-template-columns: 36px 1fr; gap: 14px; }
+    .spadra-phase__marker { width: 36px; height: 36px; font-size: 0.9rem; }
+    .spadra-phase::before { left: 17px; top: 36px; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SPADRA product detail",
+  "tag": "section",
+  "settings": []
+}
+{% endschema %}

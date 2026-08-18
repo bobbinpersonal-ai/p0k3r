@@ -1,0 +1,2 @@
+{%- comment -%}Normalizes British spellings carried in generated metafield copy.{%- endcomment -%}
+{{- text | replace: 'isation', 'ization' | replace: 'ising', 'izing' | replace: 'signalling', 'signaling' | replace: 'defence', 'defense' | replace: 'normalise', 'normalize' | replace: 'stabilise', 'stabilize' | replace: 'Stabilise', 'Stabilize' | replace: 'utilisation', 'utilization' -}}

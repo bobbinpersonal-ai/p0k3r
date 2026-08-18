@@ -1,0 +1,518 @@
+{%- comment -%}
+  SPADRA "Find Your Protocol" — 4-question quiz.
+  Rendered once globally from layout/theme.liquid. Opened by any
+  [data-spadra-quiz-open] trigger via the global handler in theme.liquid,
+  which calls showModal() on #spadra-quiz-modal.
+
+  Results are written to sessionStorage['spadraQuizMatches'] as an array of
+  handles; sections/spadra-pdp.liquid reads that to personalise "You May Also Like".
+{%- endcomment -%}
+
+{%- liquid
+  assign packs = collections['bedroom-performance'].products
+  assign packs = packs | concat: collections['glp1-care'].products
+  assign packs = packs | concat: collections['focus-brain'].products
+  assign packs = packs | concat: collections['longevity-beauty'].products
+  assign packs = packs | concat: collections['detox-recovery'].products
+  assign packs = packs | concat: collections['mens-womens-health'].products
+  assign packs = packs | concat: collections['immune-structural'].products
+-%}
+
+<dialog id="spadra-quiz-modal" class="spadra-quiz" aria-labelledby="spadra-quiz-title">
+  <form method="dialog" class="spadra-quiz__close-form">
+    <button class="spadra-quiz__close" aria-label="Close">&times;</button>
+  </form>
+
+  <div class="spadra-quiz__inner" data-quiz-root>
+    <header class="spadra-quiz__header">
+      <p class="spadra-quiz__eyebrow">Find Your Protocol</p>
+      <h2 class="spadra-quiz__title" id="spadra-quiz-title" data-quiz-heading>Four questions. About thirty seconds.</h2>
+      <div class="spadra-quiz__progress" data-quiz-progress-wrap>
+        <div class="spadra-quiz__progress-bar"><span data-quiz-progress-fill></span></div>
+        <p class="spadra-quiz__progress-text" data-quiz-progress-text>Question 1 of 4</p>
+      </div>
+    </header>
+
+    <div class="spadra-quiz__body" data-quiz-body aria-live="polite"></div>
+
+    <footer class="spadra-quiz__footer">
+      <button type="button" class="spadra-quiz__back" data-quiz-back hidden>&larr; Back</button>
+      <a class="spadra-quiz__skip" href="/collections/all">Skip and browse all protocols</a>
+    </footer>
+
+    <p class="spadra-quiz__legal">
+      This assessment is informational and does not diagnose any condition or replace advice from your
+      healthcare provider. These statements have not been evaluated by the Food and Drug Administration.
+      This product is not intended to diagnose, treat, cure, or prevent any disease.
+    </p>
+  </div>
+
+  <script type="application/json" data-quiz-catalog>
+    [
+      {%- for p in packs -%}
+        {%- unless forloop.first %},{% endunless %}
+        {
+          "handle": {{ p.handle | json }},
+          "title": {{ p.title | json }},
+          "url": {{ p.url | json }},
+          "price": {{ p.price | money | json }},
+          "image": {{ p.featured_image | image_url: width: 480 | json }},
+          "group": {{ p.metafields.spadra.filter.value | json }},
+          "subtitle": {{ p.metafields.spadra.subtitle.value | json }},
+          "size": {{ p.metafields.spadra.components.value.size | default: 0 | json }}
+        }
+      {%- endfor -%}
+    ]
+  </script>
+</dialog>
+
+<script>
+  (function () {
+    var modal = document.getElementById('spadra-quiz-modal');
+    if (!modal) return;
+
+    var root = modal.querySelector('[data-quiz-root]');
+    var body = modal.querySelector('[data-quiz-body]');
+    var heading = modal.querySelector('[data-quiz-heading]');
+    var backBtn = modal.querySelector('[data-quiz-back]');
+    var progressWrap = modal.querySelector('[data-quiz-progress-wrap]');
+    var progressFill = modal.querySelector('[data-quiz-progress-fill]');
+    var progressText = modal.querySelector('[data-quiz-progress-text]');
+    var catalogEl = modal.querySelector('[data-quiz-catalog]');
+
+    var CATALOG = [];
+    try { CATALOG = JSON.parse(catalogEl.textContent) || []; } catch (e) { CATALOG = []; }
+
+    // ---- Questions -------------------------------------------------------
+    // Each answer carries `w`: handle -> score, and optionally `g`: group -> score.
+    var QUESTIONS = [
+      {
+        q: "What's your main health focus right now?",
+        a: [
+          {
+            t: 'I want more energy and stamina for my daily life.',
+            w: { 'energy-pack-spadra': 10, 'performance-pack-1': 9, 'muscle-preserve-pack-spadra': 7, 'adrenal-pack-spadra': 6, 'mineral-pack-spadra': 4 }
+          },
+          {
+            t: 'I need better focus, memory, and mental clarity.',
+            w: { 'focus-pack-spadra': 10, 'brain-pack-1': 9, 'nerve-support-pack-spadra': 6, 'psychedelic-neuro-integration-pack': 4, 'methylation-pack-spadra': 4 },
+            g: { 'focus-brain': 2 }
+          },
+          {
+            t: 'I want to sleep deeper and recover from stress faster.',
+            w: { 'sleep-pack-1': 10, 'sleep-pack-melatonin-spadra': 9, 'stress-pack-spadra': 8, 'adrenal-pack-spadra': 7, 'mood-support-pack-spadra': 5 }
+          },
+          {
+            t: "I'm focused on healthy aging, skin, and hair vitality.",
+            w: { 'longevity-nad-repair-pack': 10, 'beauty-hair-density-pack': 9, 'hair-pack-spadra': 9, 'clear-skin-cellular-radiance-pack': 7, 'antioxidant-pack-spadra': 6 },
+            g: { 'longevity-beauty': 2 }
+          },
+          {
+            t: 'I want to optimize my physical performance and blood flow.',
+            w: { 'nitric-oxide-men-1': 10, 'nitric-oxide-women-spadra': 10, 'performance-pack-1': 8, 'heart-health-spadra': 6, 'blood-pressure-pack-spadra': 5 }
+          },
+          {
+            t: "I'm looking for a strong foundation for overall wellness.",
+            w: { 'mens-wellness-1': 9, 'womens-wellness-1': 9, 'vegan-nutrient-pack-spadra': 8, 'mineral-pack-spadra': 7, 'immune-pack-spadra': 6, 'antioxidant-pack-spadra': 6 }
+          }
+        ]
+      },
+      {
+        q: "What's your biggest daily challenge?",
+        a: [
+          {
+            t: 'Mental stress and feeling overwhelmed.',
+            w: { 'stress-pack-spadra': 6, 'adrenal-pack-spadra': 5, 'mood-support-pack-spadra': 4, 'sleep-pack-1': 3 }
+          },
+          {
+            t: 'Physical fatigue or intense workouts.',
+            w: { 'performance-pack-1': 6, 'muscle-preserve-pack-spadra': 5, 'energy-pack-spadra': 4, 'joint-health-pack-spadra': 3 }
+          },
+          {
+            t: 'Dietary restrictions or poor eating habits.',
+            w: { 'vegan-nutrient-pack-spadra': 6, 'mineral-pack-spadra': 5, 'gut-pack-spadra': 4, 'microbiome-pack-spadra': 3 }
+          },
+          {
+            t: 'Hormonal changes or imbalances.',
+            w: { 'womens-hormone-pack-1': 6, 'mens-hormone-pack-1': 6, 'perimenopause-pack-spadra': 4, 'thyroid-pack-spadra': 4, 'pms-pack-spadra': 3 }
+          },
+          {
+            t: 'Low motivation or drive.',
+            w: { 'mens-hormone-pack-1': 5, 'focus-pack-spadra': 5, 'energy-pack-spadra': 4, 'mood-support-pack-spadra': 4 }
+          }
+        ]
+      },
+      {
+        q: 'What would make the biggest difference in your day?',
+        a: [
+          {
+            t: 'Waking up refreshed and sharp.',
+            w: { 'sleep-pack-1': 6, 'sleep-pack-melatonin-spadra': 5, 'brain-pack-1': 3, 'stress-pack-spadra': 3 }
+          },
+          {
+            t: 'Sustaining energy without the afternoon crash.',
+            w: { 'energy-pack-spadra': 6, 'blood-sugar-pack-spadra': 5, 'focus-pack-spadra': 3, 'methylation-pack-spadra': 3 }
+          },
+          {
+            t: 'Feeling confident and vital in my body.',
+            w: { 'nitric-oxide-men-1': 5, 'nitric-oxide-women-spadra': 5, 'mens-hormone-pack-1': 4, 'womens-hormone-pack-1': 4 }
+          },
+          {
+            t: 'Having glowing skin and healthy hair.',
+            w: { 'hair-pack-spadra': 6, 'beauty-hair-density-pack': 6, 'clear-skin-cellular-radiance-pack': 5, 'antioxidant-pack-spadra': 3 }
+          },
+          {
+            t: 'Recovering quickly from workouts or long days.',
+            w: { 'performance-pack-1': 6, 'muscle-preserve-pack-spadra': 5, 'pain-inflammation-spadra': 4, 'joint-health-pack-spadra': 3 }
+          }
+        ]
+      },
+      {
+        q: "What's your supplement style?",
+        a: [
+          { t: 'Keep it simple — just one or two essentials.', style: 'simple' },
+          { t: 'I want a comprehensive daily protocol.', style: 'comprehensive' },
+          { t: "I'm open to suggestions.", style: 'open' }
+        ]
+      }
+    ];
+
+    // Q1 states the main goal, so it outweighs the refinement questions.
+    var QUESTION_WEIGHT = [2, 1, 1, 1];
+    var STYLE_WEIGHT = 1.5;
+
+    var answers = [];
+    var step = 0;
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function (ch) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+      });
+    }
+
+    function score() {
+      var totals = {};
+      var styleChoice = 'open';
+
+      CATALOG.forEach(function (p) { totals[p.handle] = 0; });
+
+      answers.forEach(function (ans, qi) {
+        if (ans == null) return;
+        var opt = QUESTIONS[qi].a[ans];
+        if (!opt) return;
+        var mult = QUESTION_WEIGHT[qi] || 1;
+        if (opt.style) styleChoice = opt.style;
+        if (opt.w) {
+          Object.keys(opt.w).forEach(function (h) {
+            if (h in totals) totals[h] += opt.w[h] * mult;
+          });
+        }
+        if (opt.g) {
+          CATALOG.forEach(function (p) {
+            if (p.group && opt.g[p.group]) totals[p.handle] += opt.g[p.group] * mult;
+          });
+        }
+      });
+
+      // Q4 tilts toward narrower or broader formulas without overriding goal fit.
+      CATALOG.forEach(function (p) {
+        var n = p.size || 0;
+        if (!n) return;
+        if (styleChoice === 'simple') totals[p.handle] += Math.max(0, 8 - n) * STYLE_WEIGHT;
+        else if (styleChoice === 'comprehensive') totals[p.handle] += n * STYLE_WEIGHT;
+      });
+
+      return CATALOG
+        .filter(function (p) { return totals[p.handle] > 0; })
+        .sort(function (a, b) {
+          var d = totals[b.handle] - totals[a.handle];
+          return d !== 0 ? d : a.title.localeCompare(b.title);
+        });
+    }
+
+    function setProgress() {
+      var pct = Math.round((step / QUESTIONS.length) * 100);
+      if (progressFill) progressFill.style.width = pct + '%';
+      if (progressText) progressText.textContent = 'Question ' + Math.min(step + 1, QUESTIONS.length) + ' of ' + QUESTIONS.length;
+    }
+
+    function renderQuestion() {
+      var q = QUESTIONS[step];
+      if (heading) heading.textContent = q.q;
+      if (progressWrap) progressWrap.hidden = false;
+      setProgress();
+      if (backBtn) backBtn.hidden = step === 0;
+
+      body.innerHTML = '<ul class="spadra-quiz__options">' + q.a.map(function (opt, i) {
+        var selected = answers[step] === i ? ' aria-pressed="true"' : ' aria-pressed="false"';
+        return '<li><button type="button" class="spadra-quiz__option" data-choice="' + i + '"' + selected + '>' +
+          esc(opt.t) + '</button></li>';
+      }).join('') + '</ul>';
+    }
+
+    function card(p, badge) {
+      var img = p.image
+        ? '<span class="spadra-quiz-card__media"><img src="' + esc(p.image) + '" alt="" loading="lazy"></span>'
+        : '<span class="spadra-quiz-card__media"><span class="spadra-quiz-card__ph"></span></span>';
+      return '<a class="spadra-quiz-card" href="' + esc(p.url) + '">' + img +
+        '<span class="spadra-quiz-card__text">' +
+        (badge ? '<span class="spadra-quiz-card__badge">' + esc(badge) + '</span>' : '') +
+        '<span class="spadra-quiz-card__title">' + esc(p.title) + '</span>' +
+        (p.subtitle ? '<span class="spadra-quiz-card__sub">' + esc(p.subtitle) + '</span>' : '') +
+        '<span class="spadra-quiz-card__price">' + esc(p.price) + ' &middot; 30-day supply</span>' +
+        '</span></a>';
+    }
+
+    function renderResults() {
+      var ranked = score();
+      if (progressWrap) progressWrap.hidden = true;
+      if (backBtn) backBtn.hidden = false;
+
+      if (!ranked.length) {
+        if (heading) heading.textContent = 'Browse the full protocol range';
+        body.innerHTML = '<p class="spadra-quiz__empty">We could not narrow this down automatically. ' +
+          '<a href="/collections/all">Browse every protocol</a> or start the assessment again.</p>' +
+          '<button type="button" class="spadra-quiz__restart" data-quiz-restart>Start over</button>';
+        return;
+      }
+
+      var top = ranked.slice(0, 4);
+      try {
+        window.sessionStorage.setItem('spadraQuizMatches', JSON.stringify(top.map(function (p) { return p.handle; })));
+      } catch (e) { /* private browsing — results still render */ }
+
+      if (heading) heading.textContent = 'Your protocol match';
+
+      var html = '<div class="spadra-quiz__results">';
+      html += '<div class="spadra-quiz__primary">' + card(top[0], 'Best match') + '</div>';
+      if (top[1]) {
+        html += '<p class="spadra-quiz__sub-label">Pairs well with</p>';
+        html += '<div class="spadra-quiz__secondary">' + card(top[1], 'Complementary') + '</div>';
+      }
+      if (top.length > 2) {
+        html += '<p class="spadra-quiz__sub-label">You may also like</p>';
+        html += '<div class="spadra-quiz__also">' + top.slice(2).map(function (p) { return card(p, ''); }).join('') + '</div>';
+      }
+      html += '<div class="spadra-quiz__actions">' +
+        '<button type="button" class="spadra-quiz__restart" data-quiz-restart>Start over</button>' +
+        '<a class="spadra-quiz__browse" href="/collections/all">Browse all protocols</a>' +
+        '</div>';
+      html += '</div>';
+      body.innerHTML = html;
+    }
+
+    function render() {
+      if (step < QUESTIONS.length) renderQuestion();
+      else renderResults();
+    }
+
+    root.addEventListener('click', function (e) {
+      var choice = e.target.closest('[data-choice]');
+      if (choice) {
+        answers[step] = parseInt(choice.getAttribute('data-choice'), 10);
+        step += 1;
+        render();
+        return;
+      }
+      if (e.target.closest('[data-quiz-restart]')) {
+        answers = [];
+        step = 0;
+        render();
+        return;
+      }
+      if (e.target.closest('[data-quiz-back]')) {
+        if (step > 0) step -= 1;
+        render();
+      }
+    });
+
+    render();
+  })();
+</script>
+
+{% stylesheet %}
+  #spadra-quiz-modal {
+    width: min(680px, calc(100vw - 32px));
+    max-height: min(88vh, 900px);
+    padding: 0;
+    border: none;
+    border-radius: 18px;
+    background: #FFFFFF;
+    color: #1A1A1A;
+    overflow: hidden;
+  }
+  #spadra-quiz-modal::backdrop { background: rgba(0, 0, 0, 0.55); }
+  .spadra-quiz__close-form { position: absolute; top: 10px; right: 12px; margin: 0; z-index: 2; }
+  .spadra-quiz__close {
+    background: transparent;
+    border: none;
+    font-size: 1.9rem;
+    line-height: 1;
+    color: #6B7280;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+  .spadra-quiz__close:hover { color: #000000; }
+  .spadra-quiz__inner {
+    padding: 32px 28px 24px;
+    max-height: min(88vh, 900px);
+    overflow-y: auto;
+  }
+  .spadra-quiz__eyebrow {
+    margin: 0 0 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #00A344;
+  }
+  .spadra-quiz__title {
+    margin: 0 0 18px;
+    font-size: 1.4rem;
+    line-height: 1.25;
+    color: #000000;
+    text-wrap: pretty;
+  }
+  .spadra-quiz__progress { margin-bottom: 22px; }
+  .spadra-quiz__progress-bar {
+    height: 4px;
+    background: #E2E8F0;
+    border-radius: 100px;
+    overflow: hidden;
+  }
+  .spadra-quiz__progress-bar span {
+    display: block;
+    height: 100%;
+    width: 0;
+    background: #00C853;
+    transition: width 0.25s ease;
+  }
+  .spadra-quiz__progress-text {
+    margin: 8px 0 0;
+    font-size: 0.72rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #6B7280;
+  }
+  .spadra-quiz__options { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .spadra-quiz__option {
+    width: 100%;
+    text-align: left;
+    background: #FCFCFB;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 16px 18px;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    color: #1A1A1A;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .spadra-quiz__option:hover { border-color: #00C853; background: #F4FBF6; }
+  .spadra-quiz__option[aria-pressed='true'] { border-color: #00C853; background: #F4FBF6; font-weight: 600; }
+
+  .spadra-quiz__sub-label {
+    margin: 26px 0 10px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6B7280;
+  }
+  .spadra-quiz__also { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .spadra-quiz-card {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    padding: 12px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .spadra-quiz-card:hover { border-color: #00C853; box-shadow: 0 6px 18px rgba(0, 0, 0, 0.07); }
+  .spadra-quiz__also .spadra-quiz-card { flex-direction: column; align-items: flex-start; }
+  .spadra-quiz-card__media {
+    flex: 0 0 auto;
+    width: 84px;
+    height: 84px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #F8F7F4;
+  }
+  .spadra-quiz__also .spadra-quiz-card__media { width: 100%; height: auto; aspect-ratio: 4 / 5; }
+  .spadra-quiz-card__media img,
+  .spadra-quiz-card__ph { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .spadra-quiz-card__text { display: flex; flex-direction: column; gap: 3px; }
+  .spadra-quiz-card__badge {
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #00A344;
+  }
+  .spadra-quiz-card__title { font-size: 1rem; font-weight: 600; color: #000000; line-height: 1.3; }
+  .spadra-quiz-card__sub { font-size: 0.82rem; color: #5B6470; line-height: 1.45; }
+  .spadra-quiz-card__price { font-size: 0.8rem; color: #33383F; }
+  .spadra-quiz__primary .spadra-quiz-card { border-color: #00C853; background: #F4FBF6; }
+  .spadra-quiz__primary .spadra-quiz-card__media { width: 110px; height: 110px; }
+
+  .spadra-quiz__actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 24px; }
+  .spadra-quiz__restart {
+    background: #000000;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 100px;
+    padding: 12px 24px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .spadra-quiz__restart:hover { background: #00C853; color: #000000; }
+  .spadra-quiz__browse { color: #000000; font-size: 0.88rem; text-decoration: underline; }
+  .spadra-quiz__empty { font-size: 0.95rem; line-height: 1.6; color: #33383F; margin: 0 0 18px; }
+
+  .spadra-quiz__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 22px;
+    padding-top: 16px;
+    border-top: 1px solid #E2E8F0;
+  }
+  .spadra-quiz__back {
+    background: transparent;
+    border: none;
+    color: #6B7280;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+  }
+  .spadra-quiz__back:hover { color: #000000; }
+  .spadra-quiz__skip { color: #6B7280; font-size: 0.85rem; text-decoration: underline; }
+  .spadra-quiz__legal {
+    margin: 14px 0 0;
+    font-size: 0.7rem;
+    line-height: 1.55;
+    color: #6B7280;
+  }
+
+  @media screen and (max-width: 749px) {
+    #spadra-quiz-modal { width: 100vw; max-width: 100vw; max-height: 100dvh; height: 100dvh; border-radius: 0; }
+    .spadra-quiz__inner { padding: 28px 18px 20px; max-height: 100dvh; }
+    .spadra-quiz__title { font-size: 1.2rem; }
+    .spadra-quiz__also { grid-template-columns: 1fr; }
+    .spadra-quiz__also .spadra-quiz-card { flex-direction: row; align-items: center; }
+    .spadra-quiz__also .spadra-quiz-card__media { width: 84px; height: 84px; aspect-ratio: auto; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SPADRA protocol quiz",
+  "settings": []
+}
+{% endschema %}
