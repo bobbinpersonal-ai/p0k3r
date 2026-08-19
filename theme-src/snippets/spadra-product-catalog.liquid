@@ -1,0 +1,214 @@
+{%- comment -%}
+  Renders SPADRA OKCapsule pack product cards with ingredient-component pills.
+  Usage: {% render 'spadra-product-catalog', products: collection.products %}
+
+  The pack images are square (600x600) and carry the product name and blurb
+  baked into the artwork, so the media well is 1:1 and uses object-fit: contain.
+  Cropping these to a portrait card sliced the text off mid-word.
+{%- endcomment -%}
+
+<div class="spadra-pack-grid" id="spadra-pack-grid">
+  {%- for product in products -%}
+    {%- assign components = product.metafields.spadra.components.value -%}
+    {%- assign badge = product.metafields.spadra.badge.value -%}
+    {%- assign subtitle = product.metafields.spadra.subtitle.value -%}
+    {%- assign category_label = product.metafields.spadra.category_label.value -%}
+    {%- assign pack_filter = product.metafields.spadra.filter.value | default: 'all' -%}
+    <div class="spadra-pack-card" data-filter="{{ pack_filter }}">
+      <a href="{{ product.url }}" class="spadra-pack-card__media" aria-label="{{ product.title }}">
+        {%- if product.featured_image -%}
+          {{
+            product.featured_image
+            | image_url: width: 800
+            | image_tag:
+              widths: '300, 450, 600, 800',
+              sizes: '(min-width: 990px) 300px, (min-width: 600px) 45vw, 92vw',
+              loading: 'lazy',
+              alt: product.title,
+              class: 'spadra-pack-card__img'
+          }}
+        {%- else -%}
+          <div class="spadra-pack-card__placeholder" aria-hidden="true"></div>
+        {%- endif -%}
+        {%- if badge != blank -%}<span class="spadra-badge">{{ badge }}</span>{%- endif -%}
+      </a>
+      <div class="spadra-pack-card__body">
+        <p class="spadra-pack-card__subtitle">{{ category_label | default: product.type }}</p>
+        <h3 class="spadra-pack-card__title"><a href="{{ product.url }}">{{ product.title }}</a></h3>
+        {%- if subtitle != blank -%}<p class="spadra-pack-card__outcome">{{ subtitle }}</p>{%- endif -%}
+        <p class="spadra-pack-card__price">
+          {{ product.price | money }}<span class="spadra-pack-card__price-sub"> / 30-day supply</span>
+        </p>
+        {%- if components and components.size > 0 -%}
+          <p class="spadra-pack-card__ing-label">{{ components.size }} active{% if components.size != 1 %}s{% endif %}</p>
+          <ul class="spadra-pill-list">
+            {%- for component in components -%}
+              <li class="spadra-pill">{{ component }}</li>
+            {%- endfor -%}
+          </ul>
+        {%- endif -%}
+        {%- form 'product', product, class: 'spadra-pack-card__form' -%}
+          <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+          <button type="submit" class="spadra-pack-card__cta" name="add"{% unless product.available %} disabled{% endunless %}>
+            {%- if product.available -%}
+              Start protocol &mdash; {{ product.price | money }}
+            {%- else -%}
+              Sold out
+            {%- endif -%}
+          </button>
+        {%- endform -%}
+      </div>
+    </div>
+  {%- else -%}
+    <p class="spadra-pack-grid__empty">No protocols match this filter yet.</p>
+  {%- endfor -%}
+</div>
+
+{% stylesheet %}
+  .spadra-pack-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+    align-items: stretch;
+  }
+  @media screen and (max-width: 989px) {
+    .spadra-pack-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+  }
+  @media screen and (max-width: 599px) {
+    .spadra-pack-grid { grid-template-columns: 1fr; gap: 16px; }
+  }
+
+  .spadra-pack-card {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .spadra-pack-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  }
+
+  /* Square well, contained artwork: the pack images carry their own typography
+     and must never be cropped. */
+  .spadra-pack-card__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 1 / 1;
+    background: #F8F7F4;
+    padding: 8px;
+    overflow: hidden;
+  }
+  .spadra-pack-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .spadra-pack-card__placeholder { width: 100%; height: 100%; background: #F1F5F9; border-radius: 8px; }
+
+  .spadra-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    max-width: calc(100% - 24px);
+    box-sizing: border-box;
+    background: #00C853;
+    color: #04240F;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    padding: 5px 11px;
+    border-radius: 100px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .spadra-pack-card__body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
+  .spadra-pack-card__subtitle {
+    margin: 0;
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #6B7280;
+  }
+  .spadra-pack-card__title { margin: 0; font-size: 1.05rem; line-height: 1.3; }
+  .spadra-pack-card__title a {
+    color: #000000;
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .spadra-pack-card__outcome {
+    margin: 0;
+    font-size: 0.82rem;
+    color: #5B6470;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .spadra-pack-card__price { margin: 4px 0 0; font-weight: 600; color: #000000; }
+  .spadra-pack-card__price-sub { font-weight: 400; color: #6B7280; font-size: 0.8rem; }
+
+  .spadra-pack-card__ing-label {
+    margin: 8px 0 0;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #00A344;
+  }
+  .spadra-pill-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0 0 14px;
+    padding: 0;
+  }
+  .spadra-pill {
+    font-size: 0.7rem;
+    line-height: 1.2;
+    background: #F6F7F9;
+    color: #33383F;
+    border: 1px solid #E2E8F0;
+    border-radius: 100px;
+    padding: 5px 10px;
+    white-space: nowrap;
+  }
+
+  .spadra-pack-card__form { margin: auto 0 0; }
+  .spadra-pack-card__cta {
+    width: 100%;
+    background: #000000;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 100px;
+    padding: 13px 16px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .spadra-pack-card__cta:hover { background: #00C853; color: #04240F; }
+  .spadra-pack-card__cta[disabled] { background: #E2E8F0; color: #6B7280; cursor: default; }
+
+  .spadra-pack-grid__empty { grid-column: 1 / -1; text-align: center; color: #6B7280; }
+{% endstylesheet %}

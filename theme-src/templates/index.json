@@ -1,0 +1,1059 @@
+{
+  "sections": {
+    "spadra_hero": {
+      "type": "found-hero",
+      "blocks": {
+        "trust_1": {
+          "type": "trust_item",
+          "settings": {
+            "label": "Hormone Balance"
+          }
+        },
+        "trust_2": {
+          "type": "trust_item",
+          "settings": {
+            "label": "Cognitive Focus"
+          }
+        },
+        "trust_3": {
+          "type": "trust_item",
+          "settings": {
+            "label": "Pre-Sorted Daily Pouches"
+          }
+        }
+      },
+      "block_order": [
+        "trust_1",
+        "trust_2",
+        "trust_3"
+      ],
+      "settings": {
+        "headline": "Precision nutrition, delivered daily.",
+        "subheadline": "One packet. A clearer routine. Built for modern vitality.",
+        "primary_cta_label": "Find Your Protocol",
+        "secondary_cta_label": "Browse All Protocols",
+        "secondary_cta_link": "#spadra-protocols",
+        "image": "shopify://shop_images/Gemini_Generated_Image_uwx4hhuwx4hhuwx4_44717a2e-811c-476f-b865-26a4f84f5d12.jpg",
+        "eyebrow": "Powered by OKCapsule",
+        "focal_desktop": "center",
+        "focal_mobile": "right center",
+        "overlay_opacity": 55,
+        "height_desktop": 80,
+        "height_mobile": 90
+      }
+    },
+    "spadra_ticker": {
+      "type": "symptom-ticker",
+      "blocks": {
+        "pill_1": {
+          "type": "pill",
+          "settings": {
+            "label": "Hormone Support"
+          }
+        },
+        "pill_2": {
+          "type": "pill",
+          "settings": {
+            "label": "Estrogen & Cortisol Balance"
+          }
+        },
+        "pill_3": {
+          "type": "pill",
+          "settings": {
+            "label": "Nitric Oxide Boost"
+          }
+        },
+        "pill_4": {
+          "type": "pill",
+          "settings": {
+            "label": "Focus & Memory"
+          }
+        },
+        "pill_5": {
+          "type": "pill",
+          "settings": {
+            "label": "GLP-1 Gut Support"
+          }
+        },
+        "pill_6": {
+          "type": "pill",
+          "settings": {
+            "label": "Muscle Recovery"
+          }
+        }
+      },
+      "block_order": [
+        "pill_1",
+        "pill_2",
+        "pill_3",
+        "pill_4",
+        "pill_5",
+        "pill_6"
+      ],
+      "settings": {
+        "background_color": "#f8f7f4"
+      }
+    },
+    "spadra_how_it_works": {
+      "type": "found-how-it-works",
+      "settings": {
+        "title": "How It Works",
+        "step_1_heading": "Initiate Your Protocol",
+        "step_1_detail": "Your protocol is designed as a structured, nature-aligned regimen tailored to your selected goals, preferences, and daily physiology. Begin by following your prescribed schedule with consistency, allowing your system time to adapt and establish baseline equilibrium.",
+        "step_2_heading": "Establish Daily Integration",
+        "step_2_detail": "The primary objective during this phase is adherence and integration. Incorporate your protocol into your existing daily routine in a way that is sustainable, predictable, and minimally disruptive. Consistency is more important than intensity.",
+        "step_3_heading": "Observe, Stabilize, Refine",
+        "step_3_detail": "As you progress through the month, observe how your routine interacts with your energy, digestion, recovery, and overall daily function. Maintain what is working well, make measured adjustments when necessary, and remain anchored to your long-term objectives.",
+        "background_color": "#ffffff"
+      }
+    },
+    "media_with_content_fLfwFT": {
+      "type": "media-with-content",
+      "blocks": {
+        "media": {
+          "type": "_media-without-appearance",
+          "static": true,
+          "settings": {
+            "media_type": "image",
+            "image": "shopify://shop_images/Gemini_Generated_Image_qs53y7qs53y7qs53.jpg",
+            "link": "",
+            "video_loop": true,
+            "video_autoplay": false,
+            "image_position": "cover",
+            "video_position": "cover"
+          },
+          "blocks": {}
+        },
+        "content": {
+          "type": "_content-without-appearance",
+          "static": true,
+          "settings": {
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "space-between",
+            "gap": 24
+          },
+          "blocks": {
+            "text_99fQWT": {
+              "type": "text",
+              "name": "t:names.caption",
+              "settings": {
+                "text": "<h2>Your protocol, made tangible.</h2><p>Precision-packed daily pouches keep your routine simple and consistent.</p>",
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "h3",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "text_color": "",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "group_UK66ry": {
+              "type": "group",
+              "settings": {
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 12,
+                "width": "fill",
+                "custom_width": 100,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "height": "fit",
+                "custom_height": 100,
+                "background_media": "none",
+                "background_color": "",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_color": "",
+                "border_radius": 0,
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "text_bjCeyT": {
+                  "type": "text",
+                  "name": "t:names.heading",
+                  "settings": {
+                    "text": "<h2>Our signature product</h2>",
+                    "width": "fit-content",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "h3",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "text_VFy4xd": {
+                  "type": "text",
+                  "settings": {
+                    "text": "<p>Made with care and unconditionally loved by our customers, this signature bestseller exceeds all expectations.</p>",
+                    "width": "fit-content",
+                    "max_width": "narrow",
+                    "alignment": "left",
+                    "type_preset": "rte",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "text_bjCeyT",
+                "text_VFy4xd"
+              ]
+            },
+            "button_GGqTKd": {
+              "type": "button",
+              "settings": {
+                "label": "Shop now",
+                "link": "shopify://collections/all",
+                "open_in_new_tab": false,
+                "style_class": "button-unstyled",
+                "custom_button_background": "{{ settings.color_palette.foreground }}",
+                "custom_button_text": "{{ settings.color_palette.background }}",
+                "custom_button_border": "{{ settings.color_palette.background }}",
+                "link_text_color": "",
+                "width": "fit-content",
+                "custom_width": 100,
+                "width_mobile": "fit-content",
+                "custom_width_mobile": 100
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_99fQWT",
+            "group_UK66ry",
+            "button_GGqTKd"
+          ]
+        }
+      },
+      "name": "t:names.editorial",
+      "settings": {
+        "media_position": "left",
+        "media_width": "medium",
+        "media_height": "60svh",
+        "section_width": "full-width",
+        "extend_media": true,
+        "background_color": "#f8f7f4",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "spadra_protocols": {
+      "type": "product-grid-packs",
+      "settings": {
+        "title": "Find Your Protocol",
+        "collection": "",
+        "manual_products": [],
+        "background_color": "#f8f7f4"
+      }
+    },
+    "media_with_content_gehViE": {
+      "type": "media-with-content",
+      "blocks": {
+        "media": {
+          "type": "_media-without-appearance",
+          "static": true,
+          "settings": {
+            "media_type": "image",
+            "image": "shopify://shop_images/Gemini_Generated_Image_anzf8xanzf8xanzf.jpg",
+            "link": "",
+            "video_loop": true,
+            "video_autoplay": false,
+            "image_position": "cover",
+            "video_position": "cover"
+          },
+          "blocks": {}
+        },
+        "content": {
+          "type": "_content-without-appearance",
+          "static": true,
+          "settings": {
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "space-between",
+            "gap": 24
+          },
+          "blocks": {
+            "text_p3mKGY": {
+              "type": "text",
+              "name": "t:names.caption",
+              "settings": {
+                "text": "<h2>Focus your everyday.</h2><p>A considered system for the days that ask more of you.</p>",
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "h3",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "text_color": "#ffffff",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "group_BqCmUf": {
+              "type": "group",
+              "settings": {
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 12,
+                "width": "fill",
+                "custom_width": 100,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "height": "fit",
+                "custom_height": 100,
+                "background_media": "none",
+                "background_color": "",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_color": "",
+                "border_radius": 0,
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "text_EwPecP": {
+                  "type": "text",
+                  "name": "t:names.heading",
+                  "settings": {
+                    "text": "<h2>Our signature product</h2>",
+                    "width": "fit-content",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "h3",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "text_iaz6HF": {
+                  "type": "text",
+                  "settings": {
+                    "text": "<p>Made with care and unconditionally loved by our customers, this signature bestseller exceeds all expectations.</p>",
+                    "width": "fit-content",
+                    "max_width": "narrow",
+                    "alignment": "left",
+                    "type_preset": "rte",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "text_EwPecP",
+                "text_iaz6HF"
+              ]
+            },
+            "button_aULgHF": {
+              "type": "button",
+              "settings": {
+                "label": "Shop now",
+                "link": "shopify://collections/all",
+                "open_in_new_tab": false,
+                "style_class": "button-unstyled",
+                "custom_button_background": "{{ settings.color_palette.foreground }}",
+                "custom_button_text": "{{ settings.color_palette.background }}",
+                "custom_button_border": "{{ settings.color_palette.background }}",
+                "link_text_color": "",
+                "width": "fit-content",
+                "custom_width": 100,
+                "width_mobile": "fit-content",
+                "custom_width_mobile": 100
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_p3mKGY",
+            "group_BqCmUf",
+            "button_aULgHF"
+          ]
+        }
+      },
+      "name": "t:names.editorial",
+      "settings": {
+        "media_position": "right",
+        "media_width": "medium",
+        "media_height": "60svh",
+        "section_width": "full-width",
+        "extend_media": true,
+        "background_color": "#101722",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "spadra_timeline": {
+      "type": "glp1-timeline",
+      "blocks": {
+        "week_1": {
+          "type": "milestone",
+          "settings": {
+            "period": "Week 1",
+            "heading": "Initiation & Physiologic Adaptation",
+            "detail": "Begin your protocol and allow your body to enter a period of gentle adaptation. Focus on consistency, timing, and establishing a stable daily cadence."
+          }
+        },
+        "week_2": {
+          "type": "milestone",
+          "settings": {
+            "period": "Week 2",
+            "heading": "Consolidation of Routine",
+            "detail": "At this stage, the protocol should begin to feel more familiar. Continue with steady adherence, reinforcing behavioral consistency and supporting physiologic normalization."
+          }
+        },
+        "week_3_4": {
+          "type": "milestone",
+          "settings": {
+            "period": "Weeks 3–4",
+            "heading": "Find Your Rhythm",
+            "detail": "Continue following your protocol and build on the consistency you've established. Use this time to evaluate your routine, track how you're feeling, and stay focused on your goals."
+          }
+        },
+        "day_30": {
+          "type": "milestone",
+          "settings": {
+            "period": "Day 30",
+            "heading": "Clinical Review & Forward Planning",
+            "detail": "You have completed the initial 30-day cycle. At this point, evaluate your subjective experience, adherence quality, and alignment with your intended outcomes. Use these insights to determine the appropriate next phase of your SPADRA protocol."
+          }
+        }
+      },
+      "block_order": [
+        "week_1",
+        "week_2",
+        "week_3_4",
+        "day_30"
+      ],
+      "settings": {
+        "title": "Your First 30 Days",
+        "background_color": "#ffffff"
+      }
+    },
+    "media_with_content_NfiQtV": {
+      "type": "media-with-content",
+      "blocks": {
+        "media": {
+          "type": "_media-without-appearance",
+          "static": true,
+          "settings": {
+            "media_type": "image",
+            "image": "shopify://shop_images/Gemini_Generated_Image_2fj2km2fj2km2fj2.jpg",
+            "link": "",
+            "video_loop": true,
+            "video_autoplay": false,
+            "image_position": "cover",
+            "video_position": "cover"
+          },
+          "blocks": {}
+        },
+        "content": {
+          "type": "_content-without-appearance",
+          "static": true,
+          "settings": {
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "space-between",
+            "gap": 24
+          },
+          "blocks": {
+            "text_pkgwgX": {
+              "type": "text",
+              "name": "t:names.caption",
+              "settings": {
+                "text": "<h2>Make wellness fit real life.</h2><p>SPADRA travels with you—from morning starts to everything in between.</p>",
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "h3",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "text_color": "",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "group_bTEJ4E": {
+              "type": "group",
+              "settings": {
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 12,
+                "width": "fill",
+                "custom_width": 100,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "height": "fit",
+                "custom_height": 100,
+                "background_media": "none",
+                "background_color": "",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_color": "",
+                "border_radius": 0,
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "text_mqFRHe": {
+                  "type": "text",
+                  "name": "t:names.heading",
+                  "settings": {
+                    "text": "<h2>Our signature product</h2>",
+                    "width": "fit-content",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "h3",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "text_fjKBBk": {
+                  "type": "text",
+                  "settings": {
+                    "text": "<p>Made with care and unconditionally loved by our customers, this signature bestseller exceeds all expectations.</p>",
+                    "width": "fit-content",
+                    "max_width": "narrow",
+                    "alignment": "left",
+                    "type_preset": "rte",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "text_mqFRHe",
+                "text_fjKBBk"
+              ]
+            },
+            "button_UKkei9": {
+              "type": "button",
+              "settings": {
+                "label": "Shop now",
+                "link": "shopify://collections/all",
+                "open_in_new_tab": false,
+                "style_class": "button-unstyled",
+                "custom_button_background": "{{ settings.color_palette.foreground }}",
+                "custom_button_text": "{{ settings.color_palette.background }}",
+                "custom_button_border": "{{ settings.color_palette.background }}",
+                "link_text_color": "",
+                "width": "fit-content",
+                "custom_width": 100,
+                "width_mobile": "fit-content",
+                "custom_width_mobile": 100
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_pkgwgX",
+            "group_bTEJ4E",
+            "button_UKkei9"
+          ]
+        }
+      },
+      "name": "t:names.editorial",
+      "settings": {
+        "media_position": "left",
+        "media_width": "wide",
+        "media_height": "60svh",
+        "section_width": "full-width",
+        "extend_media": true,
+        "background_color": "#f8f7f4",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "spadra_brand_story": {
+      "type": "spadra-brand-story",
+      "settings": {
+        "eyebrow": "Our Story",
+        "title": "We built SPADRA to end counter bottle fatigue.",
+        "body": "<p>Six bottles on the counter, a different cap color for morning and night, a dose you doubled by accident. SPADRA protocols are packed in partnership with OKCapsule, a precision pouch-packing manufacturer that pre-sorts every ingredient in your protocol into a single daily tear-pack, at the correct clinical dose. One pouch, every day, done.</p>",
+        "background_color": "#f8f7f4"
+      }
+    },
+    "media_with_content_CWLczb": {
+      "type": "media-with-content",
+      "blocks": {
+        "media": {
+          "type": "_media-without-appearance",
+          "static": true,
+          "settings": {
+            "media_type": "image",
+            "image": "shopify://shop_images/Gemini_Generated_Image_qs53y7qs53y7qs53.jpg",
+            "link": "",
+            "video_loop": true,
+            "video_autoplay": false,
+            "image_position": "cover",
+            "video_position": "cover"
+          },
+          "blocks": {}
+        },
+        "content": {
+          "type": "_content-without-appearance",
+          "static": true,
+          "settings": {
+            "horizontal_alignment_flex_direction_column": "flex-start",
+            "vertical_alignment_flex_direction_column": "space-between",
+            "gap": 24
+          },
+          "blocks": {
+            "text_VGa6Cz": {
+              "type": "text",
+              "name": "t:names.caption",
+              "settings": {
+                "text": "<h2>Small packets. Meaningful momentum.</h2><p>Designed to make the daily ritual feel effortless.</p>",
+                "width": "fit-content",
+                "max_width": "normal",
+                "alignment": "left",
+                "type_preset": "h3",
+                "font": "var(--font-body--family)",
+                "font_size": "1rem",
+                "line_height": "normal",
+                "letter_spacing": "normal",
+                "case": "none",
+                "wrap": "pretty",
+                "text_color": "",
+                "background": false,
+                "background_color": "#00000026",
+                "corner_radius": 0,
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {}
+            },
+            "group_iUFdMJ": {
+              "type": "group",
+              "settings": {
+                "content_direction": "column",
+                "vertical_on_mobile": true,
+                "horizontal_alignment": "flex-start",
+                "vertical_alignment": "center",
+                "align_baseline": false,
+                "horizontal_alignment_flex_direction_column": "flex-start",
+                "vertical_alignment_flex_direction_column": "center",
+                "gap": 12,
+                "width": "fill",
+                "custom_width": 100,
+                "width_mobile": "fill",
+                "custom_width_mobile": 100,
+                "height": "fit",
+                "custom_height": 100,
+                "background_media": "none",
+                "background_color": "",
+                "video_position": "cover",
+                "background_image_position": "cover",
+                "toggle_overlay": false,
+                "overlay_color": "#00000026",
+                "overlay_style": "solid",
+                "gradient_direction": "to top",
+                "border": "none",
+                "border_width": 1,
+                "border_opacity": 100,
+                "border_color": "",
+                "border_radius": 0,
+                "link": "",
+                "open_in_new_tab": false,
+                "placeholder": "",
+                "padding-block-start": 0,
+                "padding-block-end": 0,
+                "padding-inline-start": 0,
+                "padding-inline-end": 0
+              },
+              "blocks": {
+                "text_PPgygj": {
+                  "type": "text",
+                  "name": "t:names.heading",
+                  "settings": {
+                    "text": "<h2>Our signature product</h2>",
+                    "width": "fit-content",
+                    "max_width": "normal",
+                    "alignment": "left",
+                    "type_preset": "h3",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                },
+                "text_njk7kT": {
+                  "type": "text",
+                  "settings": {
+                    "text": "<p>Made with care and unconditionally loved by our customers, this signature bestseller exceeds all expectations.</p>",
+                    "width": "fit-content",
+                    "max_width": "narrow",
+                    "alignment": "left",
+                    "type_preset": "rte",
+                    "font": "var(--font-body--family)",
+                    "font_size": "1rem",
+                    "line_height": "normal",
+                    "letter_spacing": "normal",
+                    "case": "none",
+                    "wrap": "pretty",
+                    "text_color": "",
+                    "background": false,
+                    "background_color": "#00000026",
+                    "corner_radius": 0,
+                    "padding-block-start": 0,
+                    "padding-block-end": 0,
+                    "padding-inline-start": 0,
+                    "padding-inline-end": 0
+                  },
+                  "blocks": {}
+                }
+              },
+              "block_order": [
+                "text_PPgygj",
+                "text_njk7kT"
+              ]
+            },
+            "button_q7wTLm": {
+              "type": "button",
+              "settings": {
+                "label": "Shop now",
+                "link": "shopify://collections/all",
+                "open_in_new_tab": false,
+                "style_class": "button-unstyled",
+                "custom_button_background": "{{ settings.color_palette.foreground }}",
+                "custom_button_text": "{{ settings.color_palette.background }}",
+                "custom_button_border": "{{ settings.color_palette.background }}",
+                "link_text_color": "",
+                "width": "fit-content",
+                "custom_width": 100,
+                "width_mobile": "fit-content",
+                "custom_width_mobile": 100
+              },
+              "blocks": {}
+            }
+          },
+          "block_order": [
+            "text_VGa6Cz",
+            "group_iUFdMJ",
+            "button_q7wTLm"
+          ]
+        }
+      },
+      "name": "t:names.editorial",
+      "settings": {
+        "media_position": "right",
+        "media_width": "medium",
+        "media_height": "50svh",
+        "section_width": "full-width",
+        "extend_media": true,
+        "background_color": "#eaf2ff",
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    },
+    "spadra_faq": {
+      "type": "found-faq",
+      "blocks": {
+        "faq_1": {
+          "type": "faq_item",
+          "settings": {
+            "question": "Is SPADRA a replacement for my prescription medication?",
+            "answer": "<p>No. SPADRA supplement packs are not a substitute for prescription medication and should be used with your healthcare provider. They are not intended to diagnose, treat, cure, or prevent any disease.</p>"
+          }
+        },
+        "faq_2": {
+          "type": "faq_item",
+          "settings": {
+            "question": "What is OKCapsule?",
+            "answer": "<p>OKCapsule is our supplement manufacturing and pre-sort packaging partner. Every SPADRA pouch is filled and sealed by OKCapsule so your daily dose is accurate and ready to go.</p>"
+          }
+        },
+        "faq_3": {
+          "type": "faq_item",
+          "settings": {
+            "question": "How do I know which pack is right for me?",
+            "answer": "<p>Take the four-question Find Your Protocol assessment for an informational recommendation, or browse every protocol directly. If you're unsure, check with your provider.</p>"
+          }
+        },
+        "faq_4": {
+          "type": "faq_item",
+          "settings": {
+            "question": "How long does one pack last?",
+            "answer": "<p>Every protocol ships as a 30-day supply — one pre-sorted pouch per day. Orders are one-time purchases today; recurring delivery is not available yet, so reorder whenever you're ready for the next cycle.</p>"
+          }
+        },
+        "faq_5": {
+          "type": "faq_item",
+          "settings": {
+            "question": "Are these products FDA approved?",
+            "answer": "<p>SPADRA products are dietary supplements. These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "faq_1",
+        "faq_2",
+        "faq_3",
+        "faq_4",
+        "faq_5"
+      ],
+      "settings": {
+        "title": "Frequently Asked Questions",
+        "background_color": "#f8f7f4"
+      }
+    },
+    "17870372871d24ea1b": {
+      "type": "_blocks",
+      "blocks": {
+        "ai_gen_block_008a633_aN43ad": {
+          "type": "ai_gen_block_008a633",
+          "settings": {
+            "overlay_opacity": 0.4,
+            "min_height_desktop": 700,
+            "min_height_mobile": 600,
+            "vertical_alignment": "center",
+            "horizontal_alignment": "flex-start",
+            "text_alignment": "left",
+            "content_max_width": 700,
+            "heading": "Precision Nutrition Engineered for Daily Human Vitality",
+            "heading_size": 56,
+            "heading_color": "#FFFFFF",
+            "subheading": "Targeted daily supplement pouches designed to support hormone balance, cognitive focus, physical output, and GLP-1 wellness.",
+            "subheading_size": 18,
+            "subheading_color": "#FFFFFF",
+            "primary_button_label": "Find Your Protocol",
+            "primary_button_link": "",
+            "primary_button_bg": "#FFFFFF",
+            "primary_button_text_color": "#000000",
+            "primary_button_hover_bg": "#E5E5E5",
+            "secondary_button_label": "Browse All Protocols",
+            "secondary_button_link": "",
+            "secondary_button_text_color": "#FFFFFF",
+            "secondary_button_border": "#FFFFFF",
+            "secondary_button_hover_bg": "rgba(255, 255, 255, 0.1)",
+            "secondary_button_hover_border": "#FFFFFF",
+            "button_border_radius": 8,
+            "feature_1": "Hormone Balance",
+            "feature_2": "Cognitive Focus",
+            "feature_3": "Pre-Sorted Daily Pouches",
+            "features_text_size": 16,
+            "features_text_color": "#FFFFFF",
+            "dot_size": 10,
+            "dot_color": "#4ADE80"
+          },
+          "blocks": {}
+        }
+      },
+      "block_order": [
+        "ai_gen_block_008a633_aN43ad"
+      ],
+      "settings": {
+        "content_direction": "column",
+        "vertical_on_mobile": true,
+        "horizontal_alignment": "flex-start",
+        "vertical_alignment": "center",
+        "align_baseline": false,
+        "horizontal_alignment_flex_direction_column": "flex-start",
+        "vertical_alignment_flex_direction_column": "center",
+        "gap": 12,
+        "section_width": "page-width",
+        "section_height": "",
+        "section_height_custom": 50,
+        "background_media": "none",
+        "background_color": "",
+        "video_position": "cover",
+        "background_image_position": "cover",
+        "toggle_overlay": false,
+        "overlay_color": "#00000026",
+        "overlay_style": "solid",
+        "gradient_direction": "to top",
+        "border": "none",
+        "border_width": 1,
+        "border_opacity": 100,
+        "border_color": "",
+        "border_radius": 0,
+        "padding-block-start": 0,
+        "padding-block-end": 0
+      }
+    }
+  },
+  "order": [
+    "spadra_hero",
+    "spadra_ticker",
+    "spadra_how_it_works",
+    "media_with_content_fLfwFT",
+    "spadra_protocols",
+    "media_with_content_gehViE",
+    "spadra_timeline",
+    "media_with_content_NfiQtV",
+    "spadra_brand_story",
+    "media_with_content_CWLczb",
+    "spadra_faq",
+    "17870372871d24ea1b"
+  ]
+}

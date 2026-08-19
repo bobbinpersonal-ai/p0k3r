@@ -1,0 +1,298 @@
+{%- comment -%}
+  SPADRA hero — full-bleed image with a dark scrim and both protocol CTAs.
+
+  The source images are wide, with the product packet off to one side, so a
+  centred crop loses the packet on narrow screens. Desktop and mobile therefore
+  get their own focal point setting, and mobile can take a separate image
+  entirely when the wide crop will not work at all.
+{%- endcomment -%}
+
+{%- liquid
+  assign img = section.settings.image
+  assign img_mobile = section.settings.image_mobile | default: img
+  assign overlay = section.settings.overlay_opacity | divided_by: 100.0
+-%}
+
+<div
+  class="spadra-hero{% if img == blank %} spadra-hero--plain{% endif %}"
+  style="
+    --hero-overlay: {{ overlay }};
+    --hero-focal: {{ section.settings.focal_desktop }};
+    --hero-focal-mobile: {{ section.settings.focal_mobile }};
+    --hero-min-h: {{ section.settings.height_desktop }}svh;
+    --hero-min-h-mobile: {{ section.settings.height_mobile }}svh;
+  "
+>
+  {%- if img != blank -%}
+    <div class="spadra-hero__media" aria-hidden="true">
+      {{
+        img
+        | image_url: width: 2400
+        | image_tag:
+          class: 'spadra-hero__img spadra-hero__img--desktop',
+          widths: '800, 1200, 1600, 2000, 2400',
+          sizes: '100vw',
+          loading: 'eager',
+          fetchpriority: 'high',
+          alt: ''
+      }}
+      {{
+        img_mobile
+        | image_url: width: 1200
+        | image_tag:
+          class: 'spadra-hero__img spadra-hero__img--mobile',
+          widths: '480, 750, 1000, 1200',
+          sizes: '100vw',
+          loading: 'eager',
+          fetchpriority: 'high',
+          alt: ''
+      }}
+      <span class="spadra-hero__scrim"></span>
+    </div>
+  {%- endif -%}
+
+  <div class="spadra-hero__inner">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="spadra-hero__eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    <h1 class="spadra-hero__headline">{{ section.settings.headline }}</h1>
+    {%- if section.settings.subheadline != blank -%}
+      <p class="spadra-hero__subhead">{{ section.settings.subheadline }}</p>
+    {%- endif -%}
+
+    <div class="spadra-hero__ctas">
+      <button type="button" class="spadra-hero__primary-cta" data-spadra-quiz-open>
+        {{ section.settings.primary_cta_label }}
+      </button>
+      <a href="{{ section.settings.secondary_cta_link | default: '#spadra-protocols' }}" class="spadra-hero__secondary-cta">
+        {{ section.settings.secondary_cta_label }}
+      </a>
+    </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <ul class="spadra-hero__trust">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'trust_item' and block.settings.label != blank -%}
+            <li {{ block.shopify_attributes }}>{{ block.settings.label }}</li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</div>
+
+{% stylesheet %}
+  .spadra-hero {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    min-height: var(--hero-min-h, 78svh);
+    padding: 88px 24px 72px;
+    background: #0B1220;
+    overflow: hidden;
+  }
+  .spadra-hero--plain { background: #0B1220; }
+
+  .spadra-hero__media {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+  .spadra-hero__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--hero-focal, center);
+    display: block;
+  }
+  .spadra-hero__img--mobile { display: none; }
+  .spadra-hero__scrim {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(
+        to bottom,
+        rgba(11, 18, 32, calc(var(--hero-overlay, 0.55) * 0.75)) 0%,
+        rgba(11, 18, 32, var(--hero-overlay, 0.55)) 55%,
+        rgba(11, 18, 32, calc(var(--hero-overlay, 0.55) + 0.12)) 100%
+      );
+  }
+
+  .spadra-hero__inner {
+    position: relative;
+    max-width: 760px;
+    width: 100%;
+    text-align: center;
+    color: #FFFFFF;
+  }
+  .spadra-hero__eyebrow {
+    margin: 0 0 14px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #4ADE80;
+  }
+  .spadra-hero__headline {
+    font-family: var(--font-heading--family);
+    font-size: clamp(2.1rem, 5.2vw, 3.6rem);
+    line-height: 1.08;
+    color: #FFFFFF;
+    margin: 0 0 18px;
+    text-wrap: balance;
+  }
+  .spadra-hero__subhead {
+    font-size: clamp(0.98rem, 1.6vw, 1.1rem);
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.82);
+    max-width: 560px;
+    margin: 0 auto 32px;
+    text-wrap: pretty;
+  }
+  .spadra-hero__ctas {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 36px;
+  }
+  .spadra-hero__primary-cta {
+    background: #FFFFFF;
+    color: #0B1220;
+    border: none;
+    border-radius: 100px;
+    padding: 16px 34px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .spadra-hero__primary-cta:hover { background: #00C853; color: #041109; }
+  .spadra-hero__secondary-cta {
+    color: #FFFFFF;
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 100px;
+    padding: 15px 28px;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .spadra-hero__secondary-cta:hover {
+    border-color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.12);
+  }
+  .spadra-hero__trust {
+    list-style: none;
+    display: flex;
+    gap: 22px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.9);
+  }
+  .spadra-hero__trust li { display: flex; align-items: center; gap: 7px; }
+  .spadra-hero__trust li::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4ADE80;
+    display: inline-block;
+    flex: 0 0 auto;
+  }
+
+  @media screen and (max-width: 749px) {
+    .spadra-hero {
+      min-height: var(--hero-min-h-mobile, 88svh);
+      padding: 64px 20px 56px;
+    }
+    .spadra-hero__img--desktop { display: none; }
+    .spadra-hero__img--mobile { display: block; object-position: var(--hero-focal-mobile, center); }
+    .spadra-hero__ctas { flex-direction: column; gap: 12px; margin-bottom: 30px; }
+    .spadra-hero__primary-cta,
+    .spadra-hero__secondary-cta { width: 100%; max-width: 340px; text-align: center; }
+    .spadra-hero__trust { gap: 14px 20px; font-size: 0.78rem; }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .spadra-hero__inner { animation: spadra-hero-in 0.5s ease both; }
+    @keyframes spadra-hero-in {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: none; }
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SPADRA Hero",
+  "settings": [
+    { "type": "image_picker", "id": "image", "label": "Background image" },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Mobile background image",
+      "info": "Optional. Falls back to the main image. Use a taller crop if the wide image loses the packet on phones."
+    },
+    {
+      "type": "select",
+      "id": "focal_desktop",
+      "label": "Desktop image focus",
+      "default": "center",
+      "options": [
+        { "value": "left center", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right center", "label": "Right" },
+        { "value": "center top", "label": "Top" },
+        { "value": "center bottom", "label": "Bottom" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "focal_mobile",
+      "label": "Mobile image focus",
+      "default": "right center",
+      "options": [
+        { "value": "left center", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right center", "label": "Right" },
+        { "value": "center top", "label": "Top" },
+        { "value": "center bottom", "label": "Bottom" }
+      ],
+      "info": "Set this to whichever side the packet sits on so it stays in frame."
+    },
+    { "type": "range", "id": "overlay_opacity", "label": "Dark overlay", "min": 0, "max": 90, "step": 5, "unit": "%", "default": 55 },
+    { "type": "range", "id": "height_desktop", "label": "Desktop height", "min": 50, "max": 100, "step": 5, "unit": "vh", "default": 80 },
+    { "type": "range", "id": "height_mobile", "label": "Mobile height", "min": 50, "max": 100, "step": 5, "unit": "vh", "default": 90 },
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow" },
+    { "type": "text", "id": "headline", "label": "Headline", "default": "Precision nutrition, delivered daily." },
+    { "type": "textarea", "id": "subheadline", "label": "Subheadline", "default": "One packet. A clearer routine. Built for modern vitality." },
+    { "type": "text", "id": "primary_cta_label", "label": "Primary CTA label", "default": "Find Your Protocol" },
+    { "type": "text", "id": "secondary_cta_label", "label": "Secondary CTA label", "default": "Browse All Protocols" },
+    { "type": "text", "id": "secondary_cta_link", "label": "Secondary CTA link", "default": "#spadra-protocols" }
+  ],
+  "blocks": [
+    {
+      "type": "trust_item",
+      "name": "Trust indicator",
+      "settings": [{ "type": "text", "id": "label", "label": "Label", "default": "Pre-Sorted Daily Pouches" }]
+    }
+  ],
+  "max_blocks": 4,
+  "presets": [
+    {
+      "name": "SPADRA Hero",
+      "blocks": [
+        { "type": "trust_item", "settings": { "label": "Hormone Balance" } },
+        { "type": "trust_item", "settings": { "label": "Cognitive Focus" } },
+        { "type": "trust_item", "settings": { "label": "Pre-Sorted Daily Pouches" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
