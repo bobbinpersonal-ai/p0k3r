@@ -142,3 +142,57 @@ preview before publishing:
 3. The quiz — multi-select checkboxes, Continue button, one result per goal, the fit-together note.
 4. Whether the subscription selector actually appears in the buy button on the
    published theme; the copy points at "the purchase options above".
+
+## Specialist Match & 90-Day Roadmap
+
+Renders inside the quiz results, between the "how these fit together" note and
+the buttons. Structure as specced: badge, match headline, dynamic subhead,
+areas of focus, three included benefits, the three-month roadmap as a timeline,
+and the activation line naming the matched pack.
+
+It lives in `snippets/spadra-specialist-match.liquid` as a hidden `<template>`.
+The quiz clones it and substitutes `{{GOAL_PHRASE}}` and `{{PACK_NAME}}`, so
+every word stays editable in the theme editor while the block still speaks to
+the shopper's own answers. The goal phrase is built from the goal labels already
+attached to the assessment's focus question, so it names what they actually
+picked rather than a generic category.
+
+### Three deliberate departures from the brief
+
+1. **Cadence and activation are settings, not literals**, and the whole block
+   has an on/off switch. "Two check-ins a week, included" is an operational
+   promise a person has to keep for every customer who reads it, on a store
+   selling 66 protocols. When that stops being sustainable it has to be
+   changeable without a developer.
+
+2. **The role is stated as coaching, never clinical, and the disclaimer is part
+   of the block.** "Specialist" next to "protocol", "biometric" and
+   "credentials" on a supplement storefront reads as medical qualification. The
+   brief's word "credentials" is not used anywhere in customer-facing copy —
+   it says "works on" instead — and a non-removable line states that the role is
+   coaching and accountability, not medical advice.
+
+3. **"Biometric tracking" is described as what the customer reports back**, not
+   as device or lab integration, because no such integration exists. The value
+   proposition is unchanged; the mechanism is stated accurately.
+
+### Copy bug caught before it shipped
+
+The goal labels themselves contain "and" — "Energy and stamina", "Focus and
+clarity". Running them through the existing conjunction list join produced:
+
+> "You told us your focus is energy and stamina and focus and clarity"
+
+Multiple goals are now listed comma-separated between em dashes and counted:
+
+> "You told us about 3 priorities — energy and stamina, focus and clarity, sleep
+> and stress recovery — all areas Bobbin works on directly."
+
+`stackNote()` keeps the conjunction join because it lists ingredient names.
+`snippets/spadra-goal-phrase.liquid` records the rule so it is not undone by a
+later refactor toward a single shared helper.
+
+### Regression check
+
+`scripts/quiz_simulate.py` re-run after the change: 2,214 paths, identical
+results — 0 cross-gender leaks, 0 empty, 0 unrepresented goals.
