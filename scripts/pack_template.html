@@ -1,0 +1,192 @@
+<!doctype html>
+<!--
+  SPADRA pack image master template.
+
+  Rendered headless by scripts/render_packs.py at 1200x1200. Placeholders are
+  substituted server-side (double-brace tokens) — there is no JavaScript and no
+  network fetch, so a given config renders byte-identically every time. The
+  sha256 of this file is the template_hash in the registry: change this file and
+  every pack is correctly marked for regeneration.
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 1200px;
+    height: 1200px;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: geometricPrecision;
+  }
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+      radial-gradient(120% 90% at 50% 8%, #FFFFFF 0%, #F4F2ED 46%, #E9E6DF 100%);
+    font-family: "Liberation Sans", "DejaVu Sans", sans-serif;
+  }
+
+  /* --- the sachet --- */
+  .pack {
+    position: relative;
+    width: 660px;
+    height: 880px;
+    border-radius: 20px;
+    background:
+      linear-gradient(157deg, #16202F 0%, #0B1220 42%, #070C15 100%);
+    box-shadow:
+      0 60px 90px -40px rgba(11, 18, 32, 0.55),
+      0 8px 24px rgba(11, 18, 32, 0.18);
+    padding: 58px 54px 52px;
+    display: flex;
+    flex-direction: column;
+    color: #FFFFFF;
+    overflow: hidden;
+  }
+
+  /* sealed crimp along the top edge */
+  .pack::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 26px;
+    background:
+      repeating-linear-gradient(90deg,
+        rgba(255,255,255,0.14) 0 3px,
+        rgba(255,255,255,0.02) 3px 7px);
+    border-bottom: 1px solid rgba(255,255,255,0.10);
+  }
+  /* soft sheen down the left face */
+  .pack::after {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    width: 46%;
+    background: linear-gradient(100deg, rgba(255,255,255,0.07), rgba(255,255,255,0) 70%);
+    pointer-events: none;
+  }
+
+  .wordmark {
+    margin-top: 12px;
+    text-align: center;
+    font-family: "Bitstream Charter", "Liberation Serif", "DejaVu Serif", serif;
+    font-size: 40px;
+    letter-spacing: 0.30em;
+    text-indent: 0.30em;
+    color: #FFFFFF;
+  }
+
+  .rule {
+    margin: 26px 0 30px;
+    height: 1px;
+    background: linear-gradient(90deg,
+      rgba(255,255,255,0) 0%,
+      rgba(255,255,255,0.30) 22%,
+      rgba(255,255,255,0.30) 78%,
+      rgba(255,255,255,0) 100%);
+  }
+
+  .category {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.17em;
+    text-transform: uppercase;
+    color: #4ADE80;
+  }
+
+  .title {
+    margin-top: 14px;
+    text-align: center;
+    font-family: "Bitstream Charter", "Liberation Serif", "DejaVu Serif", serif;
+    font-size: 46px;
+    line-height: 1.1;
+    letter-spacing: 0.004em;
+  }
+  .title.is-long { font-size: 38px; }
+  .title.is-xlong { font-size: 32px; }
+
+  /* --- actives --- */
+  .actives {
+    margin-top: 40px;
+    flex: 1;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .active {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    padding: 11px 2px;
+    border-bottom: 1px solid rgba(255,255,255,0.09);
+    font-size: 22px;
+    color: rgba(255,255,255,0.90);
+  }
+  .active:last-child { border-bottom: none; }
+  .active .dose {
+    flex: 0 0 auto;
+    min-width: 26px;
+    font-variant-numeric: tabular-nums;
+    color: rgba(255,255,255,0.45);
+    font-size: 19px;
+  }
+  .active .more { color: rgba(255,255,255,0.45); font-style: italic; }
+
+  /* --- footer --- */
+  .foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 26px;
+    border-top: 1px solid rgba(255,255,255,0.16);
+  }
+  .when { display: flex; align-items: center; gap: 13px; }
+  .when .icon {
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.28);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .when .label {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.82);
+  }
+  .supply {
+    text-align: right;
+    font-size: 15px;
+    letter-spacing: 0.06em;
+    color: rgba(255,255,255,0.62);
+  }
+  .supply strong { display: block; font-size: 22px; color: #FFFFFF; letter-spacing: 0.02em; }
+</style>
+</head>
+<body>
+  <div class="pack">
+    <div class="wordmark">SPADRA</div>
+    <div class="rule"></div>
+
+    <div class="category">{{CATEGORY}}</div>
+    <h1 class="title {{TITLE_CLASS}}">{{TITLE}}</h1>
+
+    <ul class="actives">{{ACTIVES}}</ul>
+
+    <div class="foot">
+      <div class="when">
+        <span class="icon">{{ICON}}</span>
+        <span class="label">{{WHEN}}</span>
+      </div>
+      <div class="supply"><strong>{{QTY}}</strong>daily packs</div>
+    </div>
+  </div>
+</body>
+</html>
