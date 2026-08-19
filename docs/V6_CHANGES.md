@@ -265,3 +265,26 @@ The fix does not depend on the diagnosis being right:
 View-source on any page and search `data-quiz-catalog` — the array should hold
 66 entries. If it holds 2, the collection loop is still not seeing the
 catalogue and the cause is upstream of the theme.
+
+## Bobbin's photo, and what looking for it turned up
+
+The photo was already in Shopify Files as **BOBBIN_ICON** (200×200 JPG, uploaded
+twice). It is now wired to the specialist block's `specialist_photo` setting.
+
+Static sections rendered with `{% section %}` do not keep their settings in a
+`sections/*.json` file — they live in `config/settings_data.json` under
+`current.sections`. The quiz's entry was there with an empty settings object,
+which is why the picker read as unset.
+
+Reading that file answered two other open questions:
+
+- **Shopify Inbox is installed and enabled** — the app block is present with
+  `disabled: false`, `button_text: "chat_with_us"`, pinned bottom-right. The AI
+  chat asked for is already live; nothing to install.
+- **So the theme's own chat button had to go.** It has been removed from
+  `layout/theme.liquid`. The previous version tried to stand down once
+  `<shopify-chat>` upgraded, but the Inbox *app block* does not necessarily
+  register that custom element, so the guard could fail open and leave two chat
+  launchers stacked in the same corner. Letting the app own that corner is the
+  version that cannot double up. The comment in `theme.liquid` records why, and
+  what to put back if Inbox is ever uninstalled.
