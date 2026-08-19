@@ -202,7 +202,7 @@
                   "type": "text",
                   "name": "t:names.heading",
                   "settings": {
-                    "text": "<h2>Our signature product</h2>",
+                    "text": "<h2>One pouch, not six bottles.</h2>",
                     "width": "fit-content",
                     "max_width": "normal",
                     "alignment": "left",
@@ -227,7 +227,7 @@
                 "text_VFy4xd": {
                   "type": "text",
                   "settings": {
-                    "text": "<p>Made with care and unconditionally loved by our customers, this signature bestseller exceeds all expectations.</p>",
+                    "text": "<p>Every ingredient in your protocol is pre-sorted into a single daily tear-pack at its clinical dose, so there is nothing to count out and nothing to double by accident.</p>",
                     "width": "fit-content",
                     "max_width": "narrow",
                     "alignment": "left",
@@ -397,7 +397,7 @@
                   "type": "text",
                   "name": "t:names.heading",
                   "settings": {
-                    "text": "<h2>Our signature product</h2>",
+                    "text": "<h2>Built around mechanism, not marketing.</h2>",
                     "width": "fit-content",
                     "max_width": "normal",
                     "alignment": "left",
@@ -408,7 +408,7 @@
                     "letter_spacing": "normal",
                     "case": "none",
                     "wrap": "pretty",
-                    "text_color": "",
+                    "text_color": "#ffffff",
                     "background": false,
                     "background_color": "#00000026",
                     "corner_radius": 0,
@@ -422,7 +422,7 @@
                 "text_iaz6HF": {
                   "type": "text",
                   "settings": {
-                    "text": "<p>Made with care and unconditionally loved by our customers, this signature bestseller exceeds all expectations.</p>",
+                    "text": "<p>Each protocol is assembled from actives chosen for what they actually do — substrate, cofactor, or precursor — and every product page names which is which.</p>",
                     "width": "fit-content",
                     "max_width": "narrow",
                     "alignment": "left",
@@ -433,7 +433,7 @@
                     "letter_spacing": "normal",
                     "case": "none",
                     "wrap": "pretty",
-                    "text_color": "",
+                    "text_color": "#ffffff",
                     "background": false,
                     "background_color": "#00000026",
                     "corner_radius": 0,
@@ -630,7 +630,7 @@
                   "type": "text",
                   "name": "t:names.heading",
                   "settings": {
-                    "text": "<h2>Our signature product</h2>",
+                    "text": "<h2>Thirty days, in your bag.</h2>",
                     "width": "fit-content",
                     "max_width": "normal",
                     "alignment": "left",
@@ -655,7 +655,7 @@
                 "text_fjKBBk": {
                   "type": "text",
                   "settings": {
-                    "text": "<p>Made with care and unconditionally loved by our customers, this signature bestseller exceeds all expectations.</p>",
+                    "text": "<p>A month of protocol ships as thirty sealed pouches. Take the day's pouch and go: nothing to portion at home, nothing to leave behind when you travel.</p>",
                     "width": "fit-content",
                     "max_width": "narrow",
                     "alignment": "left",
@@ -825,7 +825,7 @@
                   "type": "text",
                   "name": "t:names.heading",
                   "settings": {
-                    "text": "<h2>Our signature product</h2>",
+                    "text": "<h2>Judged on a real timeline.</h2>",
                     "width": "fit-content",
                     "max_width": "normal",
                     "alignment": "left",
@@ -850,7 +850,7 @@
                 "text_njk7kT": {
                   "type": "text",
                   "settings": {
-                    "text": "<p>Made with care and unconditionally loved by our customers, this signature bestseller exceeds all expectations.</p>",
+                    "text": "<p>Every protocol carries a 30-60-90 day plan that says what to expect and when — including the months where the honest answer is that consistency is the only thing to measure.</p>",
                     "width": "fit-content",
                     "max_width": "narrow",
                     "alignment": "left",
@@ -966,80 +966,6 @@
         "title": "Frequently Asked Questions",
         "background_color": "#f8f7f4"
       }
-    },
-    "17870372871d24ea1b": {
-      "type": "_blocks",
-      "blocks": {
-        "ai_gen_block_008a633_aN43ad": {
-          "type": "ai_gen_block_008a633",
-          "settings": {
-            "overlay_opacity": 0.4,
-            "min_height_desktop": 700,
-            "min_height_mobile": 600,
-            "vertical_alignment": "center",
-            "horizontal_alignment": "flex-start",
-            "text_alignment": "left",
-            "content_max_width": 700,
-            "heading": "Precision Nutrition Engineered for Daily Human Vitality",
-            "heading_size": 56,
-            "heading_color": "#FFFFFF",
-            "subheading": "Targeted daily supplement pouches designed to support hormone balance, cognitive focus, physical output, and GLP-1 wellness.",
-            "subheading_size": 18,
-            "subheading_color": "#FFFFFF",
-            "primary_button_label": "Find Your Protocol",
-            "primary_button_link": "",
-            "primary_button_bg": "#FFFFFF",
-            "primary_button_text_color": "#000000",
-            "primary_button_hover_bg": "#E5E5E5",
-            "secondary_button_label": "Browse All Protocols",
-            "secondary_button_link": "",
-            "secondary_button_text_color": "#FFFFFF",
-            "secondary_button_border": "#FFFFFF",
-            "secondary_button_hover_bg": "rgba(255, 255, 255, 0.1)",
-            "secondary_button_hover_border": "#FFFFFF",
-            "button_border_radius": 8,
-            "feature_1": "Hormone Balance",
-            "feature_2": "Cognitive Focus",
-            "feature_3": "Pre-Sorted Daily Pouches",
-            "features_text_size": 16,
-            "features_text_color": "#FFFFFF",
-            "dot_size": 10,
-            "dot_color": "#4ADE80"
-          },
-          "blocks": {}
-        }
-      },
-      "block_order": [
-        "ai_gen_block_008a633_aN43ad"
-      ],
-      "settings": {
-        "content_direction": "column",
-        "vertical_on_mobile": true,
-        "horizontal_alignment": "flex-start",
-        "vertical_alignment": "center",
-        "align_baseline": false,
-        "horizontal_alignment_flex_direction_column": "flex-start",
-        "vertical_alignment_flex_direction_column": "center",
-        "gap": 12,
-        "section_width": "page-width",
-        "section_height": "",
-        "section_height_custom": 50,
-        "background_media": "none",
-        "background_color": "",
-        "video_position": "cover",
-        "background_image_position": "cover",
-        "toggle_overlay": false,
-        "overlay_color": "#00000026",
-        "overlay_style": "solid",
-        "gradient_direction": "to top",
-        "border": "none",
-        "border_width": 1,
-        "border_opacity": 100,
-        "border_color": "",
-        "border_radius": 0,
-        "padding-block-start": 0,
-        "padding-block-end": 0
-      }
     }
   },
   "order": [
@@ -1053,7 +979,6 @@
     "media_with_content_NfiQtV",
     "spadra_brand_story",
     "media_with_content_CWLczb",
-    "spadra_faq",
-    "17870372871d24ea1b"
+    "spadra_faq"
   ]
 }
