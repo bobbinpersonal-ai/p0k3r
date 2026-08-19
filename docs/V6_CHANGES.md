@@ -196,3 +196,72 @@ later refactor toward a single shared helper.
 
 `scripts/quiz_simulate.py` re-run after the change: 2,214 paths, identical
 results — 0 cross-gender leaks, 0 empty, 0 unrepresented goals.
+
+---
+
+# V7 — two bugs found on the live site
+
+Draft theme: **SPADRA V7 — Specialist Block Fix** (`153185681547`), unpublished.
+V6 is currently MAIN, so these fixes need publishing.
+
+## 1. Liquid syntax error in the specialist snippet (confirmed)
+
+The live page printed:
+
+```
+Liquid syntax error (snippets/spadra-specialist-match line 51):
+Unexpected character ' in "{{ '{{GOAL_PHRASE}}' }}"
+```
+
+I had tried to emit a literal placeholder by wrapping it in a quoted string.
+That cannot work: Liquid parses the inner braces before it ever sees the string.
+The correct way to emit literal double braces is a `raw` block, which is what
+the snippet now uses for both `GOAL_PHRASE` and `PACK_NAME`.
+
+Fixing it surfaced a second, related trap. Naming a `raw` tag *inside* a
+`comment` block opens a real raw block and swallows the closing `endcomment`,
+so the first corrected upload failed with "'comment' tag was never closed". The
+snippet's header comment now spells those tags out in words instead of writing
+them.
+
+## 2. Three goals returned one protocol (inferred, fix is unconditional)
+
+The same screenshot showed the lede "You told us about 3 things. Here is one
+protocol for each" above a **single** card, with a singular "Add to cart" — so
+`picks.length` was 1 while three goals were selected.
+
+The one result was `nitric-oxide-men-1`. The catalogue was assembled by chaining
+
+```liquid
+assign packs = packs | concat: collections[handle].products
+```
+
+over seven collections, and `bedroom-performance` is the **first** link in that
+chain with exactly two products — one men's, one women's. A shopper answering
+"a man" against a catalogue of just that collection gets exactly one eligible
+pack. Every other symptom follows: no second card, no "how these fit together"
+note, singular cart button.
+
+That is an inference, not a reproduction — the network policy here blocks the
+storefront, so I could not observe the rendered catalogue directly. The
+`scripts/quiz_simulate.py` sweep passes 2,214 paths precisely because it feeds
+the scoring engine all 66 packs; it tests the ranking, not the Liquid that
+supplies it, which is exactly the gap this bug lived in.
+
+The fix does not depend on the diagnosis being right:
+
+- **`snippets/spadra-quiz-catalog.liquid`** builds the array with an explicit
+  nested `for` loop over the seven collections. A loop cannot silently collapse
+  the way the `concat` chain did, and the output is easy to eyeball in view-source.
+- **The quiz de-dupes on handle** when parsing, since a pack listed in two
+  collections now legitimately appears twice.
+- **The results copy can no longer contradict itself.** "One protocol for each"
+  is printed only when `picks.length >= goalCount`; otherwise it says "Your
+  closest matches, best fit first." Whatever the catalogue supplies, the page
+  describes what is actually on screen.
+
+## Check after publishing
+
+View-source on any page and search `data-quiz-catalog` — the array should hold
+66 entries. If it holds 2, the collection loop is still not seeing the
+catalogue and the cause is upstream of the theme.
