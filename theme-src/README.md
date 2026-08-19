@@ -7,6 +7,13 @@ Shopify's Horizon theme; the files here are the custom layer written for SPADRA.
 They are checked in so the custom work is diffable and version-controlled — the
 authoritative copy lives in the Shopify theme itself.
 
+> **Mirror status.** The Shopify theme is the source of truth and is ahead of
+> this directory for `sections/found-hero.liquid`, `sections/spadra-stack.liquid`,
+> `sections/spadra-collection-edu.liquid` (new) and `templates/collection.json`
+> (new). Re-mirroring every file on every change costs more than it returns —
+> use **Online Store → Themes → … → Download theme file** for a complete,
+> current copy.
+
 For a full, restorable backup, download the theme zip from Shopify admin:
 **Online Store → Themes → … → Download theme file**. Do that after publishing,
 not from this directory.
