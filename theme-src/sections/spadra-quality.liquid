@@ -1,0 +1,330 @@
+{%- comment -%}
+  SPADRA manufacturing & quality standards.
+
+  Adapted from OKCapsule's own manufacturer-facing site (SPADRA's actual
+  packing partner — see spadra-brand-story.liquid), not copied wholesale.
+  Icons are original inline SVGs, not the source raster images. Three changes
+  from the source copy, made deliberately and not for style:
+
+  - No FDA badge/seal. The FDA does not certify or approve dietary
+    supplements, and every page on this site already carries the required
+    disclaimer to that effect (see spadra-pdp.liquid). Rendering an "FDA"
+    icon as a trust badge implies an endorsement that does not exist and that
+    federal rules specifically prohibit implying. Do not add one back.
+  - No "doctor-formulated." SPADRA has no named doctor on the formulation
+    team (see spadra-support-team.liquid's rule: named real people only, no
+    fabricated credentials). The standards list says what is actually true —
+    evidence-based dosing — without claiming a credential nobody holds.
+  - No head-to-head "us vs. typical OTC supplements" table. SPADRA's own
+    products are OTC supplements, so that framing undermines itself, and
+    disparaging unnamed competitors without evidence is its own problem. The
+    standards are stated as what they are, not as a comparison.
+
+  cGMP / third-party testing / non-GMO / clean-label claims are relayed as
+  OKCapsule's own statements about its facility, the same way spadra-brand-
+  story.liquid already names OKCapsule as the packing partner. If any of
+  these stop being true of the actual manufacturing partner, this section
+  needs a correction, not a copy edit.
+{%- endcomment -%}
+
+<section class="spadra-quality" style="background: {{ section.settings.background_color }};">
+  <div class="spadra-quality__inner">
+    <div class="spadra-quality__intro">
+      {%- if section.settings.eyebrow != blank -%}
+        <p class="spadra-quality__eyebrow">{{ section.settings.eyebrow }}</p>
+      {%- endif -%}
+      <h2 class="spadra-quality__heading">{{ section.settings.heading }}</h2>
+      {%- if section.settings.body != blank -%}
+        <p class="spadra-quality__body">{{ section.settings.body }}</p>
+      {%- endif -%}
+    </div>
+
+    {%- if section.blocks.size > 0 -%}
+      <ul class="spadra-quality__grid">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'category' and block.settings.label != blank -%}
+            <li class="spadra-quality__cat" {{ block.shopify_attributes }}>
+              <span class="spadra-quality__icon" aria-hidden="true">
+                {%- case block.settings.icon -%}
+                  {%- when 'flask' -%}
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M19 6h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M21 6v10.2c0 .8-.24 1.58-.68 2.24L12.9 30.6C10.6 34.06 13.1 38.6 17.26 38.6h13.48c4.16 0 6.66-4.54 4.36-8L27.68 18.44A4 4 0 0 1 27 16.2V6" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                      <path d="M16.5 28.5h15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <circle cx="30" cy="14" r="1.4" fill="currentColor"/>
+                      <circle cx="33" cy="19" r="1" fill="currentColor"/>
+                    </svg>
+                  {%- when 'mineral' -%}
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M18 10l9-3 8 7-4 11-13 2-6-9 6-8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                      <path d="M18 10l4 8-4 12" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+                      <rect x="12" y="27" width="16" height="9" rx="4.5" stroke="currentColor" stroke-width="2"/>
+                      <path d="M20 27v9" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                  {%- when 'leaf' -%}
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M14 34c-4-9-1-19 8-24 8-4.4 16-2 16-2s1.4 8.6-3 16c-5 8-13 11-21 10z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                      <path d="M14 34c4-8 10-14 18-18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                  {%- when 'droplet' -%}
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M24 8c6 7.5 10 13.4 10 18.4C34 33 29.5 38 24 38s-10-5-10-11.6C14 21.4 18 15.5 24 8z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                      <circle cx="20.5" cy="30.5" r="1.4" fill="currentColor"/>
+                      <circle cx="26" cy="33.5" r="1" fill="currentColor"/>
+                      <path d="M28 24l3 3M31 21l2 2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                  {%- else -%}
+                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="20" cy="20" r="10" stroke="currentColor" stroke-width="2"/>
+                      <path d="M27.5 27.5L36 36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                      <path d="M16 20l2.6 2.6L25 16" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                {%- endcase -%}
+              </span>
+              <p class="spadra-quality__cat-label">{{ block.settings.label }}</p>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    {%- if section.settings.standards_items != blank -%}
+      {%- assign rows = section.settings.standards_items | split: '|' -%}
+      <div class="spadra-quality__standards">
+        {%- if section.settings.standards_title != blank -%}
+          <p class="spadra-quality__standards-title">{{ section.settings.standards_title }}</p>
+        {%- endif -%}
+        <ul class="spadra-quality__standards-list">
+          {%- for row in rows -%}
+            {%- assign parts = row | split: ':' -%}
+            {%- assign row_trimmed = row | strip -%}
+            {%- if row_trimmed != blank -%}
+              <li>
+                <span class="spadra-quality__check" aria-hidden="true">
+                  <svg viewBox="0 0 16 16" fill="none"><path d="M3.5 8.5l3 3 6-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+                {%- if parts.size > 1 -%}
+                  <span><strong>{{ parts[0] | strip }}:</strong>{{ row | remove_first: parts[0] | remove_first: ':' }}</span>
+                {%- else -%}
+                  <span>{{ row_trimmed }}</span>
+                {%- endif -%}
+              </li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+
+    {%- if section.settings.badges != blank -%}
+      {%- assign badge_list = section.settings.badges | split: '|' -%}
+      <ul class="spadra-quality__badges">
+        {%- for badge in badge_list -%}
+          {%- assign badge_trimmed = badge | strip -%}
+          {%- if badge_trimmed != blank -%}
+            <li>{{ badge_trimmed }}</li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .spadra-quality { padding: 72px 24px; }
+  .spadra-quality__inner { max-width: 880px; margin: 0 auto; }
+  .spadra-quality__intro { text-align: center; margin-bottom: 44px; }
+  .spadra-quality__eyebrow {
+    margin: 0 0 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #00A344;
+  }
+  .spadra-quality__heading {
+    font-family: var(--font-heading--family);
+    font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+    line-height: 1.2;
+    color: #000000;
+    margin: 0 0 16px;
+    text-wrap: balance;
+  }
+  .spadra-quality__heading em { color: #00A344; font-style: italic; }
+  .spadra-quality__body {
+    max-width: 620px;
+    margin: 0 auto;
+    font-size: 1rem;
+    line-height: 1.68;
+    color: #33383F;
+    text-wrap: pretty;
+  }
+
+  .spadra-quality__grid {
+    list-style: none;
+    margin: 0 0 48px;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 28px 20px;
+    justify-items: center;
+  }
+  .spadra-quality__cat { text-align: center; max-width: 160px; }
+  .spadra-quality__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 14px;
+    border-radius: 18px;
+    background: #EAF5EF;
+    color: #0B1220;
+  }
+  .spadra-quality__icon svg { width: 34px; height: 34px; }
+  .spadra-quality__cat-label {
+    margin: 0;
+    font-family: var(--font-heading--family);
+    font-size: 0.95rem;
+    color: #1A1A1A;
+  }
+
+  .spadra-quality__standards {
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 18px;
+    padding: 32px 28px;
+    margin-bottom: 28px;
+  }
+  .spadra-quality__standards-title {
+    margin: 0 0 18px;
+    font-family: var(--font-heading--family);
+    font-size: 1.3rem;
+    color: #000000;
+    text-align: center;
+  }
+  .spadra-quality__standards-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 28px;
+  }
+  .spadra-quality__standards-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    color: #33383F;
+  }
+  .spadra-quality__standards-list strong { color: #000000; }
+  .spadra-quality__check {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #00C853;
+    color: #04240F;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1px;
+  }
+  .spadra-quality__check svg { width: 11px; height: 11px; }
+
+  .spadra-quality__badges {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  .spadra-quality__badges li {
+    font-size: 0.76rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #33383F;
+    background: #F6F7F9;
+    border: 1px solid #E2E8F0;
+    border-radius: 100px;
+    padding: 7px 15px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .spadra-quality { padding: 52px 18px; }
+    .spadra-quality__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
+    .spadra-quality__standards { padding: 24px 18px; }
+    .spadra-quality__standards-list { grid-template-columns: 1fr; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "SPADRA quality",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "How it's made" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Designed for optimal bioavailability" },
+    {
+      "type": "textarea",
+      "id": "body",
+      "label": "Intro text",
+      "default": "Every active is selected for purity and clinical dosing — real vitamin forms, bioavailable minerals, standardized botanicals. Manufacturing is handled by OKCapsule, our packing partner, so every pouch is filled and sealed to the same standard."
+    },
+    { "type": "text", "id": "standards_title", "label": "Standards card title", "default": "Manufacturing standards" },
+    {
+      "type": "textarea",
+      "id": "standards_items",
+      "label": "Standards list",
+      "info": "One per line-item, separated by a vertical bar. Use \"Label: detail\" to bold the label.",
+      "default": "cGMP-certified facility: manufactured under current Good Manufacturing Practice requirements|Third-party tested: potency and purity checked by an outside lab on a skip-lot basis|Evidence-based dosing: actives dosed at levels drawn from published research, not proprietary blends|No unnecessary fillers: nothing added to a formula that is not doing something in it"
+    },
+    {
+      "type": "textarea",
+      "id": "badges",
+      "label": "Badge row",
+      "info": "Short labels, separated by a vertical bar.",
+      "default": "Non-GMO|Organic where available|Vegan capsules|Hypoallergenic|Clean label"
+    },
+    { "type": "color", "id": "background_color", "label": "Background color", "default": "#F8F7F4" }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Ingredient category",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "default": "flask",
+          "options": [
+            { "value": "flask", "label": "Flask (vitamins)" },
+            { "value": "mineral", "label": "Mineral + capsule" },
+            { "value": "leaf", "label": "Leaf (botanicals)" },
+            { "value": "droplet", "label": "Droplet (extracts / amino acids)" },
+            { "value": "verify", "label": "Magnifier (testing / purity)" }
+          ]
+        },
+        { "type": "text", "id": "label", "label": "Label", "default": "Active B Vitamins" }
+      ]
+    }
+  ],
+  "max_blocks": 5,
+  "presets": [
+    {
+      "name": "SPADRA quality",
+      "blocks": [
+        { "type": "category", "settings": { "icon": "flask", "label": "Active B Vitamins" } },
+        { "type": "category", "settings": { "icon": "mineral", "label": "Bioavailable Minerals" } },
+        { "type": "category", "settings": { "icon": "leaf", "label": "Standardized Botanicals" } },
+        { "type": "category", "settings": { "icon": "droplet", "label": "Pure Amino Acids" } },
+        { "type": "category", "settings": { "icon": "verify", "label": "Verified Purity" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
+</content>
