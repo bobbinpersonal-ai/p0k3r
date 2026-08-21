@@ -34,11 +34,13 @@
         "secondary_cta_label": "Browse All Protocols",
         "secondary_cta_link": "#spadra-protocols",
         "image": "shopify://shop_images/Gemini_Generated_Image_uwx4hhuwx4hhuwx4_44717a2e-811c-476f-b865-26a4f84f5d12.jpg",
-        "eyebrow": "Powered by OKCapsule",
+        "eyebrow": "Pre-sorted daily protocols",
+        "mobile_style": "stacked",
+        "mobile_media_height": 50,
         "focal_desktop": "center",
         "focal_mobile": "right center",
         "overlay_opacity": 55,
-        "height_desktop": 80,
+        "height_desktop": 90,
         "height_mobile": 90
       }
     },
@@ -94,6 +96,24 @@
         "background_color": "#f8f7f4"
       }
     },
+    "spadra_timeline_promise": {
+      "type": "spadra-editorial",
+      "settings": {
+        "image": "shopify://shop_images/Gemini_Generated_Image_anzf8xanzf8xanzf.jpg",
+        "image_alt": "A SPADRA daily pouch resting beside its capsules",
+        "media_position": "right",
+        "media_height": 60,
+        "color_scheme": "dark",
+        "background_color": "#101722",
+        "eyebrow": "What to expect",
+        "heading": "Judged on a real timeline.",
+        "body": "<p>Every protocol carries a 30-60-90 day plan that says what to expect and when — including the months where the honest answer is that consistency is the only thing to measure.</p>",
+        "proof_points": "Day 30 — the routine is established, not the result | Day 60 — the first changes worth noticing | Day 90 — enough signal to judge it fairly",
+        "cta_label": "See the protocols",
+        "cta_link": "#spadra-protocols",
+        "anchor": "timeline-promise"
+      }
+    },
     "spadra_how_it_works": {
       "type": "found-how-it-works",
       "settings": {
@@ -107,190 +127,22 @@
         "background_color": "#ffffff"
       }
     },
-    "media_with_content_fLfwFT": {
-      "type": "media-with-content",
-      "blocks": {
-        "media": {
-          "type": "_media-without-appearance",
-          "static": true,
-          "settings": {
-            "media_type": "image",
-            "image": "shopify://shop_images/Gemini_Generated_Image_qs53y7qs53y7qs53.jpg",
-            "link": "",
-            "video_loop": true,
-            "video_autoplay": false,
-            "image_position": "cover",
-            "video_position": "cover"
-          },
-          "blocks": {}
-        },
-        "content": {
-          "type": "_content-without-appearance",
-          "static": true,
-          "settings": {
-            "horizontal_alignment_flex_direction_column": "flex-start",
-            "vertical_alignment_flex_direction_column": "space-between",
-            "gap": 24
-          },
-          "blocks": {
-            "text_99fQWT": {
-              "type": "text",
-              "name": "t:names.caption",
-              "settings": {
-                "text": "<h2>Your protocol, made tangible.</h2><p>Precision-packed daily pouches keep your routine simple and consistent.</p>",
-                "width": "fit-content",
-                "max_width": "normal",
-                "alignment": "left",
-                "type_preset": "h3",
-                "font": "var(--font-body--family)",
-                "font_size": "1rem",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "wrap": "pretty",
-                "text_color": "",
-                "background": false,
-                "background_color": "#00000026",
-                "corner_radius": 0,
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            },
-            "group_UK66ry": {
-              "type": "group",
-              "settings": {
-                "content_direction": "column",
-                "vertical_on_mobile": true,
-                "horizontal_alignment": "flex-start",
-                "vertical_alignment": "center",
-                "align_baseline": false,
-                "horizontal_alignment_flex_direction_column": "flex-start",
-                "vertical_alignment_flex_direction_column": "center",
-                "gap": 12,
-                "width": "fill",
-                "custom_width": 100,
-                "width_mobile": "fill",
-                "custom_width_mobile": 100,
-                "height": "fit",
-                "custom_height": 100,
-                "background_media": "none",
-                "background_color": "",
-                "video_position": "cover",
-                "background_image_position": "cover",
-                "toggle_overlay": false,
-                "overlay_color": "#00000026",
-                "overlay_style": "solid",
-                "gradient_direction": "to top",
-                "border": "none",
-                "border_width": 1,
-                "border_opacity": 100,
-                "border_color": "",
-                "border_radius": 0,
-                "link": "",
-                "open_in_new_tab": false,
-                "placeholder": "",
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {
-                "text_bjCeyT": {
-                  "type": "text",
-                  "name": "t:names.heading",
-                  "settings": {
-                    "text": "<h2>One pouch, not six bottles.</h2>",
-                    "width": "fit-content",
-                    "max_width": "normal",
-                    "alignment": "left",
-                    "type_preset": "h3",
-                    "font": "var(--font-body--family)",
-                    "font_size": "1rem",
-                    "line_height": "normal",
-                    "letter_spacing": "normal",
-                    "case": "none",
-                    "wrap": "pretty",
-                    "text_color": "",
-                    "background": false,
-                    "background_color": "#00000026",
-                    "corner_radius": 0,
-                    "padding-block-start": 0,
-                    "padding-block-end": 0,
-                    "padding-inline-start": 0,
-                    "padding-inline-end": 0
-                  },
-                  "blocks": {}
-                },
-                "text_VFy4xd": {
-                  "type": "text",
-                  "settings": {
-                    "text": "<p>Every ingredient in your protocol is pre-sorted into a single daily tear-pack at its clinical dose, so there is nothing to count out and nothing to double by accident.</p>",
-                    "width": "fit-content",
-                    "max_width": "narrow",
-                    "alignment": "left",
-                    "type_preset": "rte",
-                    "font": "var(--font-body--family)",
-                    "font_size": "1rem",
-                    "line_height": "normal",
-                    "letter_spacing": "normal",
-                    "case": "none",
-                    "wrap": "pretty",
-                    "text_color": "",
-                    "background": false,
-                    "background_color": "#00000026",
-                    "corner_radius": 0,
-                    "padding-block-start": 0,
-                    "padding-block-end": 0,
-                    "padding-inline-start": 0,
-                    "padding-inline-end": 0
-                  },
-                  "blocks": {}
-                }
-              },
-              "block_order": [
-                "text_bjCeyT",
-                "text_VFy4xd"
-              ]
-            },
-            "button_GGqTKd": {
-              "type": "button",
-              "settings": {
-                "label": "Shop now",
-                "link": "shopify://collections/all",
-                "open_in_new_tab": false,
-                "style_class": "button-unstyled",
-                "custom_button_background": "{{ settings.color_palette.foreground }}",
-                "custom_button_text": "{{ settings.color_palette.background }}",
-                "custom_button_border": "{{ settings.color_palette.background }}",
-                "link_text_color": "",
-                "width": "fit-content",
-                "custom_width": 100,
-                "width_mobile": "fit-content",
-                "custom_width_mobile": 100
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "text_99fQWT",
-            "group_UK66ry",
-            "button_GGqTKd"
-          ]
-        }
-      },
-      "name": "t:names.editorial",
+    "spadra_ed_pouch": {
+      "type": "spadra-editorial",
       "settings": {
+        "image": "shopify://shop_images/Gemini_Generated_Image_qs53y7qs53y7qs53.jpg",
+        "image_alt": "A month of SPADRA daily pouches",
         "media_position": "left",
-        "media_width": "medium",
-        "media_height": "60svh",
-        "section_width": "full-width",
-        "extend_media": true,
+        "media_height": 65,
+        "color_scheme": "light",
         "background_color": "#f8f7f4",
-        "padding-block-start": 0,
-        "padding-block-end": 0
+        "eyebrow": "Your protocol, made tangible",
+        "heading": "One pouch, not six bottles.",
+        "body": "<p>Every ingredient in your protocol is pre-sorted into a single daily tear-pack at its clinical dose, so there is nothing to count out and nothing to double by accident.</p>",
+        "proof_points": "Thirty sealed pouches per month | Morning and evening packs kept separate | Nothing to portion at home",
+        "cta_label": "Shop protocols",
+        "cta_link": "shopify://collections/all",
+        "anchor": ""
       }
     },
     "spadra_protocols": {
@@ -302,190 +154,22 @@
         "background_color": "#f8f7f4"
       }
     },
-    "media_with_content_gehViE": {
-      "type": "media-with-content",
-      "blocks": {
-        "media": {
-          "type": "_media-without-appearance",
-          "static": true,
-          "settings": {
-            "media_type": "image",
-            "image": "shopify://shop_images/Gemini_Generated_Image_anzf8xanzf8xanzf.jpg",
-            "link": "",
-            "video_loop": true,
-            "video_autoplay": false,
-            "image_position": "cover",
-            "video_position": "cover"
-          },
-          "blocks": {}
-        },
-        "content": {
-          "type": "_content-without-appearance",
-          "static": true,
-          "settings": {
-            "horizontal_alignment_flex_direction_column": "flex-start",
-            "vertical_alignment_flex_direction_column": "space-between",
-            "gap": 24
-          },
-          "blocks": {
-            "text_p3mKGY": {
-              "type": "text",
-              "name": "t:names.caption",
-              "settings": {
-                "text": "<h2>Focus your everyday.</h2><p>A considered system for the days that ask more of you.</p>",
-                "width": "fit-content",
-                "max_width": "normal",
-                "alignment": "left",
-                "type_preset": "h3",
-                "font": "var(--font-body--family)",
-                "font_size": "1rem",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "wrap": "pretty",
-                "text_color": "#ffffff",
-                "background": false,
-                "background_color": "#00000026",
-                "corner_radius": 0,
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            },
-            "group_BqCmUf": {
-              "type": "group",
-              "settings": {
-                "content_direction": "column",
-                "vertical_on_mobile": true,
-                "horizontal_alignment": "flex-start",
-                "vertical_alignment": "center",
-                "align_baseline": false,
-                "horizontal_alignment_flex_direction_column": "flex-start",
-                "vertical_alignment_flex_direction_column": "center",
-                "gap": 12,
-                "width": "fill",
-                "custom_width": 100,
-                "width_mobile": "fill",
-                "custom_width_mobile": 100,
-                "height": "fit",
-                "custom_height": 100,
-                "background_media": "none",
-                "background_color": "",
-                "video_position": "cover",
-                "background_image_position": "cover",
-                "toggle_overlay": false,
-                "overlay_color": "#00000026",
-                "overlay_style": "solid",
-                "gradient_direction": "to top",
-                "border": "none",
-                "border_width": 1,
-                "border_opacity": 100,
-                "border_color": "",
-                "border_radius": 0,
-                "link": "",
-                "open_in_new_tab": false,
-                "placeholder": "",
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {
-                "text_EwPecP": {
-                  "type": "text",
-                  "name": "t:names.heading",
-                  "settings": {
-                    "text": "<h2>Built around mechanism, not marketing.</h2>",
-                    "width": "fit-content",
-                    "max_width": "normal",
-                    "alignment": "left",
-                    "type_preset": "h3",
-                    "font": "var(--font-body--family)",
-                    "font_size": "1rem",
-                    "line_height": "normal",
-                    "letter_spacing": "normal",
-                    "case": "none",
-                    "wrap": "pretty",
-                    "text_color": "#ffffff",
-                    "background": false,
-                    "background_color": "#00000026",
-                    "corner_radius": 0,
-                    "padding-block-start": 0,
-                    "padding-block-end": 0,
-                    "padding-inline-start": 0,
-                    "padding-inline-end": 0
-                  },
-                  "blocks": {}
-                },
-                "text_iaz6HF": {
-                  "type": "text",
-                  "settings": {
-                    "text": "<p>Each protocol is assembled from actives chosen for what they actually do — substrate, cofactor, or precursor — and every product page names which is which.</p>",
-                    "width": "fit-content",
-                    "max_width": "narrow",
-                    "alignment": "left",
-                    "type_preset": "rte",
-                    "font": "var(--font-body--family)",
-                    "font_size": "1rem",
-                    "line_height": "normal",
-                    "letter_spacing": "normal",
-                    "case": "none",
-                    "wrap": "pretty",
-                    "text_color": "#ffffff",
-                    "background": false,
-                    "background_color": "#00000026",
-                    "corner_radius": 0,
-                    "padding-block-start": 0,
-                    "padding-block-end": 0,
-                    "padding-inline-start": 0,
-                    "padding-inline-end": 0
-                  },
-                  "blocks": {}
-                }
-              },
-              "block_order": [
-                "text_EwPecP",
-                "text_iaz6HF"
-              ]
-            },
-            "button_aULgHF": {
-              "type": "button",
-              "settings": {
-                "label": "Shop now",
-                "link": "shopify://collections/all",
-                "open_in_new_tab": false,
-                "style_class": "button-unstyled",
-                "custom_button_background": "{{ settings.color_palette.foreground }}",
-                "custom_button_text": "{{ settings.color_palette.background }}",
-                "custom_button_border": "{{ settings.color_palette.background }}",
-                "link_text_color": "",
-                "width": "fit-content",
-                "custom_width": 100,
-                "width_mobile": "fit-content",
-                "custom_width_mobile": 100
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "text_p3mKGY",
-            "group_BqCmUf",
-            "button_aULgHF"
-          ]
-        }
-      },
-      "name": "t:names.editorial",
+    "spadra_ed_mechanism": {
+      "type": "spadra-editorial",
       "settings": {
+        "image": "shopify://shop_images/Gemini_Generated_Image_2fj2km2fj2km2fj2.jpg",
+        "image_alt": "SPADRA capsules laid out on a dark surface",
         "media_position": "right",
-        "media_width": "medium",
-        "media_height": "60svh",
-        "section_width": "full-width",
-        "extend_media": true,
+        "media_height": 65,
+        "color_scheme": "dark",
         "background_color": "#101722",
-        "padding-block-start": 0,
-        "padding-block-end": 0
+        "eyebrow": "Focus your everyday",
+        "heading": "Built around mechanism, not marketing.",
+        "body": "<p>Each protocol is assembled from actives chosen for what they actually do — substrate, cofactor, or precursor — and every product page names which is which.</p>",
+        "proof_points": "Every active listed with its role | Clinical doses, not fairy dusting | No proprietary blends",
+        "cta_label": "Shop protocols",
+        "cta_link": "shopify://collections/all",
+        "anchor": ""
       }
     },
     "spadra_timeline": {
@@ -535,385 +219,87 @@
         "background_color": "#ffffff"
       }
     },
-    "media_with_content_NfiQtV": {
-      "type": "media-with-content",
-      "blocks": {
-        "media": {
-          "type": "_media-without-appearance",
-          "static": true,
-          "settings": {
-            "media_type": "image",
-            "image": "shopify://shop_images/Gemini_Generated_Image_2fj2km2fj2km2fj2.jpg",
-            "link": "",
-            "video_loop": true,
-            "video_autoplay": false,
-            "image_position": "cover",
-            "video_position": "cover"
-          },
-          "blocks": {}
-        },
-        "content": {
-          "type": "_content-without-appearance",
-          "static": true,
-          "settings": {
-            "horizontal_alignment_flex_direction_column": "flex-start",
-            "vertical_alignment_flex_direction_column": "space-between",
-            "gap": 24
-          },
-          "blocks": {
-            "text_pkgwgX": {
-              "type": "text",
-              "name": "t:names.caption",
-              "settings": {
-                "text": "<h2>Make wellness fit real life.</h2><p>SPADRA travels with you—from morning starts to everything in between.</p>",
-                "width": "fit-content",
-                "max_width": "normal",
-                "alignment": "left",
-                "type_preset": "h3",
-                "font": "var(--font-body--family)",
-                "font_size": "1rem",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "wrap": "pretty",
-                "text_color": "",
-                "background": false,
-                "background_color": "#00000026",
-                "corner_radius": 0,
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            },
-            "group_bTEJ4E": {
-              "type": "group",
-              "settings": {
-                "content_direction": "column",
-                "vertical_on_mobile": true,
-                "horizontal_alignment": "flex-start",
-                "vertical_alignment": "center",
-                "align_baseline": false,
-                "horizontal_alignment_flex_direction_column": "flex-start",
-                "vertical_alignment_flex_direction_column": "center",
-                "gap": 12,
-                "width": "fill",
-                "custom_width": 100,
-                "width_mobile": "fill",
-                "custom_width_mobile": 100,
-                "height": "fit",
-                "custom_height": 100,
-                "background_media": "none",
-                "background_color": "",
-                "video_position": "cover",
-                "background_image_position": "cover",
-                "toggle_overlay": false,
-                "overlay_color": "#00000026",
-                "overlay_style": "solid",
-                "gradient_direction": "to top",
-                "border": "none",
-                "border_width": 1,
-                "border_opacity": 100,
-                "border_color": "",
-                "border_radius": 0,
-                "link": "",
-                "open_in_new_tab": false,
-                "placeholder": "",
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {
-                "text_mqFRHe": {
-                  "type": "text",
-                  "name": "t:names.heading",
-                  "settings": {
-                    "text": "<h2>Thirty days, in your bag.</h2>",
-                    "width": "fit-content",
-                    "max_width": "normal",
-                    "alignment": "left",
-                    "type_preset": "h3",
-                    "font": "var(--font-body--family)",
-                    "font_size": "1rem",
-                    "line_height": "normal",
-                    "letter_spacing": "normal",
-                    "case": "none",
-                    "wrap": "pretty",
-                    "text_color": "",
-                    "background": false,
-                    "background_color": "#00000026",
-                    "corner_radius": 0,
-                    "padding-block-start": 0,
-                    "padding-block-end": 0,
-                    "padding-inline-start": 0,
-                    "padding-inline-end": 0
-                  },
-                  "blocks": {}
-                },
-                "text_fjKBBk": {
-                  "type": "text",
-                  "settings": {
-                    "text": "<p>A month of protocol ships as thirty sealed pouches. Take the day's pouch and go: nothing to portion at home, nothing to leave behind when you travel.</p>",
-                    "width": "fit-content",
-                    "max_width": "narrow",
-                    "alignment": "left",
-                    "type_preset": "rte",
-                    "font": "var(--font-body--family)",
-                    "font_size": "1rem",
-                    "line_height": "normal",
-                    "letter_spacing": "normal",
-                    "case": "none",
-                    "wrap": "pretty",
-                    "text_color": "",
-                    "background": false,
-                    "background_color": "#00000026",
-                    "corner_radius": 0,
-                    "padding-block-start": 0,
-                    "padding-block-end": 0,
-                    "padding-inline-start": 0,
-                    "padding-inline-end": 0
-                  },
-                  "blocks": {}
-                }
-              },
-              "block_order": [
-                "text_mqFRHe",
-                "text_fjKBBk"
-              ]
-            },
-            "button_UKkei9": {
-              "type": "button",
-              "settings": {
-                "label": "Shop now",
-                "link": "shopify://collections/all",
-                "open_in_new_tab": false,
-                "style_class": "button-unstyled",
-                "custom_button_background": "{{ settings.color_palette.foreground }}",
-                "custom_button_text": "{{ settings.color_palette.background }}",
-                "custom_button_border": "{{ settings.color_palette.background }}",
-                "link_text_color": "",
-                "width": "fit-content",
-                "custom_width": 100,
-                "width_mobile": "fit-content",
-                "custom_width_mobile": 100
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "text_pkgwgX",
-            "group_bTEJ4E",
-            "button_UKkei9"
-          ]
-        }
-      },
-      "name": "t:names.editorial",
+    "spadra_ed_travel": {
+      "type": "spadra-editorial",
       "settings": {
+        "image": "shopify://shop_images/Gemini_Generated_Image_qs53y7qs53y7qs53.jpg",
+        "image_alt": "A SPADRA pouch tucked into a bag",
         "media_position": "left",
-        "media_width": "wide",
-        "media_height": "60svh",
-        "section_width": "full-width",
-        "extend_media": true,
+        "media_height": 60,
+        "color_scheme": "light",
         "background_color": "#f8f7f4",
-        "padding-block-start": 0,
-        "padding-block-end": 0
+        "eyebrow": "Make wellness fit real life",
+        "heading": "Thirty days, in your bag.",
+        "body": "<p>A month of protocol ships as thirty sealed pouches. Take the day's pouch and go: nothing to portion at home, nothing to leave behind when you travel.</p>",
+        "proof_points": "Fits a pocket or a carry-on | Sealed until the moment you open it | Reorder or subscribe, your call",
+        "cta_label": "Shop protocols",
+        "cta_link": "shopify://collections/all",
+        "anchor": ""
       }
     },
     "spadra_brand_story": {
       "type": "spadra-brand-story",
       "settings": {
         "eyebrow": "Our Story",
-        "title": "We built SPADRA to end counter bottle fatigue.",
-        "body": "<p>Six bottles on the counter, a different cap color for morning and night, a dose you doubled by accident. SPADRA protocols are packed in partnership with OKCapsule, a precision pouch-packing manufacturer that pre-sorts every ingredient in your protocol into a single daily tear-pack, at the correct clinical dose. One pouch, every day, done.</p>",
+        "title": "Built between two homes.",
+        "body": "<p>SPADRA comes out of an American and Nepalese Himalayan household — two traditions that agree on very little except this: look after the body daily, and do not make a performance of it.</p><p>From one side, the habit of asking what the evidence actually says. From the other, an inherited patience — that steadiness outlasts intensity, and a practice you keep is worth more than one you admire. We try to hold both, with respect for every tradition that arrived at them long before we did.</p><p>In practice that looks unglamorous. Every ingredient in your protocol is pre-sorted into one daily pouch at its clinical dose. No counting, no cabinet of half-finished bottles. One pouch, every day, done.</p>",
         "background_color": "#f8f7f4"
       }
     },
-    "media_with_content_CWLczb": {
-      "type": "media-with-content",
+    "spadra_quality": {
+      "type": "spadra-quality",
       "blocks": {
-        "media": {
-          "type": "_media-without-appearance",
-          "static": true,
+        "cat_1": {
+          "type": "category",
           "settings": {
-            "media_type": "image",
-            "image": "shopify://shop_images/Gemini_Generated_Image_qs53y7qs53y7qs53.jpg",
-            "link": "",
-            "video_loop": true,
-            "video_autoplay": false,
-            "image_position": "cover",
-            "video_position": "cover"
-          },
-          "blocks": {}
+            "icon": "flask",
+            "label": "Active B Vitamins"
+          }
         },
-        "content": {
-          "type": "_content-without-appearance",
-          "static": true,
+        "cat_2": {
+          "type": "category",
           "settings": {
-            "horizontal_alignment_flex_direction_column": "flex-start",
-            "vertical_alignment_flex_direction_column": "space-between",
-            "gap": 24
-          },
-          "blocks": {
-            "text_VGa6Cz": {
-              "type": "text",
-              "name": "t:names.caption",
-              "settings": {
-                "text": "<h2>Small packets. Meaningful momentum.</h2><p>Designed to make the daily ritual feel effortless.</p>",
-                "width": "fit-content",
-                "max_width": "normal",
-                "alignment": "left",
-                "type_preset": "h3",
-                "font": "var(--font-body--family)",
-                "font_size": "1rem",
-                "line_height": "normal",
-                "letter_spacing": "normal",
-                "case": "none",
-                "wrap": "pretty",
-                "text_color": "",
-                "background": false,
-                "background_color": "#00000026",
-                "corner_radius": 0,
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {}
-            },
-            "group_iUFdMJ": {
-              "type": "group",
-              "settings": {
-                "content_direction": "column",
-                "vertical_on_mobile": true,
-                "horizontal_alignment": "flex-start",
-                "vertical_alignment": "center",
-                "align_baseline": false,
-                "horizontal_alignment_flex_direction_column": "flex-start",
-                "vertical_alignment_flex_direction_column": "center",
-                "gap": 12,
-                "width": "fill",
-                "custom_width": 100,
-                "width_mobile": "fill",
-                "custom_width_mobile": 100,
-                "height": "fit",
-                "custom_height": 100,
-                "background_media": "none",
-                "background_color": "",
-                "video_position": "cover",
-                "background_image_position": "cover",
-                "toggle_overlay": false,
-                "overlay_color": "#00000026",
-                "overlay_style": "solid",
-                "gradient_direction": "to top",
-                "border": "none",
-                "border_width": 1,
-                "border_opacity": 100,
-                "border_color": "",
-                "border_radius": 0,
-                "link": "",
-                "open_in_new_tab": false,
-                "placeholder": "",
-                "padding-block-start": 0,
-                "padding-block-end": 0,
-                "padding-inline-start": 0,
-                "padding-inline-end": 0
-              },
-              "blocks": {
-                "text_PPgygj": {
-                  "type": "text",
-                  "name": "t:names.heading",
-                  "settings": {
-                    "text": "<h2>Judged on a real timeline.</h2>",
-                    "width": "fit-content",
-                    "max_width": "normal",
-                    "alignment": "left",
-                    "type_preset": "h3",
-                    "font": "var(--font-body--family)",
-                    "font_size": "1rem",
-                    "line_height": "normal",
-                    "letter_spacing": "normal",
-                    "case": "none",
-                    "wrap": "pretty",
-                    "text_color": "",
-                    "background": false,
-                    "background_color": "#00000026",
-                    "corner_radius": 0,
-                    "padding-block-start": 0,
-                    "padding-block-end": 0,
-                    "padding-inline-start": 0,
-                    "padding-inline-end": 0
-                  },
-                  "blocks": {}
-                },
-                "text_njk7kT": {
-                  "type": "text",
-                  "settings": {
-                    "text": "<p>Every protocol carries a 30-60-90 day plan that says what to expect and when — including the months where the honest answer is that consistency is the only thing to measure.</p>",
-                    "width": "fit-content",
-                    "max_width": "narrow",
-                    "alignment": "left",
-                    "type_preset": "rte",
-                    "font": "var(--font-body--family)",
-                    "font_size": "1rem",
-                    "line_height": "normal",
-                    "letter_spacing": "normal",
-                    "case": "none",
-                    "wrap": "pretty",
-                    "text_color": "",
-                    "background": false,
-                    "background_color": "#00000026",
-                    "corner_radius": 0,
-                    "padding-block-start": 0,
-                    "padding-block-end": 0,
-                    "padding-inline-start": 0,
-                    "padding-inline-end": 0
-                  },
-                  "blocks": {}
-                }
-              },
-              "block_order": [
-                "text_PPgygj",
-                "text_njk7kT"
-              ]
-            },
-            "button_q7wTLm": {
-              "type": "button",
-              "settings": {
-                "label": "Shop now",
-                "link": "shopify://collections/all",
-                "open_in_new_tab": false,
-                "style_class": "button-unstyled",
-                "custom_button_background": "{{ settings.color_palette.foreground }}",
-                "custom_button_text": "{{ settings.color_palette.background }}",
-                "custom_button_border": "{{ settings.color_palette.background }}",
-                "link_text_color": "",
-                "width": "fit-content",
-                "custom_width": 100,
-                "width_mobile": "fit-content",
-                "custom_width_mobile": 100
-              },
-              "blocks": {}
-            }
-          },
-          "block_order": [
-            "text_VGa6Cz",
-            "group_iUFdMJ",
-            "button_q7wTLm"
-          ]
+            "icon": "mineral",
+            "label": "Bioavailable Minerals"
+          }
+        },
+        "cat_3": {
+          "type": "category",
+          "settings": {
+            "icon": "leaf",
+            "label": "Standardized Botanicals"
+          }
+        },
+        "cat_4": {
+          "type": "category",
+          "settings": {
+            "icon": "droplet",
+            "label": "Pure Amino Acids"
+          }
+        },
+        "cat_5": {
+          "type": "category",
+          "settings": {
+            "icon": "verify",
+            "label": "Verified Purity"
+          }
         }
       },
-      "name": "t:names.editorial",
+      "block_order": [
+        "cat_1",
+        "cat_2",
+        "cat_3",
+        "cat_4",
+        "cat_5"
+      ],
       "settings": {
-        "media_position": "right",
-        "media_width": "medium",
-        "media_height": "50svh",
-        "section_width": "full-width",
-        "extend_media": true,
-        "background_color": "#eaf2ff",
-        "padding-block-start": 0,
-        "padding-block-end": 0
+        "eyebrow": "How it's made",
+        "heading": "Designed for optimal bioavailability",
+        "body": "Every active is selected for purity and clinical dosing — real vitamin forms, bioavailable minerals, standardized botanicals. Manufacturing is handled by OKCapsule, our packing partner, so every pouch is filled and sealed to the same standard.",
+        "standards_title": "Manufacturing standards",
+        "standards_items": "cGMP-certified facility: manufactured under current Good Manufacturing Practice requirements|Third-party tested: potency and purity checked by an outside lab on a skip-lot basis|Evidence-based dosing: actives dosed at levels drawn from published research, not proprietary blends|No unnecessary fillers: nothing added to a formula that is not doing something in it",
+        "badges": "Non-GMO|Organic where available|Vegan capsules|Hypoallergenic|Clean label",
+        "background_color": "#f8f7f4"
       }
     },
     "spadra_faq": {
@@ -929,25 +315,32 @@
         "faq_2": {
           "type": "faq_item",
           "settings": {
-            "question": "What is OKCapsule?",
-            "answer": "<p>OKCapsule is our supplement manufacturing and pre-sort packaging partner. Every SPADRA pouch is filled and sealed by OKCapsule so your daily dose is accurate and ready to go.</p>"
+            "question": "How does Subscribe & Save work?",
+            "answer": "<p>Choose monthly delivery instead of a one-time purchase at checkout and your protocol arrives every 30 days at a standing discount — the exact saving is shown on each product page. You can skip a month, change the date, or cancel from your account at any time, and nothing is locked in beyond the order you have already placed.</p>"
           }
         },
         "faq_3": {
           "type": "faq_item",
           "settings": {
             "question": "How do I know which pack is right for me?",
-            "answer": "<p>Take the four-question Find Your Protocol assessment for an informational recommendation, or browse every protocol directly. If you're unsure, check with your provider.</p>"
+            "answer": "<p>Take the Find Your Protocol assessment — you can select more than one goal, and it will show you a protocol for each one along with a note on how they fit together. Or browse every protocol directly. If you're unsure, check with your provider.</p>"
           }
         },
         "faq_4": {
           "type": "faq_item",
           "settings": {
             "question": "How long does one pack last?",
-            "answer": "<p>Every protocol ships as a 30-day supply — one pre-sorted pouch per day. Orders are one-time purchases today; recurring delivery is not available yet, so reorder whenever you're ready for the next cycle.</p>"
+            "answer": "<p>Every protocol ships as a 30-day supply — one pre-sorted pouch per day. Buy it once, or set up monthly delivery so the next cycle arrives before you run out.</p>"
           }
         },
         "faq_5": {
+          "type": "faq_item",
+          "settings": {
+            "question": "How is it shipped?",
+            "answer": "<p>Protocols ship in plain outer packaging with no product names or claims printed on the outside. Nothing on the box indicates what is inside.</p>"
+          }
+        },
+        "faq_6": {
           "type": "faq_item",
           "settings": {
             "question": "Are these products FDA approved?",
@@ -960,7 +353,8 @@
         "faq_2",
         "faq_3",
         "faq_4",
-        "faq_5"
+        "faq_5",
+        "faq_6"
       ],
       "settings": {
         "title": "Frequently Asked Questions",
@@ -971,14 +365,15 @@
   "order": [
     "spadra_hero",
     "spadra_ticker",
+    "spadra_timeline_promise",
     "spadra_how_it_works",
-    "media_with_content_fLfwFT",
+    "spadra_ed_pouch",
     "spadra_protocols",
-    "media_with_content_gehViE",
+    "spadra_ed_mechanism",
     "spadra_timeline",
-    "media_with_content_NfiQtV",
+    "spadra_ed_travel",
     "spadra_brand_story",
-    "media_with_content_CWLczb",
+    "spadra_quality",
     "spadra_faq"
   ]
 }

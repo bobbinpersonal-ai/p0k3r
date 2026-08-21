@@ -199,6 +199,47 @@ results — 0 cross-gender leaks, 0 empty, 0 unrepresented goals.
 
 ---
 
+# V8 — Manufacturing/quality homepage section
+
+Draft theme: **SPADRA V8 — Manufacturing/Quality Section**
+(`153248661643`), unpublished. V7 is currently MAIN.
+
+Shopify access had been blocked for the entire previous session (every
+Admin API call, including a plain `shop { name }` read, returned "requires
+approval"), so `sections/spadra-quality.liquid` — the manufacturing/quality
+standards section adapted from OKCapsule's own site — had been written to
+the local `theme-src` mirror only and never reached the live store. Access
+is back this session; the pending upload is now done.
+
+Since V7 is MAIN, theme writes to it are blocked by design (`themeFilesUpsert`
+only accepts unpublished themes). Duplicated V7 into a new draft
+(`themeDuplicate`) rather than editing it live, matching the standing
+draft-first pattern for every theme change in this project. Uploaded the
+section file, then wired a `spadra_quality` block into `templates/index.json`
+between `spadra_brand_story` and `spadra_faq` — after the brand story and
+before the FAQ, so the manufacturing-standards claims sit right after the
+partner is introduced and just before the FDA-disclaimer FAQ answer that
+already covers the same ground.
+
+Confirmed both files landed by re-fetching them from the draft theme after
+upload — the first upsert call (both files in one request) silently
+returned only one of the two `upsertedThemeFiles` with no `userErrors`, so
+each file was verified individually rather than trusting the response.
+
+**Owner must publish `153248661643`** for this to go live, same recurring
+blocker as every prior version.
+
+## Check after publishing
+
+Homepage — a "How it's made" section should render between the "Our Story"
+section and the FAQ: 5 ingredient-category icons, a manufacturing-standards
+card (cGMP / third-party tested / evidence-based dosing / no fillers), and
+a badge row (Non-GMO / Vegan capsules / etc). No FDA badge, no
+"doctor-formulated" claim, no competitor comparison — see the section's own
+header comment for why those three were deliberately left out.
+
+---
+
 # V7 — two bugs found on the live site
 
 Draft theme: **SPADRA V7 — Specialist Block Fix** (`153185681547`), unpublished.

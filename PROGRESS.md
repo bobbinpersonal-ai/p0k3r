@@ -2,6 +2,48 @@
 
 Store: `0bszkx-cb.myshopify.com` (Basic plan, USD, US)
 
+## Status: Phase 14 — V6/V7/V8: multi-select quiz, subscriptions, hero fix, two bugfixes, quality section
+
+Full detail lives in `docs/V6_CHANGES.md` (not duplicated here) — this is
+a summary so PROGRESS.md doesn't fall further behind theme-version reality.
+
+**V6** (`153169297547`): multi-select quiz (weight split across chosen
+answers, goal-first results, computed "how these fit together" note),
+Subscribe & Save wired to read the real `selling_plan_allocations` instead
+of a hardcoded percentage, hero image-scoping fix (Horizon's global
+`img { height: auto }` was beating the hero's own height rule), new
+`spadra-editorial.liquid` replacing a triple-heading stock section on all
+4 homepage rows, "Judged on a real timeline" promise moved to homepage
+position 3, "Powered by OKCapsule" removed from customer-facing copy,
+About/Our Story rewritten off leftover pre-pivot casino copy, floating
+chat button now stands down for Shopify Inbox, Specialist Match & 90-Day
+Roadmap added to quiz results (coaching framing, not clinical — see doc for
+the 3 deliberate departures from the brief). Verified via
+`scripts/quiz_simulate.py`, 2,214 paths, 0 leaks/empty/unrepresented.
+
+**V7** (`153185681547`, published as MAIN this phase): fixed a Liquid
+syntax error in the specialist-match snippet (literal `{{` needs a `raw`
+block, not a quoted string) and a bug where 3 selected goals returned only
+1 protocol (the quiz catalog was built via a `concat` chain over 7
+collections that silently collapsed on a 2-product collection — replaced
+with an explicit nested loop in `spadra-quiz-catalog.liquid` plus
+handle-based de-dupe). Also wired Bobbin's real photo into the specialist
+block and removed the theme's own chat button now that Inbox is confirmed
+installed and live.
+
+**V8** (`153248661643`, draft, not yet published): uploaded
+`sections/spadra-quality.liquid` (manufacturing/quality standards, adapted
+from OKCapsule's own site — no FDA badge, no "doctor-formulated" claim, no
+competitor comparison, see the file's own header comment) — this had been
+built in a prior session but never reached Shopify because Admin API access
+was blocked for that entire session. Wired into `templates/index.json`
+between the brand-story and FAQ sections on a fresh duplicate of the (now
+live) V7 theme, since writes to a MAIN theme are blocked by design.
+
+**Owner action still needed**: publish `153248661643` (V8) to make the
+quality section live — same recurring per-phase blocker as every theme
+change in this project (theme publish isn't API-mutable here).
+
 ## Status: Phase 13 — Theme re-sync, single-page homepage consolidation, Clinical Diagnostic Engine
 
 **Theme roles flipped again mid-session** (this is now a recurring pattern — see Phases 7, 11, 12): `Copy of Horizon` (`152662671499`, where all of Phase 12 was built) got published and is now MAIN/live. `Horizon` (`152649007243`) is the new draft, but it was frozen at the **Phase 10 snapshot** — missing all of Phase 11's bugfixes and the entirety of Phase 12 (22-pack catalog, emerald design system, V2 PDP, Our Story page). Its header even linked to collection handles deleted/renamed in Phase 12. Before touching anything, re-synced all ~24 SPADRA-authored files from the live theme onto the draft (file-by-file via `themeFilesUpsert`, no cross-theme copy mutation exists) so it wouldn't regress the live site if published as-is. **Owner must publish `152649007243` for this phase to go live**, same recurring blocker as every prior phase.
