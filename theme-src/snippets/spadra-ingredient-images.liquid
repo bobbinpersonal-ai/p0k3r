@@ -1,0 +1,153 @@
+{%- comment -%}
+  Real ingredient photography, keyed by the ingredient name used in each pack's
+  spadra.components metafield.
+
+  These are the supplier's actual photographs of the capsules that ship in the
+  pouch -- not illustrations, not CSS renders. They already live in the shop's
+  Files (uploaded with the ingredient name as their alt text, which is how this
+  map was built); nothing here was generated for the storefront.
+
+  Why absolute CDN URLs rather than the file_url filter: every one of the 60
+  URLs below was fetched and confirmed to return HTTP 200 before being written
+  here. file_url could not be verified from outside a rendered page, and a
+  filename that is even slightly wrong fails silently as a broken image -- the
+  exact failure this map exists to avoid. Do not hand-edit a filename; re-run
+  the Files query and regenerate.
+
+  Names are matched case-insensitively. An ingredient with no confirmed photo
+  renders nothing (name mode) or falls back to a text pill (components mode),
+  never a guessed path. Glucosamine is currently the only ingredient in use
+  with no photo on file.
+
+  Class names are deliberately prefixed spadra-ingshot-. Do NOT use
+  spadra-ing / spadra-ing-list / spadra-ing__name here: sections/spadra-pdp
+  already owns those for its "What's Inside" benefit cards, and snippet and
+  section CSS are concatenated into the same global bundle, so reusing them
+  would silently restyle that grid.
+
+  Usage:
+    {% render 'spadra-ingredient-images', name: c %}
+      -> just the round capsule shot for one ingredient, or nothing
+
+    {% render 'spadra-ingredient-images', components: components %}
+      -> a row of photo chips, with a text pill wherever no photo exists
+
+    {% render 'spadra-ingredient-images', as_json: true %}
+      -> emits the map as JSON for client-side use (the quiz result cards)
+{%- endcomment -%}
+
+{%- liquid
+  assign spadra_ing_base = 'https://cdn.shopify.com/s/files/1/0758/4189/6587/files/'
+  assign spadra_ing_names = "10B Probiotic|Alpha Lipoic Acid|Arginine|Artichoke Leaf|Ashwagandha|BCAA|Berberine 300|Berberine 500|Big Libido|Biotin|Boron|Calcium Citrate|Carnitine|Chlorella|Choline|Chromium|Citrulline|CoQ10|Cordyceps|Creatine|D Complex|DHEA|DIM|Elderberry|Fenugreek|Forslean|Ginger Root|Glutamine|Glycine|Green Coffee Extract|Green Tea Extract|Herbal Sleep Blend|Hyaluronic Acid|Iron|Lion's Mane|Magnesium|Melatonin SR|Methyl B-Complex|Milk Thistle|Multivitamin|Mushroom Immune|NAC|NR|Omega 3|Quercetin|Resveratrol|Rhodiola|Saw Palmetto|Soothing Fiber|Taurine|Theanine|Trace Minerals|Tribulus|Triphala|Turmeric|Tyrosine|Vegan Omega|Vitamin B12|Vitamin C|Zinc" | split: '|'
+  assign spadra_ing_files = 'Probiotic_2010b_20-_20Merical_20-_20100001469.png|Alpha_20Lipoic_20Acid_20-_20SL_20-_20100001500.png|L-Arginine_20500mg_20Vcap_20-_20APM_20-_20100001374.png|Artichoke_20Leaf_20500mg_20-_20100001513.png|Ashwagandha-475mg.png|BCAA_20-_20SL_20-_20100001379.png|Berberine_20300mg_20-_20SC_20-_20100001475.png|Berberine-Extract-500mg.png|Libido_20-_20Davinci_20-_20100001448.png|Biotin_205mg_20-_20SL.png|Boron_2010mg_20VCap_20-_20APM_20-_20100001373.png|Calcium_20Citrate_20-_20APM_20-_20100001361.png|Carnitine-Tartrate.png|Chlorella-500mg-vegan-capsule.png|Choline_20-_20APM_20-_20100001437.png|Chromium_201mg_20Vcap_20-_20SL_20-_20100001430.png|L-Citrulline_20500mg_20Vcap_20-_20APM_20-_20100001375.png|CoQ10_20200mg_20-_20VP_20-_20100001507.png|Cordyceps_20-_20SC_20-_20100001478.png|Creatine-Monohydrate.png|ADEK_20Cap_20-_20APM_20-_20100001372.png|DHEA_2025mg_20-_20Davinci_20-_20100001455.png|DIM-300mg.png|Elderberry-Extract-375mg.png|Fenugreek.png|Forslean_20500mg_20Vcap_20-_20SC_20-_20100001371.png|Ginger_20Root_20Vcap_20-_20VW_20-_20100001403.png|Glutamine-750mg-vcap.png|Glycine_20-_20APM_20-_20100001444.png|Green-Coffee-Bean-500mg.png|Green_20Tea_20Extract_20-_20SFI_20-_20100001497.png|Sleep-Capsules.png|Hyaluronic-Acid-60mg.png|Iron_2018mg_20-_20Somafina_20-_20100001508.png|Lion_E2_80_99s-Mane-500mg-Organic.png|Magnesium_20Glycinate_20133mg_20Vcap_20-_20UST.png|Melatonin_20SR_20-_20SFI_20-_20100001425.png|Methyl_20B-Complex_20-_20SL_20-_20100001423.png|Milk_20Thistle.png|Multivitamin_20v2_20-_20SOM.png|Mushroom-Immune.png|NAC-600mg.png|Nicotinamide_20Riboside_20-_20UST.png|Omega_203_20TG_20Dark_20-_20ID_20-_20100001487.png|Quercetin-500mg.png|Resveratrol_20-_20SL_20-_20100001421.png|Rhodiola-Extract-250mg.png|Saw_20Palmetto_20-_20APM_20-_20100001445.png|Aloe_20Vera_20Plus_20300mg_20Vcap.png|Taurine_20-_20APM_20-_20100001446.png|Theanine_20200mg_20-_20SL_20-_20100001501.png|LDA_20Trace_20Mineral_20Complex_20-_20SFI_20-_20_20_20100001367_20_2.png|Tribulus-Extract-UST.png|Triphala_20500mg_20Vcap.png|Turmeric_20-_20SC_20-_20100001422.png|L-Tyrosine_20500mg_20Vcap_20-_20SL_20-_20100001377.png|Vegan_20Omega_20-_20ID_20-_20100001488_20_1.png|Vit_B12_Methylcobalamin-UST.png|Vitamin_20C_201000mg_20Vcap_20-_20UST_20-_20100001356_20_4.png|Zinc_2025mg_20-_20SC_20-_20100001441.png' | split: '|'
+-%}
+
+{%- if as_json -%}
+  <script type="application/json" data-spadra-ingredient-images>
+    {
+      {%- for n in spadra_ing_names -%}
+        {%- unless forloop.first %},{% endunless -%}
+        {{ n | downcase | json }}: {{ spadra_ing_base | append: spadra_ing_files[forloop.index0] | json }}
+      {%- endfor -%}
+    }
+  </script>
+
+{%- elsif name != blank -%}
+  {%- liquid
+    assign want = name | downcase | strip
+    assign found_file = ''
+    for n in spadra_ing_names
+      assign have = n | downcase | strip
+      if have == want
+        assign found_file = spadra_ing_files[forloop.index0]
+        break
+      endif
+    endfor
+  -%}
+  {%- if found_file != blank -%}
+    <span class="spadra-ingshot">
+      <img src="{{ spadra_ing_base | append: found_file }}?width=160"
+           alt="{{ name }} capsule"
+           width="160" height="160" loading="lazy" decoding="async">
+    </span>
+  {%- endif -%}
+
+{%- else -%}
+  {%- if components and components.size > 0 -%}
+    <ul class="spadra-ingshot-list">
+      {%- for component in components -%}
+        {%- liquid
+          assign want = component | downcase | strip
+          assign found_file = ''
+          for n in spadra_ing_names
+            assign have = n | downcase | strip
+            if have == want
+              assign found_file = spadra_ing_files[forloop.index0]
+              break
+            endif
+          endfor
+        -%}
+        {%- if found_file != blank -%}
+          <li class="spadra-ingshot-chip">
+            <span class="spadra-ingshot">
+              <img src="{{ spadra_ing_base | append: found_file }}?width=160"
+                   alt="{{ component }} capsule"
+                   width="160" height="160" loading="lazy" decoding="async">
+            </span>
+            <span class="spadra-ingshot-chip__name">{{ component }}</span>
+          </li>
+        {%- else -%}
+          <li class="spadra-pill">{{ component }}</li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  {%- endif -%}
+{%- endif -%}
+
+{% stylesheet %}
+  .spadra-ingshot {
+    flex: 0 0 auto;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #F8F7F4;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .spadra-ingshot img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+
+  .spadra-ingshot-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 14px;
+    padding: 0;
+  }
+  .spadra-ingshot-chip {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: #FFFFFF;
+    border: 1px solid #E2E8F0;
+    border-radius: 100px;
+    padding: 4px 11px 4px 4px;
+    box-shadow: 0 1px 3px rgba(16, 23, 34, 0.06);
+    min-width: 0;
+  }
+  .spadra-ingshot-chip__name {
+    font-size: 0.72rem;
+    line-height: 1.2;
+    color: #33383F;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+{% endstylesheet %}

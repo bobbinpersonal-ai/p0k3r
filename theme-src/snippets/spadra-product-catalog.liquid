@@ -1,19 +1,29 @@
 {%- comment -%}
-  Renders SPADRA OKCapsule pack product cards with ingredient-component pills.
+  Renders SPADRA pack product cards with ingredient-component pills.
   Usage: {% render 'spadra-product-catalog', products: collection.products %}
 
-  The pack images are square (600x600) and carry the product name and blurb
-  baked into the artwork, so the media well is 1:1 and uses object-fit: contain.
-  Cropping these to a portrait card sliced the text off mid-word.
+  The pack images are square and carry the product name and actives baked into
+  the artwork, so the media well is 1:1 and uses object-fit: contain. Cropping
+  these to a portrait card sliced the text off mid-word.
+
+  Subscription pricing is read from the variant's selling plan allocation, not
+  hardcoded. The store currently offers 40% off monthly delivery and plans to
+  move to 25% later — reading the real allocation means the card copy and the
+  saved percentage follow that change on their own, with no theme edit and no
+  risk of advertising a discount that no longer exists.
 {%- endcomment -%}
 
 <div class="spadra-pack-grid" id="spadra-pack-grid">
   {%- for product in products -%}
-    {%- assign components = product.metafields.spadra.components.value -%}
-    {%- assign badge = product.metafields.spadra.badge.value -%}
-    {%- assign subtitle = product.metafields.spadra.subtitle.value -%}
-    {%- assign category_label = product.metafields.spadra.category_label.value -%}
-    {%- assign pack_filter = product.metafields.spadra.filter.value | default: 'all' -%}
+    {%- liquid
+      assign components = product.metafields.spadra.components.value
+      assign badge = product.metafields.spadra.badge.value
+      assign subtitle = product.metafields.spadra.subtitle.value
+      assign category_label = product.metafields.spadra.category_label.value
+      assign pack_filter = product.metafields.spadra.filter.value | default: 'all'
+      assign variant = product.selected_or_first_available_variant
+      assign alloc = variant.selling_plan_allocations | first
+    -%}
     <div class="spadra-pack-card" data-filter="{{ pack_filter }}">
       <a href="{{ product.url }}" class="spadra-pack-card__media" aria-label="{{ product.title }}">
         {%- if product.featured_image -%}
@@ -39,16 +49,28 @@
         <p class="spadra-pack-card__price">
           {{ product.price | money }}<span class="spadra-pack-card__price-sub"> / 30-day supply</span>
         </p>
+
+        {%- if alloc and alloc.price < alloc.compare_at_price -%}
+          {%- liquid
+            assign saved = alloc.compare_at_price | minus: alloc.price
+            assign save_pct = saved | times: 100 | divided_by: alloc.compare_at_price
+          -%}
+          <p class="spadra-pack-card__sub">
+            <span class="spadra-pack-card__sub-pct">Subscribe &amp; save {{ save_pct }}%</span>
+            <span class="spadra-pack-card__sub-price">{{ alloc.price | money }} / month</span>
+          </p>
+        {%- endif -%}
+
         {%- if components and components.size > 0 -%}
           <p class="spadra-pack-card__ing-label">{{ components.size }} active{% if components.size != 1 %}s{% endif %}</p>
-          <ul class="spadra-pill-list">
-            {%- for component in components -%}
-              <li class="spadra-pill">{{ component }}</li>
-            {%- endfor -%}
-          </ul>
+          {%- comment -%}
+            Real capsule photography, not text pills. The map and the
+            no-photo-means-text fallback live in the snippet.
+          {%- endcomment -%}
+          {%- render 'spadra-ingredient-images', components: components -%}
         {%- endif -%}
         {%- form 'product', product, class: 'spadra-pack-card__form' -%}
-          <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+          <input type="hidden" name="id" value="{{ variant.id }}">
           <button type="submit" class="spadra-pack-card__cta" name="add"{% unless product.available %} disabled{% endunless %}>
             {%- if product.available -%}
               Start protocol &mdash; {{ product.price | money }}
@@ -165,6 +187,21 @@
   }
   .spadra-pack-card__price { margin: 4px 0 0; font-weight: 600; color: #000000; }
   .spadra-pack-card__price-sub { font-weight: 400; color: #6B7280; font-size: 0.8rem; }
+
+  .spadra-pack-card__sub {
+    margin: 2px 0 0;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+  .spadra-pack-card__sub-pct {
+    font-weight: 700;
+    color: #00A344;
+  }
+  .spadra-pack-card__sub-price { color: #5B6470; }
 
   .spadra-pack-card__ing-label {
     margin: 8px 0 0;

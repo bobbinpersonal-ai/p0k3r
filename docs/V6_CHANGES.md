@@ -56,36 +56,84 @@ from the then-live V8, unpublished):
   earlier in this project silently returned only one of two files with no
   `userErrors`, so files are now always verified individually after upload).
 
-**Owner must publish `153250627723`** to make this live.
+V9 (`153250627723`) was **published by the owner mid-session** and is now MAIN.
 
-### 3. Gallery cleanup (Task #42)
-- Remove the CSS-rendered torn-flat-lay "variant b" image per product
-  (`spadra-pack-<product_id>-b.png`, uploaded via `productCreateMedia` earlier
-  this project) — that's the "cartoon/flat pill graphic."
-- **Verify actual media order per product via API first** — don't assume
-  position 3 is always variant b for every one of the 66.
-- Delete via `productDeleteMedia`, batched with aliases (~17/call, same
-  pattern as the original upload batches).
+### 3. Gallery cleanup (Task #42) — DONE, live already
+The "cartoon" third media item is gone from all 66 packs.
 
-### 4. Real ingredient photos (Task #43)
-- ~49 ingredient PNGs already confirmed in Shopify Files (queried
-  successfully before the connection issues started) — covers roughly A–S
-  alphabetically (10B Probiotic through Saw Palmetto). **T–Z is unconfirmed**
-  (Turmeric, Triphala, Tribulus, Taurine, Theanine, Tyrosine, Vitamin
-  B12/Methylcobalamin, Vitamin D, Zinc, Selenium, etc.) — run a paginated
-  `files()` query before building the full map. Do not guess filenames,
-  especially the numeric IDs in them (`-100001xxx`) — a truncated/guessed
-  filename in a `shopify://shop_images/` reference breaks silently.
-- Build `snippets/spadra-ingredient-images.liquid`: name → confirmed filename
-  map.
-- Wire into `snippets/spadra-product-catalog.liquid` (replace/augment the
-  `.spadra-pill-list` text pills with photo chips — neutral backdrop,
-  hairline border, soft shadow) and the quiz result cards in
-  `native-quiz-modal.liquid`. Also check `spadra-pdp.liquid`'s "What's
-  Inside" grid — the `theme-src/` mirror of that file is stale per its own
-  README, don't trust it, fetch live.
-- No confirmed photo → keep the existing text-pill fallback. Never render a
-  guessed/broken image path.
+Checked all 66 via the API before deleting anything rather than assuming
+position 3: every pack had exactly 3 media, position 1 the supplier's own
+artwork, position 2 `spadra-pack-<id>.png`, position 3
+`spadra-pack-<id>-b.png`. Downloaded and actually looked at all three for
+Brain Pack to confirm which was the flat-vector "pills floating over a torn
+pouch" graphic — it is the `-b` one, as expected. Cross-checked the 66
+product IDs against the 66 `-b.png` files in `scripts/pack_images/`: exact
+match, no strays either way.
+
+Deleted with `productDeleteMedia` in 4 alias-batched calls (17/17/17/15),
+66/66 succeeded with zero `mediaUserErrors`. Re-queried afterwards:
+`mediaCount` is now 2 on every pack and no `-b.png` remains attached.
+
+Reversible: both `scripts/render_packs.py` + `pack_template_b.html` and all
+66 source PNGs are still in the repo, so the images can be regenerated and
+re-uploaded if this is ever wanted back.
+
+### 4. Real ingredient photos (Task #43) — DONE, needs publish
+The T–Z gap is closed: a paginated `files()` sweep found **60** ingredient
+photos, each carrying the ingredient name as its `alt` text, which is what
+the map was built from — no filename was guessed. These are genuine
+photographs of the actual capsules on white, not renders.
+
+Of the **53** ingredients the catalogue actually uses (derived from
+`scripts/spadra_registry.json`, not eyeballed), **52 have a real photo**.
+**Glucosamine is the only one with none** — confirmed by direct search, not
+assumed — and it falls back to the existing text pill.
+`Soothing Fiber` is mapped to the file whose alt is `Soothing Fiber Formula`
+(the Aloe Vera Plus capsule); that is a deliberate alias, the only one.
+
+All 60 URLs were fetched and confirmed HTTP 200 **before** being written into
+the snippet, which is why the map stores absolute CDN URLs rather than
+`file_url` — a wrong filename fails silently as a broken image, and
+`file_url` could not be verified from here. `?width=160` is appended
+(verified: 22KB → 4.6KB per chip).
+
+Files, all byte-verified after upload:
+- **`snippets/spadra-ingredient-images.liquid`** (new) — the map plus three
+  modes: `name:` (one capsule shot), `components:` (chip row), `as_json:`
+  (map as JSON for client-side use).
+- **`snippets/spadra-product-catalog.liquid`** — pack cards now render photo
+  chips instead of text pills.
+- **`sections/spadra-pdp.liquid`** — each "What's Inside" card now leads with
+  the real capsule shot next to the ingredient name.
+
+Regenerating: `python3 scripts/build_ingredient_images.py` rebuilds the
+snippet from `scripts/ingredient_images.json`;
+`scripts/verify_ingredient_images.py` re-checks every URL and reports which
+used ingredients lack a photo. Both were run; the generator reproduces the
+deployed file byte-for-byte.
+
+**A CSS collision, found and fixed — worth knowing about.** The obvious class
+names (`.spadra-ing`, `.spadra-ing-list`, `.spadra-ing__name`) are *already
+owned* by `sections/spadra-pdp.liquid` for its What's Inside cards. Snippet
+and section CSS are concatenated into one global bundle, so reusing them
+silently restyles that grid. The snippet's classes are therefore all prefixed
+`spadra-ingshot-`, and the file carries a comment saying why. **The first
+upload went out before this was caught and V9 was published on top of it, so
+the collision is on the live site right now** — publishing V10 is what fixes
+it.
+
+Not done: the quiz result cards. They currently show title/subtitle/price and
+no ingredients at all, so this would be new UI rather than a swap; the
+`as_json:` mode exists to feed it when that gets built.
+
+**Owner must publish `153253150859` ("SPADRA V10 — Real Ingredient Photos")**
+— this both ships the photos and clears the live CSS collision above.
+
+Note: `theme-src/sections/spadra-pdp.liquid` is still the older stale copy and
+was deliberately left alone rather than half-updated — uploading it would
+revert unrelated live styling. Fetch that file from the live theme, never from
+the mirror. The two snippets in `theme-src/snippets/` *are* byte-identical to
+what is deployed.
 
 ### Standing rules already settled — don't re-litigate
 - No FDA badge/seal, anywhere. Regulatory fact, not a style choice. "FDA-
