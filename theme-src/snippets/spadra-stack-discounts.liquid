@@ -1,0 +1,55 @@
+{%- comment -%}
+  The real multi-pack automatic discounts, as data, in one place.
+
+  Pulled from the live Shopify discounts, not from the brief:
+
+    "2-Pack Supplement Discount (25% off)"  min quantity 2
+    "3-Pack Supplement Discount (40% off)"  min quantity 3
+
+  Two facts about them that the storefront copy has to respect:
+
+  1. They are QUANTITY tiers, not a subscription offer. Both have
+     appliesOnOneTimePurchase AND appliesOnSubscription true, so wording like
+     "25% off monthly" is wrong -- monthly delivery is the separate Subscribe
+     & Save selling plan, a different mechanism. Say "add a 2nd pack", never
+     "monthly".
+
+  2. They are scoped to exactly the 12 product IDs below, NOT the whole
+     66-pack catalogue. Six are the live handles; the other six are older
+     duplicate products carrying the same titles, kept here so a real match is
+     never missed. Anything not on this list must never be shown a hardcoded
+     percentage -- that is the same broken-promise failure as the catalogue
+     truncation bug fixed earlier in this project.
+
+  Consumed as JSON by both sections/spadra-stack.liquid (the PDP checkbox
+  picker) and sections/native-quiz-modal.liquid (the results banner), so the
+  two can never drift apart.
+
+  If the discounts change in Shopify admin, re-query discountNodes and edit
+  this file only.
+
+  Usage: {% render 'spadra-stack-discounts' %}
+{%- endcomment -%}
+
+<script type="application/json" data-spadra-stack-discounts>
+  {
+    "eligible": [
+      "sleep-pack",
+      "sleep-pack-1",
+      "sleep-pack-2",
+      "sleep-pack-3",
+      "performance-pack",
+      "performance-pack-1",
+      "brain-pack-1",
+      "muscle-preserve-pack",
+      "muscle-preserve-pack-1",
+      "muscle-preserve-pack-spadra",
+      "focus-pack-spadra",
+      "sleep-pack-melatonin-spadra"
+    ],
+    "tiers": [
+      { "qty": 3, "percent": 40 },
+      { "qty": 2, "percent": 25 }
+    ]
+  }
+</script>

@@ -60,6 +60,8 @@
   {%- endif -%}
 
   {%- render 'spadra-quiz-catalog' -%}
+  {%- render 'spadra-ingredient-images', as_json: true -%}
+  {%- render 'spadra-stack-discounts' -%}
 </dialog>
 
 <script>
@@ -81,21 +83,30 @@
     var MAX_RESULTS = 4;
     var GOAL_Q = 1; // index of the main-focus question, which drives one pick each
 
-    // The 25%-at-2 / 40%-at-3 automatic discounts (confirmed via Shopify admin,
-    // not guessed) are scoped to exactly these 12 product IDs, not all 66
-    // packs. Six are the live handles the quiz catalogue actually uses; the
-    // other six are older duplicate products with the same titles, kept here
-    // so a genuine match is never missed. A pack not on this list must never
-    // be shown a hardcoded discount percentage — that is the same failure
-    // mode as the catalogue-truncation bug already fixed once in this project.
-    var STACK_DISCOUNT_HANDLES = {
-      'sleep-pack': true, 'sleep-pack-1': true, 'sleep-pack-2': true, 'sleep-pack-3': true,
-      'performance-pack': true, 'performance-pack-1': true,
-      'brain-pack-1': true,
-      'muscle-preserve-pack': true, 'muscle-preserve-pack-1': true, 'muscle-preserve-pack-spadra': true,
-      'focus-pack-spadra': true,
-      'sleep-pack-melatonin-spadra': true
-    };
+    // The multi-pack tiers, and the list of products they actually apply to,
+    // now live in snippets/spadra-stack-discounts.liquid — shared with the PDP
+    // stack picker so the two can never drift apart. A pack that is not on
+    // that list must never be shown a percentage it will not receive; that is
+    // the same failure mode as the catalogue-truncation bug fixed earlier in
+    // this project.
+    var STACK_DISCOUNT_HANDLES = {};
+    var STACK_TIERS = [];
+    try {
+      var discEl = modal.querySelector('[data-spadra-stack-discounts]');
+      var disc = discEl ? JSON.parse(discEl.textContent) : null;
+      if (disc) {
+        (disc.eligible || []).forEach(function (h) { STACK_DISCOUNT_HANDLES[h] = true; });
+        STACK_TIERS = (disc.tiers || []).slice();
+      }
+    } catch (e) { /* no tiers: the set card simply shows no discount claim */ }
+
+    // Real capsule photography, keyed by lowercased ingredient name. Same map
+    // the product cards and the PDP use.
+    var ING_IMAGES = {};
+    try {
+      var ingEl = modal.querySelector('[data-spadra-ingredient-images]');
+      if (ingEl) ING_IMAGES = JSON.parse(ingEl.textContent) || {};
+    } catch (e) { /* cards just render without capsule shots */ }
 
     // A pack listed in two category collections arrives twice; keep the first.
     var CATALOG = [];
@@ -395,30 +406,42 @@
     }
 
     // ---- Complete the set --------------------------------------------
-    // Shown when 3+ buyable picks come back. Price math is computed here from
+    // Shown when 2+ buyable picks come back. Price math is computed here from
     // the catalogue's own price_cents, not typed in — it can only ever be
-    // right or absent, never stale. The 40%-off line only appears when every
-    // pack in the set is actually on the discount's real eligible-12 list;
-    // otherwise the honest generic line is used instead.
+    // right or absent, never stale. The percentage comes from the real tier
+    // table and is counted only over the packs that are actually on the
+    // discount's eligible list; if that count reaches no tier, the card shows
+    // no price claim at all rather than a vague one.
     function money(cents) {
       return '$' + (Math.round(cents) / 100).toFixed(2);
     }
 
+    // The rate that n eligible packs actually earn, from the real tier table.
+    function rateFor(n) {
+      var best = 0;
+      STACK_TIERS.forEach(function (t) { if (n >= t.qty && t.percent > best) best = t.percent; });
+      return best;
+    }
+
     function completeSetHTML(packs) {
-      if (packs.length < 3) return '';
-      var allEligible = packs.every(function (p) { return STACK_DISCOUNT_HANDLES[p.handle]; });
+      if (packs.length < 2) return '';
+      var eligible = packs.filter(function (p) { return STACK_DISCOUNT_HANDLES[p.handle]; });
+      var rate = rateFor(eligible.length);
       var subtotal = packs.reduce(function (sum, p) { return sum + (p.price_cents || 0); }, 0);
       var names = packs.map(function (p) { return p.title; });
 
-      var priceLine;
-      if (allEligible && subtotal) {
-        var discounted = subtotal * 0.6;
+      // Only claim a discount the cart will really give. The tier comes off the
+      // eligible packs alone, so anything else in the set stays at full price
+      // in this maths. No qualifying tier means no price claim at all.
+      var priceLine = '';
+      if (rate > 0 && subtotal) {
+        var eligCents = eligible.reduce(function (s, p) { return s + (p.price_cents || 0); }, 0);
+        var now = Math.round(eligCents * (100 - rate) / 100) + (subtotal - eligCents);
         priceLine = '<p class="spadra-quiz__set-price">' +
           '<span class="spadra-quiz__set-was">' + esc(money(subtotal)) + '</span> ' +
-          '<span class="spadra-quiz__set-now">' + esc(money(discounted)) + '</span>' +
-          ' — 40% off applies automatically at checkout</p>';
-      } else {
-        priceLine = '<p class="spadra-quiz__set-price">Multi-protocol pricing applies automatically in your cart.</p>';
+          '<span class="spadra-quiz__set-now">' + esc(money(now)) + '</span>' +
+          '<span class="spadra-quiz__set-badge">' + rate + '% off</span>' +
+          '</p><p class="spadra-quiz__set-note">Applied automatically at checkout.</p>';
       }
 
       return '<div class="spadra-quiz__complete-set">' +
@@ -426,6 +449,23 @@
         '<p class="spadra-quiz__complete-set-body">All ' + packs.length + ' as one order — ' + esc(joinList(names)) + '.</p>' +
         priceLine +
         '</div>';
+    }
+
+    // Real capsule photography for a pack's actives. Ingredients with no
+    // confirmed photo are simply left out rather than rendering a guessed path.
+    function ingredientRow(p) {
+      var comps = Array.isArray(p.components) ? p.components : [];
+      if (!comps.length) return '';
+      var shots = comps.map(function (c) {
+        var src = ING_IMAGES[String(c).toLowerCase().replace(/^\s+|\s+$/g, '')];
+        if (!src) return '';
+        return '<span class="spadra-quiz-card__ing">' +
+          '<img src="' + esc(src) + '?width=120" alt="' + esc(c) + ' capsule" loading="lazy" decoding="async">' +
+          '</span>';
+      }).filter(Boolean);
+      if (!shots.length) return '';
+      return '<span class="spadra-quiz-card__ings">' + shots.join('') +
+        '<span class="spadra-quiz-card__ings-n">' + comps.length + ' actives</span></span>';
     }
 
     // ---- Specialist match ------------------------------------------------
@@ -510,6 +550,7 @@
         '<span class="spadra-quiz-card__title">' + esc(p.title) + '</span>' +
         (pick.reason ? '<span class="spadra-quiz-card__reason">For: ' + esc(pick.reason) + '</span>' : '') +
         (p.subtitle ? '<span class="spadra-quiz-card__sub">' + esc(p.subtitle) + '</span>' : '') +
+        ingredientRow(p) +
         '<span class="spadra-quiz-card__price">' + esc(p.price) + ' &middot; 30-day supply</span>' +
         '</span></a>';
     }
@@ -577,7 +618,7 @@
         .map(function (x) { return x.p; })
         .filter(function (p) { return p.vid && p.available; });
 
-      if (buyable.length >= 3) {
+      if (buyable.length >= 2) {
         html += completeSetHTML(buyable.slice(0, 3));
       }
 
@@ -916,6 +957,50 @@
     margin-right: 6px;
   }
   .spadra-quiz__set-now { color: #00A344; }
+  .spadra-quiz__set-badge {
+    margin-left: 8px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #04240F;
+    background: #00C853;
+    border-radius: 100px;
+    padding: 3px 9px;
+    white-space: nowrap;
+  }
+  .spadra-quiz__set-note {
+    margin: 6px 0 0;
+    font-size: 0.78rem;
+    color: #5B6470;
+  }
+
+  .spadra-quiz-card__ings {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .spadra-quiz-card__ing {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #F8F7F4;
+    border: 1px solid #E8E8E4;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .spadra-quiz-card__ing img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .spadra-quiz-card__ings-n {
+    margin-left: 4px;
+    font-size: 0.68rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #6B7280;
+  }
 
   /* ---- Specialist match & roadmap ---- */
   .spadra-spec {

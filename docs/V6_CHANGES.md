@@ -122,18 +122,61 @@ upload went out before this was caught and V9 was published on top of it, so
 the collision is on the live site right now** — publishing V10 is what fixes
 it.
 
-Not done: the quiz result cards. They currently show title/subtitle/price and
-no ingredients at all, so this would be new UI rather than a swap; the
-`as_json:` mode exists to feed it when that gets built.
-
-**Owner must publish `153253150859` ("SPADRA V10 — Real Ingredient Photos")**
-— this both ships the photos and clears the live CSS collision above.
+V10 (`153253150859`) was published by the owner, so the photos and the
+collision fix are both live.
 
 Note: `theme-src/sections/spadra-pdp.liquid` is still the older stale copy and
 was deliberately left alone rather than half-updated — uploading it would
 revert unrelated live styling. Fetch that file from the live theme, never from
-the mirror. The two snippets in `theme-src/snippets/` *are* byte-identical to
-what is deployed.
+the mirror.
+
+### 5. Multi-pack stack messaging (Task #41, full spec) — DONE, needs publish
+
+**The brief's wording was wrong and was corrected.** It asked for "Add a 2nd
+pack for 25% off *monthly*, or 3rd for 40% off". Querying the two discounts
+shows both have `appliesOnOneTimePurchase: true` *and*
+`appliesOnSubscription: true` with a `DiscountMinimumQuantity` of 2 and 3 —
+they are **quantity tiers, not a subscription offer**. "Monthly" is the
+separate Subscribe & Save selling plan, a different mechanism. The copy says
+"add a 2nd pack and save 25%", never "monthly".
+
+New **`snippets/spadra-stack-discounts.liquid`** holds the eligible-12 list and
+the tier table as JSON, and is the single source of truth for both surfaces —
+`native-quiz-modal.liquid` no longer keeps its own hardcoded copy, so the two
+cannot drift.
+
+On the PDP (`sections/spadra-stack.liquid`), under Complete Your Stack:
+- an understated tier line, shown **only when this page can actually reach a
+  tier** (the product plus enough eligible companions), built from the tier
+  table rather than typed;
+- a live total as the checkboxes toggle — real strikethrough → discounted
+  price, plus a quiet `25% off applied` / `40% off applied` pill;
+- the discount is applied **only to the eligible items** in the selection, with
+  anything else held at full price, because that is what the cart will do.
+
+In the quiz results, "Complete the set" now triggers at **2+** picks (was 3+),
+takes its percentage from the same tier table, and counts only the eligible
+picks. If the picks reach no tier it shows **no price claim at all** rather
+than the previous vague "multi-protocol pricing applies" line.
+
+Both money paths have unit tests — `scripts/test_stack_math.js` (7 cases) and
+`scripts/test_quiz_set.js` (5 cases, run against the real eligible list). Both
+pass, including the cases that matter most: 1 eligible + 2 ineligible shows no
+discount, and a mixed set discounts only the eligible half.
+
+### 6. Real ingredient photos in the quiz cards (rest of Task #43) — DONE
+
+Quiz result cards now carry a row of the same real capsule photos, with the
+actives count beside them. The map arrives via the snippet's `as_json:` mode,
+so there is still exactly one map. An ingredient without a confirmed photo is
+omitted from the row rather than rendering a guessed path.
+
+**Owner must publish `153253544075` ("SPADRA V11 — Stack Pricing + Quiz
+Ingredients")** for sections 5 and 6.
+
+Verification used throughout: every file's byte size is checked after upload
+against the local copy (and for spadra-pdp, against a size predicted before
+upload), and the extracted `<script>` blocks are run through `node --check`.
 
 ### Standing rules already settled — don't re-litigate
 - No FDA badge/seal, anywhere. Regulatory fact, not a style choice. "FDA-

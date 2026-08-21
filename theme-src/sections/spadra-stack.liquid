@@ -1,22 +1,39 @@
 {%- comment -%}
-  Sits between the buy button and the long-form product content.
+  Sits directly beneath the buy button, above the long-form content.
 
-  Two jobs:
-    1. Tell a shopper when a pack is formulated for one audience, and link to the
-       equivalent for the other, so nobody buys the wrong one by accident.
-    2. "Complete Your Stack" — checkbox add-on picker that adds this product plus
+  Five jobs:
+    1. At a glance — the facts a shopper wants before scrolling: actives count,
+       supply, category, the one-line problem, and jump links into the detail.
+    2. Subscribe & save — read from the variant's real selling plan allocation,
+       never hardcoded, so the percentage and price follow the store's actual
+       plan if it changes.
+    3. The 30-60-90 timeline promise, worded per pack.
+    4. Audience notice when a pack is formulated for one sex, linking to the
+       equivalent for the other.
+    5. "Complete Your Stack" — checkbox add-on picker that adds this product plus
        any ticked companions in a single cart request.
 
-  Data comes from spadra.audience, spadra.counterpart and spadra.related.
+  Anchor ids for the jump links are applied to the long-form blocks at runtime,
+  so sections/spadra-pdp.liquid does not need to know about this section.
 {%- endcomment -%}
 
 {%- liquid
   assign audience = product.metafields.spadra.audience.value
   assign counterpart_handle = product.metafields.spadra.counterpart.value
   assign related = product.metafields.spadra.related.value
+  assign comps = product.metafields.spadra.components.value
+  assign cat = product.metafields.spadra.category_label.value
+  assign variant = product.selected_or_first_available_variant
+  assign alloc = variant.selling_plan_allocations | first
   assign counterpart = nil
   if counterpart_handle != blank
     assign counterpart = all_products[counterpart_handle]
+  endif
+
+  assign problem_line = ''
+  assign chunks = product.description | split: 'The Problem</strong>'
+  if chunks.size > 1
+    assign problem_line = chunks[1] | split: '</p>' | first | replace: '<br />', '' | replace: '<br/>', '' | replace: '<br>', '' | strip | split: '. ' | first | append: '.'
   endif
 
   assign pair_handles = ''
@@ -43,7 +60,7 @@
     {%- assign shown = shown | plus: 1 -%}
     <li class="spadra-stack__row">
       <label class="spadra-stack__label">
-        <input type="checkbox" class="spadra-stack__check" data-stack-vid="{{ sp.selected_or_first_available_variant.id }}">
+        <input type="checkbox" class="spadra-stack__check" data-stack-vid="{{ sp.selected_or_first_available_variant.id }}" data-stack-handle="{{ sp.handle }}" data-stack-price="{{ sp.price }}">
         <span class="spadra-stack__media">
           {%- if sp.featured_image -%}
             {{ sp.featured_image | image_url: width: 160 | image_tag: loading: 'lazy', alt: sp.title, class: 'spadra-stack__img' }}
@@ -66,45 +83,117 @@
 {%- assign has_rows = false -%}
 {%- if stack_rows contains 'spadra-stack__row' -%}{%- assign has_rows = true -%}{%- endif -%}
 
-{%- if audience != blank or has_rows -%}
-  <section class="spadra-stack-section">
-    <div class="spadra-stack-section__inner">
+<section class="spadra-stack-section">
+  <div class="spadra-stack-section__inner">
 
-      {%- if audience != blank and counterpart != blank and counterpart != empty -%}
-        <p class="spadra-audience-note">
-          {%- if audience == 'men' -%}
-            This protocol is formulated for men.
-            <a href="{{ counterpart.url }}">Looking for the version for women?</a>
-          {%- else -%}
-            This protocol is formulated for women.
-            <a href="{{ counterpart.url }}">Looking for the version for men?</a>
-          {%- endif -%}
-        </p>
+    <div class="spadra-glance">
+      <ul class="spadra-glance__facts">
+        {%- if comps and comps.size > 0 -%}
+          <li><strong>{{ comps.size }}</strong> actives</li>
+        {%- endif -%}
+        <li><strong>30</strong>-day supply</li>
+        <li>1 pouch daily</li>
+        {%- if cat != blank -%}<li>{{ cat }}</li>{%- endif -%}
+      </ul>
+
+      {%- if problem_line != blank -%}
+        <p class="spadra-glance__problem">{{ problem_line }}</p>
       {%- endif -%}
 
-      {%- if has_rows and product.available -%}
-        <div class="spadra-stack" data-spadra-stack>
-          <p class="spadra-stack__eyebrow">Complete Your Stack</p>
-          <h2 class="spadra-stack__heading">Frequently taken alongside {{ product.title }}</h2>
-          <ul class="spadra-stack__list">{{ stack_rows }}</ul>
-          <button
-            type="button"
-            class="spadra-stack__cta"
-            data-stack-add
-            data-self-vid="{{ product.selected_or_first_available_variant.id }}"
-          >Add {{ product.title }} to cart</button>
-          <p class="spadra-stack__error" data-stack-error hidden>
-            We could not add that to your cart. Please try again.
-          </p>
-        </div>
-      {%- endif -%}
-
+      <nav class="spadra-glance__jump" aria-label="Jump to section">
+        <a href="#spadra-problem" data-glance-jump="problem">The problem</a>
+        <a href="#spadra-solution" data-glance-jump="solution">How it works</a>
+        <a href="#spadra-inside" data-glance-jump="inside">What's inside</a>
+        <a href="#spadra-protocol" data-glance-jump="protocol">30&ndash;60&ndash;90 plan</a>
+        <a href="#spadra-related" data-glance-jump="related">Pairs well with</a>
+      </nav>
     </div>
-  </section>
-{%- endif -%}
+
+    {%- comment -%}
+      Subscription figures come from the live selling plan allocation, so the
+      percentage and monthly price stay correct without a theme edit if the
+      plan is changed. Rendered only when the allocation actually beats the
+      one-time price.
+    {%- endcomment -%}
+    {%- if alloc and alloc.price < alloc.compare_at_price -%}
+      {%- liquid
+        assign saved = alloc.compare_at_price | minus: alloc.price
+        assign save_pct = saved | times: 100 | divided_by: alloc.compare_at_price
+      -%}
+      <div class="spadra-sub">
+        <p class="spadra-sub__line">
+          <span class="spadra-sub__tag">Subscribe &amp; save {{ save_pct }}%</span>
+          <span class="spadra-sub__price">{{ alloc.price | money }} a month, delivered every 30 days</span>
+        </p>
+        <p class="spadra-sub__note">
+          Pick monthly delivery in the purchase options above instead of a one-time order.
+          Skip a month, change the date, or cancel from your account whenever you like.
+        </p>
+      </div>
+    {%- endif -%}
+
+    {%- render 'spadra-timeline-promise', product: product -%}
+
+    {%- if audience != blank and counterpart != blank and counterpart != empty -%}
+      <p class="spadra-audience-note">
+        {%- if audience == 'men' -%}
+          This protocol is formulated for men.
+          <a href="{{ counterpart.url }}">Looking for the version for women?</a>
+        {%- else -%}
+          This protocol is formulated for women.
+          <a href="{{ counterpart.url }}">Looking for the version for men?</a>
+        {%- endif -%}
+      </p>
+    {%- endif -%}
+
+    {%- if has_rows and product.available -%}
+      <div class="spadra-stack" data-spadra-stack>
+        <p class="spadra-stack__eyebrow">Complete Your Stack</p>
+        <h2 class="spadra-stack__heading">Frequently taken alongside {{ product.title }}</h2>
+        {%- comment -%}
+          Filled in by JS only when this page can actually reach a tier, i.e.
+          the product and enough of the companions are on the discount's real
+          eligible list. Never a hardcoded percentage.
+        {%- endcomment -%}
+        <p class="spadra-stack__tiers" data-stack-tiers hidden></p>
+        <ul class="spadra-stack__list">{{ stack_rows }}</ul>
+        <p class="spadra-stack__total" data-stack-total hidden></p>
+        {%- render 'spadra-stack-discounts' -%}
+        <button
+          type="button"
+          class="spadra-stack__cta"
+          data-stack-add
+          data-self-vid="{{ variant.id }}"
+          data-self-handle="{{ product.handle }}"
+          data-self-price="{{ product.price }}"
+        >Add {{ product.title }} to cart</button>
+        <p class="spadra-stack__error" data-stack-error hidden>
+          We could not add that to your cart. Please try again.
+        </p>
+      </div>
+    {%- endif -%}
+
+  </div>
+</section>
 
 <script>
   (function () {
+    // Give the long-form blocks stable anchor ids so the jump links work without
+    // spadra-pdp.liquid having to declare them.
+    var anchors = {
+      problem: 'spadra-pdp__block--problem',
+      solution: 'spadra-pdp__block--solution',
+      inside: 'spadra-pdp__block--inside',
+      protocol: 'spadra-pdp__block--protocol',
+      related: 'spadra-pdp__block--related'
+    };
+    Object.keys(anchors).forEach(function (key) {
+      var el = document.querySelector('.' + anchors[key]);
+      var links = document.querySelectorAll('[data-glance-jump="' + key + '"]');
+      if (el) el.id = 'spadra-' + key;
+      else Array.prototype.forEach.call(links, function (l) { l.remove(); });
+    });
+
     var stack = document.querySelector('[data-spadra-stack]');
     if (!stack) return;
 
@@ -114,12 +203,85 @@
     if (!addBtn) return;
     var baseTitle = addBtn.textContent.trim();
 
-    // Keep the label honest about how many items the click will actually add.
+    // Multi-pack tiers, read from the rendered JSON rather than typed in here,
+    // so this and the quiz results banner share one source of truth and a pack
+    // that is not on the discount's real eligible list can never be shown a
+    // percentage it will not actually get.
+    var DISC = { eligible: [], tiers: [] };
+    try {
+      var discEl = stack.querySelector('[data-spadra-stack-discounts]');
+      if (discEl) DISC = JSON.parse(discEl.textContent) || DISC;
+    } catch (e) { /* leave the tier UI hidden */ }
+
+    var eligible = {};
+    (DISC.eligible || []).forEach(function (h) { eligible[h] = true; });
+    var tiers = (DISC.tiers || []).slice().sort(function (a, b) { return a.qty - b.qty; });
+
+    var tiersEl = stack.querySelector('[data-stack-tiers]');
+    var totalEl = stack.querySelector('[data-stack-total]');
+    var selfPrice = parseInt(addBtn.getAttribute('data-self-price'), 10) || 0;
+    var selfEligible = !!eligible[addBtn.getAttribute('data-self-handle')];
+
+    var ORDINAL = { 2: '2nd', 3: '3rd', 4: '4th', 5: '5th' };
+    var money = function (cents) { return '$' + (Math.round(cents) / 100).toFixed(2); };
+
+    var rateFor = function (n) {
+      var best = 0;
+      tiers.forEach(function (t) { if (n >= t.qty && t.percent > best) best = t.percent; });
+      return best;
+    };
+
+    // How many eligible packs this page could put in the cart at most. A tier
+    // is only advertised if it is actually reachable from here.
+    var reachableMax = (selfEligible ? 1 : 0) + checks.filter(function (c) {
+      return eligible[c.getAttribute('data-stack-handle')];
+    }).length;
+
+    if (tiersEl) {
+      var reachable = tiers.filter(function (t) { return reachableMax >= t.qty; });
+      if (reachable.length) {
+        var phrases = reachable.map(function (t) {
+          return 'add a ' + (ORDINAL[t.qty] || t.qty) + ' pack and save ' + t.percent + '%';
+        }).join(', or ');
+        tiersEl.textContent = phrases.charAt(0).toUpperCase() + phrases.slice(1) +
+          '. Applied automatically at checkout.';
+        tiersEl.hidden = false;
+      }
+    }
+
+    // Keep the label honest about how many items the click will actually add,
+    // and show what the selection really costs once the tier is applied.
     var sync = function () {
       var n = checks.filter(function (c) { return c.checked; }).length;
       addBtn.textContent = n === 0 ? baseTitle : 'Add ' + (n + 1) + ' protocols to cart';
+
+      if (!totalEl) return;
+      var count = selfEligible ? 1 : 0;
+      var eligCents = selfEligible ? selfPrice : 0;
+      var restCents = selfEligible ? 0 : selfPrice;
+      checks.forEach(function (c) {
+        if (!c.checked) return;
+        var p = parseInt(c.getAttribute('data-stack-price'), 10) || 0;
+        if (eligible[c.getAttribute('data-stack-handle')]) { count += 1; eligCents += p; }
+        else { restCents += p; }
+      });
+
+      var rate = rateFor(count);
+      if (rate > 0) {
+        // The discount only ever comes off the eligible items, so it is applied
+        // to that subtotal alone, not to everything in the selection.
+        var now = Math.round(eligCents * (100 - rate) / 100) + restCents;
+        totalEl.innerHTML =
+          '<span class="spadra-stack__was">' + money(eligCents + restCents) + '</span>' +
+          '<span class="spadra-stack__now">' + money(now) + '</span>' +
+          '<span class="spadra-stack__save">' + rate + '% off applied</span>';
+        totalEl.hidden = false;
+      } else {
+        totalEl.hidden = true;
+      }
     };
     checks.forEach(function (c) { c.addEventListener('change', sync); });
+    sync();
 
     addBtn.addEventListener('click', function () {
       var ids = [addBtn.getAttribute('data-self-vid')];
@@ -162,9 +324,98 @@
     margin: 0 auto;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    padding-top: 8px;
+    gap: 18px;
+    padding-top: 4px;
   }
+
+  .spadra-glance {
+    border-top: 1px solid #E2E8F0;
+    border-bottom: 1px solid #E2E8F0;
+    padding: 16px 0;
+  }
+  .spadra-glance__facts {
+    list-style: none;
+    margin: 0 0 10px;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+    font-size: 0.85rem;
+    color: #33383F;
+  }
+  .spadra-glance__facts li { display: flex; align-items: baseline; gap: 5px; }
+  .spadra-glance__facts strong { font-size: 1.02rem; color: #000000; }
+  .spadra-glance__problem {
+    margin: 0 0 12px;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: #33383F;
+    text-wrap: pretty;
+  }
+  .spadra-glance__jump { display: flex; flex-wrap: wrap; gap: 8px; }
+  .spadra-glance__jump a {
+    font-size: 0.78rem;
+    color: #33383F;
+    text-decoration: none;
+    border: 1px solid #E2E8F0;
+    border-radius: 100px;
+    padding: 6px 13px;
+    transition: border-color 0.15s ease, color 0.15s ease;
+  }
+  .spadra-glance__jump a:hover { border-color: #00C853; color: #00A344; }
+
+  .spadra-sub {
+    border: 1px solid #BEEBCD;
+    background: #F4FBF6;
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .spadra-sub__line {
+    margin: 0 0 6px;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px 10px;
+  }
+  .spadra-sub__tag { font-size: 0.95rem; font-weight: 700; color: #00A344; }
+  .spadra-sub__price { font-size: 0.9rem; color: #1A1A1A; }
+  .spadra-sub__note { margin: 0; font-size: 0.82rem; line-height: 1.5; color: #5B6470; }
+
+  .spadra-promise {
+    border-left: 3px solid #00C853;
+    padding: 2px 0 2px 16px;
+  }
+  .spadra-promise__eyebrow {
+    margin: 0 0 6px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #6B7280;
+  }
+  .spadra-promise__heading {
+    margin: 0 0 8px;
+    font-family: var(--font-heading--family);
+    font-size: 1.22rem;
+    line-height: 1.25;
+    color: #000000;
+    text-wrap: balance;
+  }
+  .spadra-promise__body {
+    margin: 0 0 8px;
+    font-size: 0.92rem;
+    line-height: 1.62;
+    color: #33383F;
+    text-wrap: pretty;
+  }
+  .spadra-promise__tail {
+    margin: 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: #5B6470;
+  }
+  .spadra-promise__tail a { color: #00A344; font-weight: 600; margin-left: 5px; white-space: nowrap; }
+
   .spadra-audience-note {
     margin: 0;
     padding: 12px 16px;
@@ -196,7 +447,34 @@
     color: #000000;
     text-wrap: pretty;
   }
+  .spadra-stack__tiers {
+    margin: -8px 0 14px;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: #5B6470;
+  }
   .spadra-stack__list { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .spadra-stack__total {
+    margin: 0 0 14px;
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.95rem;
+  }
+  .spadra-stack__was { text-decoration: line-through; color: #6B7280; }
+  .spadra-stack__now { font-weight: 700; color: #000000; }
+  .spadra-stack__save {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #00A344;
+    background: #F4FBF6;
+    border: 1px solid #BEEBCD;
+    border-radius: 100px;
+    padding: 3px 9px;
+  }
   .spadra-stack__label {
     display: grid;
     grid-template-columns: auto 56px 1fr auto;
@@ -211,7 +489,7 @@
   .spadra-stack__label:hover { border-color: #00C853; }
   .spadra-stack__check { width: 18px; height: 18px; accent-color: #00C853; }
   .spadra-stack__media { width: 56px; height: 56px; border-radius: 8px; overflow: hidden; background: #F8F7F4; }
-  .spadra-stack__img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .spadra-stack__img { width: 100%; height: 100%; object-fit: contain; display: block; }
   .spadra-stack__text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
   .spadra-stack__title { font-size: 0.92rem; font-weight: 600; color: #000000; }
   .spadra-stack__why { font-size: 0.78rem; color: #5B6470; line-height: 1.4; }
@@ -227,12 +505,15 @@
     font-weight: 700;
     cursor: pointer;
   }
-  .spadra-stack__cta:hover { background: #00C853; color: #000000; }
+  .spadra-stack__cta:hover { background: #00C853; color: #04240F; }
   .spadra-stack__cta[disabled] { opacity: 0.6; cursor: default; }
   .spadra-stack__error { margin: 10px 0 0; font-size: 0.82rem; color: #B42318; }
 
   @media screen and (max-width: 749px) {
     .spadra-stack-section { padding: 0 16px; }
+    .spadra-glance__facts { gap: 6px 16px; font-size: 0.82rem; }
+    .spadra-promise { padding-left: 13px; }
+    .spadra-promise__heading { font-size: 1.12rem; }
     .spadra-stack { padding: 16px; }
     .spadra-stack__heading { font-size: 1.1rem; }
     .spadra-stack__label { grid-template-columns: auto 44px 1fr; row-gap: 4px; }
