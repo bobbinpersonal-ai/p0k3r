@@ -1,3 +1,101 @@
+## START HERE — next session checklist
+
+Repo `bobbinpersonal-ai/p0k3r`, branch `claude/joker-poker-shopify-setup-859vo7`.
+Ignore any repo called `lovemeafter` or branch `v6-changes-continuation` —
+not this project, never was.
+
+**Before any Shopify write:** re-query `themes(first:12){nodes{id name role}}`
+to find current MAIN. Don't trust a cached theme ID — the user publishes drafts
+by hand and it changes. Writes to MAIN are blocked; `themeDuplicate` first, edit
+the draft, tell the user to publish it themselves (API publish is always blocked,
+every time, no exceptions).
+
+### 1. Upload the quality/manufacturing section (Task #40)
+- Already written and committed: `theme-src/sections/spadra-quality.liquid`
+  (commit `86dcfea`). Copy verbatim into the draft theme's `sections/` via
+  `themeFilesUpsert`.
+- Add it to `templates/index.json`'s section order (read the live file first,
+  don't guess) using the section's default preset — 5 category blocks
+  (flask / mineral / leaf / droplet / verify).
+- Compliance edits are already baked into the file: no FDA badge, no
+  "doctor-formulated," no us-vs-competitors table. Don't add any of those back.
+
+### 2. Stack discount messaging + quiz reorder (Task #41 + latest ask)
+Confirmed real in Shopify admin (screenshot, not guessed):
+- **"2-Pack Supplement Discount (25% off)"** — automatic, min qty 2, scoped to
+  **12 products**.
+- **"3-Pack Supplement Discount (40% off)"** — automatic, min qty 3, scoped to
+  **12 products**.
+- Also present, leave alone unless asked: "3 packs" 35%-off CODE (min $110),
+  "both" 25%-off-entire-order automatic (min $60), "SPADRA15" 15%-off code.
+
+Steps, in order:
+a. Query `discountNodes` for those two, expand `customerGets.items` to get the
+   **exact 12 product IDs each**. Do this before writing any copy — the quiz
+   can match any of 66 packs, and claiming a discount on a pack that isn't in
+   the eligible 12 is the same broken-promise bug already fixed once this
+   project (catalogue truncation → "3 goals, 1 result").
+b. In `sections/native-quiz-modal.liquid` (fetch current content first — it
+   carries the V7 fixes, don't clobber the catalogue loop or the raw-block
+   placeholders):
+   - Move `specialistHTML(picks)`'s output to render **before** the primary/
+     also protocol cards, not after. User's words: "i want the human in the
+     loop to be on top of it. Then naturally show the results."
+   - When 3+ picks are returned, add a "Complete the set" CTA. If every pick
+     is in the eligible-12 (step a), state the real number ("40% off applies
+     automatically at checkout"). If not all eligible, use the honest
+     generic line ("multi-protocol pricing applies automatically in your
+     cart") — never hardcode a percentage for unconfirmed SKUs.
+   - Live price math (sum picks' prices, apply the known discount when
+     eligible) computed client-side from the catalog JSON the quiz already
+     loads — no extra API call needed to display it. Actual application still
+     happens via Shopify's automatic discount at real checkout.
+
+### 3. Gallery cleanup (Task #42)
+- Remove the CSS-rendered torn-flat-lay "variant b" image per product
+  (`spadra-pack-<product_id>-b.png`, uploaded via `productCreateMedia` earlier
+  this project) — that's the "cartoon/flat pill graphic."
+- **Verify actual media order per product via API first** — don't assume
+  position 3 is always variant b for every one of the 66.
+- Delete via `productDeleteMedia`, batched with aliases (~17/call, same
+  pattern as the original upload batches).
+
+### 4. Real ingredient photos (Task #43)
+- ~49 ingredient PNGs already confirmed in Shopify Files (queried
+  successfully before the connection issues started) — covers roughly A–S
+  alphabetically (10B Probiotic through Saw Palmetto). **T–Z is unconfirmed**
+  (Turmeric, Triphala, Tribulus, Taurine, Theanine, Tyrosine, Vitamin
+  B12/Methylcobalamin, Vitamin D, Zinc, Selenium, etc.) — run a paginated
+  `files()` query before building the full map. Do not guess filenames,
+  especially the numeric IDs in them (`-100001xxx`) — a truncated/guessed
+  filename in a `shopify://shop_images/` reference breaks silently.
+- Build `snippets/spadra-ingredient-images.liquid`: name → confirmed filename
+  map.
+- Wire into `snippets/spadra-product-catalog.liquid` (replace/augment the
+  `.spadra-pill-list` text pills with photo chips — neutral backdrop,
+  hairline border, soft shadow) and the quiz result cards in
+  `native-quiz-modal.liquid`. Also check `spadra-pdp.liquid`'s "What's
+  Inside" grid — the `theme-src/` mirror of that file is stale per its own
+  README, don't trust it, fetch live.
+- No confirmed photo → keep the existing text-pill fallback. Never render a
+  guessed/broken image path.
+
+### Standing rules already settled — don't re-litigate
+- No FDA badge/seal, anywhere. Regulatory fact, not a style choice. "FDA-
+  registered facility" as plain text is fine if true.
+- No "doctor-formulated" without a real named doctor to attribute it to.
+- No "us vs. typical OTC supplements" comparison table.
+- OKCapsule-relayed claims (cGMP, third-party tested, non-GMO, etc.) are
+  fine — owner confirmed OKCapsule is the real manufacturer.
+- Subscribe & Save = 40%, real selling plan
+  `gid://shopify/SellingPlan/2663907467` — always read the live allocation,
+  never hardcode the number.
+- If Shopify MCP calls fail with "requires approval" more than 2–3 times in a
+  row, say so plainly once and stop retrying — don't write another
+  troubleshooting essay, one was already given earlier in this project.
+
+---
+
 # SPADRA V6 — multi-select quiz, subscriptions, hero
 
 Draft theme: **SPADRA V6 — Multi-Select Quiz + Hero** (`153169297547`), unpublished.
