@@ -10,46 +10,53 @@ by hand and it changes. Writes to MAIN are blocked; `themeDuplicate` first, edit
 the draft, tell the user to publish it themselves (API publish is always blocked,
 every time, no exceptions).
 
-### 1. Upload the quality/manufacturing section (Task #40)
-- Already written and committed: `theme-src/sections/spadra-quality.liquid`
-  (commit `86dcfea`). Copy verbatim into the draft theme's `sections/` via
-  `themeFilesUpsert`.
-- Add it to `templates/index.json`'s section order (read the live file first,
-  don't guess) using the section's default preset — 5 category blocks
-  (flask / mineral / leaf / droplet / verify).
-- Compliance edits are already baked into the file: no FDA badge, no
-  "doctor-formulated," no us-vs-competitors table. Don't add any of those back.
+### 1. Upload the quality/manufacturing section (Task #40) — DONE, confirmed live
+Turned out to already be live: the owner had published theme `153248661643`
+("SPADRA V8 — Manufacturing/Quality Section") between sessions. Re-fetched its
+`templates/index.json` and confirmed the real, deployed content — `spadra_quality`
+section present, wired between `spadra_brand_story` and `spadra_faq`, using
+the file's default preset (5 category blocks: flask / mineral / leaf / droplet
+/ verify). No further action needed here.
 
-### 2. Stack discount messaging + quiz reorder (Task #41 + latest ask)
-Confirmed real in Shopify admin (screenshot, not guessed):
-- **"2-Pack Supplement Discount (25% off)"** — automatic, min qty 2, scoped to
-  **12 products**.
-- **"3-Pack Supplement Discount (40% off)"** — automatic, min qty 3, scoped to
-  **12 products**.
-- Also present, leave alone unless asked: "3 packs" 35%-off CODE (min $110),
-  "both" 25%-off-entire-order automatic (min $60), "SPADRA15" 15%-off code.
+### 2. Stack discount messaging + quiz reorder (Task #41 + latest ask) — DONE, needs publish
+Confirmed real in Shopify admin via `discountNodes` (not guessed):
+- **"2-Pack Supplement Discount (25% off)"** — automatic, min qty 2.
+- **"3-Pack Supplement Discount (40% off)"** — automatic, min qty 3.
+- Both scoped to the exact same **12 product IDs**: `sleep-pack`,
+  `sleep-pack-1`, `sleep-pack-2`, `sleep-pack-3`, `performance-pack`,
+  `performance-pack-1`, `brain-pack-1`, `muscle-preserve-pack`,
+  `muscle-preserve-pack-1`, `muscle-preserve-pack-spadra`,
+  `focus-pack-spadra`, `sleep-pack-melatonin-spadra`. Six of these are the
+  live handles the quiz catalogue actually scores against; the other six are
+  older duplicate products with the same titles under different handles —
+  kept in the eligibility set so a real match is never missed, even though
+  the quiz will typically only ever surface the first six.
+- Also present, left alone: "3 packs" 35%-off CODE (min $110), "both"
+  25%-off-entire-order automatic (min $60), "SPADRA15" 15%-off code.
 
-Steps, in order:
-a. Query `discountNodes` for those two, expand `customerGets.items` to get the
-   **exact 12 product IDs each**. Do this before writing any copy — the quiz
-   can match any of 66 packs, and claiming a discount on a pack that isn't in
-   the eligible 12 is the same broken-promise bug already fixed once this
-   project (catalogue truncation → "3 goals, 1 result").
-b. In `sections/native-quiz-modal.liquid` (fetch current content first — it
-   carries the V7 fixes, don't clobber the catalogue loop or the raw-block
-   placeholders):
-   - Move `specialistHTML(picks)`'s output to render **before** the primary/
-     also protocol cards, not after. User's words: "i want the human in the
-     loop to be on top of it. Then naturally show the results."
-   - When 3+ picks are returned, add a "Complete the set" CTA. If every pick
-     is in the eligible-12 (step a), state the real number ("40% off applies
-     automatically at checkout"). If not all eligible, use the honest
-     generic line ("multi-protocol pricing applies automatically in your
-     cart") — never hardcode a percentage for unconfirmed SKUs.
-   - Live price math (sum picks' prices, apply the known discount when
-     eligible) computed client-side from the catalog JSON the quiz already
-     loads — no extra API call needed to display it. Actual application still
-     happens via Shopify's automatic discount at real checkout.
+Built in `sections/native-quiz-modal.liquid` on a new draft theme, **SPADRA V9
+— Specialist-First Results + Complete the Set** (`153250627723`, duplicated
+from the then-live V8, unpublished):
+- `specialistHTML(picks)` now renders **before** the primary/also protocol
+  cards in `renderResults()`, right after the lede paragraph. Per the owner's
+  words: "i want the human in the loop to be on top of it. Then naturally
+  show the results."
+- New `completeSetHTML()`: when 3+ buyable picks come back, shows a
+  "Complete the set" card naming all three packs. `STACK_DISCOUNT_HANDLES`
+  (the 12 IDs above) gates the copy — real strikethrough subtotal → 40%-off
+  price when every pack in the set is on that list, otherwise the honest
+  generic "multi-protocol pricing applies automatically in your cart" line.
+  Never guesses a percentage for a pack not confirmed eligible.
+- Price math is computed client-side from a new `price_cents` field added to
+  `snippets/spadra-quiz-catalog.liquid` (the catalogue's raw integer price,
+  alongside the existing pre-formatted `price` string) — no extra request,
+  and it can only ever be right or absent, never stale.
+- Verified by re-fetching both files from the V9 draft after upload (each
+  uploaded as its own `themeFilesUpsert` call — a combined multi-file upsert
+  earlier in this project silently returned only one of two files with no
+  `userErrors`, so files are now always verified individually after upload).
+
+**Owner must publish `153250627723`** to make this live.
 
 ### 3. Gallery cleanup (Task #42)
 - Remove the CSS-rendered torn-flat-lay "variant b" image per product

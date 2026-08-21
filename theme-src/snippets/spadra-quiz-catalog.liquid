@@ -1,0 +1,51 @@
+{%- comment -%}
+  The pack catalogue the quiz scores against, as a JSON array.
+
+  Built by walking the seven category collections explicitly. It used to be
+  assembled with a chain of `assign packs = packs | concat: collections[x].products`,
+  which silently produced a far shorter list than intended — the symptom was a
+  shopper selecting three goals and getting a single protocol back, from
+  bedroom-performance, the first collection in the chain. A nested for-loop
+  cannot truncate that way and is trivial to eyeball.
+
+  A product that sits in two collections appears twice here; the quiz de-dupes
+  on handle when it parses this.
+
+  `price_cents` is the raw integer price (shop's smallest currency unit) so
+  the quiz can compute stack-discount math client-side without a second
+  request; `price` stays the pre-formatted display string.
+
+  Usage: {% render 'spadra-quiz-catalog' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign cat_handles = 'bedroom-performance,glp1-care,focus-brain,longevity-beauty,detox-recovery,mens-womens-health,immune-structural' | split: ','
+-%}
+
+<script type="application/json" data-quiz-catalog>
+[
+{%- assign is_first = true -%}
+{%- for h in cat_handles -%}
+  {%- for p in collections[h].products -%}
+    {%- unless is_first %},{% endunless -%}
+    {%- assign is_first = false -%}
+    {
+      "handle": {{ p.handle | json }},
+      "title": {{ p.title | json }},
+      "url": {{ p.url | json }},
+      "price": {{ p.price | money | json }},
+      "price_cents": {{ p.price | json }},
+      "image": {{ p.featured_image | image_url: width: 480 | json }},
+      "group": {{ p.metafields.spadra.filter.value | json }},
+      "subtitle": {{ p.metafields.spadra.subtitle.value | json }},
+      "components": {{ p.metafields.spadra.components.value | json }},
+      "size": {{ p.metafields.spadra.components.value.size | default: 0 | json }},
+      "audience": {{ p.metafields.spadra.audience.value | json }},
+      "counterpart": {{ p.metafields.spadra.counterpart.value | json }},
+      "vid": {{ p.selected_or_first_available_variant.id | json }},
+      "available": {{ p.available | json }}
+    }
+  {%- endfor -%}
+{%- endfor -%}
+]
+</script>

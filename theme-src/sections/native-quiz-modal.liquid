@@ -4,21 +4,29 @@
   [data-spadra-quiz-open] trigger via the global handler in theme.liquid,
   which calls showModal() on #spadra-quiz-modal.
 
+  Multi-select: the three scoring questions accept several answers. Picking more
+  goals must broaden the result set, not let one question outweigh the others,
+  so a question's weight is divided across however many options were chosen —
+  selecting three goals gives each a third of that question's influence rather
+  than tripling the question.
+
+  Results are built goal-first: each goal the shopper selected contributes its
+  own best-scoring protocol before the ranking fills the remaining slots, so
+  three stated goals return three different protocols rather than four variants
+  of the loudest one.
+
+  The catalogue comes from snippets/spadra-quiz-catalog.liquid. It is not built
+  inline here any more: the old `concat` chain over seven collections silently
+  yielded a fraction of the catalogue, and a shopper who picked three goals got
+  one protocol back. The results copy below is also written so it can never
+  claim more protocols than it actually shows.
+
   Results are written to sessionStorage['spadraQuizMatches'] as an array of
   handles; sections/spadra-pdp.liquid reads that to personalise "You May Also Like".
 {%- endcomment -%}
 
-{%- liquid
-  assign packs = collections['bedroom-performance'].products
-  assign packs = packs | concat: collections['glp1-care'].products
-  assign packs = packs | concat: collections['focus-brain'].products
-  assign packs = packs | concat: collections['longevity-beauty'].products
-  assign packs = packs | concat: collections['detox-recovery'].products
-  assign packs = packs | concat: collections['mens-womens-health'].products
-  assign packs = packs | concat: collections['immune-structural'].products
--%}
-
-<dialog id="spadra-quiz-modal" class="spadra-quiz" aria-labelledby="spadra-quiz-title">
+<dialog id="spadra-quiz-modal" class="spadra-quiz" aria-labelledby="spadra-quiz-title"
+  data-specialist-name="{{ section.settings.specialist_name | default: 'Bobbin' | escape }}">
   <form method="dialog" class="spadra-quiz__close-form">
     <button class="spadra-quiz__close" aria-label="Close">&times;</button>
   </form>
@@ -47,27 +55,11 @@
     </p>
   </div>
 
-  <script type="application/json" data-quiz-catalog>
-    [
-      {%- for p in packs -%}
-        {%- unless forloop.first %},{% endunless %}
-        {
-          "handle": {{ p.handle | json }},
-          "title": {{ p.title | json }},
-          "url": {{ p.url | json }},
-          "price": {{ p.price | money | json }},
-          "image": {{ p.featured_image | image_url: width: 480 | json }},
-          "group": {{ p.metafields.spadra.filter.value | json }},
-          "subtitle": {{ p.metafields.spadra.subtitle.value | json }},
-          "size": {{ p.metafields.spadra.components.value.size | default: 0 | json }},
-          "audience": {{ p.metafields.spadra.audience.value | json }},
-          "counterpart": {{ p.metafields.spadra.counterpart.value | json }},
-          "vid": {{ p.selected_or_first_available_variant.id | json }},
-          "available": {{ p.available | json }}
-        }
-      {%- endfor -%}
-    ]
-  </script>
+  {%- if section.settings.specialist_enabled -%}
+    {%- render 'spadra-specialist-match' -%}
+  {%- endif -%}
+
+  {%- render 'spadra-quiz-catalog' -%}
 </dialog>
 
 <script>
@@ -83,12 +75,45 @@
     var progressFill = modal.querySelector('[data-quiz-progress-fill]');
     var progressText = modal.querySelector('[data-quiz-progress-text]');
     var catalogEl = modal.querySelector('[data-quiz-catalog]');
+    var specialistTpl = modal.querySelector('[data-spadra-specialist]');
+    var SPECIALIST = modal.getAttribute('data-specialist-name') || 'your specialist';
 
+    var MAX_RESULTS = 4;
+    var GOAL_Q = 1; // index of the main-focus question, which drives one pick each
+
+    // The 25%-at-2 / 40%-at-3 automatic discounts (confirmed via Shopify admin,
+    // not guessed) are scoped to exactly these 12 product IDs, not all 66
+    // packs. Six are the live handles the quiz catalogue actually uses; the
+    // other six are older duplicate products with the same titles, kept here
+    // so a genuine match is never missed. A pack not on this list must never
+    // be shown a hardcoded discount percentage — that is the same failure
+    // mode as the catalogue-truncation bug already fixed once in this project.
+    var STACK_DISCOUNT_HANDLES = {
+      'sleep-pack': true, 'sleep-pack-1': true, 'sleep-pack-2': true, 'sleep-pack-3': true,
+      'performance-pack': true, 'performance-pack-1': true,
+      'brain-pack-1': true,
+      'muscle-preserve-pack': true, 'muscle-preserve-pack-1': true, 'muscle-preserve-pack-spadra': true,
+      'focus-pack-spadra': true,
+      'sleep-pack-melatonin-spadra': true
+    };
+
+    // A pack listed in two category collections arrives twice; keep the first.
     var CATALOG = [];
-    try { CATALOG = JSON.parse(catalogEl.textContent) || []; } catch (e) { CATALOG = []; }
+    try {
+      var raw = JSON.parse(catalogEl.textContent) || [];
+      var byHandle = {};
+      raw.forEach(function (p) {
+        if (p && p.handle && !byHandle[p.handle]) {
+          byHandle[p.handle] = true;
+          CATALOG.push(p);
+        }
+      });
+    } catch (e) { CATALOG = []; }
 
     // ---- Questions -------------------------------------------------------
-    // Each answer carries `w`: handle -> score, and optionally `g`: group -> score.
+    // `multi: true` lets an answer set be chosen. Each answer carries `w`:
+    // handle -> score, optionally `g`: group -> score, and `label`: the short
+    // name echoed back on the matching result card.
     var QUESTIONS = [
       {
         q: 'Who are we building this protocol for?',
@@ -100,37 +125,47 @@
       },
       {
         q: "What's your main health focus right now?",
+        hint: 'Choose as many as apply — you’ll get a protocol for each.',
+        multi: true,
         a: [
           {
             t: 'I want more energy and stamina for my daily life.',
+            label: 'Energy and stamina',
             w: { 'energy-pack-spadra': 10, 'performance-pack-1': 9, 'muscle-preserve-pack-spadra': 7, 'adrenal-pack-spadra': 6, 'mineral-pack-spadra': 4 }
           },
           {
             t: 'I need better focus, memory, and mental clarity.',
+            label: 'Focus and clarity',
             w: { 'focus-pack-spadra': 10, 'brain-pack-1': 9, 'nerve-support-pack-spadra': 6, 'psychedelic-neuro-integration-pack': 4, 'methylation-pack-spadra': 4 },
             g: { 'focus-brain': 2 }
           },
           {
             t: 'I want to sleep deeper and recover from stress faster.',
+            label: 'Sleep and stress recovery',
             w: { 'sleep-pack-1': 10, 'sleep-pack-melatonin-spadra': 9, 'stress-pack-spadra': 8, 'adrenal-pack-spadra': 7, 'mood-support-pack-spadra': 5 }
           },
           {
             t: "I'm focused on healthy aging, skin, and hair vitality.",
+            label: 'Healthy aging, skin and hair',
             w: { 'longevity-nad-repair-pack': 10, 'beauty-hair-density-pack': 9, 'hair-pack-spadra': 9, 'clear-skin-cellular-radiance-pack': 7, 'antioxidant-pack-spadra': 6 },
             g: { 'longevity-beauty': 2 }
           },
           {
             t: 'I want to optimize my physical performance and blood flow.',
+            label: 'Performance and circulation',
             w: { 'nitric-oxide-men-1': 10, 'nitric-oxide-women-spadra': 10, 'performance-pack-1': 8, 'heart-health-spadra': 6, 'blood-pressure-pack-spadra': 5 }
           },
           {
             t: "I'm looking for a strong foundation for overall wellness.",
+            label: 'Everyday foundation',
             w: { 'mens-wellness-1': 9, 'womens-wellness-1': 9, 'vegan-nutrient-pack-spadra': 8, 'mineral-pack-spadra': 7, 'immune-pack-spadra': 6, 'antioxidant-pack-spadra': 6 }
           }
         ]
       },
       {
         q: "What's your biggest daily challenge?",
+        hint: 'Choose as many as apply.',
+        multi: true,
         a: [
           {
             t: 'Mental stress and feeling overwhelmed.',
@@ -156,6 +191,8 @@
       },
       {
         q: 'What would make the biggest difference in your day?',
+        hint: 'Choose as many as apply.',
+        multi: true,
         a: [
           {
             t: 'Waking up refreshed and sharp.',
@@ -194,6 +231,8 @@
     var QUESTION_WEIGHT = [0, 2, 1, 1, 1];
     var STYLE_WEIGHT = 1.5;
 
+    // answers[i] is always an array of selected option indexes, single-select
+    // questions included, so scoring and back-navigation take one code path.
     var answers = [];
     var step = 0;
 
@@ -203,10 +242,14 @@
       });
     }
 
+    function selected(qi) {
+      return Array.isArray(answers[qi]) ? answers[qi] : [];
+    }
+
     function chosenAudience() {
-      var ans = answers[0];
-      if (ans == null) return null;
-      var opt = QUESTIONS[0].a[ans];
+      var sel = selected(0);
+      if (!sel.length) return null;
+      var opt = QUESTIONS[0].a[sel[0]];
       return opt ? opt.audience : null;
     }
 
@@ -218,29 +261,33 @@
       return CATALOG.filter(function (p) { return !p.audience || p.audience === aud; });
     }
 
-    function score() {
+    function scoreTotals(pool) {
       var totals = {};
       var styleChoice = 'open';
-      var pool = eligible();
 
       pool.forEach(function (p) { totals[p.handle] = 0; });
 
-      answers.forEach(function (ans, qi) {
-        if (ans == null) return;
-        var opt = QUESTIONS[qi].a[ans];
-        if (!opt) return;
-        var mult = QUESTION_WEIGHT[qi] || 1;
-        if (opt.style) styleChoice = opt.style;
-        if (opt.w) {
-          Object.keys(opt.w).forEach(function (h) {
-            if (h in totals) totals[h] += opt.w[h] * mult;
-          });
-        }
-        if (opt.g) {
-          pool.forEach(function (p) {
-            if (p.group && opt.g[p.group]) totals[p.handle] += opt.g[p.group] * mult;
-          });
-        }
+      answers.forEach(function (sel, qi) {
+        if (!Array.isArray(sel) || !sel.length) return;
+        // Divide the question's weight across the chosen answers so that
+        // selecting more options widens the field instead of amplifying it.
+        var mult = (QUESTION_WEIGHT[qi] || 1) / sel.length;
+
+        sel.forEach(function (ai) {
+          var opt = QUESTIONS[qi].a[ai];
+          if (!opt) return;
+          if (opt.style) styleChoice = opt.style;
+          if (opt.w) {
+            Object.keys(opt.w).forEach(function (h) {
+              if (h in totals) totals[h] += opt.w[h] * mult;
+            });
+          }
+          if (opt.g) {
+            pool.forEach(function (p) {
+              if (p.group && opt.g[p.group]) totals[p.handle] += opt.g[p.group] * mult;
+            });
+          }
+        });
       });
 
       // The style question tilts toward narrower or broader formulas without
@@ -252,6 +299,10 @@
         else if (styleChoice === 'comprehensive') totals[p.handle] += n * STYLE_WEIGHT;
       });
 
+      return totals;
+    }
+
+    function rankedList(pool, totals) {
       return pool
         .filter(function (p) { return totals[p.handle] > 0; })
         .sort(function (a, b) {
@@ -260,6 +311,156 @@
         });
     }
 
+    // One protocol per stated goal first, then the ranking fills any gap.
+    function choosePicks() {
+      var pool = eligible();
+      var totals = scoreTotals(pool);
+      var ranked = rankedList(pool, totals);
+      var picks = [];
+      var seen = {};
+
+      selected(GOAL_Q).forEach(function (ai) {
+        if (picks.length >= MAX_RESULTS) return;
+        var opt = QUESTIONS[GOAL_Q].a[ai];
+        if (!opt || !opt.w) return;
+        for (var i = 0; i < ranked.length; i++) {
+          var p = ranked[i];
+          if (seen[p.handle]) continue;
+          if (!opt.w[p.handle]) continue;
+          seen[p.handle] = true;
+          picks.push({ p: p, reason: opt.label || '' });
+          break;
+        }
+      });
+
+      ranked.forEach(function (p) {
+        if (picks.length >= MAX_RESULTS || seen[p.handle]) return;
+        seen[p.handle] = true;
+        picks.push({ p: p, reason: '' });
+      });
+
+      return picks;
+    }
+
+    // ---- "How these fit together" ---------------------------------------
+    // Derived from the packs' actual actives so it cannot drift from the
+    // catalogue, and says plainly when two picks overlap enough that one is
+    // the better starting point.
+    function overlapOf(a, b) {
+      var listA = Array.isArray(a.components) ? a.components : [];
+      var listB = Array.isArray(b.components) ? b.components : [];
+      var inB = {};
+      listB.forEach(function (x) { inB[String(x).toLowerCase()] = true; });
+      return listA.filter(function (x) { return inB[String(x).toLowerCase()]; });
+    }
+
+    // Conjunction join. Only safe for ingredient names and pack titles, which
+    // do not themselves contain "and" — see goalPhrase() below for why goals
+    // use a different one.
+    function joinList(items) {
+      if (items.length === 1) return String(items[0]);
+      if (items.length === 2) return items[0] + ' and ' + items[1];
+      return items.slice(0, -1).join(', ') + ' and ' + items[items.length - 1];
+    }
+
+    function timingNote(a, b) {
+      var am = /-am(-|$)/.test(a.handle) || /-am(-|$)/.test(b.handle);
+      var pm = /-pm(-|$)/.test(a.handle) || /-pm(-|$)/.test(b.handle);
+      if (am && pm) {
+        return ' One is a morning pouch and one is an evening pouch, so they are meant to sit at opposite ends of the day.';
+      }
+      return '';
+    }
+
+    function stackNote(picks) {
+      if (picks.length < 2) return '';
+      var a = picks[0].p;
+      var b = picks[1].p;
+      var shared = overlapOf(a, b);
+      var lead = esc(a.title) + ' and ' + esc(b.title) + ' ';
+      var note;
+
+      if (!shared.length) {
+        note = lead + 'have no actives in common, so running both widens what you are covering rather than doubling any single dose.';
+      } else if (shared.length <= 2) {
+        note = lead + 'overlap only on ' + esc(joinList(shared)) +
+          '. That is a small enough overlap to take together — worth mentioning to your provider if you are sensitive to ' +
+          (shared.length === 1 ? 'it' : 'either') + '.';
+      } else {
+        note = lead + 'share ' + shared.length + ' actives, including ' + esc(joinList(shared.slice(0, 3))) +
+          '. Taking both would double those doses, so most people are better off starting with one and adding the second later if they still want it.';
+      }
+
+      return note + timingNote(a, b);
+    }
+
+    // ---- Complete the set --------------------------------------------
+    // Shown when 3+ buyable picks come back. Price math is computed here from
+    // the catalogue's own price_cents, not typed in — it can only ever be
+    // right or absent, never stale. The 40%-off line only appears when every
+    // pack in the set is actually on the discount's real eligible-12 list;
+    // otherwise the honest generic line is used instead.
+    function money(cents) {
+      return '$' + (Math.round(cents) / 100).toFixed(2);
+    }
+
+    function completeSetHTML(packs) {
+      if (packs.length < 3) return '';
+      var allEligible = packs.every(function (p) { return STACK_DISCOUNT_HANDLES[p.handle]; });
+      var subtotal = packs.reduce(function (sum, p) { return sum + (p.price_cents || 0); }, 0);
+      var names = packs.map(function (p) { return p.title; });
+
+      var priceLine;
+      if (allEligible && subtotal) {
+        var discounted = subtotal * 0.6;
+        priceLine = '<p class="spadra-quiz__set-price">' +
+          '<span class="spadra-quiz__set-was">' + esc(money(subtotal)) + '</span> ' +
+          '<span class="spadra-quiz__set-now">' + esc(money(discounted)) + '</span>' +
+          ' — 40% off applies automatically at checkout</p>';
+      } else {
+        priceLine = '<p class="spadra-quiz__set-price">Multi-protocol pricing applies automatically in your cart.</p>';
+      }
+
+      return '<div class="spadra-quiz__complete-set">' +
+        '<p class="spadra-quiz__complete-set-title">Complete the set</p>' +
+        '<p class="spadra-quiz__complete-set-body">All ' + packs.length + ' as one order — ' + esc(joinList(names)) + '.</p>' +
+        priceLine +
+        '</div>';
+    }
+
+    // ---- Specialist match ------------------------------------------------
+    // Cloned from the Liquid <template> so the copy stays editable, with the
+    // shopper's own goals and matched pack substituted in.
+    //
+    // Goal labels already contain "and" ("Energy and stamina", "Focus and
+    // clarity"), so joining them with another "and" reads as
+    // "energy and stamina and focus and clarity". Multiple goals are therefore
+    // listed comma-separated between em dashes, and counted, rather than run
+    // through joinList().
+    function goalPhrase() {
+      var labels = selected(GOAL_Q).map(function (i) {
+        var o = QUESTIONS[GOAL_Q].a[i];
+        return o && o.label ? o.label.toLowerCase() : '';
+      }).filter(Boolean);
+
+      if (!labels.length) {
+        return SPECIALIST + ' picks your protocol up from here and works it with you week by week.';
+      }
+      if (labels.length === 1) {
+        return 'You told us your focus is ' + labels[0] + '. That is the ground ' + SPECIALIST + ' works on most.';
+      }
+      return 'You told us about ' + labels.length + ' priorities — ' + labels.join(', ') +
+        ' — all areas ' + SPECIALIST + ' works on directly.';
+    }
+
+    function specialistHTML(picks) {
+      if (!specialistTpl || !picks.length) return '';
+      return specialistTpl.innerHTML
+        .replace(/\{\{GOAL_PHRASE\}\}/g, esc(goalPhrase()))
+        .replace(/\{\{PACK_NAME\}\}/g, esc(picks[0].p.title));
+    }
+
+    // ---- Rendering -------------------------------------------------------
     function setProgress() {
       var pct = Math.round((step / QUESTIONS.length) * 100);
       if (progressFill) progressFill.style.width = pct + '%';
@@ -268,19 +469,38 @@
 
     function renderQuestion() {
       var q = QUESTIONS[step];
+      var sel = selected(step);
       if (heading) heading.textContent = q.q;
       if (progressWrap) progressWrap.hidden = false;
       setProgress();
       if (backBtn) backBtn.hidden = step === 0;
 
-      body.innerHTML = '<ul class="spadra-quiz__options">' + q.a.map(function (opt, i) {
-        var selected = answers[step] === i ? ' aria-pressed="true"' : ' aria-pressed="false"';
-        return '<li><button type="button" class="spadra-quiz__option" data-choice="' + i + '"' + selected + '>' +
-          esc(opt.t) + '</button></li>';
-      }).join('') + '</ul>';
+      var html = '';
+      if (q.hint) html += '<p class="spadra-quiz__hint">' + esc(q.hint) + '</p>';
+
+      html += '<ul class="spadra-quiz__options' + (q.multi ? ' spadra-quiz__options--multi' : '') + '">';
+      html += q.a.map(function (opt, i) {
+        var on = sel.indexOf(i) !== -1;
+        return '<li><button type="button" class="spadra-quiz__option" data-choice="' + i + '"' +
+          ' role="' + (q.multi ? 'checkbox' : 'radio') + '"' +
+          ' aria-checked="' + (on ? 'true' : 'false') + '">' +
+          (q.multi ? '<span class="spadra-quiz__box" aria-hidden="true"></span>' : '') +
+          '<span>' + esc(opt.t) + '</span></button></li>';
+      }).join('');
+      html += '</ul>';
+
+      if (q.multi) {
+        html += '<button type="button" class="spadra-quiz__next" data-quiz-next' +
+          (sel.length ? '' : ' disabled') + '>' +
+          (sel.length > 1 ? 'Continue with ' + sel.length + ' selected' : 'Continue') +
+          '</button>';
+      }
+
+      body.innerHTML = html;
     }
 
-    function card(p, badge) {
+    function card(pick, badge) {
+      var p = pick.p;
       var img = p.image
         ? '<span class="spadra-quiz-card__media"><img src="' + esc(p.image) + '" alt="" loading="lazy"></span>'
         : '<span class="spadra-quiz-card__media"><span class="spadra-quiz-card__ph"></span></span>';
@@ -288,17 +508,18 @@
         '<span class="spadra-quiz-card__text">' +
         (badge ? '<span class="spadra-quiz-card__badge">' + esc(badge) + '</span>' : '') +
         '<span class="spadra-quiz-card__title">' + esc(p.title) + '</span>' +
+        (pick.reason ? '<span class="spadra-quiz-card__reason">For: ' + esc(pick.reason) + '</span>' : '') +
         (p.subtitle ? '<span class="spadra-quiz-card__sub">' + esc(p.subtitle) + '</span>' : '') +
         '<span class="spadra-quiz-card__price">' + esc(p.price) + ' &middot; 30-day supply</span>' +
         '</span></a>';
     }
 
     function renderResults() {
-      var ranked = score();
+      var picks = choosePicks();
       if (progressWrap) progressWrap.hidden = true;
       if (backBtn) backBtn.hidden = false;
 
-      if (!ranked.length) {
+      if (!picks.length) {
         if (heading) heading.textContent = 'Browse the full protocol range';
         body.innerHTML = '<p class="spadra-quiz__empty">We could not narrow this down automatically. ' +
           '<a href="/collections/all">Browse every protocol</a> or start the assessment again.</p>' +
@@ -306,31 +527,67 @@
         return;
       }
 
-      var top = ranked.slice(0, 4);
       try {
-        window.sessionStorage.setItem('spadraQuizMatches', JSON.stringify(top.map(function (p) { return p.handle; })));
+        window.sessionStorage.setItem(
+          'spadraQuizMatches',
+          JSON.stringify(picks.map(function (x) { return x.p.handle; }))
+        );
       } catch (e) { /* private browsing — results still render */ }
 
-      if (heading) heading.textContent = 'Your protocol match';
+      var goalCount = selected(GOAL_Q).length;
+      if (heading) {
+        heading.textContent = picks.length > 1
+          ? 'Your ' + picks.length + ' protocols'
+          : 'Your protocol match';
+      }
 
       var html = '<div class="spadra-quiz__results">';
-      html += '<div class="spadra-quiz__primary">' + card(top[0], 'Best match') + '</div>';
-      if (top[1]) {
-        html += '<p class="spadra-quiz__sub-label">Pairs well with</p>';
-        html += '<div class="spadra-quiz__secondary">' + card(top[1], 'Complementary') + '</div>';
+
+      // Only claim one-per-goal when there really is one per goal. If the
+      // catalogue could not supply that many, say what is actually shown.
+      if (goalCount > 1 && picks.length >= goalCount) {
+        html += '<p class="spadra-quiz__lede">You told us about ' + goalCount +
+          ' things. Here is one protocol for each, in the order you chose them.</p>';
+      } else if (picks.length > 1) {
+        html += '<p class="spadra-quiz__lede">Your closest matches, best fit first.</p>';
       }
-      if (top.length > 2) {
-        html += '<p class="spadra-quiz__sub-label">You may also like</p>';
-        html += '<div class="spadra-quiz__also">' + top.slice(2).map(function (p) { return card(p, ''); }).join('') + '</div>';
+
+      // Human-in-the-loop first, per the owner's explicit ask: the specialist
+      // match sits above the protocol cards, and the results follow naturally
+      // underneath it rather than the other way around.
+      html += specialistHTML(picks);
+
+      html += '<div class="spadra-quiz__primary">' + card(picks[0], 'Best match') + '</div>';
+
+      if (picks.length > 1) {
+        html += '<div class="spadra-quiz__also">' +
+          picks.slice(1).map(function (x) { return card(x, ''); }).join('') +
+          '</div>';
+
+        var note = stackNote(picks);
+        if (note) {
+          html += '<div class="spadra-quiz__stack">' +
+            '<p class="spadra-quiz__stack-title">How these fit together</p>' +
+            '<p class="spadra-quiz__stack-body">' + note + '</p>' +
+            '</div>';
+        }
       }
-      var bundle = top.slice(0, 2).filter(function (p) { return p.vid && p.available; });
+
+      var buyable = picks
+        .map(function (x) { return x.p; })
+        .filter(function (p) { return p.vid && p.available; });
+
+      if (buyable.length >= 3) {
+        html += completeSetHTML(buyable.slice(0, 3));
+      }
+
       html += '<div class="spadra-quiz__actions">';
-      if (bundle.length === 2) {
+      if (buyable.length > 1) {
         html += '<button type="button" class="spadra-quiz__bundle" data-quiz-bundle="' +
-          esc(bundle.map(function (p) { return p.vid; }).join(',')) + '">Add protocol bundle</button>';
-      } else if (bundle.length === 1) {
+          esc(buyable.map(function (p) { return p.vid; }).join(',')) + '">Add all ' + buyable.length + ' to cart</button>';
+      } else if (buyable.length === 1) {
         html += '<button type="button" class="spadra-quiz__bundle" data-quiz-bundle="' +
-          esc(String(bundle[0].vid)) + '">Add to cart</button>';
+          esc(String(buyable[0].vid)) + '">Add to cart</button>';
       }
       html += '<button type="button" class="spadra-quiz__restart" data-quiz-restart>Start over</button>' +
         '<a class="spadra-quiz__browse" href="/collections/all">Browse all protocols</a>' +
@@ -349,7 +606,24 @@
     root.addEventListener('click', function (e) {
       var choice = e.target.closest('[data-choice]');
       if (choice) {
-        answers[step] = parseInt(choice.getAttribute('data-choice'), 10);
+        var i = parseInt(choice.getAttribute('data-choice'), 10);
+        var q = QUESTIONS[step];
+        if (q.multi) {
+          var sel = selected(step).slice();
+          var at = sel.indexOf(i);
+          if (at === -1) sel.push(i);
+          else sel.splice(at, 1);
+          answers[step] = sel;
+          renderQuestion();
+        } else {
+          answers[step] = [i];
+          step += 1;
+          render();
+        }
+        return;
+      }
+      if (e.target.closest('[data-quiz-next]')) {
+        if (!selected(step).length) return;
         step += 1;
         render();
         return;
@@ -377,7 +651,7 @@
       if (err) err.hidden = true;
       var label = btn.textContent;
       btn.disabled = true;
-      btn.textContent = 'Adding\u2026';
+      btn.textContent = 'Adding…';
 
       fetch('/cart/add.js', {
         method: 'POST',
@@ -466,9 +740,18 @@
     text-transform: uppercase;
     color: #6B7280;
   }
+
+  .spadra-quiz__hint {
+    margin: 0 0 12px;
+    font-size: 0.85rem;
+    color: #6B7280;
+  }
   .spadra-quiz__options { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
   .spadra-quiz__option {
     width: 100%;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
     text-align: left;
     background: #FCFCFB;
     border: 1px solid #E2E8F0;
@@ -481,17 +764,57 @@
     transition: border-color 0.15s ease, background 0.15s ease;
   }
   .spadra-quiz__option:hover { border-color: #00C853; background: #F4FBF6; }
-  .spadra-quiz__option[aria-pressed='true'] { border-color: #00C853; background: #F4FBF6; font-weight: 600; }
+  .spadra-quiz__option[aria-checked='true'] { border-color: #00C853; background: #F4FBF6; font-weight: 600; }
 
-  .spadra-quiz__sub-label {
-    margin: 26px 0 10px;
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: #6B7280;
+  .spadra-quiz__box {
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    margin-top: 1px;
+    border: 1.5px solid #C7D0DA;
+    border-radius: 6px;
+    background: #FFFFFF;
+    position: relative;
   }
-  .spadra-quiz__also { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .spadra-quiz__option[aria-checked='true'] .spadra-quiz__box {
+    background: #00C853;
+    border-color: #00C853;
+  }
+  .spadra-quiz__option[aria-checked='true'] .spadra-quiz__box::after {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 5px;
+    height: 10px;
+    border: solid #04240F;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+  }
+
+  .spadra-quiz__next {
+    margin-top: 18px;
+    width: 100%;
+    background: #000000;
+    color: #FFFFFF;
+    border: none;
+    border-radius: 100px;
+    padding: 14px 24px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+  .spadra-quiz__next:hover:not([disabled]) { background: #00C853; color: #04240F; }
+  .spadra-quiz__next[disabled] { background: #E2E8F0; color: #6B7280; cursor: default; }
+
+  .spadra-quiz__lede {
+    margin: 0 0 18px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    color: #5B6470;
+  }
+  .spadra-quiz__also { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
   .spadra-quiz-card {
     display: flex;
     gap: 14px;
@@ -525,10 +848,232 @@
     color: #00A344;
   }
   .spadra-quiz-card__title { font-size: 1rem; font-weight: 600; color: #000000; line-height: 1.3; }
+  .spadra-quiz-card__reason {
+    font-size: 0.74rem;
+    font-weight: 600;
+    color: #00A344;
+    letter-spacing: 0.01em;
+  }
   .spadra-quiz-card__sub { font-size: 0.82rem; color: #5B6470; line-height: 1.45; }
   .spadra-quiz-card__price { font-size: 0.8rem; color: #33383F; }
   .spadra-quiz__primary .spadra-quiz-card { border-color: #00C853; background: #F4FBF6; }
   .spadra-quiz__primary .spadra-quiz-card__media { width: 110px; height: 110px; }
+
+  .spadra-quiz__stack {
+    margin-top: 20px;
+    padding: 16px 18px;
+    background: #F6F7F9;
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+  }
+  .spadra-quiz__stack-title {
+    margin: 0 0 7px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #6B7280;
+  }
+  .spadra-quiz__stack-body {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.62;
+    color: #33383F;
+    text-wrap: pretty;
+  }
+
+  .spadra-quiz__complete-set {
+    margin-top: 16px;
+    padding: 16px 18px;
+    background: #F4FBF6;
+    border: 1px solid #BEEBCD;
+    border-radius: 14px;
+  }
+  .spadra-quiz__complete-set-title {
+    margin: 0 0 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #00A344;
+  }
+  .spadra-quiz__complete-set-body {
+    margin: 0 0 8px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: #33383F;
+  }
+  .spadra-quiz__set-price {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1A1A1A;
+  }
+  .spadra-quiz__set-was {
+    text-decoration: line-through;
+    color: #6B7280;
+    font-weight: 400;
+    margin-right: 6px;
+  }
+  .spadra-quiz__set-now { color: #00A344; }
+
+  /* ---- Specialist match & roadmap ---- */
+  .spadra-spec {
+    margin-top: 22px;
+    border: 1px solid #D8E4EC;
+    border-radius: 16px;
+    padding: 22px;
+    background: linear-gradient(180deg, #F7FBFD 0%, #FFFFFF 62%);
+  }
+  .spadra-spec__badge {
+    display: inline-block;
+    margin: 0 0 14px;
+    padding: 5px 12px;
+    border-radius: 100px;
+    background: #0B1220;
+    color: #FFFFFF;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .spadra-spec__head { display: flex; align-items: flex-start; gap: 16px; }
+  .spadra-spec__avatar {
+    flex: 0 0 auto;
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #E9EEF2;
+  }
+  .spadra-spec .spadra-spec__avatar .spadra-spec__avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .spadra-spec__head-text { min-width: 0; }
+  .spadra-spec__title {
+    margin: 0 0 6px;
+    font-family: var(--font-heading--family);
+    font-size: 1.16rem;
+    line-height: 1.3;
+    color: #000000;
+    text-wrap: pretty;
+  }
+  .spadra-spec__sub {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.58;
+    color: #45505C;
+    text-wrap: pretty;
+  }
+  .spadra-spec__tags {
+    margin: 14px 0 0;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: #33383F;
+  }
+
+  .spadra-spec__perks {
+    list-style: none;
+    margin: 16px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .spadra-spec__perks li {
+    position: relative;
+    padding-left: 24px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: #45505C;
+  }
+  .spadra-spec__perks li strong { color: #000000; font-weight: 700; }
+  .spadra-spec__perks li::before {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 0.55em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00C853;
+  }
+
+  .spadra-spec__roadmap {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid #E2E8F0;
+  }
+  .spadra-spec__roadmap-title {
+    margin: 0 0 14px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #6B7280;
+  }
+  .spadra-spec__phases { list-style: none; margin: 0; padding: 0; }
+  .spadra-spec__phase {
+    position: relative;
+    padding: 0 0 18px 26px;
+    border-left: 2px solid #DCE6EC;
+    margin-left: 5px;
+  }
+  .spadra-spec__phase:last-child { padding-bottom: 0; border-left-color: transparent; }
+  .spadra-spec__phase::before {
+    content: '';
+    position: absolute;
+    left: -7px;
+    top: 3px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    border: 2px solid #00C853;
+  }
+  .spadra-spec__phase-mark {
+    display: block;
+    font-size: 0.66rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #00A344;
+  }
+  .spadra-spec__phase-name {
+    display: block;
+    margin: 3px 0 4px;
+    font-size: 0.96rem;
+    font-weight: 600;
+    color: #000000;
+    line-height: 1.3;
+  }
+  .spadra-spec__phase-body {
+    display: block;
+    font-size: 0.86rem;
+    line-height: 1.58;
+    color: #45505C;
+    text-wrap: pretty;
+  }
+
+  .spadra-spec__activate {
+    margin: 20px 0 0;
+    padding: 13px 16px;
+    background: #F4FBF6;
+    border: 1px solid #BEEBCD;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: #1A1A1A;
+  }
+  .spadra-spec__disclaimer {
+    margin: 12px 0 0;
+    font-size: 0.72rem;
+    line-height: 1.55;
+    color: #6B7280;
+  }
 
   .spadra-quiz__actions { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-top: 24px; }
   .spadra-quiz__restart {
@@ -596,12 +1141,109 @@
     .spadra-quiz__also { grid-template-columns: 1fr; }
     .spadra-quiz__also .spadra-quiz-card { flex-direction: row; align-items: center; }
     .spadra-quiz__also .spadra-quiz-card__media { width: 84px; height: 84px; aspect-ratio: auto; }
+    .spadra-spec { padding: 18px 16px; }
+    .spadra-spec__head { gap: 13px; }
+    .spadra-spec__avatar { width: 54px; height: 54px; }
+    .spadra-spec__title { font-size: 1.06rem; }
   }
 {% endstylesheet %}
 
 {% schema %}
 {
   "name": "SPADRA protocol quiz",
-  "settings": []
+  "settings": [
+    {
+      "type": "header",
+      "content": "Specialist match"
+    },
+    {
+      "type": "paragraph",
+      "content": "Shown after the assessment, above the buttons. Everything here is a promise a real person has to keep for every customer who sees it — turn the block off rather than letting it overstate what you can deliver."
+    },
+    { "type": "checkbox", "id": "specialist_enabled", "label": "Show the specialist match block", "default": true },
+    { "type": "text", "id": "badge_label", "label": "Badge", "default": "Human-in-the-loop concierge included" },
+    { "type": "text", "id": "specialist_name", "label": "Specialist name", "default": "Bobbin" },
+    {
+      "type": "text",
+      "id": "specialist_role",
+      "label": "Role title",
+      "default": "Support Specialist",
+      "info": "Keep this a coaching title. Anything implying clinical qualification needs to be true and provable."
+    },
+    { "type": "image_picker", "id": "specialist_photo", "label": "Photo", "info": "Optional. Use a real photo of this person or leave it empty." },
+    {
+      "type": "text",
+      "id": "specialist_tags",
+      "label": "Areas of focus",
+      "default": "biohacking and nitric-oxide optimisation, cognitive performance, and lifestyle accountability"
+    },
+    {
+      "type": "header",
+      "content": "What is included"
+    },
+    { "type": "text", "id": "cadence_label", "label": "Check-in cadence", "default": "Two direct check-ins a week" },
+    {
+      "type": "textarea",
+      "id": "cadence_detail",
+      "label": "Check-in detail",
+      "default": "No upgrade and no per-session fee. We look at how the protocol is landing and adjust timing or dosage from there."
+    },
+    {
+      "type": "textarea",
+      "id": "tracking_detail",
+      "label": "Tracking detail",
+      "default": "Adjustments are based on what you report back week to week — sleep, energy, training load, appetite, whatever you are actually tracking."
+    },
+    {
+      "type": "textarea",
+      "id": "accountability_detail",
+      "label": "Accountability detail",
+      "default": "A real person, not an autoresponder, making sure the routine stays consistent through the months where consistency is the whole job."
+    },
+    {
+      "type": "header",
+      "content": "90-day roadmap"
+    },
+    { "type": "text", "id": "roadmap_title", "label": "Roadmap title", "default": "Your 90-day roadmap" },
+    { "type": "text", "id": "phase_1_title", "label": "Month 1 title", "default": "Baseline and lifestyle integration" },
+    {
+      "type": "textarea",
+      "id": "phase_1_body",
+      "label": "Month 1 focus",
+      "default": "Learning your actual routine, noting early responses, and settling dosage timing into the day you already have. The goal this month is consistency, not results."
+    },
+    { "type": "text", "id": "phase_2_title", "label": "Month 2 title", "default": "Optimisation and tracking" },
+    {
+      "type": "textarea",
+      "id": "phase_2_body",
+      "label": "Month 2 focus",
+      "default": "Reviewing the first 30 days together, adjusting the protocol where the response warrants it, and clearing whatever practical thing is getting in the way."
+    },
+    { "type": "text", "id": "phase_3_title", "label": "Month 3 title", "default": "Sustained performance and accountability" },
+    {
+      "type": "textarea",
+      "id": "phase_3_body",
+      "label": "Month 3 focus",
+      "default": "Holding what is working, making the habit self-sustaining, and setting the maintenance plan for where your goals go next."
+    },
+    {
+      "type": "header",
+      "content": "Activation and disclaimer"
+    },
+    {
+      "type": "text",
+      "id": "activation_line",
+      "label": "Activation line",
+      "default": "to your cart activates your one-to-one access, starting the day your protocol is delivered.",
+      "info": "Follows the pack name. Make sure this describes what actually happens after an order."
+    },
+    {
+      "type": "textarea",
+      "id": "specialist_disclaimer",
+      "label": "Role disclaimer",
+      "default": "Support Specialist is a coaching and accountability role, not a clinical one. Your specialist does not provide medical advice, diagnose conditions, or replace your healthcare provider.",
+      "info": "Required on a supplement storefront. Do not remove this."
+    }
+  ]
 }
 {% endschema %}
