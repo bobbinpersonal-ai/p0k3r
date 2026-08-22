@@ -179,7 +179,7 @@
                   "type": "text",
                   "name": "t:names.text",
                   "settings": {
-                    "text": "<p>&bull; <strong>Every active named on the label</strong> &mdash; no proprietary blends<br>&bull; Pre-sorted into one pouch a day &middot; 30-day supply<br>&bull; Judged on a 30&ndash;60&ndash;90 day plan, not overnight</p>",
+                    "text": "<p>{{ closest.product.metafields.spadra.one_liner.value }}</p><p>&bull; <strong>Every active named on the label</strong> &mdash; no proprietary blends<br>&bull; Pre-sorted into one pouch a day &middot; 30-day supply<br>&bull; Judged on a 30&ndash;60&ndash;90 day plan, not overnight</p>",
                     "width": "100%",
                     "max_width": "normal",
                     "alignment": "left",

@@ -556,3 +556,27 @@ claims, no invented studies or percentages, traditional-use lines kept visibly
 separate from the research lines. **"Big Libido" is left unwritten** — it
 appears in the catalogue as a bare name with no composition, so there is
 nothing honest to say about it yet. Needs the supplier sheet.
+
+## V12 addendum — one-line benefit per pack
+
+Every one of the 66 packs now has a single plain-language sentence saying what
+it does, stored in the product metafield `spadra.one_liner` and rendered in the
+product header directly above the price (first line of the `text_benefits`
+block).
+
+Source of truth: `scripts/one_liners.json`, keyed by product ID. All 66 written
+and set via three `metafieldsSet` calls, zero userErrors.
+
+**A metafield definition is required.** The first upload was rejected with
+`Dynamic source 'closest.product.metafields.spadra.one_liner.value' does not
+exist` — a metafield only becomes usable in a theme-editor text block once it
+has a definition. Created `gid://shopify/MetafieldDefinition/223614369931`
+(PRODUCT, `single_line_text_field`, pinned, storefront PUBLIC_READ), after
+which the same upload succeeded. Setting values alone is not enough.
+
+**Voice:** credible but plain — name the actual actives and say what they do in
+words a shopper can follow, no jargon and no hype. Claims stay inside what the
+ingredient list supports: no doses (none exist in our data), no disease claims,
+no invented studies. The two specific facts cited are checkable — nitric oxide
+research won the 1998 Nobel Prize in Physiology or Medicine, and creatine is
+the most-researched sports supplement there is.
