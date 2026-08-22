@@ -16,7 +16,7 @@ done accurately here is everything that makes those generations *correct*:
      product so 66 product pages do not look copy-pasted.
 
 Outputs into scripts/hand_shots/:
-  reference/<handle>.png   two real capsules side by side, labelled
+  reference/<handle>.png   two real capsules with a quiet ingredient caption
   PROMPTS.md               one prompt per product, ready to paste
 """
 
@@ -94,16 +94,19 @@ def fetch(filename):
     return path
 
 
-def load_on_white(path, size=None):
+def load_on_white(path, size=None, bg=(255, 255, 255)):
     """These are palette PNGs with transparency. Converting straight to RGB
     turns the transparent area into whatever the palette's index 0 happens to
     be -- which came out green and poisoned both the sheet and the colour
-    sample. Composite onto white through the alpha channel instead."""
+    sample. Composite through the alpha channel instead.
+
+    bg defaults to white because capsule_colour() samples against white; the
+    sheet passes the warm ground so the capsule doesn't sit in a white box."""
     im = Image.open(path).convert('RGBA')
-    flat = Image.new('RGBA', im.size, (255, 255, 255, 255))
+    flat = Image.new('RGBA', im.size, bg + (255,))
     flat.alpha_composite(im)
     flat = flat.convert('RGB')
-    return flat.resize(size) if size else flat
+    return flat.resize(size, Image.LANCZOS) if size else flat
 
 
 def capsule_colour(path):
@@ -128,6 +131,8 @@ def colour_name(rgb):
             return 'grey'
         return 'near-black'
     if r > g > b:
+        if r - g < 20 and g - b > 25:
+            return 'khaki olive' if r < 150 else 'pale khaki'
         if r > 190 and g > 140:
             return 'pale sandy beige'
         if r > 150 and g > 100:
@@ -161,24 +166,46 @@ def pick_two(ings):
     return list(pair)
 
 
+WARM = (245, 242, 236)   # the site's off-white
+MUTED = (122, 122, 116)
+RULE = (222, 218, 210)
+
+
+def letterspace(d, xy, text, font, fill, extra=3):
+    x, y = xy
+    for ch in text:
+        d.text((x, y), ch, font=font, fill=fill)
+        x += d.textlength(ch, font=font) + extra
+
+
+def spaced_width(d, text, font, extra=3):
+    return sum(d.textlength(c, font=font) + extra for c in text) - extra
+
+
 def reference_sheet(handle, names):
-    """Two real capsules side by side, labelled -- the image to attach."""
-    W, H = 1000, 560
-    card = Image.new('RGB', (W, H), (255, 255, 255))
+    """The two real capsules with a quiet ingredient caption.
+
+    No instruction text is baked in. "Match these exactly" belongs in the
+    prompt sent to the generator, not printed on the picture -- if a sheet
+    ever leaked onto the site it should still read as a clean product still,
+    not a work order.
+    """
+    W = H = 1200
+    CAP, TOP = 480, 230
+    card = Image.new('RGB', (W, H), WARM)
     d = ImageDraw.Draw(card)
     try:
-        f = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 30)
-        fs = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 20)
+        f = ImageFont.truetype('/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf', 26)
     except Exception:
-        f = fs = ImageFont.load_default()
-    d.text((30, 26), 'REAL CAPSULES - match these exactly', fill=(20, 20, 20), font=f)
-    d.text((30, 66), handle, fill=(120, 120, 120), font=fs)
+        f = ImageFont.load_default()
     for i, n in enumerate(names):
-        cap = load_on_white(fetch(ING[n]), (360, 360))
-        card.paste(cap, (60 + i * 470, 120))
-        d.text((60 + i * 470, 495), n, fill=(20, 20, 20), font=f)
-        rgb = capsule_colour(fetch(ING[n]))
-        d.text((60 + i * 470, 528), '%s  rgb%s' % (colour_name(rgb), rgb), fill=(120, 120, 120), font=fs)
+        cap = load_on_white(fetch(ING[n]), (CAP, CAP), WARM)
+        cx = 90 + i * 540
+        card.paste(cap, (cx, TOP))
+        label = n.upper()
+        w = spaced_width(d, label, f)
+        letterspace(d, (cx + (CAP - w) / 2, TOP + CAP + 70), label, f, MUTED)
+    d.line([(90, TOP + CAP + 160), (W - 90, TOP + CAP + 160)], fill=RULE, width=1)
     card.save(os.path.join(REF, handle + '.png'))
 
 
@@ -215,7 +242,8 @@ for pid, p in sorted(REG.items(), key=lambda kv: kv[1]['handle']):
         'the capsules are plain and unbranded with no printing on them. '
         '%s. Clean commercial e-commerce style, sharp focus on the capsules, '
         'shallow depth of field, square 1:1 crop, no watermark.'
-        % (angle, back, light, hand, desc[0], desc[1], grip)
+        % (angle[0].upper() + angle[1:], back, light, hand,
+           desc[0], desc[1], grip[0].upper() + grip[1:])
     )
     rows.append((handle, title, two, prompt))
 
