@@ -484,3 +484,75 @@ Reading that file answered two other open questions:
   launchers stacked in the same corner. Letting the app own that corner is the
   version that cannot double up. The comment in `theme.liquid` records why, and
   what to put back if Inbox is ever uninstalled.
+
+---
+
+# V12 — Benefits above the price (theme `153261539467`)
+
+Owner published **V11** (confirmed MAIN, 2026-08-21). Stack pricing and the
+quiz ingredient photos are live.
+
+## Shipped into V12 (draft — needs publishing)
+
+**`templates/product.json`** — the product header now reads
+`category → title → tagline → benefits → price`. Benefits sit above the price
+but still inside the header block, so the price is one line further down, not
+hidden below the fold.
+
+Two earlier attempts were rejected by Shopify's setting validator; both are
+worth remembering:
+
+1. `Dynamic source '...metafields.spadra.components.value.size' does not exist`
+   — theme-editor text blocks only accept whitelisted dynamic sources, not
+   computed properties like `.size`. Dropped the actives count (it already
+   appears in the at-a-glance strip lower down).
+2. `Attribute 'class="spadra-quick"' is not permitted on tag '<ul>'` —
+   Shopify strips `class` from HTML inside a text setting. **A text block
+   cannot be styled by class at all.** Rewritten as a single `<p>` with
+   `&bull;` + `<br>`, styled entirely through the block's own settings
+   (font_size `0.88rem`, padding). Verified by re-fetching the file: markup
+   survived intact, block order is correct.
+
+## Copy claim corrected
+
+The bullet originally read "Clinically dosed actives". There are **no
+per-ingredient doses** anywhere in `scripts/catalog.json`,
+`scripts/spadra_registry.json`, or the Shopify product data, so that claim
+cannot be verified. It now reads "Every active named on the label — no
+proprietary blends", which is verifiably true from the catalogue. If the
+supplier doses arrive, the stronger line can go back.
+
+## Known leftover in V12
+
+`sections/spadra-stack.liquid` in V12 still carries ~766 bytes of now-unused
+`.spadra-quick` CSS (the class Shopify strips). It has been removed from
+`theme-src/` and will drop out of the theme the next time that section is
+uploaded. Harmless until then — no element carries the class.
+
+## Product photography — one example, awaiting approval
+
+Per the instruction to show one before generating all 66:
+
+- `scripts/make_reference_example.py` → `scripts/hand_shots/example/`
+  - `-A-clean.png` — the two real capsules on the site's warm off-white, no
+    text at all.
+  - `-B-labelled.png` — the same, with a quiet letterspaced ingredient caption
+    and one hairline rule.
+- The "REAL CAPSULES - match these exactly" instruction text is **gone**. That
+  direction belongs in the prompt sent to the generator, not printed on the
+  picture.
+- `scripts/build_hand_shot_prompts.py` (the 66-product bulk run) has **not**
+  been re-run. It still bakes in the old label. It gets updated to match
+  whichever variant is approved, then run once.
+
+## Benefits copy — one example, awaiting approval
+
+`docs/copy/EXAMPLE-nitric-oxide-women-spadra.md` — "earthy ancient knowledge
+with modern science research proof" voice, for Nitric Max: Women's Circulation
+Pack. Header (short) and What's Inside (long) versions.
+
+Honesty rules held in the draft, and to be held across all 66: no disease
+claims, no invented studies or percentages, traditional-use lines kept visibly
+separate from the research lines. **"Big Libido" is left unwritten** — it
+appears in the catalogue as a bare name with no composition, so there is
+nothing honest to say about it yet. Needs the supplier sheet.
