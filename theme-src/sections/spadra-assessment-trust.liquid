@@ -1,0 +1,132 @@
+{%- comment -%}
+  SPADRA assessment landing page — quality / trust stack.
+
+  Deliberately no FDA seal or badge graphic. The FDA does not approve dietary
+  supplements; "manufactured in an FDA-registered facility" is a true and
+  legal statement, an FDA *badge* implies an endorsement that does not exist
+  and that federal rules prohibit implying. Same rule as spadra-quality.liquid
+  — text only, no seal. Do not add one back.
+
+  The USDA Organic / Non-GMO / cGMP claims here are stated flatly because the
+  owner confirmed them as fact (2026-08-22). Note that sections/spadra-quality
+  .liquid on the homepage still hedges to "Organic where available" from an
+  earlier pass — if the flat claim is right, that one wants updating too so
+  the two pages don't contradict each other.
+{%- endcomment -%}
+
+<section class="spadra-trust" style="background: {{ section.settings.background_color }};">
+  <div class="spadra-trust__inner">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="spadra-trust__eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    <h2 class="spadra-trust__heading">{{ section.settings.heading }}</h2>
+
+    <ul class="spadra-trust__grid">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'pillar' -%}
+          <li class="spadra-trust__card" {{ block.shopify_attributes }}>
+            <h3 class="spadra-trust__card-title">{{ block.settings.title }}</h3>
+            <div class="spadra-trust__card-body">{{ block.settings.body }}</div>
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+
+    {%- if section.settings.footnote != blank -%}
+      <p class="spadra-trust__footnote">{{ section.settings.footnote }}</p>
+    {%- endif -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .spadra-trust { padding: 88px 24px; }
+  .spadra-trust__inner { max-width: 1080px; margin: 0 auto; }
+  .spadra-trust__eyebrow {
+    margin: 0 0 14px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #4ADE80;
+  }
+  .spadra-trust__heading {
+    margin: 0 0 44px;
+    font-family: var(--font-heading--family);
+    font-size: clamp(1.7rem, 3.6vw, 2.6rem);
+    line-height: 1.15;
+    max-width: 22ch;
+    color: #FFFFFF;
+  }
+  .spadra-trust__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1px;
+    grid-template-columns: repeat(2, 1fr);
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .spadra-trust__card { background: #0B1220; padding: 30px 28px; }
+  .spadra-trust__card-title {
+    margin: 0 0 12px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #4ADE80;
+  }
+  .spadra-trust__card-body {
+    font-size: 0.98rem;
+    line-height: 1.65;
+    color: rgba(255, 255, 255, 0.82);
+  }
+  .spadra-trust__card-body p { margin: 0; }
+  .spadra-trust__footnote {
+    margin: 28px 0 0;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.55);
+    max-width: 70ch;
+  }
+
+  @media (max-width: 800px) {
+    .spadra-trust { padding: 64px 20px; }
+    .spadra-trust__grid { grid-template-columns: 1fr; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Assessment: trust stack",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "Uncompromising quality" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "What's actually in the packet — and what isn't." },
+    { "type": "text", "id": "footnote", "label": "Footnote", "default": "These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure or prevent any disease." },
+    { "type": "color", "id": "background_color", "label": "Background color", "default": "#0B1220" }
+  ],
+  "blocks": [
+    {
+      "type": "pillar",
+      "name": "Pillar",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "USDA Organic & Non-GMO" },
+        { "type": "richtext", "id": "body", "label": "Body", "default": "<p>Certified organic, non-GMO inputs.</p>" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Assessment: trust stack",
+      "blocks": [
+        { "type": "pillar", "settings": { "title": "USDA Organic & Non-GMO sourcing", "body": "<p>Certified organic, non-GMO inputs. No synthetic fillers, no artificial colors, no \"natural flavors\" doing undisclosed work. If it's in the roll, it's on the label, and it's there because it does something.</p>" } },
+        { "type": "pillar", "settings": { "title": "cGMP / FDA-registered facility testing", "body": "<p>Manufactured and tested in cGMP-compliant, FDA-registered facilities. The supplement category is under-regulated by design — third-party verification isn't a marketing badge to us, it's the minimum condition for asking you to swallow something daily.</p>" } },
+        { "type": "pillar", "settings": { "title": "Eco-friendly FSC-certified daily rolls", "body": "<p>Daily packets ship as FSC-certified paper rolls instead of the plastic sachet strips the category defaults to. Same convenience, dramatically less plastic. A daily habit multiplied by 365 is either a small environmental decision or a large one.</p>" } },
+        { "type": "pillar", "settings": { "title": "Under $2 a day", "body": "<p>$44.99 a month. Roughly one San Francisco coffee for a full protocol, delivered, pre-sorted, and adjusted by a real person as you go. Cancel anytime, no retention maze.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

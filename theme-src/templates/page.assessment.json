@@ -1,0 +1,231 @@
+{
+  "sections": {
+    "assessment_hero": {
+      "type": "found-hero",
+      "blocks": {
+        "t1": {
+          "type": "trust_item",
+          "settings": {
+            "label": "USDA Organic"
+          }
+        },
+        "t2": {
+          "type": "trust_item",
+          "settings": {
+            "label": "cGMP Tested"
+          }
+        },
+        "t3": {
+          "type": "trust_item",
+          "settings": {
+            "label": "Under $2/day"
+          }
+        }
+      },
+      "block_order": [
+        "t1",
+        "t2",
+        "t3"
+      ],
+      "settings": {
+        "eyebrow": "San Francisco \u00b7 Personalized recovery protocols",
+        "headline": "Your recovery isn't a product. It's an equation.",
+        "subheadline": "Alcohol doesn't just cost you a morning \u2014 it costs you the executive function you get paid for. Acetaldehyde builds faster than your liver clears it, sleep architecture fragments even through eight hours, and neurotransmitters take days to rebuild. Which of those is your bottleneck depends entirely on how you drink, how often, and what your body does about it.",
+        "primary_cta_label": "Start Your 60-Second Lifestyle Assessment",
+        "secondary_cta_label": "How the matching works",
+        "secondary_cta_link": "#spadra-engine",
+        "image": "shopify://shop_images/Gemini_Generated_Image_uwx4hhuwx4hhuwx4_44717a2e-811c-476f-b865-26a4f84f5d12.jpg",
+        "focal_desktop": "center",
+        "focal_mobile": "right center",
+        "overlay_opacity": 60,
+        "height_desktop": 80,
+        "height_mobile": 90
+      }
+    },
+    "assessment_why": {
+      "type": "spadra-assessment-why",
+      "blocks": {
+        "b1": {
+          "type": "failure",
+          "settings": {
+            "kicker": "Variable 01",
+            "title": "Timing changes the entire protocol.",
+            "body": "<p>Before a night out, the goal is buffering the pathway that clears acetaldehyde while it is being produced. The next morning that window has closed and the goal is replenishment instead. Same body, two different formulations \u2014 a static product can only be right half the time.</p>"
+          }
+        },
+        "b2": {
+          "type": "failure",
+          "settings": {
+            "kicker": "Variable 02",
+            "title": "Frequency changes the target.",
+            "body": "<p>Twice a month is an acute event. Four nights a week is a chronic metabolic load, and the pressure moves off your morning and onto your liver's methylation and glutathione capacity. The person who needs the second protocol usually thinks they need the first.</p>"
+          }
+        },
+        "b3": {
+          "type": "failure",
+          "settings": {
+            "kicker": "Variable 03",
+            "title": "Your bottleneck isn't everyone's bottleneck.",
+            "body": "<p>For some people it is cognitive \u2014 the fog and the flat affect that outlast the morning. For others it is gastrointestinal, and nothing else matters until that is handled. For others there is no acute symptom at all, which is exactly the profile where long-term load goes unmanaged.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "b1",
+        "b2",
+        "b3"
+      ],
+      "settings": {
+        "eyebrow": "The assessment bridge",
+        "heading": "Why one-size-fits-all supplements fail you specifically",
+        "intro": "<p>Walk into any store and you'll find the same answer sold to everyone: an electrolyte packet.</p><p>Electrolytes solve dehydration. Dehydration is the least interesting thing alcohol does to a high-output brain.</p>",
+        "closer": "<p>Three different bottlenecks. Three different protocols. One product cannot serve all three.</p><p>So we don't ask you to choose. We diagnose. The assessment maps your social calendar, your recovery speed, your cognitive demands and your GI sensitivity, then identifies which system is actually rate-limiting for you.</p>",
+        "cta_label": "Find My Metabolic Bottleneck",
+        "background_color": "#F8F7F4"
+      }
+    },
+    "assessment_engine": {
+      "type": "spadra-assessment-engine",
+      "blocks": {
+        "b1": {
+          "type": "step",
+          "settings": {
+            "title": "The 60-second assessment",
+            "body": "<p>We map the inputs, not the symptoms. How often you're out. How hard the next morning hits. What your work demands of your brain the following day. How your gut handles it. Whether you're optimizing for tomorrow or for the next twenty years.</p><p>No medical history, no lab work, no upsell disguised as a quiz. Every question exists because the answer changes what we would send you \u2014 if it didn't, we wouldn't ask it.</p>",
+            "meta": "60 seconds \u00b7 result is immediate"
+          }
+        },
+        "b2": {
+          "type": "step",
+          "settings": {
+            "title": "Protocol precision matching",
+            "body": "<p>Your answers route you to the protocol that fits. <strong>Party Pack</strong> to pre-load and buffer the load while it is happening. <strong>Party Recovery</strong> where the cost shows up afterwards, in the fog and the gut. <strong>Liver Detox</strong> for sustained metabolic load, where the acute symptoms are mild but the cumulative burden is the real risk.</p><p>Whichever one you match to arrives pre-sorted into daily rolls \u2014 one packet, one day, already sorted. No pill organizer, no fourteen bottles.</p>",
+            "meta": "Every active named on the label \u00b7 no proprietary blends"
+          }
+        },
+        "b3": {
+          "type": "step",
+          "settings": {
+            "title": "Human optimization",
+            "body": "<p>Your protocol shouldn't be static, because your calendar isn't. A conference week, a launch cycle, a quiet month \u2014 all of it changes what your body needs.</p><p>Every member is matched 1:1 with a Dedicated Protocol Specialist. Not a chatbot, not a support queue. One person who knows your assessment and adjusts your protocol as your inputs shift.</p>",
+            "meta": "Software finds the starting point \u00b7 a human keeps it correct"
+          }
+        }
+      },
+      "block_order": [
+        "b1",
+        "b2",
+        "b3"
+      ],
+      "settings": {
+        "eyebrow": "The personalization engine",
+        "heading": "Three steps. Sixty seconds. One protocol built around your actual life.",
+        "cta_label": "Start Step One",
+        "background_color": "#FFFFFF"
+      }
+    },
+    "assessment_trust": {
+      "type": "spadra-assessment-trust",
+      "blocks": {
+        "b1": {
+          "type": "pillar",
+          "settings": {
+            "title": "USDA Organic & Non-GMO sourcing",
+            "body": "<p>Certified organic, non-GMO inputs. No synthetic fillers, no artificial colors, no \"natural flavors\" doing undisclosed work. If it's in the roll, it's on the label, and it's there because it does something.</p>"
+          }
+        },
+        "b2": {
+          "type": "pillar",
+          "settings": {
+            "title": "cGMP / FDA-registered facility testing",
+            "body": "<p>Manufactured and tested in cGMP-compliant, FDA-registered facilities. The supplement category is under-regulated by design \u2014 third-party verification isn't a marketing badge to us, it's the minimum condition for asking you to swallow something daily.</p>"
+          }
+        },
+        "b3": {
+          "type": "pillar",
+          "settings": {
+            "title": "Eco-friendly FSC-certified daily rolls",
+            "body": "<p>Daily packets ship as FSC-certified paper rolls instead of the plastic sachet strips the category defaults to. Same convenience, dramatically less plastic. A daily habit multiplied by 365 is either a small environmental decision or a large one.</p>"
+          }
+        },
+        "b4": {
+          "type": "pillar",
+          "settings": {
+            "title": "Under $2 a day",
+            "body": "<p>$44.99 a month. Roughly one San Francisco coffee for a full protocol, delivered, pre-sorted, and adjusted by a real person as you go. Cancel anytime, no retention maze.</p>"
+          }
+        }
+      },
+      "block_order": [
+        "b1",
+        "b2",
+        "b3",
+        "b4"
+      ],
+      "settings": {
+        "eyebrow": "Uncompromising quality",
+        "heading": "What's actually in the packet \u2014 and what isn't.",
+        "footnote": "These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure or prevent any disease.",
+        "background_color": "#0B1220"
+      }
+    },
+    "assessment_gate": {
+      "type": "spadra-assessment-cta",
+      "blocks": {
+        "b1": {
+          "type": "promise",
+          "settings": {
+            "label": "60 seconds.",
+            "detail": "Five questions about how you actually live."
+          }
+        },
+        "b2": {
+          "type": "promise",
+          "settings": {
+            "label": "Your result, immediately.",
+            "detail": "The protocol you match to, and the reasoning behind it."
+          }
+        },
+        "b3": {
+          "type": "promise",
+          "settings": {
+            "label": "No email wall.",
+            "detail": "See your match before you decide anything."
+          }
+        },
+        "b4": {
+          "type": "promise",
+          "settings": {
+            "label": "Your specialist, matched.",
+            "detail": "If you start, a real person is assigned to you in week one."
+          }
+        }
+      },
+      "block_order": [
+        "b1",
+        "b2",
+        "b3",
+        "b4"
+      ],
+      "settings": {
+        "heading": "You can keep guessing. Or you can spend 60 seconds and know.",
+        "body": "<p>Every week you run the generic protocol is a week you're solving for the wrong variable. Maybe your bottleneck is cognitive and you've been buying electrolytes. Maybe it's hepatic, and you've been treating a morning symptom while the actual load compounds quietly.</p><p>The assessment costs you a minute and tells you which it is.</p>",
+        "cta_label": "Start Your 60-Second Lifestyle Assessment",
+        "reassurance": "No credit card. No email required to see your result. Under $2/day if you continue, cancel anytime.",
+        "closer": "You've already optimized your sleep, your calendar and your codebase. This is the last unoptimized variable.",
+        "encore_heading": "You read the whole thing.",
+        "encore_body": "Which means you already suspect the generic packet isn't solving your problem. One minute settles it \u2014 and you'll know which of the three protocols is actually yours before you spend anything.",
+        "encore_cta_label": "Fine \u2014 Show Me My Protocol",
+        "encore_note": "60 seconds \u00b7 5 questions \u00b7 no email, no card",
+        "background_color": "#F8F7F4"
+      }
+    }
+  },
+  "order": [
+    "assessment_hero",
+    "assessment_why",
+    "assessment_engine",
+    "assessment_trust",
+    "assessment_gate"
+  ]
+}

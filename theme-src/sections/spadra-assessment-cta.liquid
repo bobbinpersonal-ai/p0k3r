@@ -1,0 +1,218 @@
+{%- comment -%}
+  SPADRA assessment landing page — closing quiz gate.
+
+  Last section on the page, so the CTA is the only exit. The four "what
+  happens next" lines are promises the funnel actually keeps: no email wall
+  before the result, no card, and a specialist assigned on signup. If any of
+  those stops being true, change this copy — an unmet promise here is worse
+  than no promise.
+{%- endcomment -%}
+
+<section class="spadra-gate" style="background: {{ section.settings.background_color }};">
+  <div class="spadra-gate__inner">
+    <h2 class="spadra-gate__heading">{{ section.settings.heading }}</h2>
+
+    {%- if section.settings.body != blank -%}
+      <div class="spadra-gate__body">{{ section.settings.body }}</div>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <ul class="spadra-gate__list">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'promise' -%}
+            <li {{ block.shopify_attributes }}>
+              <strong>{{ block.settings.label }}</strong>
+              {{ block.settings.detail }}
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    <button type="button" class="spadra-gate__cta" data-spadra-quiz-open>
+      {{ section.settings.cta_label }}
+    </button>
+
+    {%- if section.settings.reassurance != blank -%}
+      <p class="spadra-gate__reassurance">{{ section.settings.reassurance }}</p>
+    {%- endif -%}
+
+    {%- if section.settings.closer != blank -%}
+      <p class="spadra-gate__closer">{{ section.settings.closer }}</p>
+    {%- endif -%}
+
+    {%- comment -%}
+      The second ask, for the minority who read the whole page. They are the
+      warmest traffic on the site and the main CTA is now several screens
+      behind them, so it is repeated rather than left to a scroll back up.
+      Deliberately quieter than the primary button: someone who read this far
+      does not need to be sold again, only given the door.
+    {%- endcomment -%}
+    {%- if section.settings.encore_heading != blank -%}
+      <div class="spadra-gate__encore">
+        <p class="spadra-gate__encore-heading">{{ section.settings.encore_heading }}</p>
+        {%- if section.settings.encore_body != blank -%}
+          <p class="spadra-gate__encore-body">{{ section.settings.encore_body }}</p>
+        {%- endif -%}
+        <button type="button" class="spadra-gate__encore-cta" data-spadra-quiz-open>
+          {{ section.settings.encore_cta_label }}
+        </button>
+        {%- if section.settings.encore_note != blank -%}
+          <p class="spadra-gate__encore-note">{{ section.settings.encore_note }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+{% stylesheet %}
+  .spadra-gate { padding: 96px 24px; }
+  .spadra-gate__inner { max-width: 720px; margin: 0 auto; text-align: center; }
+  .spadra-gate__heading {
+    margin: 0 0 24px;
+    font-family: var(--font-heading--family);
+    font-size: clamp(1.9rem, 4.2vw, 3rem);
+    line-height: 1.12;
+  }
+  .spadra-gate__body { font-size: 1.04rem; line-height: 1.65; color: #334155; }
+  .spadra-gate__body p { margin: 0 0 14px; }
+
+  .spadra-gate__list {
+    list-style: none;
+    margin: 34px 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+    text-align: left;
+    max-width: 520px;
+    margin-inline: auto;
+  }
+  .spadra-gate__list li {
+    position: relative;
+    padding-left: 26px;
+    font-size: 0.98rem;
+    line-height: 1.55;
+    color: #334155;
+  }
+  .spadra-gate__list li::before {
+    content: '';
+    position: absolute;
+    left: 4px;
+    top: 0.6em;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #0F766E;
+  }
+
+  .spadra-gate__cta {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    background: #0B1220;
+    color: #FFFFFF;
+    font: inherit;
+    font-size: 1.02rem;
+    font-weight: 600;
+    padding: 18px 38px;
+    border-radius: 999px;
+  }
+  .spadra-gate__cta:hover { background: #16233c; }
+
+  .spadra-gate__reassurance {
+    margin: 16px 0 0;
+    font-size: 0.86rem;
+    color: #64748B;
+  }
+  .spadra-gate__closer {
+    margin: 40px 0 0;
+    font-size: 1.06rem;
+    line-height: 1.5;
+    color: #0F172A;
+  }
+
+  .spadra-gate__encore {
+    margin: 56px auto 0;
+    padding: 34px 28px;
+    max-width: 560px;
+    border-top: 1px solid #DCD8D0;
+  }
+  .spadra-gate__encore-heading {
+    margin: 0 0 10px;
+    font-family: var(--font-heading--family);
+    font-size: 1.22rem;
+    line-height: 1.3;
+  }
+  .spadra-gate__encore-body {
+    margin: 0 0 22px;
+    font-size: 0.96rem;
+    line-height: 1.6;
+    color: #475569;
+  }
+  .spadra-gate__encore-cta {
+    appearance: none;
+    cursor: pointer;
+    background: transparent;
+    color: #0B1220;
+    border: 1.5px solid #0B1220;
+    font: inherit;
+    font-weight: 600;
+    padding: 14px 30px;
+    border-radius: 999px;
+  }
+  .spadra-gate__encore-cta:hover { background: #0B1220; color: #FFFFFF; }
+  .spadra-gate__encore-note {
+    margin: 14px 0 0;
+    font-size: 0.8rem;
+    color: #64748B;
+  }
+
+  @media (max-width: 700px) {
+    .spadra-gate { padding: 72px 20px; }
+    .spadra-gate__encore { padding: 30px 0 0; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Assessment: final CTA",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading", "default": "You can keep guessing. Or you can spend 60 seconds and know." },
+    {
+      "type": "richtext",
+      "id": "body",
+      "label": "Body",
+      "default": "<p>Every week you run the generic protocol is a week you're solving for the wrong variable. Maybe your bottleneck is cognitive and you've been buying electrolytes. Maybe it's hepatic, and you've been treating a morning symptom while the actual load compounds quietly.</p><p>The assessment costs you a minute and tells you which it is.</p>"
+    },
+    { "type": "text", "id": "cta_label", "label": "CTA label", "default": "Start Your 60-Second Lifestyle Assessment" },
+    { "type": "text", "id": "reassurance", "label": "Under-button reassurance", "default": "No credit card. No email required to see your result. Under $2/day if you continue, cancel anytime." },
+    { "type": "text", "id": "closer", "label": "Closing line", "default": "You've already optimized your sleep, your calendar and your codebase. This is the last unoptimized variable." },
+    { "type": "text", "id": "encore_heading", "label": "Second ask: heading", "default": "You read the whole thing." },
+    { "type": "textarea", "id": "encore_body", "label": "Second ask: body", "default": "Which means you already suspect the generic packet isn't solving your problem. One minute settles it — and you'll know which of the three protocols is actually yours before you spend anything." },
+    { "type": "text", "id": "encore_cta_label", "label": "Second ask: CTA label", "default": "Fine — Show Me My Protocol" },
+    { "type": "text", "id": "encore_note", "label": "Second ask: note", "default": "60 seconds · 5 questions · no email, no card" },
+    { "type": "color", "id": "background_color", "label": "Background color", "default": "#F8F7F4" }
+  ],
+  "blocks": [
+    {
+      "type": "promise",
+      "name": "Promise",
+      "settings": [
+        { "type": "text", "id": "label", "label": "Label", "default": "60 seconds." },
+        { "type": "text", "id": "detail", "label": "Detail", "default": "Five questions about how you actually live." }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Assessment: final CTA",
+      "blocks": [
+        { "type": "promise", "settings": { "label": "60 seconds.", "detail": "Five questions about how you actually live." } },
+        { "type": "promise", "settings": { "label": "Your result, immediately.", "detail": "The protocol you match to, and the reasoning behind it." } },
+        { "type": "promise", "settings": { "label": "No email wall.", "detail": "See your match before you decide anything." } },
+        { "type": "promise", "settings": { "label": "Your specialist, matched.", "detail": "If you start, a real person is assigned to you in week one." } }
+      ]
+    }
+  ]
+}
+{% endschema %}

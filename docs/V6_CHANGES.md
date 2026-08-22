@@ -580,3 +580,68 @@ ingredient list supports: no doses (none exist in our data), no disease claims,
 no invented studies. The two specific facts cited are checkable — nitric oxide
 research won the 1998 Nobel Prize in Physiology or Medicine, and creatine is
 the most-researched sports supplement there is.
+
+---
+
+# V13 — Assessment landing page (theme `153262686347`)
+
+Owner published V12 (confirmed MAIN). V13 is duplicated from it and holds the
+new landing page.
+
+## Shipped into V13
+
+New page template `templates/page.assessment.json`, five sections:
+
+1. **`found-hero`** — reused, not copied. The homepage hero is already a
+   settings-driven section whose primary CTA carries `data-spadra-quiz-open`,
+   so the landing page gets the same look by instantiating it with different
+   settings. Copying it into a second file would have forked the styling.
+2. **`sections/spadra-assessment-why.liquid`** — the bridge: three reasons a
+   static packet cannot be right (timing, frequency, bottleneck).
+3. **`sections/spadra-assessment-engine.liquid`** — the 3-step flow. Carries
+   `id="spadra-engine"` so the hero's secondary CTA can scroll to it.
+4. **`sections/spadra-assessment-trust.liquid`** — USDA Organic / cGMP /
+   FSC rolls / under $2 a day, plus the required FDA disclaimer. **No FDA
+   badge** — same standing rule as `spadra-quality.liquid`.
+5. **`sections/spadra-assessment-cta.liquid`** — closing gate, plus a second
+   quieter ask below it for readers who reach the bottom.
+
+Every CTA on the page uses `data-spadra-quiz-open`. `layout/theme.liquid`
+already renders the quiz modal globally and binds that attribute, so no second
+modal and no quiz page were needed.
+
+## Four Shopify schema rules this run discovered
+
+- Section schema `name` is capped at **25 characters** ("Assessment: why generic
+  fails" was rejected).
+- A `text` setting **cannot have `"default": ""`** — omit the key instead.
+- `range` settings must land exactly on their declared `step`; the hero's
+  `overlay_opacity` / `height_*` are step-5, so 62 and 82 were rejected.
+- Combined with the earlier finding that text-setting HTML is sanitised
+  (no `class` attributes) and that metafields need a **definition** before a
+  text block can read them.
+
+## Copy corrected against the real funnel
+
+The brief said "nine questions". The quiz has **five**. Changed everywhere
+rather than shipping a number the funnel does not honour. The "no email wall"
+promise was verified — the quiz section contains zero references to email.
+
+## Open gap — the quiz does not yet route on alcohol inputs
+
+The page's step 2 promises routing to Party Pack / Party Recovery / Liver
+Detox. The quiz as it stands contains **no** reference to those handles and
+asks nothing about drinking, social frequency or GI sensitivity — its goal
+question covers energy / focus / sleep / aging / performance / foundation.
+
+A minimal fix is committed in `theme-src/sections/native-quiz-modal.liquid`: a
+sixth goal option, "I socialize often and can't afford the next-day cost",
+weighted to `party-pack-1`, `party-recovery-spadra`,
+`party-hangover-recovery-pack`, `liver-detox-pack-spadra` and
+`toxin-detox-pack-1`. JS syntax-checked. **Not yet uploaded to the theme** —
+see the note to the owner: one bolted-on option gives coarse routing, and the
+four inputs the page actually advertises (timing, frequency, cognitive vs. GI
+bottleneck) deserve a designed branch rather than a single checkbox.
+
+Until one of those ships, step 2's protocol names are a promise the quiz
+cannot keep.

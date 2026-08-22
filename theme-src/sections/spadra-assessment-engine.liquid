@@ -1,0 +1,138 @@
+{%- comment -%}
+  SPADRA assessment landing page — the 3-step personalization engine.
+
+  Step 2 lists the three protocols by name. Those names must match real
+  products in the catalogue (party-pack-1, party-recovery-spadra,
+  liver-detox-pack-spadra) — if a protocol is ever renamed or archived,
+  fix it here too, because this section is hand-written text and will not
+  fail loudly the way a product reference would.
+
+  Steps are blocks so the flow can be reordered or reworded in the editor.
+{%- endcomment -%}
+
+<section id="spadra-engine" class="spadra-engine" style="background: {{ section.settings.background_color }};">
+  <div class="spadra-engine__inner">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="spadra-engine__eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    <h2 class="spadra-engine__heading">{{ section.settings.heading }}</h2>
+
+    <ol class="spadra-engine__steps">
+      {%- for block in section.blocks -%}
+        {%- if block.type == 'step' -%}
+          <li class="spadra-engine__step" {{ block.shopify_attributes }}>
+            <span class="spadra-engine__num" aria-hidden="true">{{ forloop.index | prepend: '0' | slice: -2, 2 }}</span>
+            <div class="spadra-engine__step-body">
+              <h3 class="spadra-engine__step-title">{{ block.settings.title }}</h3>
+              <div class="spadra-engine__step-copy">{{ block.settings.body }}</div>
+              {%- if block.settings.meta != blank -%}
+                <p class="spadra-engine__step-meta">{{ block.settings.meta }}</p>
+              {%- endif -%}
+            </div>
+          </li>
+        {%- endif -%}
+      {%- endfor -%}
+    </ol>
+
+    <button type="button" class="spadra-engine__cta" data-spadra-quiz-open>
+      {{ section.settings.cta_label }}
+    </button>
+  </div>
+</section>
+
+{% stylesheet %}
+  .spadra-engine { padding: 88px 24px; }
+  .spadra-engine__inner { max-width: 900px; margin: 0 auto; }
+  .spadra-engine__eyebrow {
+    margin: 0 0 14px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #0F766E;
+  }
+  .spadra-engine__heading {
+    margin: 0 0 48px;
+    font-family: var(--font-heading--family);
+    font-size: clamp(1.7rem, 3.6vw, 2.6rem);
+    line-height: 1.15;
+    max-width: 22ch;
+  }
+  .spadra-engine__steps { list-style: none; margin: 0 0 40px; padding: 0; }
+  .spadra-engine__step {
+    display: grid;
+    grid-template-columns: 74px 1fr;
+    gap: 24px;
+    padding: 32px 0;
+    border-top: 1px solid #E2E8F0;
+  }
+  .spadra-engine__step:last-child { border-bottom: 1px solid #E2E8F0; }
+  .spadra-engine__num {
+    font-family: var(--font-heading--family);
+    font-size: 2.4rem;
+    line-height: 1;
+    color: #CBD5E1;
+  }
+  .spadra-engine__step-title { margin: 0 0 12px; font-size: 1.24rem; line-height: 1.25; }
+  .spadra-engine__step-copy { font-size: 1rem; line-height: 1.65; color: #334155; }
+  .spadra-engine__step-copy p { margin: 0 0 12px; }
+  .spadra-engine__step-copy p:last-child { margin-bottom: 0; }
+  .spadra-engine__step-meta {
+    margin: 14px 0 0;
+    font-size: 0.82rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #0F766E;
+  }
+  .spadra-engine__cta {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    background: #0B1220;
+    color: #FFFFFF;
+    font: inherit;
+    font-weight: 600;
+    padding: 16px 30px;
+    border-radius: 999px;
+  }
+  .spadra-engine__cta:hover { background: #16233c; }
+
+  @media (max-width: 700px) {
+    .spadra-engine { padding: 64px 20px; }
+    .spadra-engine__step { grid-template-columns: 1fr; gap: 10px; }
+    .spadra-engine__num { font-size: 1.6rem; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Assessment: how it works",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The personalization engine" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Three steps. Sixty seconds. One protocol built around your actual life." },
+    { "type": "text", "id": "cta_label", "label": "CTA label", "default": "Start Step One" },
+    { "type": "color", "id": "background_color", "label": "Background color", "default": "#FFFFFF" }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "settings": [
+        { "type": "text", "id": "title", "label": "Title", "default": "The 60-second assessment" },
+        { "type": "richtext", "id": "body", "label": "Body", "default": "<p>We map the inputs, not the symptoms.</p>" },
+        { "type": "text", "id": "meta", "label": "Meta line" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Assessment: how it works",
+      "blocks": [
+        { "type": "step", "settings": { "title": "The 60-second assessment", "body": "<p>We map the inputs, not the symptoms. How often you're out. How hard the next morning hits. What your work demands of your brain the following day. How your gut handles it. Whether you're optimizing for tomorrow or for the next twenty years.</p><p>No medical history, no lab work, no upsell disguised as a quiz. Every question exists because the answer changes what we would send you — if it didn't, we wouldn't ask it.</p>", "meta": "60 seconds · result is immediate" } },
+        { "type": "step", "settings": { "title": "Protocol precision matching", "body": "<p>Your answers route you to the protocol that fits. <strong>Party Pack</strong> to pre-load and buffer the load while it is happening. <strong>Party Recovery</strong> where the cost shows up afterwards, in the fog and the gut. <strong>Liver Detox</strong> for sustained metabolic load, where the acute symptoms are mild but the cumulative burden is the real risk.</p><p>Whichever one you match to arrives pre-sorted into daily rolls — one packet, one day, already sorted. No pill organizer, no fourteen bottles.</p>", "meta": "Every active named on the label · no proprietary blends" } },
+        { "type": "step", "settings": { "title": "Human optimization", "body": "<p>Your protocol shouldn't be static, because your calendar isn't. A conference week, a launch cycle, a quiet month — all of it changes what your body needs.</p><p>Every member is matched 1:1 with a Dedicated Protocol Specialist. Not a chatbot, not a support queue. One person who knows your assessment and adjusts your protocol as your inputs shift.</p>", "meta": "Software finds the starting point · a human keeps it correct" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

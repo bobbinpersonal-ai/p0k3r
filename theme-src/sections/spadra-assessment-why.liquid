@@ -1,0 +1,166 @@
+{%- comment -%}
+  SPADRA assessment landing page — "why one-size-fits-all fails".
+
+  This is the bridge section: its whole job is to make the assessment feel
+  like the required first step rather than an optional quiz. Every CTA here
+  carries [data-spadra-quiz-open], which layout/theme.liquid binds globally
+  to the quiz modal — do not add a second modal or a link to a quiz page.
+
+  The three failure modes are settings-driven blocks so the reasoning can be
+  reworded without touching markup. Keep them at three: the section reads as
+  a diagnosis, and a fourth column breaks the rhythm on tablet.
+{%- endcomment -%}
+
+<section class="spadra-why" style="background: {{ section.settings.background_color }};">
+  <div class="spadra-why__inner">
+    {%- if section.settings.eyebrow != blank -%}
+      <p class="spadra-why__eyebrow">{{ section.settings.eyebrow }}</p>
+    {%- endif -%}
+    <h2 class="spadra-why__heading">{{ section.settings.heading }}</h2>
+
+    {%- if section.settings.intro != blank -%}
+      <div class="spadra-why__intro">{{ section.settings.intro }}</div>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <ul class="spadra-why__grid">
+        {%- for block in section.blocks -%}
+          {%- if block.type == 'failure' -%}
+            <li class="spadra-why__card" {{ block.shopify_attributes }}>
+              <p class="spadra-why__card-kicker">{{ block.settings.kicker }}</p>
+              <h3 class="spadra-why__card-title">{{ block.settings.title }}</h3>
+              <div class="spadra-why__card-body">{{ block.settings.body }}</div>
+            </li>
+          {%- endif -%}
+        {%- endfor -%}
+      </ul>
+    {%- endif -%}
+
+    {%- if section.settings.closer != blank -%}
+      <div class="spadra-why__closer">{{ section.settings.closer }}</div>
+    {%- endif -%}
+
+    <button type="button" class="spadra-why__cta" data-spadra-quiz-open>
+      {{ section.settings.cta_label }}
+    </button>
+  </div>
+</section>
+
+{% stylesheet %}
+  .spadra-why { padding: 88px 24px; }
+  .spadra-why__inner { max-width: 1080px; margin: 0 auto; }
+  .spadra-why__eyebrow {
+    margin: 0 0 14px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #0F766E;
+  }
+  .spadra-why__heading {
+    margin: 0 0 20px;
+    font-family: var(--font-heading--family);
+    font-size: clamp(1.7rem, 3.6vw, 2.6rem);
+    line-height: 1.15;
+    max-width: 20ch;
+  }
+  .spadra-why__intro,
+  .spadra-why__closer { max-width: 62ch; font-size: 1.02rem; line-height: 1.65; }
+  .spadra-why__intro p,
+  .spadra-why__closer p { margin: 0 0 14px; }
+  .spadra-why__intro { margin-bottom: 44px; }
+  .spadra-why__closer { margin: 40px 0 32px; }
+
+  .spadra-why__grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 22px;
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .spadra-why__card {
+    border: 1px solid #E2E8F0;
+    border-radius: 14px;
+    padding: 26px 24px;
+    background: #FFFFFF;
+  }
+  .spadra-why__card-kicker {
+    margin: 0 0 10px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #0F766E;
+  }
+  .spadra-why__card-title {
+    margin: 0 0 12px;
+    font-size: 1.06rem;
+    line-height: 1.3;
+  }
+  .spadra-why__card-body { font-size: 0.94rem; line-height: 1.6; color: #334155; }
+  .spadra-why__card-body p { margin: 0; }
+
+  .spadra-why__cta {
+    appearance: none;
+    border: 0;
+    cursor: pointer;
+    background: #0B1220;
+    color: #FFFFFF;
+    font: inherit;
+    font-weight: 600;
+    padding: 16px 30px;
+    border-radius: 999px;
+  }
+  .spadra-why__cta:hover { background: #16233c; }
+
+  @media (max-width: 900px) {
+    .spadra-why__grid { grid-template-columns: 1fr; }
+    .spadra-why { padding: 64px 20px; }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Assessment: why generic",
+  "settings": [
+    { "type": "text", "id": "eyebrow", "label": "Eyebrow", "default": "The assessment bridge" },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "Why one-size-fits-all supplements fail you specifically" },
+    {
+      "type": "richtext",
+      "id": "intro",
+      "label": "Intro",
+      "default": "<p>Walk into any store and you'll find the same answer sold to everyone: an electrolyte packet.</p><p>Electrolytes solve dehydration. Dehydration is the least interesting thing alcohol does to a high-output brain.</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "closer",
+      "label": "Closing copy",
+      "default": "<p>Three different bottlenecks. Three different protocols. One product cannot serve all three.</p><p>So we don't ask you to choose. We diagnose. The assessment maps your social calendar, your recovery speed, your cognitive demands and your GI sensitivity, then identifies which system is actually rate-limiting for you.</p>"
+    },
+    { "type": "text", "id": "cta_label", "label": "CTA label", "default": "Find My Metabolic Bottleneck" },
+    { "type": "color", "id": "background_color", "label": "Background color", "default": "#F8F7F4" }
+  ],
+  "blocks": [
+    {
+      "type": "failure",
+      "name": "Failure mode",
+      "settings": [
+        { "type": "text", "id": "kicker", "label": "Kicker", "default": "Variable 01" },
+        { "type": "text", "id": "title", "label": "Title", "default": "Timing changes the entire protocol." },
+        { "type": "richtext", "id": "body", "label": "Body", "default": "<p>Before a night out, the goal is buffering the pathway that clears acetaldehyde while it is being produced. The next morning that window has closed and the goal is replenishment instead. Same body, two different formulations — a static product can only be right half the time.</p>" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Assessment: why generic",
+      "blocks": [
+        { "type": "failure", "settings": { "kicker": "Variable 01", "title": "Timing changes the entire protocol.", "body": "<p>Before a night out, the goal is buffering the pathway that clears acetaldehyde while it is being produced. The next morning that window has closed and the goal is replenishment instead. Same body, two different formulations — a static product can only be right half the time.</p>" } },
+        { "type": "failure", "settings": { "kicker": "Variable 02", "title": "Frequency changes the target.", "body": "<p>Twice a month is an acute event. Four nights a week is a chronic metabolic load, and the pressure moves off your morning and onto your liver's methylation and glutathione capacity. The person who needs the second protocol usually thinks they need the first.</p>" } },
+        { "type": "failure", "settings": { "kicker": "Variable 03", "title": "Your bottleneck isn't everyone's bottleneck.", "body": "<p>For some people it is cognitive — the fog and the flat affect that outlast the morning. For others it is gastrointestinal, and nothing else matters until that is handled. For others there is no acute symptom at all, which is exactly the profile where long-term load goes unmanaged.</p>" } }
+      ]
+    }
+  ]
+}
+{% endschema %}
