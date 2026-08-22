@@ -1,0 +1,123 @@
+{%- comment -%}
+  Conditional quiz branches, as data.
+
+  Why this is a snippet and not more code inside sections/native-quiz-modal
+  .liquid: that file is ~48KB, and every wording change to a branch question
+  would otherwise mean rewriting and redeploying the whole thing. The same
+  pattern is already used for the catalogue and the stack discounts. Content
+  lives here; the mechanism that shows and scores it lives in the section.
+
+  Shape of each branch:
+
+    whenGoal   the `key` of a goal-question option. The branch's questions are
+               shown only while that option is selected, and their answers are
+               discarded the moment it is deselected — a hidden answer must
+               never keep scoring.
+    weight     how hard this question pushes relative to the others. The goal
+               question is 2 and the generic refinement questions are 1; these
+               sit at 1.5 because a branch question is asked only of people it
+               actually applies to, so its answer is far more diagnostic than a
+               catch-all one.
+    q / hint / a   identical in shape to the questions in the section, so the
+               same renderer and the same scorer handle them with no special
+               cases. `w` maps a product handle to a score.
+
+  Every handle below must exist and be ACTIVE in the catalogue. A handle that
+  no longer exists silently scores nothing — it will not throw, the branch will
+  just quietly stop routing. Check against snippets/spadra-quiz-catalog.liquid
+  before renaming anything.
+
+  Wording rule for this branch specifically: these questions are about alcohol,
+  which makes them regulated territory. They observe what the shopper reports
+  and never promise an outcome — no "prevent", no "cure", no "detox your
+  hangover". Keep any new option in that register.
+{%- endcomment -%}
+
+<script type="application/json" data-spadra-quiz-branches>
+[
+  {
+    "whenGoal": "social-recovery",
+    "weight": 1.5,
+    "questions": [
+      {
+        "q": "How often does a night out actually happen?",
+        "hint": "Be honest — frequency changes which protocol fits more than anything else here.",
+        "a": [
+          {
+            "t": "Once or twice a month.",
+            "label": "Occasional",
+            "w": { "party-pack-1": 8, "party-recovery-spadra": 7, "party-hangover-recovery-pack": 6 }
+          },
+          {
+            "t": "About once a week.",
+            "label": "Weekly",
+            "w": { "party-recovery-spadra": 8, "party-pack-1": 7, "party-hangover-recovery-pack": 7, "liver-detox-pack-spadra": 4 }
+          },
+          {
+            "t": "Two to four nights a week.",
+            "label": "Frequent",
+            "w": { "liver-detox-pack-spadra": 9, "party-recovery-spadra": 7, "toxin-detox-pack-1": 5, "antioxidant-pack-spadra": 4 }
+          },
+          {
+            "t": "Most nights — it comes with the job.",
+            "label": "Sustained load",
+            "w": { "liver-detox-pack-spadra": 10, "toxin-detox-pack-1": 7, "antioxidant-pack-spadra": 5, "methylation-pack-spadra": 4 }
+          }
+        ]
+      },
+      {
+        "q": "When do you want the protocol doing its work?",
+        "hint": "Before and after are different formulations, not the same one taken twice.",
+        "a": [
+          {
+            "t": "Before and during — I would rather not feel it tomorrow.",
+            "label": "Pre-load",
+            "w": { "party-pack-1": 10, "liver-detox-pack-spadra": 4 }
+          },
+          {
+            "t": "The morning after — I need to function.",
+            "label": "Repair",
+            "w": { "party-recovery-spadra": 10, "party-hangover-recovery-pack": 9 }
+          },
+          {
+            "t": "Both. I want the whole arc covered.",
+            "label": "Both ends",
+            "w": { "party-pack-1": 8, "party-recovery-spadra": 8, "party-hangover-recovery-pack": 6 }
+          },
+          {
+            "t": "Neither, really — I am thinking about the long run.",
+            "label": "Long game",
+            "w": { "liver-detox-pack-spadra": 10, "toxin-detox-pack-1": 6, "longevity-nad-repair-pack": 4 }
+          }
+        ]
+      },
+      {
+        "q": "What actually costs you the most the next day?",
+        "hint": "This is the bottleneck the protocol is built around.",
+        "a": [
+          {
+            "t": "My head — fog, flat mood, no deep work in me.",
+            "label": "Cognitive",
+            "w": { "party-recovery-spadra": 9, "party-hangover-recovery-pack": 8, "brain-pack-1": 5, "focus-pack-spadra": 5, "methylation-pack-spadra": 4 }
+          },
+          {
+            "t": "My gut — nausea, and nothing sits right.",
+            "label": "Gastrointestinal",
+            "w": { "party-recovery-spadra": 9, "gut-pack-spadra": 7, "microbiome-pack-spadra": 5, "party-hangover-recovery-pack": 5 }
+          },
+          {
+            "t": "My sleep — I am unconscious for eight hours and still wrecked.",
+            "label": "Sleep quality",
+            "w": { "sleep-pack-1": 8, "sleep-pack-melatonin-spadra": 6, "party-recovery-spadra": 6, "stress-pack-spadra": 4 }
+          },
+          {
+            "t": "Honestly nothing much — the cumulative load is what worries me.",
+            "label": "Cumulative load",
+            "w": { "liver-detox-pack-spadra": 10, "toxin-detox-pack-1": 7, "antioxidant-pack-spadra": 5 }
+          }
+        ]
+      }
+    ]
+  }
+]
+</script>

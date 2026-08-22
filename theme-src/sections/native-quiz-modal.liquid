@@ -62,6 +62,7 @@
   {%- render 'spadra-quiz-catalog' -%}
   {%- render 'spadra-ingredient-images', as_json: true -%}
   {%- render 'spadra-stack-discounts' -%}
+  {%- render 'spadra-quiz-branches' -%}
 </dialog>
 
 <script>
@@ -147,6 +148,7 @@
           {
             t: "I socialize often and can't afford the next-day cost.",
             label: 'Social recovery and next-day output',
+            key: 'social-recovery',
             w: { 'party-pack-1': 10, 'party-recovery-spadra': 10, 'party-hangover-recovery-pack': 9, 'liver-detox-pack-spadra': 8, 'toxin-detox-pack-1': 5 }
           },
           {
@@ -247,6 +249,25 @@
     var QUESTION_WEIGHT = [0, 2, 1, 1, 1];
     var STYLE_WEIGHT = 1.5;
 
+    // ---- Conditional branches -------------------------------------------
+    // Follow-up questions that only apply to some shoppers, kept as data in
+    // snippets/spadra-quiz-branches.liquid so their wording can change without
+    // redeploying this file. They are appended to QUESTIONS and QUESTION_WEIGHT
+    // like any other question, so the renderer and the scorer need no special
+    // case; the only thing that makes them conditional is `_whenGoal`, which
+    // visible() reads below.
+    try {
+      var branchEl = modal.querySelector('[data-spadra-quiz-branches]');
+      var branches = branchEl ? JSON.parse(branchEl.textContent) : [];
+      (branches || []).forEach(function (b) {
+        (b.questions || []).forEach(function (q) {
+          q._whenGoal = b.whenGoal;
+          QUESTIONS.push(q);
+          QUESTION_WEIGHT.push(b.weight || 1);
+        });
+      });
+    } catch (e) { /* no branches: the quiz runs as the five base questions */ }
+
     // answers[i] is always an array of selected option indexes, single-select
     // questions included, so scoring and back-navigation take one code path.
     var answers = [];
@@ -260,6 +281,55 @@
 
     function selected(qi) {
       return Array.isArray(answers[qi]) ? answers[qi] : [];
+    }
+
+    // The goal options this shopper picked that carry a branch key.
+    function activeGoalKeys() {
+      var keys = {};
+      selected(GOAL_Q).forEach(function (ai) {
+        var opt = QUESTIONS[GOAL_Q].a[ai];
+        if (opt && opt.key) keys[opt.key] = true;
+      });
+      return keys;
+    }
+
+    // The questions this shopper actually sees, as QUESTIONS indexes in the
+    // order they are asked. `step` is a position in THIS list, never an index
+    // into QUESTIONS -- otherwise ticking or unticking a goal mid-quiz would
+    // strand someone on a question that no longer applies to them.
+    //
+    // Branch questions are appended to QUESTIONS but asked immediately after
+    // the goal that opened them, while that goal is still fresh, rather than
+    // trailing the generic refinement questions at the end.
+    function visible() {
+      var keys = activeGoalKeys();
+      var out = [];
+      for (var i = 0; i < QUESTIONS.length; i++) {
+        if (QUESTIONS[i]._whenGoal) continue;
+        out.push(i);
+        if (i === GOAL_Q) {
+          for (var j = 0; j < QUESTIONS.length; j++) {
+            if (QUESTIONS[j]._whenGoal && keys[QUESTIONS[j]._whenGoal]) out.push(j);
+          }
+        }
+      }
+      return out;
+    }
+
+    function currentIndex() {
+      var v = visible();
+      return step < v.length ? v[step] : -1;
+    }
+
+    // An answer to a question that is no longer shown must stop counting.
+    // Without this, opening a branch, answering it, going back and unticking
+    // the goal would leave the branch's weights scoring invisibly.
+    function pruneHidden() {
+      var shown = {};
+      visible().forEach(function (i) { shown[i] = true; });
+      for (var i = 0; i < answers.length; i++) {
+        if (answers[i] && !shown[i]) answers[i] = [];
+      }
     }
 
     function chosenAudience() {
@@ -329,6 +399,7 @@
 
     // One protocol per stated goal first, then the ranking fills any gap.
     function choosePicks() {
+      pruneHidden();
       var pool = eligible();
       var totals = scoreTotals(pool);
       var ranked = rankedList(pool, totals);
@@ -507,14 +578,16 @@
 
     // ---- Rendering -------------------------------------------------------
     function setProgress() {
-      var pct = Math.round((step / QUESTIONS.length) * 100);
+      var total = visible().length;
+      var pct = Math.round((step / total) * 100);
       if (progressFill) progressFill.style.width = pct + '%';
-      if (progressText) progressText.textContent = 'Question ' + Math.min(step + 1, QUESTIONS.length) + ' of ' + QUESTIONS.length;
+      if (progressText) progressText.textContent = 'Question ' + Math.min(step + 1, total) + ' of ' + total;
     }
 
     function renderQuestion() {
-      var q = QUESTIONS[step];
-      var sel = selected(step);
+      var qi = currentIndex();
+      var q = QUESTIONS[qi];
+      var sel = selected(qi);
       if (heading) heading.textContent = q.q;
       if (progressWrap) progressWrap.hidden = false;
       setProgress();
@@ -645,7 +718,7 @@
     }
 
     function render() {
-      if (step < QUESTIONS.length) renderQuestion();
+      if (step < visible().length) renderQuestion();
       else renderResults();
     }
 
@@ -653,23 +726,26 @@
       var choice = e.target.closest('[data-choice]');
       if (choice) {
         var i = parseInt(choice.getAttribute('data-choice'), 10);
-        var q = QUESTIONS[step];
+        var qi = currentIndex();
+        var q = QUESTIONS[qi];
         if (q.multi) {
-          var sel = selected(step).slice();
+          var sel = selected(qi).slice();
           var at = sel.indexOf(i);
           if (at === -1) sel.push(i);
           else sel.splice(at, 1);
-          answers[step] = sel;
+          answers[qi] = sel;
+          // Ticking a goal can open a branch and unticking it can close one,
+          // so re-render rather than assuming the question count is stable.
           renderQuestion();
         } else {
-          answers[step] = [i];
+          answers[qi] = [i];
           step += 1;
           render();
         }
         return;
       }
       if (e.target.closest('[data-quiz-next]')) {
-        if (!selected(step).length) return;
+        if (!selected(currentIndex()).length) return;
         step += 1;
         render();
         return;

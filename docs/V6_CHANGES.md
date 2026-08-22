@@ -645,3 +645,90 @@ bottleneck) deserve a designed branch rather than a single checkbox.
 
 Until one of those ships, step 2's protocol names are a promise the quiz
 cannot keep.
+
+---
+
+# The alcohol branch (V13)
+
+Closes the gap flagged above: the landing page promised routing on drinking
+inputs that the quiz never asked about.
+
+## Shape
+
+Selecting the goal option **"I socialize often and can't afford the next-day
+cost"** opens three follow-up questions, asked immediately after that goal
+while it is still fresh — not appended after the generic refinement questions:
+
+1. **Frequency** — once or twice a month → weekly → 2–4 nights → most nights.
+   This is the single strongest signal: occasional drinking is an acute event
+   and routes to the Party packs; sustained load moves the weight onto
+   Liver Detox and Toxin Detox.
+2. **Timing** — before/during, the morning after, both, or neither because the
+   concern is long-term. Pre-load and repair are different formulations, so
+   this is a real fork, not a preference.
+3. **Bottleneck** — head, gut, sleep, or "nothing much, the cumulative load
+   worries me". This is the input the page's "your bottleneck isn't everyone's
+   bottleneck" section is actually about.
+
+A non-social shopper sees the original five questions, unchanged.
+
+## Architecture — why the content is a snippet
+
+`snippets/spadra-quiz-branches.liquid` holds the branch as JSON.
+`sections/native-quiz-modal.liquid` is ~50KB, so every wording tweak would
+otherwise mean redeploying the whole file. Content lives in the snippet;
+the mechanism lives in the section. Same pattern already used for the
+catalogue and the stack discounts.
+
+Branch questions are pushed onto `QUESTIONS` and `QUESTION_WEIGHT` like any
+other question, so the existing renderer and scorer handle them with no
+special case. The only conditional part is `_whenGoal`.
+
+## The two mechanics that needed care
+
+**`step` is now a position in `visible()`, not an index into `QUESTIONS`.**
+Otherwise ticking or unticking a goal mid-quiz strands the shopper on a
+question that no longer applies.
+
+**`pruneHidden()` clears answers to questions that are no longer shown.**
+Without it, opening the branch, answering it, going back and unticking the
+goal leaves the branch's weights scoring invisibly — the shopper would get
+Liver Detox recommended for a goal they had explicitly withdrawn.
+
+Branch weight is **1.5** (goal question is 2, generic refinements are 1): a
+branch question is only asked of people it applies to, so its answer is more
+diagnostic than a catch-all one.
+
+## Verified, not assumed
+
+`scripts/test_quiz_branch.js` loads the real section script into a `vm`
+context with a stub DOM and drives the real click handler the way a shopper
+would. 14 checks, all passing:
+
+- the non-social path is still exactly five questions;
+- picking the social goal grows the count to eight and asks the branch in the
+  right place;
+- sustained load + long game + cumulative worry puts **Liver Detox** top;
+- occasional + morning-after + cognitive puts a **Party** protocol top and
+  does not headline Liver Detox;
+- unticking the goal returns the quiz to five questions and no branch-only
+  protocol leaks into the result.
+
+All five handles the branch scores (`party-pack-1`, `party-recovery-spadra`,
+`party-hangover-recovery-pack`, `liver-detox-pack-spadra`, `toxin-detox-pack-1`)
+were confirmed ACTIVE and present in the `detox-recovery` collection, which is
+one of the seven the quiz catalogue walks. A handle missing from those
+collections scores nothing and fails silently.
+
+## Copy corrected again
+
+The page said "Five questions". It is now five, or eight for a social
+shopper, so the promise reads "Five questions — a few more only if your
+answers call for them" and the encore note is "About a minute" rather than a
+fixed count.
+
+## Regulatory register
+
+These questions are about alcohol. They observe what the shopper reports and
+promise nothing — no "prevent", no "cure", no "detox your hangover". Any new
+option must stay in that register; the rule is written into the snippet.

@@ -176,7 +176,7 @@
           "type": "promise",
           "settings": {
             "label": "60 seconds.",
-            "detail": "Five questions about how you actually live."
+            "detail": "Five questions \u2014 a few more only if your answers call for them."
           }
         },
         "b2": {
@@ -216,7 +216,7 @@
         "encore_heading": "You read the whole thing.",
         "encore_body": "Which means you already suspect the generic packet isn't solving your problem. One minute settles it \u2014 and you'll know which of the three protocols is actually yours before you spend anything.",
         "encore_cta_label": "Fine \u2014 Show Me My Protocol",
-        "encore_note": "60 seconds \u00b7 5 questions \u00b7 no email, no card",
+        "encore_note": "About a minute \u00b7 no email, no card",
         "background_color": "#F8F7F4"
       }
     }
