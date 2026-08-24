@@ -732,3 +732,57 @@ fixed count.
 These questions are about alcohol. They observe what the shopper reports and
 promise nothing — no "prevent", no "cure", no "detox your hangover". Any new
 option must stay in that register; the rule is written into the snippet.
+
+---
+
+# Metabolic Protocol Engine v2.6 — standalone React/TS prototype
+
+`prototypes/MetabolicProtocolEngine.tsx` — a single-file React + TypeScript +
+Tailwind + Framer Motion + Lucide build of the 12-step "factorial diagnostic"
+spec, requested as its own app shell rather than a Shopify theme change.
+**Not wired into the live theme** — the real Spadra quiz stays the vanilla-JS
+one in `theme-src/sections/native-quiz-modal.liquid`. This is a separate
+prototype; nothing here touches Shopify.
+
+Typechecked clean (`tsc --strict`, zero errors) against the real `react`,
+`framer-motion`, and `lucide-react` type packages, installed in a scratch dir
+for the check — not vendored into the repo.
+
+## Three deviations from the brief, made deliberately
+
+1. **The 6 "biochemical vectors" are quiz-answer weights rendered as if they
+   were physiological readouts** — there's no lab panel or biomarker feed
+   behind them. That's compelling UX and also the exact shape of an implied
+   diagnostic claim. Kept the framing (it's the whole point of the design)
+   but added the standing Spadra disclaimer to both the question screen and
+   the summary, and stuck to "Internal Biochemical Vector State" language
+   rather than "your levels." Flagged in the file header: before this goes
+   live anywhere public, compliance should sign off on the vector-score
+   presentation specifically, separate from the ingredient claims.
+
+2. **Swapped 2 of the 4 example capsules.** The brief's "KSM-66 Ashwagandha"
+   names a specific patented extract — claiming it without confirming the
+   actual supplier uses that exact material would be a false claim. "Electrolyte
+   Matrix" isn't a real Spadra SKU. Replaced with **Ashwagandha** and **Trace
+   Minerals** — both real entries in `scripts/spadra_registry.json`. Creatine
+   and Ginger Root were already accurate and kept as-is. The full 13-item
+   `CAPSULE_LIBRARY` (2 per vector) is drawn from real ingredient names in the
+   same registry.
+
+3. **Radar chart is ~30 lines of plain SVG, no charting library.** Keeps the
+   file dependency-free beyond what the brief already asked for (React,
+   Tailwind, Framer Motion, Lucide) and avoids pinning a chart-library version
+   nobody asked for.
+
+## Not done — needs a decision before this ships anywhere
+
+- **No backend.** `handleClaimProtocol` builds the JSON payload and
+  `console.log`s it. Needs a real cart/checkout endpoint.
+- **"4,096 unique metabolic profiles"** is copy from the brief, kept verbatim
+  (2^12) — it's marketing flourish, not a claim this engine's actual 4-branch
+  ×  option-count state space produces. Left as requested rather than quietly
+  rewritten, flagged here instead.
+- Step-3–11 phrasing adapts per branch only where the brief called for it
+  explicitly (frequency, clearance-speed questions); the rest share wording
+  across branches so the scoring scale never depends on which near-identical
+  wording a shopper saw. Options/deltas are branch-independent throughout.
