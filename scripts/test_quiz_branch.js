@@ -194,4 +194,62 @@ check('no branch-only protocol leaks into the result',
   !/Liver Detox|Party/.test(results()), results().slice(0, 300));
 
 console.log(failures ? '\n' + failures + ' FAILED' : '\nall checks passed');
-process.exit(failures ? 1 : 0);
+
+/* --- Meta ad vector deep-linking -------------------------------------------
+ * Appended: verifies ?vector= pre-ticks the right goal. The quiz reads the
+ * param at init, so each case needs a fresh evaluation of the script with a
+ * different window.location.search. */
+function runWithVector(vec) {
+  let handler = null;
+  const n2 = JSON.parse(JSON.stringify({}));
+  const nodes2 = {};
+  Object.keys(nodes).forEach((k) => { nodes2[k] = el(nodes[k] ? nodes[k].textContent : ''); });
+  const root2 = nodes2['[data-quiz-root]'];
+  root2.addEventListener = (t, fn) => { if (t === 'click') handler = fn; };
+  const modal2 = {
+    ...el(),
+    querySelector: (sel) => (sel in nodes2 ? nodes2[sel] : null),
+    getAttribute: () => 'Bobbin',
+    addEventListener() {},
+  };
+  const sb = {
+    document: { getElementById: (id) => (id === 'spadra-quiz-modal' ? modal2 : null) },
+    window: { location: { search: vec ? `?vector=${vec}` : '' } },
+    URLSearchParams,
+    sessionStorage: { setItem() {}, getItem: () => null },
+    console, fetch: () => Promise.resolve({ json: () => Promise.resolve({}) }), Math, JSON,
+  };
+  vm.createContext(sb);
+  vm.runInContext(script, sb);
+  // advance past the audience question to see the goal question's state
+  handler({ target: { closest: (s) => (s === '[data-choice]' ? { getAttribute: () => '2' } : null) } });
+  return nodes2['[data-quiz-body]'].innerHTML;
+}
+
+console.log('\nMeta ad vector deep-linking pre-ticks the right goal');
+const VECTOR_EXPECT = {
+  party: 'socialize often',
+  executive: 'focus, memory',
+  athlete: 'energy and stamina',
+  eco: 'healthy aging',
+};
+let vFail = 0;
+Object.entries(VECTOR_EXPECT).forEach(([vec, needle]) => {
+  const html = runWithVector(vec);
+  // the pre-ticked option is the one rendered aria-checked="true"
+  const checked = /<button[^>]*aria-checked="true"[^>]*>[\s\S]*?<span>([^<]*)</.exec(html);
+  const got = checked ? checked[1] : '(none)';
+  const ok = got.toLowerCase().includes(needle);
+  if (!ok) vFail++;
+  console.log(`  ${ok ? 'ok  ' : 'FAIL'} ?vector=${vec.padEnd(9)} -> ${got.slice(0, 55)}`);
+});
+const none = runWithVector(null);
+const anyChecked = /aria-checked="true"/.test(none);
+console.log(`  ${!anyChecked ? 'ok  ' : 'FAIL'} no param -> nothing pre-ticked`);
+if (anyChecked) vFail++;
+const bogus = runWithVector('not-a-real-vector');
+const bogusChecked = /aria-checked="true"/.test(bogus);
+console.log(`  ${!bogusChecked ? 'ok  ' : 'FAIL'} unknown param -> ignored, nothing pre-ticked`);
+if (bogusChecked) vFail++;
+console.log(vFail ? `\n${vFail} VECTOR CHECKS FAILED` : '\nall vector checks passed');
+process.exit(failures + vFail ? 1 : 0);

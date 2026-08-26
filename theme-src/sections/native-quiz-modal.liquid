@@ -143,17 +143,20 @@
           {
             t: 'I want more energy and stamina for my daily life.',
             label: 'Energy and stamina',
+            vector: 'athlete',
             w: { 'energy-pack-spadra': 10, 'performance-pack-1': 9, 'muscle-preserve-pack-spadra': 7, 'adrenal-pack-spadra': 6, 'mineral-pack-spadra': 4 }
           },
           {
             t: "I socialize often and can't afford the next-day cost.",
             label: 'Social recovery and next-day output',
             key: 'social-recovery',
+            vector: 'party',
             w: { 'party-pack-1': 10, 'party-recovery-spadra': 10, 'party-hangover-recovery-pack': 9, 'liver-detox-pack-spadra': 8, 'toxin-detox-pack-1': 5 }
           },
           {
             t: 'I need better focus, memory, and mental clarity.',
             label: 'Focus and clarity',
+            vector: 'executive',
             w: { 'focus-pack-spadra': 10, 'brain-pack-1': 9, 'nerve-support-pack-spadra': 6, 'psychedelic-neuro-integration-pack': 4, 'methylation-pack-spadra': 4 },
             g: { 'focus-brain': 2 }
           },
@@ -165,6 +168,7 @@
           {
             t: "I'm focused on healthy aging, skin, and hair vitality.",
             label: 'Healthy aging, skin and hair',
+            vector: 'eco',
             w: { 'longevity-nad-repair-pack': 10, 'beauty-hair-density-pack': 9, 'hair-pack-spadra': 9, 'clear-skin-cellular-radiance-pack': 7, 'antioxidant-pack-spadra': 6 },
             g: { 'longevity-beauty': 2 }
           },
@@ -794,6 +798,33 @@
         });
     }
 
+    // ---- Meta ad vector deep-linking ------------------------------------
+    // Ads land on /pages/assessment?vector=party|executive|athlete|eco. The
+    // param pre-ticks the matching goal so a shopper arriving from a specific
+    // creative is not asked to restate what the ad already established.
+    //
+    // It pre-ticks rather than skips: the goal question is multi-select and
+    // drives the whole result set, so silently answering it for someone and
+    // hiding it would mean a mis-targeted click could never be corrected.
+    // An unrecognised or absent value is simply ignored.
+    function applyVectorParam() {
+      var raw;
+      try {
+        raw = new URLSearchParams(window.location.search).get('vector');
+      } catch (e) { return; }
+      if (!raw) return;
+      var want = String(raw).toLowerCase().trim();
+      var goal = QUESTIONS[GOAL_Q];
+      if (!goal || !goal.a) return;
+      for (var i = 0; i < goal.a.length; i++) {
+        if (goal.a[i].vector === want) {
+          answers[GOAL_Q] = [i];
+          return;
+        }
+      }
+    }
+
+    applyVectorParam();
     render();
   })();
 </script>
