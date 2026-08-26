@@ -786,3 +786,60 @@ for the check — not vendored into the repo.
   explicitly (frequency, clearance-speed questions); the rest share wording
   across branches so the scoring scale never depends on which near-identical
   wording a shopper saw. Options/deltas are branch-independent throughout.
+
+---
+
+# V14 — Master Quiz, alcohol branch deployed (theme `153399197835`)
+
+Owner published V13, so V13 became MAIN and the alcohol branch had nowhere to
+land. V14 is duplicated from V13 and carries the branch. **Needs publishing.**
+
+Four files uploaded and each verified byte-exact against local:
+
+| file | bytes |
+|---|---|
+| `sections/native-quiz-modal.liquid` | 51,913 |
+| `snippets/spadra-quiz-branches.liquid` | 5,473 |
+| `sections/spadra-assessment-cta.liquid` | 8,104 |
+| `templates/page.assessment.json` | 11,084 |
+
+`scripts/test_quiz_branch.js` — 14 checks, all passing against the deployed
+source.
+
+## Deploying a large theme file without pasting it through the model
+
+Worth reusing. `themeFilesUpsert` accepts `body: { type: URL }`, and Shopify
+will fetch the file itself. So a 50KB section never has to be transcribed:
+
+1. `stagedUploadsCreate(resource: FILE, httpMethod: POST)` → returns a signed
+   Google Cloud Storage target plus its form parameters.
+2. `curl -F` each returned parameter, then `-F "file=@<local path>"`. A 201 and
+   an `<ETag>` come back — **the ETag is the file's MD5, so compare it to
+   `md5sum` locally and you have proof the bytes arrived intact.**
+3. `themeFilesUpsert` with `body: { type: URL, value: <resourceUrl> }`.
+
+Two traps:
+
+- **The mutation returns `upsertedThemeFiles: []` with no `userErrors` on
+  success via the URL path.** An empty array is not a failure here — always
+  confirm by re-fetching the file rather than trusting the response.
+- **`size` is UTF-8 bytes, `len()` in Python is characters.** The quiz file
+  reported 51,913 against a local 51,883 and looked corrupted; the 30-byte
+  delta was em dashes. Diff the actual content before assuming a mismatch.
+
+The storefront stays unreachable from this environment (proxy 403 on
+`0bszkx-cb.myshopify.com`), so preview-render verification is still not
+available — content diffing against the stored body is the substitute.
+
+## What "master quiz" means as shipped
+
+One quiz, reached from every `[data-spadra-quiz-open]` trigger on the site:
+
+- **5 questions** for everyone else — unchanged.
+- **8 questions** for a shopper who picks "I socialize often and can't afford
+  the next-day cost": frequency, timing, then bottleneck, asked immediately
+  after that goal, routing to Party Pack / Party Recovery / Liver Detox.
+
+The landing page's step-2 promise is now true. Copy updated from a flat "Five
+questions" to "Five questions — a few more only if your answers call for them",
+since the count is now conditional.
