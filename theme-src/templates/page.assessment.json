@@ -152,7 +152,7 @@
           "type": "pillar",
           "settings": {
             "title": "Under $2 a day",
-            "body": "<p>$44.99 a month. Roughly one San Francisco coffee for a full protocol, delivered, pre-sorted, and adjusted by a real person as you go. Cancel anytime, no retention maze.</p>"
+            "body": "<p><strong>A one-time protocol supply, not a subscription.</strong> $44.99 buys a 30-day roll &mdash; about the price of one San Francisco coffee a day, delivered, pre-sorted, and adjusted by a real person as you go. Reorder when you want more. There is nothing recurring and nothing to cancel.</p>"
           }
         }
       },
@@ -211,7 +211,7 @@
         "heading": "You can keep guessing. Or you can spend 60 seconds and know.",
         "body": "<p>Every week you run the generic protocol is a week you're solving for the wrong variable. Maybe your bottleneck is cognitive and you've been buying electrolytes. Maybe it's hepatic, and you've been treating a morning symptom while the actual load compounds quietly.</p><p>The assessment costs you a minute and tells you which it is.</p>",
         "cta_label": "Start Your 60-Second Lifestyle Assessment",
-        "reassurance": "No credit card. No email required to see your result. Under $2/day if you continue, cancel anytime.",
+        "reassurance": "No credit card. No email required to see your result. If you continue, it's $44.99 for a 30-day supply \u2014 a one-time order, not a subscription.",
         "closer": "You've already optimized your sleep, your calendar and your codebase. This is the last unoptimized variable.",
         "encore_heading": "You read the whole thing.",
         "encore_body": "Which means you already suspect the generic packet isn't solving your problem. One minute settles it \u2014 and you'll know which of the three protocols is actually yours before you spend anything.",

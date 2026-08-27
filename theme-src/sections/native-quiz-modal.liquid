@@ -707,10 +707,12 @@
       html += '<div class="spadra-quiz__actions">';
       if (buyable.length > 1) {
         html += '<button type="button" class="spadra-quiz__bundle" data-quiz-bundle="' +
-          esc(buyable.map(function (p) { return p.vid; }).join(',')) + '">Add all ' + buyable.length + ' to cart</button>';
+          esc(buyable.map(function (p) { return p.vid; }).join(',')) + '"' +
+          resultAttrs(buyable) + '>Add all ' + buyable.length + ' to cart</button>';
       } else if (buyable.length === 1) {
         html += '<button type="button" class="spadra-quiz__bundle" data-quiz-bundle="' +
-          esc(String(buyable[0].vid)) + '">Add to cart</button>';
+          esc(String(buyable[0].vid)) + '"' +
+          resultAttrs(buyable) + '>Add to cart</button>';
       }
       html += '<button type="button" class="spadra-quiz__restart" data-quiz-restart>Start over</button>' +
         '<a class="spadra-quiz__browse" href="/collections/all">Browse all protocols</a>' +
@@ -769,6 +771,17 @@
       if (bundleBtn) addBundle(bundleBtn);
     });
 
+    // The matched protocols and the assigned specialist, carried onto the
+    // button so they can be attached to the cart line items. Both keys are
+    // underscore-prefixed, which is what makes Shopify treat them as private:
+    // they reach the order and the Admin API but are never shown to the
+    // shopper in cart, checkout or order-status.
+    function resultAttrs(buyable) {
+      var handles = buyable.map(function (p) { return p.handle; }).join(',');
+      return ' data-quiz-result="' + esc(handles) + '"' +
+        ' data-quiz-specialist="' + esc(SPECIALIST) + '"';
+    }
+
     function addBundle(btn) {
       var ids = btn.getAttribute('data-quiz-bundle').split(',').filter(Boolean);
       if (!ids.length) return;
@@ -779,18 +792,28 @@
       btn.disabled = true;
       btn.textContent = 'Adding…';
 
+      var props = {
+        _quiz_result: btn.getAttribute('data-quiz-result') || '',
+        _specialist_matched: btn.getAttribute('data-quiz-specialist') || ''
+      };
+
       fetch('/cart/add.js', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
-          items: ids.map(function (id) { return { id: Number(id), quantity: 1 }; })
+          items: ids.map(function (id) {
+            return { id: Number(id), quantity: 1, properties: props };
+          })
         })
       })
         .then(function (r) {
           if (!r.ok) throw new Error('cart');
           return r.json();
         })
-        .then(function () { window.location.href = '/cart'; })
+        // Straight to checkout, skipping the cart page. The shopper has just
+        // been shown exactly what they are buying on the results screen, so
+        // the cart step is a second confirmation of a decision already made.
+        .then(function () { window.location.href = '/checkout'; })
         .catch(function () {
           btn.disabled = false;
           btn.textContent = label;
