@@ -186,8 +186,18 @@ report conversions back the moment the campaign goes live.
 - **Payments**: take a card on booking or on completion (Stripe).
 - **Driver app**: a lightweight mobile view for drivers to see and accept jobs
   without going through the dispatcher.
-- **Before you scale up volume or drivers**: many states regulate household-goods
-  moving *brokers* (a platform that arranges moves performed by others) separately
-  from movers themselves — registration, insurance, and contractor-agreement
-  requirements vary by state. Worth a quick pass with a lawyer alongside the
-  domain/hosting setup, before this is taking real payments at volume.
+- **Before you scale up volume or drivers**: California requires a permit (a "Cal-T"
+  number from the CPUC) for household goods carriers — moving people's belongings for
+  pay, intrastate. That's on top of the general moving-broker point above. Worth
+  confirming exactly what a marketplace connecting customers to independent movers
+  needs, registration-wise, before this is taking real payments at volume.
+- **Junk removal / disposal services**: this is a *different* regulated activity from
+  moving — most CA cities run exclusive or semi-exclusive franchise agreements for
+  solid waste collection under their municipal code, so "we'll haul it away and dump
+  it" needs a city-by-city check (call each city's public works / solid waste
+  division) before advertising it, separate from any moving permit. Certain items
+  (e-waste, batteries, appliances with refrigerant, tires, paint) also can't go to a
+  normal landfill under CA law regardless of who hauls them. Donation runs (Goodwill,
+  Habitat ReStore) are a materially different — and generally lower-friction —
+  posture than "we take it to the dump," and a reasonable first version of this
+  service before doing the full disposal-license legwork.
