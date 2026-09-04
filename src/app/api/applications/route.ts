@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminRequest } from "@/lib/auth";
 import { getCity } from "@/lib/cities";
+import { isSourceValue } from "@/lib/sources";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -9,7 +10,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
   }
 
-  const { name, phone, email, city, vehicle, availability, notes } = body;
+  const { name, phone, email, city, vehicle, availability, notes, source } = body;
 
   const requiredFields: Record<string, unknown> = { name, phone, vehicle };
   for (const [field, value] of Object.entries(requiredFields)) {
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
       vehicle,
       availability: typeof availability === "string" && availability ? availability : null,
       notes: typeof notes === "string" && notes ? notes : null,
+      source: typeof source === "string" && isSourceValue(source) ? source : null,
     },
   });
 

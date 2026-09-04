@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Booking, Driver, DriverApplication } from "@prisma/client";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 import { getCity } from "@/lib/cities";
+import { getSourceLabel } from "@/lib/sources";
 
 type BookingWithDriver = Booking & { driver: Driver | null };
 
@@ -254,11 +255,18 @@ export default function DispatchBoard({
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-medium text-white">{application.name}</p>
-                  {application.city && (
-                    <span className="rounded-full border border-brand/30 bg-brand/10 px-2 py-0.5 font-mono text-xs text-brand-cyan">
-                      {getCity(application.city)?.name ?? application.city}
-                    </span>
-                  )}
+                  <div className="flex flex-wrap justify-end gap-1">
+                    {application.source && (
+                      <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-xs text-slate-400">
+                        {getSourceLabel(application.source)}
+                      </span>
+                    )}
+                    {application.city && (
+                      <span className="rounded-full border border-brand/30 bg-brand/10 px-2 py-0.5 font-mono text-xs text-brand-cyan">
+                        {getCity(application.city)?.name ?? application.city}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <a href={`tel:${application.phone}`} className="text-brand-cyan">
                   {application.phone}

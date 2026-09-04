@@ -134,6 +134,17 @@ applicant never shows up in the dispatch driver dropdown. On the dashboard, clic
 **Reject** just marks it `REJECTED`. There's no automated background check or
 onboarding step yet — that's still a manual conversation with whoever you approve.
 
+**Tracking which recruiting channel works**: add `?source=<value>` to the `/drive`
+link you use for each channel and it shows up as a badge next to each applicant on
+the dashboard. Recognized values live in `src/lib/sources.ts` — add a row there for
+any new channel. For today's channels:
+
+- QR business card → `https://yourdomain.com/drive?source=qr-card`
+- Craigslist post → `https://yourdomain.com/drive?source=craigslist`
+- Someone refers a friend → `https://yourdomain.com/drive?source=referral`
+
+Combine with `city` if you know it going in, e.g. `?source=qr-card&city=davis`.
+
 ## Setting up Google Ads tonight
 
 The site is built so each launch city has its own landing page — better ad relevance

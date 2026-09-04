@@ -37,6 +37,7 @@ model DriverApplication {
   vehicle      String
   availability String?
   notes        String?
+  source       String?
 
   createdAt    DateTime @default(now())
 }

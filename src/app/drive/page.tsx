@@ -4,6 +4,7 @@ import SiteFooter from "@/components/SiteFooter";
 import FleetIcons from "@/components/FleetIcons";
 import DriveApplicationForm from "./DriveApplicationForm";
 import { getCity } from "@/lib/cities";
+import { isSourceValue } from "@/lib/sources";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "Haul";
 
@@ -34,6 +35,10 @@ export default function DrivePage({
 }) {
   const cityParam = searchParams.city;
   const city = typeof cityParam === "string" ? getCity(cityParam) : undefined;
+
+  const sourceParam = searchParams.source;
+  const source =
+    typeof sourceParam === "string" && isSourceValue(sourceParam) ? sourceParam : undefined;
 
   return (
     <>
@@ -106,7 +111,7 @@ export default function DrivePage({
           <p className="mt-2 text-slate-400">
             A dispatcher reviews every application and follows up by phone or text.
           </p>
-          <DriveApplicationForm initialCity={city?.slug} />
+          <DriveApplicationForm initialCity={city?.slug} source={source} />
         </section>
       </main>
       <SiteFooter />

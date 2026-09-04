@@ -6,7 +6,13 @@ import { CITIES } from "@/lib/cities";
 const inputClass =
   "mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white placeholder:text-slate-500 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 
-export default function DriveApplicationForm({ initialCity }: { initialCity?: string }) {
+export default function DriveApplicationForm({
+  initialCity,
+  source,
+}: {
+  initialCity?: string;
+  source?: string;
+}) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -25,6 +31,7 @@ export default function DriveApplicationForm({ initialCity }: { initialCity?: st
       vehicle: String(form.get("vehicle") || ""),
       availability: String(form.get("availability") || "") || undefined,
       notes: String(form.get("notes") || "") || undefined,
+      source,
     };
 
     try {
