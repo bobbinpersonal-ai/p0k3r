@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// SQLite has no native enum type, so status/moveSize are plain strings.
+// Valid values are enforced in the API routes (see src/lib/moveSizes.ts and
+// the VALID_STATUSES list in src/app/api/bookings/[id]/route.ts).
+// Status: PENDING | ASSIGNED | IN_PROGRESS | COMPLETED | CANCELED
+// MoveSize: FEW_ITEMS | STUDIO | ONE_BED | TWO_BED | THREE_PLUS_BED
+
+model Driver {
+  id        String    @id @default(cuid())
+  name      String
+  phone     String
+  vehicle   String?
+  active    Boolean   @default(true)
+  notes     String?
+  createdAt DateTime  @default(now())
+  bookings  Booking[]
+}
+
+model Booking {
+  id              String    @id @default(cuid())
+  status          String    @default("PENDING")
+
+  customerName    String
+  customerPhone   String
+  customerEmail   String?
+
+  pickupAddress   String
+  dropoffAddress  String
+  moveDate        DateTime
+  timeWindow      String
+
+  moveSize        String
+  details         String?
+
+  estimateLow     Int
+  estimateHigh    Int
+
+  driverId        String?
+  driver          Driver?   @relation(fields: [driverId], references: [id])
+  dispatchNotes   String?
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
