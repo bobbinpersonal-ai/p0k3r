@@ -6,7 +6,7 @@ mover/driver, and the driver handles the move with their own vehicle. No native 
 this is the fastest path to taking real bookings today; a driver-facing app is a natural
 next step (see Roadmap).
 
-Stack: Next.js 14 (App Router) + TypeScript + Tailwind CSS + Prisma + SQLite.
+Stack: Next.js 14 (App Router) + TypeScript + Tailwind CSS + Prisma + Postgres.
 
 ## What's here
 
@@ -26,16 +26,22 @@ Stack: Next.js 14 (App Router) + TypeScript + Tailwind CSS + Prisma + SQLite.
   Completed/Canceled), review pending driver applicants (Approve turns one into a
   Driver automatically), manage the driver roster
 
-Bookings and drivers are stored in SQLite via Prisma (`prisma/schema.prisma`) — good
-enough to launch on a single server today; swap to Postgres later if you outgrow it
-(change `provider` and `DATABASE_URL` in `prisma/schema.prisma` / `.env`).
+Bookings, drivers, and applications are stored in Postgres via Prisma
+(`prisma/schema.prisma`). The `build` script runs `prisma db push` before
+`next build`, so the schema syncs to the database automatically on every
+deploy — no separate migration step to run by hand.
 
 ## Run it locally
 
+Local dev needs a real Postgres database (a free one on
+[Neon](https://neon.tech) or [Supabase](https://supabase.com) works fine, or
+Postgres running in Docker) — there's no zero-config file-based option now
+that this runs on Postgres instead of SQLite.
+
 ```bash
 npm install
-cp .env.example .env      # then edit ADMIN_PASSWORD, NEXT_PUBLIC_SITE_NAME, etc.
-npm run db:push           # creates prisma/dev.db and applies the schema
+cp .env.example .env      # then edit DATABASE_URL, ADMIN_PASSWORD, etc.
+npm run db:push           # applies the schema to your database
 npm run dev                # http://localhost:3000
 ```
 
@@ -45,7 +51,8 @@ Sign in to `/admin` with the `ADMIN_PASSWORD` you set in `.env`.
 
 | Variable | Purpose |
 | --- | --- |
-| `DATABASE_URL` | SQLite file path, e.g. `file:./dev.db` |
+| `DATABASE_URL` | Pooled Postgres connection string. On Vercel with Neon connected via Storage, this is added for you automatically. |
+| `DATABASE_URL_UNPOOLED` | Direct (non-pooled) Postgres connection string, used only for `prisma db push`. Also auto-added by the Neon integration. |
 | `ADMIN_PASSWORD` | Password for `/admin`. **Change this before going live.** |
 | `SESSION_SECRET` | Optional; used to sign the admin session cookie. Falls back to `ADMIN_PASSWORD` if unset — set a separate long random value in production. |
 | `NEXT_PUBLIC_SITE_NAME` | Brand name shown in the header, footer, and page titles |
@@ -109,14 +116,12 @@ Davis page) — just keep the "no faces" constraint in every variant.
    both live at the bare domain at once. If you want to keep that Shopify store
    reachable too, put it on a subdomain (e.g. `shop.lovemeafter.com`) and point the
    apex at this app instead, or vice versa.
-2. **Hosting** — two easy options:
-   - **Vercel** (fastest): connect the repo, set the env vars above in the project
-     settings, and it builds/deploys on every push. Swap `DATABASE_URL` to a hosted
-     Postgres (Vercel Postgres, Neon, Supabase, etc.) — Vercel's filesystem is
-     read-only, so SQLite won't persist there.
-   - **Your own server**: `npm install && npm run build && npm start` behind nginx as
-     a reverse proxy (with TLS via Let's Encrypt/certbot), process-managed with `pm2`
-     or a systemd unit. SQLite is fine here since the file lives on disk with the app.
+2. **Hosting** — already set up on Vercel (repo connected, Neon Postgres attached via
+   Storage, deploys on every push to `main`). To self-host elsewhere instead:
+   `npm install && npm run build && npm start` behind nginx as a reverse proxy (with
+   TLS via Let's Encrypt/certbot), process-managed with `pm2` or a systemd unit —
+   `DATABASE_URL`/`DATABASE_URL_UNPOOLED` still need to point at a real Postgres
+   instance either way.
 3. Set real values for `ADMIN_PASSWORD` and `SESSION_SECRET` wherever you deploy —
    don't reuse the ones in `.env.example`.
 

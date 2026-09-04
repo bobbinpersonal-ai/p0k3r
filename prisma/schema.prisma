@@ -3,12 +3,14 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
-// SQLite has no native enum type, so status/moveSize are plain strings.
-// Valid values are enforced in the API routes (see src/lib/moveSizes.ts and
+// status/moveSize are plain strings rather than native Postgres enums so
+// adding a new value never needs a migration. Valid values are enforced in
+// the API routes (see src/lib/moveSizes.ts and
 // the VALID_STATUSES lists in src/app/api/bookings/[id]/route.ts and
 // src/app/api/applications/[id]/route.ts).
 // Booking status: PENDING | ASSIGNED | IN_PROGRESS | COMPLETED | CANCELED
