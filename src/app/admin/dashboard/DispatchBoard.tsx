@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Booking, Driver } from "@prisma/client";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
+import { getCity } from "@/lib/cities";
 
 type BookingWithDriver = Booking & { driver: Driver | null };
 
@@ -117,11 +118,18 @@ export default function DispatchBoard({
                     {booking.customerPhone}
                   </a>
                 </div>
-                <span
-                  className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_STYLES[booking.status]}`}
-                >
-                  {booking.status.replace("_", " ")}
-                </span>
+                <div className="flex items-center gap-2">
+                  {booking.city && (
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                      {getCity(booking.city)?.name ?? booking.city}
+                    </span>
+                  )}
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_STYLES[booking.status]}`}
+                  >
+                    {booking.status.replace("_", " ")}
+                  </span>
+                </div>
               </div>
 
               <div className="mt-3 grid gap-1 text-sm text-slate-600">

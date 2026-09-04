@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isMoveSizeValue, getEstimateForMoveSize } from "@/lib/moveSizes";
 import { isAdminRequest } from "@/lib/auth";
+import { getCity } from "@/lib/cities";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -19,6 +20,7 @@ export async function POST(req: NextRequest) {
     timeWindow,
     moveSize,
     details,
+    city,
   } = body;
 
   const requiredFields: Record<string, unknown> = {
@@ -58,6 +60,7 @@ export async function POST(req: NextRequest) {
       timeWindow,
       moveSize,
       details: typeof details === "string" && details ? details : null,
+      city: typeof city === "string" && getCity(city) ? city : null,
       estimateLow,
       estimateHigh,
     },

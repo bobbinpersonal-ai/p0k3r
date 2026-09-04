@@ -3,12 +3,19 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MOVE_SIZE_OPTIONS, TIME_WINDOWS, type MoveSizeValue } from "@/lib/moveSizes";
+import { trackBookingConversion } from "@/lib/analytics";
 
 function todayISODate() {
   return new Date().toISOString().slice(0, 10);
 }
 
-export default function BookingForm({ initialSize }: { initialSize?: MoveSizeValue }) {
+export default function BookingForm({
+  initialSize,
+  city,
+}: {
+  initialSize?: MoveSizeValue;
+  city?: string;
+}) {
   const router = useRouter();
   const [moveSize, setMoveSize] = useState<MoveSizeValue>(initialSize ?? "STUDIO");
   const [submitting, setSubmitting] = useState(false);
@@ -32,6 +39,7 @@ export default function BookingForm({ initialSize }: { initialSize?: MoveSizeVal
       timeWindow: String(form.get("timeWindow") || ""),
       moveSize,
       details: String(form.get("details") || "") || undefined,
+      city,
     };
 
     try {
@@ -47,6 +55,7 @@ export default function BookingForm({ initialSize }: { initialSize?: MoveSizeVal
       }
 
       const booking = await res.json();
+      trackBookingConversion();
       router.push(`/book/confirmation?id=${booking.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");

@@ -1,103 +1,88 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import { CITIES, getCity } from "@/lib/cities";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
-import { CITIES } from "@/lib/cities";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "Haul";
 
-const HOW_IT_WORKS = [
-  {
-    title: "Tell us what's moving",
-    body: "Pickup, drop-off, and how much stuff. Get an instant price range, no account needed.",
-  },
-  {
-    title: "We dispatch a crew",
-    body: "A local mover with a truck confirms your pickup window and heads your way.",
-  },
-  {
-    title: "They do the heavy lifting",
-    body: "Loading, driving, and unloading handled — you just point at where things go.",
-  },
-];
+export function generateStaticParams() {
+  return CITIES.map((city) => ({ city: city.slug }));
+}
 
-export default function HomePage() {
+export function generateMetadata({ params }: { params: { city: string } }): Metadata {
+  const city = getCity(params.city);
+  if (!city) return {};
+  return {
+    title: `Movers in ${city.name} | ${SITE_NAME}`,
+    description: `Book a local moving crew in ${city.name} in minutes. Instant pricing, same-day availability. ${city.blurb}`,
+  };
+}
+
+export default function CityLandingPage({ params }: { params: { city: string } }) {
+  const city = getCity(params.city);
+  if (!city) notFound();
+
   return (
     <>
       <SiteHeader />
       <main>
-        {/*
-          HERO ASSET SLOT
-          Drop a KLING-generated hero video or image here. For a video, replace
-          this div with a <video autoPlay muted loop playsInline> pointing at
-          /public/hero.mp4, and keep this gradient as the poster/fallback.
-        */}
         <section className="relative overflow-hidden bg-gradient-to-br from-brand-ink via-slate-800 to-brand-dark">
-          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 sm:py-28">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
             <div className="max-w-2xl">
               <p className="text-sm font-semibold uppercase tracking-widest text-orange-300">
-                Now booking in Davis, Sacramento &amp; the Bay Area
+                Now booking in {city.name}
               </p>
               <h1 className="mt-4 text-4xl font-extrabold leading-tight text-white sm:text-5xl">
-                Movers and a truck, booked in minutes.
+                Movers in {city.name}, booked in minutes.
               </h1>
-              <p className="mt-4 text-lg text-slate-200">
-                {SITE_NAME} connects you with local moving crews for apartments, houses, and
-                single big items — same-day when you need it.
-              </p>
+              <p className="mt-4 text-lg text-slate-200">{city.blurb}</p>
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link
-                  href="/book"
+                  href={{ pathname: "/book", query: { city: city.slug } }}
                   className="rounded-full bg-brand px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-brand-dark"
                 >
                   Get an instant quote
                 </Link>
                 <a
-                  href="#how-it-works"
+                  href="#pricing"
                   className="rounded-full border border-white/30 px-6 py-3 text-base font-semibold text-white transition hover:bg-white/10"
                 >
-                  How it works
+                  See pricing
                 </a>
               </div>
             </div>
           </div>
         </section>
 
-        <section id="how-it-works" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <h2 className="text-2xl font-bold text-brand-ink sm:text-3xl">How it works</h2>
-          <div className="mt-8 grid gap-8 sm:grid-cols-3">
-            {HOW_IT_WORKS.map((step, i) => (
-              <div key={step.title}>
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand/10 text-lg font-bold text-brand">
-                  {i + 1}
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-brand-ink">{step.title}</h3>
-                <p className="mt-2 text-slate-600">{step.body}</p>
-              </div>
-            ))}
+        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+          <div className="grid gap-8 sm:grid-cols-3">
+            <div>
+              <p className="text-3xl font-extrabold text-brand">Same-day</p>
+              <p className="mt-1 text-slate-600">availability in {city.name} most days</p>
+            </div>
+            <div>
+              <p className="text-3xl font-extrabold text-brand">Local</p>
+              <p className="mt-1 text-slate-600">crews who know {city.region}</p>
+            </div>
+            <div>
+              <p className="text-3xl font-extrabold text-brand">Instant</p>
+              <p className="mt-1 text-slate-600">price range before you book</p>
+            </div>
           </div>
+
+          <p className="mt-10 text-sm font-semibold uppercase tracking-wide text-slate-400">
+            Serving {city.name} and nearby
+          </p>
+          <p className="mt-2 text-slate-600">{city.neighborhoods.join(" · ")}</p>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <h2 className="text-2xl font-bold text-brand-ink sm:text-3xl">Now serving</h2>
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            {CITIES.map((city) => (
-              <Link
-                key={city.slug}
-                href={`/movers/${city.slug}`}
-                className="rounded-xl border border-slate-200 p-5 transition hover:border-brand hover:shadow-md"
-              >
-                <p className="font-semibold text-brand-ink">{city.name}</p>
-                <p className="mt-1 text-sm text-slate-500">{city.region}</p>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="bg-slate-50 py-16">
+        <section id="pricing" className="bg-slate-50 py-16">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="text-2xl font-bold text-brand-ink sm:text-3xl">
-              Pick the size that fits your move
+              {city.name} moving prices
             </h2>
             <p className="mt-2 text-slate-600">
               Ballpark pricing up front — your dispatcher confirms the exact price before pickup.
@@ -106,7 +91,7 @@ export default function HomePage() {
               {MOVE_SIZE_OPTIONS.map((option) => (
                 <Link
                   key={option.value}
-                  href={{ pathname: "/book", query: { size: option.value } }}
+                  href={{ pathname: "/book", query: { city: city.slug, size: option.value } }}
                   className="rounded-xl border border-slate-200 bg-white p-5 transition hover:border-brand hover:shadow-md"
                 >
                   <p className="font-semibold text-brand-ink">{option.label}</p>
@@ -123,14 +108,14 @@ export default function HomePage() {
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <div className="rounded-2xl bg-brand-ink px-6 py-12 text-center sm:px-12">
             <h2 className="text-2xl font-bold text-white sm:text-3xl">
-              Ready to book your move?
+              Ready to book your {city.name} move?
             </h2>
             <p className="mx-auto mt-2 max-w-xl text-slate-300">
               It takes about a minute. No account, no commitment — just a real price and a real
               crew.
             </p>
             <Link
-              href="/book"
+              href={{ pathname: "/book", query: { city: city.slug } }}
               className="mt-6 inline-block rounded-full bg-brand px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-brand-dark"
             >
               Start booking

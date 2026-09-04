@@ -36,6 +36,7 @@ model Booking {
   dropoffAddress  String
   moveDate        DateTime
   timeWindow      String
+  city            String?
 
   moveSize        String
   details         String?
