@@ -6,7 +6,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { CITIES, getCity } from "@/lib/cities";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "Haul";
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 
 export function generateStaticParams() {
   return CITIES.map((city) => ({ city: city.slug }));

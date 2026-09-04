@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "Haul";
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(555) 555-0100";
 
 export default function SiteHeader() {

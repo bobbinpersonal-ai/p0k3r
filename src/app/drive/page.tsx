@@ -6,7 +6,7 @@ import DriveApplicationForm from "./DriveApplicationForm";
 import { getCity } from "@/lib/cities";
 import { isSourceValue } from "@/lib/sources";
 
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "Haul";
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 
 export const metadata: Metadata = {
   title: `Drive for ${SITE_NAME} | Flexible moving gig work`,

@@ -5,7 +5,7 @@ import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 import { CITIES } from "@/lib/cities";
 import FleetIcons from "@/components/FleetIcons";
 
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "Haul";
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 
 const HOW_IT_WORKS = [
   {

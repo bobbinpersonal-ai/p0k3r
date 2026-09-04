@@ -103,8 +103,12 @@ Davis page) — just keep the "no faces" constraint in every variant.
 
 ## Deploying today
 
-1. **Domain**: buy it, then point DNS at wherever you host (an `A`/`ALIAS` record for
-   the apex, or a `CNAME` for a subdomain like `book.yourdomain.com`).
+1. **Domain**: `lovemeafter.com` is currently pointed at Shopify. Repointing its DNS
+   (an `A`/`ALIAS` record at the apex, or a `CNAME` on a subdomain) to wherever this
+   app is hosted takes the domain **away** from that Shopify store — the two can't
+   both live at the bare domain at once. If you want to keep that Shopify store
+   reachable too, put it on a subdomain (e.g. `shop.lovemeafter.com`) and point the
+   apex at this app instead, or vice versa.
 2. **Hosting** — two easy options:
    - **Vercel** (fastest): connect the repo, set the env vars above in the project
      settings, and it builds/deploys on every push. Swap `DATABASE_URL` to a hosted
@@ -139,9 +143,9 @@ link you use for each channel and it shows up as a badge next to each applicant 
 the dashboard. Recognized values live in `src/lib/sources.ts` — add a row there for
 any new channel. For today's channels:
 
-- QR business card → `https://yourdomain.com/drive?source=qr-card`
-- Craigslist post → `https://yourdomain.com/drive?source=craigslist`
-- Someone refers a friend → `https://yourdomain.com/drive?source=referral`
+- QR business card → `https://lovemeafter.com/drive?source=qr-card`
+- Craigslist post → `https://lovemeafter.com/drive?source=craigslist`
+- Someone refers a friend → `https://lovemeafter.com/drive?source=referral`
 
 Combine with `city` if you know it going in, e.g. `?source=qr-card&city=davis`.
 
@@ -153,9 +157,9 @@ which city a lead came from on the dispatch dashboard.
 
 **Final URLs to use as ad destinations**, one per city (swap in your real domain):
 
-- `https://yourdomain.com/movers/davis`
-- `https://yourdomain.com/movers/sacramento`
-- `https://yourdomain.com/movers/bay-area`
+- `https://lovemeafter.com/movers/davis`
+- `https://lovemeafter.com/movers/sacramento`
+- `https://lovemeafter.com/movers/bay-area`
 
 A sensible starting structure: one campaign (or one ad group per city inside a single
 campaign) with keywords like "movers in davis", "davis moving company", "same day
