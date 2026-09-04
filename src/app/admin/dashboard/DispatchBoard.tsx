@@ -11,12 +11,15 @@ type BookingWithDriver = Booking & { driver: Driver | null };
 const STATUSES = ["PENDING", "ASSIGNED", "IN_PROGRESS", "COMPLETED", "CANCELED"] as const;
 
 const STATUS_STYLES: Record<string, string> = {
-  PENDING: "bg-amber-100 text-amber-800",
-  ASSIGNED: "bg-blue-100 text-blue-800",
-  IN_PROGRESS: "bg-purple-100 text-purple-800",
-  COMPLETED: "bg-green-100 text-green-800",
-  CANCELED: "bg-slate-200 text-slate-600",
+  PENDING: "bg-amber-500/15 text-amber-300",
+  ASSIGNED: "bg-blue-500/15 text-blue-300",
+  IN_PROGRESS: "bg-violet-500/15 text-violet-300",
+  COMPLETED: "bg-emerald-500/15 text-emerald-300",
+  CANCELED: "bg-white/10 text-slate-400",
 };
+
+const selectClass =
+  "mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-white [color-scheme:dark]";
 
 function moveSizeLabel(value: string) {
   return MOVE_SIZE_OPTIONS.find((o) => o.value === value)?.label ?? value;
@@ -88,10 +91,13 @@ export default function DispatchBoard({
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-extrabold text-brand-ink">Dispatch</h1>
+        <div>
+          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Internal</p>
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-white">Dispatch</h1>
+        </div>
         <button
           onClick={logout}
-          className="rounded-full border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-600 hover:border-brand hover:text-brand"
+          className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-slate-300 hover:border-brand hover:text-brand-cyan"
         >
           Sign out
         </button>
@@ -99,28 +105,31 @@ export default function DispatchBoard({
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[2fr_1fr]">
         <section className="space-y-4">
-          <h2 className="text-lg font-bold text-brand-ink">
-            Bookings <span className="text-slate-400">({bookings.length})</span>
+          <h2 className="text-lg font-bold text-white">
+            Bookings <span className="font-mono text-slate-500">({bookings.length})</span>
           </h2>
 
           {bookings.length === 0 && (
-            <p className="rounded-xl border border-dashed border-slate-300 p-6 text-center text-slate-500">
+            <p className="rounded-2xl border border-dashed border-white/15 p-6 text-center text-slate-500">
               No bookings yet.
             </p>
           )}
 
           {bookings.map((booking) => (
-            <div key={booking.id} className="rounded-xl border border-slate-200 p-4">
+            <div
+              key={booking.id}
+              className="rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+            >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <p className="font-semibold text-brand-ink">{booking.customerName}</p>
-                  <a href={`tel:${booking.customerPhone}`} className="text-sm text-brand">
+                  <p className="font-semibold text-white">{booking.customerName}</p>
+                  <a href={`tel:${booking.customerPhone}`} className="text-sm text-brand-cyan">
                     {booking.customerPhone}
                   </a>
                 </div>
                 <div className="flex items-center gap-2">
                   {booking.city && (
-                    <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                    <span className="rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-xs font-semibold text-brand-cyan">
                       {getCity(booking.city)?.name ?? booking.city}
                     </span>
                   )}
@@ -132,58 +141,62 @@ export default function DispatchBoard({
                 </div>
               </div>
 
-              <div className="mt-3 grid gap-1 text-sm text-slate-600">
+              <div className="mt-3 grid gap-1 text-sm text-slate-400">
                 <p>
-                  <span className="font-medium text-brand-ink">From:</span> {booking.pickupAddress}
+                  <span className="font-medium text-slate-300">From:</span> {booking.pickupAddress}
                 </p>
                 <p>
-                  <span className="font-medium text-brand-ink">To:</span> {booking.dropoffAddress}
+                  <span className="font-medium text-slate-300">To:</span> {booking.dropoffAddress}
                 </p>
                 <p>
-                  <span className="font-medium text-brand-ink">When:</span>{" "}
+                  <span className="font-medium text-slate-300">When:</span>{" "}
                   {new Date(booking.moveDate).toLocaleDateString()} &middot; {booking.timeWindow}
                 </p>
                 <p>
-                  <span className="font-medium text-brand-ink">Size:</span>{" "}
-                  {moveSizeLabel(booking.moveSize)} &middot; ${booking.estimateLow}–$
-                  {booking.estimateHigh}
+                  <span className="font-medium text-slate-300">Size:</span>{" "}
+                  {moveSizeLabel(booking.moveSize)} &middot;{" "}
+                  <span className="font-mono text-brand-cyan">
+                    ${booking.estimateLow}–${booking.estimateHigh}
+                  </span>
                 </p>
                 {booking.details && (
                   <p>
-                    <span className="font-medium text-brand-ink">Notes:</span> {booking.details}
+                    <span className="font-medium text-slate-300">Notes:</span> {booking.details}
                   </p>
                 )}
               </div>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <label className="text-sm">
-                  <span className="block font-medium text-brand-ink">Status</span>
+                  <span className="block font-medium text-slate-300">Status</span>
                   <select
                     value={booking.status}
                     disabled={savingId === booking.id}
                     onChange={(e) => updateBooking(booking.id, { status: e.target.value })}
-                    className="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5"
+                    className={selectClass}
                   >
                     {STATUSES.map((s) => (
-                      <option key={s} value={s}>
+                      <option key={s} value={s} className="bg-ink">
                         {s.replace("_", " ")}
                       </option>
                     ))}
                   </select>
                 </label>
                 <label className="text-sm">
-                  <span className="block font-medium text-brand-ink">Driver</span>
+                  <span className="block font-medium text-slate-300">Driver</span>
                   <select
                     value={booking.driverId ?? ""}
                     disabled={savingId === booking.id}
                     onChange={(e) =>
                       updateBooking(booking.id, { driverId: e.target.value || null })
                     }
-                    className="mt-1 w-full rounded-lg border border-slate-300 px-2 py-1.5"
+                    className={selectClass}
                   >
-                    <option value="">Unassigned</option>
+                    <option value="" className="bg-ink">
+                      Unassigned
+                    </option>
                     {drivers.map((d) => (
-                      <option key={d.id} value={d.id}>
+                      <option key={d.id} value={d.id} className="bg-ink">
                         {d.name} {d.active ? "" : "(inactive)"}
                       </option>
                     ))}
@@ -195,32 +208,35 @@ export default function DispatchBoard({
         </section>
 
         <section>
-          <h2 className="text-lg font-bold text-brand-ink">Drivers</h2>
-          <form onSubmit={addDriver} className="mt-3 space-y-2 rounded-xl border border-slate-200 p-4">
+          <h2 className="text-lg font-bold text-white">Drivers</h2>
+          <form
+            onSubmit={addDriver}
+            className="mt-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.03] p-4"
+          >
             <input
               placeholder="Name"
               value={driverForm.name}
               onChange={(e) => setDriverForm((f) => ({ ...f, name: e.target.value }))}
-              className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-sm text-white placeholder:text-slate-500"
               required
             />
             <input
               placeholder="Phone"
               value={driverForm.phone}
               onChange={(e) => setDriverForm((f) => ({ ...f, phone: e.target.value }))}
-              className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-sm text-white placeholder:text-slate-500"
               required
             />
             <input
               placeholder="Vehicle (optional)"
               value={driverForm.vehicle}
               onChange={(e) => setDriverForm((f) => ({ ...f, vehicle: e.target.value }))}
-              className="w-full rounded-lg border border-slate-300 px-2 py-1.5 text-sm"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-sm text-white placeholder:text-slate-500"
             />
             <button
               type="submit"
               disabled={addingDriver}
-              className="w-full rounded-full bg-brand px-4 py-1.5 text-sm font-semibold text-white hover:bg-brand-dark disabled:opacity-60"
+              className="w-full rounded-full bg-gradient-to-r from-brand to-brand-cyan px-4 py-1.5 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-60"
             >
               {addingDriver ? "Adding..." : "Add driver"}
             </button>
@@ -230,10 +246,10 @@ export default function DispatchBoard({
             {drivers.map((driver) => (
               <li
                 key={driver.id}
-                className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm"
               >
                 <div>
-                  <p className="font-medium text-brand-ink">{driver.name}</p>
+                  <p className="font-medium text-white">{driver.name}</p>
                   <p className="text-slate-500">
                     {driver.phone}
                     {driver.vehicle ? ` · ${driver.vehicle}` : ""}
@@ -242,7 +258,9 @@ export default function DispatchBoard({
                 <button
                   onClick={() => toggleDriverActive(driver)}
                   className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                    driver.active ? "bg-green-100 text-green-800" : "bg-slate-200 text-slate-600"
+                    driver.active
+                      ? "bg-emerald-500/15 text-emerald-300"
+                      : "bg-white/10 text-slate-400"
                   }`}
                 >
                   {driver.active ? "Active" : "Inactive"}

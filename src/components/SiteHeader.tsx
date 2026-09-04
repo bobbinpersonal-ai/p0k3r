@@ -5,21 +5,22 @@ const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(555) 555-0100";
 
 export default function SiteHeader() {
   return (
-    <header className="border-b border-slate-200">
+    <header className="border-b border-white/10 bg-ink/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-        <Link href="/" className="text-xl font-extrabold tracking-tight text-brand-ink">
+        <Link href="/" className="flex items-center gap-2 text-xl font-bold tracking-tight text-white">
+          <span className="h-2 w-2 rounded-full bg-brand-cyan shadow-[0_0_12px_2px_rgba(34,211,238,0.8)]" />
           {SITE_NAME}
         </Link>
         <nav className="flex items-center gap-4 sm:gap-6">
           <a
             href={`tel:${SUPPORT_PHONE.replace(/[^\d+]/g, "")}`}
-            className="hidden text-sm font-medium text-slate-600 hover:text-brand sm:block"
+            className="hidden font-mono text-sm text-slate-400 hover:text-brand-cyan sm:block"
           >
             {SUPPORT_PHONE}
           </a>
           <Link
             href="/book"
-            className="rounded-full bg-brand px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-dark"
+            className="rounded-full bg-gradient-to-r from-brand to-brand-cyan px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
           >
             Get a quote
           </Link>

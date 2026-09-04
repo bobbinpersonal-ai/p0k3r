@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { MOVE_SIZE_OPTIONS, TIME_WINDOWS, type MoveSizeValue } from "@/lib/moveSizes";
 import { trackBookingConversion } from "@/lib/analytics";
 
+const inputClass =
+  "mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white placeholder:text-slate-500 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
+
 function todayISODate() {
   return new Date().toISOString().slice(0, 10);
 }
@@ -66,15 +69,15 @@ export default function BookingForm({
   return (
     <form onSubmit={handleSubmit} className="mt-8 space-y-8">
       <fieldset>
-        <legend className="text-sm font-semibold text-brand-ink">How much is moving?</legend>
+        <legend className="text-sm font-semibold text-white">How much is moving?</legend>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {MOVE_SIZE_OPTIONS.map((option) => (
             <label
               key={option.value}
               className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
                 moveSize === option.value
-                  ? "border-brand bg-brand/5 ring-1 ring-brand"
-                  : "border-slate-200 hover:border-slate-300"
+                  ? "border-brand bg-brand/10 ring-1 ring-brand"
+                  : "border-white/10 bg-white/[0.02] hover:border-white/20"
               }`}
             >
               <input
@@ -85,9 +88,9 @@ export default function BookingForm({
                 onChange={() => setMoveSize(option.value)}
                 className="sr-only"
               />
-              <span className="font-semibold text-brand-ink">{option.label}</span>
-              <span className="mt-1 text-sm text-slate-500">{option.description}</span>
-              <span className="mt-2 text-sm font-bold text-brand">
+              <span className="font-semibold text-white">{option.label}</span>
+              <span className="mt-1 text-sm text-slate-400">{option.description}</span>
+              <span className="mt-2 font-mono text-sm font-bold text-brand-cyan">
                 ${option.estimateLow}–${option.estimateHigh}
               </span>
             </label>
@@ -97,26 +100,26 @@ export default function BookingForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="pickupAddress" className="block text-sm font-semibold text-brand-ink">
+          <label htmlFor="pickupAddress" className="block text-sm font-semibold text-white">
             Pickup address
           </label>
           <input
             id="pickupAddress"
             name="pickupAddress"
             required
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className={inputClass}
             placeholder="123 Main St, Apt 4B"
           />
         </div>
         <div>
-          <label htmlFor="dropoffAddress" className="block text-sm font-semibold text-brand-ink">
+          <label htmlFor="dropoffAddress" className="block text-sm font-semibold text-white">
             Drop-off address
           </label>
           <input
             id="dropoffAddress"
             name="dropoffAddress"
             required
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className={inputClass}
             placeholder="456 Oak Ave"
           />
         </div>
@@ -124,7 +127,7 @@ export default function BookingForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="moveDate" className="block text-sm font-semibold text-brand-ink">
+          <label htmlFor="moveDate" className="block text-sm font-semibold text-white">
             Move date
           </label>
           <input
@@ -134,11 +137,11 @@ export default function BookingForm({
             required
             min={todayISODate()}
             defaultValue={todayISODate()}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className={`${inputClass} [color-scheme:dark]`}
           />
         </div>
         <div>
-          <label htmlFor="timeWindow" className="block text-sm font-semibold text-brand-ink">
+          <label htmlFor="timeWindow" className="block text-sm font-semibold text-white">
             Time window
           </label>
           <select
@@ -146,10 +149,10 @@ export default function BookingForm({
             name="timeWindow"
             required
             defaultValue={TIME_WINDOWS[0]}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className={`${inputClass} [color-scheme:dark]`}
           >
             {TIME_WINDOWS.map((w) => (
-              <option key={w} value={w}>
+              <option key={w} value={w} className="bg-ink">
                 {w}
               </option>
             ))}
@@ -158,32 +161,27 @@ export default function BookingForm({
       </div>
 
       <div>
-        <label htmlFor="details" className="block text-sm font-semibold text-brand-ink">
+        <label htmlFor="details" className="block text-sm font-semibold text-white">
           Anything we should know? (optional)
         </label>
         <textarea
           id="details"
           name="details"
           rows={3}
-          className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+          className={inputClass}
           placeholder="Stairs, elevator, oversized items, parking notes..."
         />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="sm:col-span-1">
-          <label htmlFor="customerName" className="block text-sm font-semibold text-brand-ink">
+          <label htmlFor="customerName" className="block text-sm font-semibold text-white">
             Full name
           </label>
-          <input
-            id="customerName"
-            name="customerName"
-            required
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-          />
+          <input id="customerName" name="customerName" required className={inputClass} />
         </div>
         <div className="sm:col-span-1">
-          <label htmlFor="customerPhone" className="block text-sm font-semibold text-brand-ink">
+          <label htmlFor="customerPhone" className="block text-sm font-semibold text-white">
             Phone
           </label>
           <input
@@ -191,25 +189,20 @@ export default function BookingForm({
             name="customerPhone"
             type="tel"
             required
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className={inputClass}
           />
         </div>
         <div className="sm:col-span-1">
-          <label htmlFor="customerEmail" className="block text-sm font-semibold text-brand-ink">
+          <label htmlFor="customerEmail" className="block text-sm font-semibold text-white">
             Email (optional)
           </label>
-          <input
-            id="customerEmail"
-            name="customerEmail"
-            type="email"
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-          />
+          <input id="customerEmail" name="customerEmail" type="email" className={inputClass} />
         </div>
       </div>
 
-      <div className="rounded-xl bg-slate-50 p-4">
-        <p className="text-sm text-slate-500">Estimated price</p>
-        <p className="text-2xl font-extrabold text-brand-ink">
+      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
+        <p className="text-sm text-slate-400">Estimated price</p>
+        <p className="font-mono text-2xl font-extrabold text-brand-cyan">
           ${selectedOption.estimateLow}–${selectedOption.estimateHigh}
         </p>
         <p className="mt-1 text-xs text-slate-500">
@@ -218,7 +211,7 @@ export default function BookingForm({
       </div>
 
       {error && (
-        <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">
+        <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300" role="alert">
           {error}
         </p>
       )}
@@ -226,7 +219,7 @@ export default function BookingForm({
       <button
         type="submit"
         disabled={submitting}
-        className="w-full rounded-full bg-brand px-6 py-3 text-base font-semibold text-white shadow-lg transition hover:bg-brand-dark disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
       >
         {submitting ? "Booking..." : "Request this move"}
       </button>
