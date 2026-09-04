@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "Haul";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(555) 555-0100";
 
@@ -13,6 +15,10 @@ export default function SiteFooter() {
           <a href={`tel:${SUPPORT_PHONE.replace(/[^\d+]/g, "")}`} className="font-medium text-brand-cyan">
             {SUPPORT_PHONE}
           </a>
+          . Own a truck or van?{" "}
+          <Link href="/drive" className="font-medium text-brand-cyan">
+            Drive with us
+          </Link>
           .
         </p>
       </div>

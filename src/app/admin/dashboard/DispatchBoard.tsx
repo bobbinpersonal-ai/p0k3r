@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Booking, Driver } from "@prisma/client";
+import type { Booking, Driver, DriverApplication } from "@prisma/client";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 import { getCity } from "@/lib/cities";
 
@@ -28,14 +28,18 @@ function moveSizeLabel(value: string) {
 export default function DispatchBoard({
   initialBookings,
   initialDrivers,
+  initialApplications,
 }: {
   initialBookings: BookingWithDriver[];
   initialDrivers: Driver[];
+  initialApplications: DriverApplication[];
 }) {
   const router = useRouter();
   const [bookings, setBookings] = useState(initialBookings);
   const [drivers, setDrivers] = useState(initialDrivers);
+  const [applications, setApplications] = useState(initialApplications);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const [applicationSavingId, setApplicationSavingId] = useState<string | null>(null);
   const [driverForm, setDriverForm] = useState({ name: "", phone: "", vehicle: "" });
   const [addingDriver, setAddingDriver] = useState(false);
 
@@ -82,11 +86,31 @@ export default function DispatchBoard({
     }
   }
 
+  async function decideApplication(id: string, status: "APPROVED" | "REJECTED") {
+    setApplicationSavingId(id);
+    const res = await fetch(`/api/applications/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status }),
+    });
+    if (res.ok) {
+      const { application, driver } = await res.json();
+      setApplications((prev) => prev.map((a) => (a.id === id ? application : a)));
+      if (driver) {
+        setDrivers((prev) => [driver, ...prev]);
+      }
+    }
+    setApplicationSavingId(null);
+  }
+
   async function logout() {
     await fetch("/api/admin/logout", { method: "POST" });
     router.push("/admin");
     router.refresh();
   }
+
+  const pendingApplications = applications.filter((a) => a.status === "PENDING");
+  const decidedApplicationCount = applications.length - pendingApplications.length;
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
@@ -205,6 +229,66 @@ export default function DispatchBoard({
               </div>
             </div>
           ))}
+        </section>
+
+        <section>
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-lg font-bold text-white">
+              Applicants{" "}
+              <span className="font-mono text-slate-500">({pendingApplications.length})</span>
+            </h2>
+            {decidedApplicationCount > 0 && (
+              <span className="text-xs text-slate-500">{decidedApplicationCount} decided</span>
+            )}
+          </div>
+          <div className="mt-3 space-y-2">
+            {pendingApplications.length === 0 && (
+              <p className="rounded-2xl border border-dashed border-white/15 p-4 text-center text-sm text-slate-500">
+                No pending applicants.
+              </p>
+            )}
+            {pendingApplications.map((application) => (
+              <div
+                key={application.id}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <p className="font-medium text-white">{application.name}</p>
+                  {application.city && (
+                    <span className="rounded-full border border-brand/30 bg-brand/10 px-2 py-0.5 font-mono text-xs text-brand-cyan">
+                      {getCity(application.city)?.name ?? application.city}
+                    </span>
+                  )}
+                </div>
+                <a href={`tel:${application.phone}`} className="text-brand-cyan">
+                  {application.phone}
+                </a>
+                <p className="mt-1 text-slate-400">{application.vehicle}</p>
+                {application.availability && (
+                  <p className="text-slate-500">{application.availability}</p>
+                )}
+                {application.notes && (
+                  <p className="mt-1 text-slate-500">{application.notes}</p>
+                )}
+                <div className="mt-3 flex gap-2">
+                  <button
+                    onClick={() => decideApplication(application.id, "APPROVED")}
+                    disabled={applicationSavingId === application.id}
+                    className="flex-1 rounded-full bg-emerald-500/15 px-3 py-1.5 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/25 disabled:opacity-60"
+                  >
+                    Approve → add as driver
+                  </button>
+                  <button
+                    onClick={() => decideApplication(application.id, "REJECTED")}
+                    disabled={applicationSavingId === application.id}
+                    className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-slate-400 hover:bg-white/15 disabled:opacity-60"
+                  >
+                    Reject
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
         <section>

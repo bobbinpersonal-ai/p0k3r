@@ -3,6 +3,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 import { CITIES } from "@/lib/cities";
+import FleetIcons from "@/components/FleetIcons";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "Haul";
 
@@ -85,6 +86,28 @@ export default function HomePage() {
                 <p className="mt-2 text-slate-400">{step.body}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                The fleet
+              </p>
+              <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+                Any of these work
+              </h2>
+            </div>
+            <Link
+              href="/drive"
+              className="text-sm font-semibold text-brand-cyan hover:text-white"
+            >
+              Own one? Drive for us →
+            </Link>
+          </div>
+          <div className="mt-8">
+            <FleetIcons />
           </div>
         </section>
 

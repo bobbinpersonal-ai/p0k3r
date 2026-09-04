@@ -24,3 +24,23 @@ body {
 .glow {
   box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.15), 0 0 40px -10px rgba(99, 102, 241, 0.35);
 }
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-float {
+    animation: none;
+  }
+}

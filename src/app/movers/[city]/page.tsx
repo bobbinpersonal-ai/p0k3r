@@ -85,6 +85,37 @@ export default function CityLandingPage({ params }: { params: { city: string } }
           <p className="mt-2 text-slate-400">{city.neighborhoods.join(" · ")}</p>
         </section>
 
+        {city.community && (
+          <section className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
+            <div className="grid gap-10 rounded-3xl border border-white/10 bg-white/[0.03] p-8 sm:p-10 lg:grid-cols-2 lg:items-center">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                  Community
+                </p>
+                <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+                  {city.community.heading}
+                </h2>
+                <p className="mt-4 text-slate-400">{city.community.body}</p>
+                <Link
+                  href={{ pathname: "/drive", query: { city: city.slug } }}
+                  className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:border-brand/40 hover:bg-white/5"
+                >
+                  Drive for us in {city.name} →
+                </Link>
+              </div>
+              {/*
+                PEOPLE-MOVING ASSET SLOT
+                Drop a faceless, AI-generated "people moving boxes" image or
+                loop here (see the KLING prompt in README.md). Replace this
+                gradient div with an <img> or <video> covering the same area.
+              */}
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-brand/20 via-white/5 to-brand-cyan/10">
+                <div className="absolute inset-0 bg-grid-fade opacity-60" />
+              </div>
+            </div>
+          </section>
+        )}
+
         <section id="pricing" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Pricing</p>
           <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">

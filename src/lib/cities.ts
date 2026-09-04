@@ -7,6 +7,12 @@ export type City = {
   region: string;
   blurb: string;
   neighborhoods: string[];
+  // Optional hyper-local angle shown as its own section on the city page —
+  // only set this where it's actually true for that market.
+  community?: {
+    heading: string;
+    body: string;
+  };
 };
 
 export const CITIES: City[] = [
@@ -17,6 +23,10 @@ export const CITIES: City[] = [
     blurb:
       "Student move-outs, apartment turns near campus, and family moves across town — booked in minutes.",
     neighborhoods: ["Downtown Davis", "East Davis", "West Davis", "UC Davis campus"],
+    community: {
+      heading: "Staffed by Davis, for Davis",
+      body: "Our Davis crews are UC Davis students and long-time locals — people who already know the dorms, the bike routes, and what June move-out chaos actually looks like. We started this company after working the other side of this job ourselves: it's good, honest work when it's run right, and it's better for everyone when the crew actually knows the town.",
+    },
   },
   {
     slug: "sacramento",

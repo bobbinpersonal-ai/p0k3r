@@ -12,6 +12,12 @@ export default function SiteHeader() {
           {SITE_NAME}
         </Link>
         <nav className="flex items-center gap-4 sm:gap-6">
+          <Link
+            href="/drive"
+            className="hidden text-sm font-medium text-slate-400 hover:text-brand-cyan sm:block"
+          >
+            Drive with us
+          </Link>
           <a
             href={`tel:${SUPPORT_PHONE.replace(/[^\d+]/g, "")}`}
             className="hidden font-mono text-sm text-slate-400 hover:text-brand-cyan sm:block"

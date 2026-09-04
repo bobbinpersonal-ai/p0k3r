@@ -10,10 +10,17 @@ export default async function DashboardPage() {
     redirect("/admin");
   }
 
-  const [bookings, drivers] = await Promise.all([
+  const [bookings, drivers, applications] = await Promise.all([
     prisma.booking.findMany({ orderBy: { createdAt: "desc" }, include: { driver: true } }),
     prisma.driver.findMany({ orderBy: { createdAt: "desc" } }),
+    prisma.driverApplication.findMany({ orderBy: { createdAt: "desc" } }),
   ]);
 
-  return <DispatchBoard initialBookings={bookings} initialDrivers={drivers} />;
+  return (
+    <DispatchBoard
+      initialBookings={bookings}
+      initialDrivers={drivers}
+      initialApplications={applications}
+    />
+  );
 }

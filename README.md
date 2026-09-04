@@ -18,10 +18,13 @@ Stack: Next.js 14 (App Router) + TypeScript + Tailwind CSS + Prisma + SQLite.
 - **`/book`** — customer booking form with an instant price range; accepts `?city=` and
   `?size=` query params to prefill from a city page or pricing card
 - **`/book/confirmation`** — confirmation screen after a booking is submitted
+- **`/drive`** — recruiting page for prospective movers/drivers (flexible-schedule,
+  bring-your-own-vehicle pitch) with an application form; accepts `?city=`
 - **`/admin`** — password-protected sign-in for dispatch
 - **`/admin/dashboard`** — dispatch board: see incoming bookings (tagged by city when
   known), assign a driver, update status (Pending → Assigned → In Progress →
-  Completed/Canceled), manage the driver roster
+  Completed/Canceled), review pending driver applicants (Approve turns one into a
+  Driver automatically), manage the driver roster
 
 Bookings and drivers are stored in SQLite via Prisma (`prisma/schema.prisma`) — good
 enough to launch on a single server today; swap to Postgres later if you outgrow it
@@ -51,20 +54,52 @@ Sign in to `/admin` with the `ADMIN_PASSWORD` you set in `.env`.
 | `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL` | The conversion action's label (`AbC-D_efG-h123`) from Google Ads > Goals > Conversions. |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Optional GA4 measurement ID (`G-XXXXXXXXXX`), independent of the two Ads vars above. |
 
-## Dropping in your KLING-generated content
+## Generating visuals with KLING
 
-The hero section on the landing page (`src/app/page.tsx`) is marked with a comment
-(`HERO ASSET SLOT`) around a gradient placeholder — that's where a KLING-generated
-hero video or image goes. To use a video:
+Two asset slots are marked in the code with placeholder gradients today — drop the
+real thing in once it's generated, no other code changes needed:
 
-1. Export your KLING video and put it at `public/hero.mp4` (plus a poster frame at
-   `public/hero-poster.jpg`).
-2. In `src/app/page.tsx`, replace the placeholder `<section>`'s background with a
-   `<video autoPlay muted loop playsInline poster="/hero-poster.jpg">` pointing at
-   `/hero.mp4`, keeping the gradient as a fallback behind it.
+- **Hero background** — `HERO ASSET SLOT` comment in `src/app/page.tsx`. To use a
+  video: export it to `public/hero.mp4` (plus a poster frame at
+  `public/hero-poster.jpg`), then replace that `<section>`'s background with a
+  `<video autoPlay muted loop playsInline poster="/hero-poster.jpg">` pointing at
+  `/hero.mp4`, keeping the gradient behind it as a fallback.
+- **People-moving image** — `PEOPLE-MOVING ASSET SLOT` comment in
+  `src/app/movers/[city]/page.tsx`, in the community section (currently only shown on
+  the Davis page). Replace that gradient `<div>` with an `<img>` or `<video>`.
 
-Any other AI-generated stills (how-it-works icons, background textures, etc.) can go
-straight in `public/` and be referenced the same way.
+There's also a lightweight hand-built placeholder already live: `src/components/FleetIcons.tsx`
+renders three animated flat-icon vehicles (box truck, van, pickup) on the homepage and
+`/drive` page. It works fine as-is, but the prompt below will get you a more polished,
+on-brand animated version to swap in.
+
+**Prompt — animated fleet (box truck, van, pickup):**
+
+> A short seamless-looping animation of a box truck, a cargo van, and a pickup truck,
+> each driving left to right across a plain background, shown as three separate clips
+> (one per vehicle). Flat 2D vector illustration style — cartoonish but professional
+> and modern, like friendly startup branding rather than a kids' show. Bold rounded
+> shapes, soft cel shading, clean thin outlines, no text or logos on the vehicles.
+> Color palette: indigo/violet (#6366f1) and cyan (#22d3ee) as the vehicle body colors,
+> dark charcoal (#0d0f18) for wheels and shadows, transparent or solid near-black
+> (#05060a) background. Wheels rotate, gentle suspension bounce as it drives, smooth
+> easing, no camera shake or camera movement. 4–6 second loop, 16:9, no watermark.
+
+**Prompt — people moving, no faces:**
+
+> A short video of a person carrying a cardboard moving box down porch steps toward a
+> parked moving truck, shot from behind or cropped at the shoulders so no face is ever
+> visible — this is a hard requirement, not a suggestion. Casual moving-day clothing
+> (t-shirt, work gloves), warm natural daylight, a real-feeling residential street or
+> apartment stairwell in the background, softly out of focus. Tone: professional and
+> energetic, not a stiff corporate stock photo. Slight handheld camera movement or a
+> slow tracking shot following the box. Cool color grade with a hint of indigo/cyan in
+> the background truck or signage to match the site's palette. No legible text or
+> logos on clothing, boxes, or the truck.
+
+Regenerate per city if you want local flavor (e.g. add "UC Davis dorm move-out,
+cardboard boxes and a mini-fridge on a hand truck" to the people-moving prompt for the
+Davis page) — just keep the "no faces" constraint in every variant.
 
 ## Deploying today
 
@@ -88,6 +123,16 @@ the dashboard, the dispatcher calls/texts an available driver from the roster (e
 driver's phone number is a tap-to-call link), then marks the booking `ASSIGNED` and
 picks that driver from the dropdown. Status moves to `IN_PROGRESS` when the crew is
 on the job and `COMPLETED` when it's done.
+
+## How recruiting works today
+
+`/drive` collects applications (name, phone, vehicle, city, availability, notes) into
+the `DriverApplication` table — separate from the `Driver` table so an unvetted
+applicant never shows up in the dispatch driver dropdown. On the dashboard, clicking
+**Approve** on a pending applicant creates a matching `Driver` record automatically
+(so they immediately show up as assignable) and marks the application `APPROVED`;
+**Reject** just marks it `REJECTED`. There's no automated background check or
+onboarding step yet — that's still a manual conversation with whoever you approve.
 
 ## Setting up Google Ads tonight
 

@@ -9,9 +9,11 @@ datasource db {
 
 // SQLite has no native enum type, so status/moveSize are plain strings.
 // Valid values are enforced in the API routes (see src/lib/moveSizes.ts and
-// the VALID_STATUSES list in src/app/api/bookings/[id]/route.ts).
-// Status: PENDING | ASSIGNED | IN_PROGRESS | COMPLETED | CANCELED
+// the VALID_STATUSES lists in src/app/api/bookings/[id]/route.ts and
+// src/app/api/applications/[id]/route.ts).
+// Booking status: PENDING | ASSIGNED | IN_PROGRESS | COMPLETED | CANCELED
 // MoveSize: FEW_ITEMS | STUDIO | ONE_BED | TWO_BED | THREE_PLUS_BED
+// Application status: PENDING | APPROVED | REJECTED
 
 model Driver {
   id        String    @id @default(cuid())
@@ -22,6 +24,21 @@ model Driver {
   notes     String?
   createdAt DateTime  @default(now())
   bookings  Booking[]
+}
+
+model DriverApplication {
+  id           String   @id @default(cuid())
+  status       String   @default("PENDING")
+
+  name         String
+  phone        String
+  email        String?
+  city         String?
+  vehicle      String
+  availability String?
+  notes        String?
+
+  createdAt    DateTime @default(now())
 }
 
 model Booking {
