@@ -258,8 +258,9 @@ export default function BookingForm({
 
       <div className="rounded-xl border border-black/10 bg-black/[0.03] p-4">
         <p className="text-sm text-neutral-500">
-          Submit this and your dispatcher will call or text you with a price — usually
-          within 30 minutes.
+          This doesn&apos;t book your move yet. Submitting sends your request to a dispatcher,
+          who will call or text you — usually within 30 minutes — to confirm your time window,
+          the scope of your move, and any deposit over the phone.
         </p>
       </div>
 
@@ -269,13 +270,18 @@ export default function BookingForm({
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={submitting}
-        className="w-full rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {submitting ? "Booking..." : "Request this move"}
-      </button>
+      <div className="space-y-2">
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {submitting ? "Booking..." : "Request this move"}
+        </button>
+        <p className="text-center text-xs text-neutral-400">
+          Nothing is final until you connect with us by phone.
+        </p>
+      </div>
     </form>
   );
 }
