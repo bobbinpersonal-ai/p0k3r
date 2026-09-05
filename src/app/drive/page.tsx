@@ -50,10 +50,6 @@ const PERKS = [
     body: "See what's near you and take what works for you. Turn one down any time — no penalty, you're never locked in.",
   },
   {
-    title: "Some of the best pay in the business",
-    body: "No corporate middleman shrinking your cut. You and your dispatcher agree on the price, and you keep the largest share of every move you run.",
-  },
-  {
     title: "You're never out there alone",
     body: "We don't send anyone out solo. Every job runs with a driver and a helper riding together, so you've always got someone with you.",
   },
@@ -191,43 +187,6 @@ export default function DrivePage({
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
-            What to expect
-          </p>
-          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            Your day, start to finish
-          </h2>
-          <div className="mt-8 grid gap-6 sm:grid-cols-3">
-            {WHAT_TO_EXPECT.map((step, i) => (
-              <div
-                key={step.title}
-                className="rounded-2xl border border-black/10 bg-black/[0.03] p-6"
-              >
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 font-mono text-sm font-bold text-brand-cyan">
-                  {String(i + 1).padStart(2, "0")}
-                </div>
-                <h3 className="mt-4 text-lg font-semibold text-ink">{step.title}</h3>
-                <p className="mt-2 text-neutral-500">{step.body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {PERKS.map((perk) => (
-              <div
-                key={perk.title}
-                className="rounded-2xl border border-black/10 bg-black/[0.03] p-6"
-              >
-                <h3 className="text-lg font-semibold text-ink">{perk.title}</h3>
-                <p className="mt-2 text-neutral-500">{perk.body}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
             What you&apos;ll drive
           </p>
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
@@ -299,6 +258,43 @@ export default function DrivePage({
             initialRole={initialRole}
             source={source}
           />
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+            What to expect
+          </p>
+          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
+            Your day, start to finish
+          </h2>
+          <div className="mt-8 grid gap-6 sm:grid-cols-3">
+            {WHAT_TO_EXPECT.map((step, i) => (
+              <div
+                key={step.title}
+                className="rounded-2xl border border-black/10 bg-black/[0.03] p-6"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 font-mono text-sm font-bold text-brand-cyan">
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-ink">{step.title}</h3>
+                <p className="mt-2 text-neutral-500">{step.body}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {PERKS.map((perk) => (
+              <div
+                key={perk.title}
+                className="rounded-2xl border border-black/10 bg-black/[0.03] p-6"
+              >
+                <h3 className="text-lg font-semibold text-ink">{perk.title}</h3>
+                <p className="mt-2 text-neutral-500">{perk.body}</p>
+              </div>
+            ))}
+          </div>
         </section>
       </main>
       <SiteFooter />
