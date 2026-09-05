@@ -49,6 +49,18 @@ const USE_CASES = [
     title: "Same-day & last-minute moves",
     body: "Didn't plan ahead? We can usually still make it happen today.",
   },
+  {
+    title: "Appliances, TVs & electronics",
+    body: "Washers, dryers, TVs, and other electronics — delivered and placed where you need them.",
+  },
+  {
+    title: "Bikes, plants & odd-shaped items",
+    body: "Not everything fits in a car. If it's awkward to move alone, we can probably move it.",
+  },
+  {
+    title: "Loading & unloading help",
+    body: "Already have a truck or rental? We'll send a helper just to load or unload it.",
+  },
 ];
 
 const HOW_IT_WORKS = [
