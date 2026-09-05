@@ -31,6 +31,10 @@ const PERKS = [
     body: "No corporate middleman shrinking your cut. You and your dispatcher agree on the price, and you keep the largest share of every move you run.",
   },
   {
+    title: "You're never out there alone",
+    body: "We don't send anyone out solo. Every job runs with a driver and a helper riding together, so you've always got someone with you.",
+  },
+  {
     title: "Get paid fast",
     body: "Same-day cashout is coming, so the work you do today turns into money today.",
   },
@@ -121,7 +125,7 @@ export default function DrivePage({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
             {PERKS.map((perk) => (
               <div
                 key={perk.title}
@@ -162,6 +166,10 @@ export default function DrivePage({
               Every move needs muscle as much as it needs a truck. Ride along with a driver,
               load and carry, wrap the furniture, keep things moving — split the job, split the
               pay. No vehicle required. Just show up ready to work.
+            </p>
+            <p className="mt-2 max-w-2xl text-slate-400">
+              You&apos;re never doing this solo — every job pairs a driver and a helper, so you
+              always have someone riding shotgun with you.
             </p>
             <a
               href={`?${new URLSearchParams({
