@@ -3,7 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
-import { CITIES } from "@/lib/cities";
+import { CITIES, getCity } from "@/lib/cities";
 import FleetIcons from "@/components/FleetIcons";
 import CaliforniaMap from "@/components/CaliforniaMap";
 import {
@@ -95,16 +95,23 @@ const HOW_IT_WORKS = [
     body: "Pickup, drop-off, and how much stuff — no account needed. Your dispatcher confirms your price shortly after.",
   },
   {
-    title: "We dispatch a crew",
+    title: "We dispatch our crew",
     body: "One of our crews confirms your pickup window and heads your way with a truck.",
   },
   {
-    title: "They do the heavy lifting",
+    title: "Our crew does the heavy lifting",
     body: "Loading, driving, and unloading handled — you just point at where things go.",
   },
 ];
 
-export default function HomePage() {
+export default function HomePage({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  const cityParam = searchParams.city;
+  const targetCity = typeof cityParam === "string" ? getCity(cityParam) : undefined;
+
   return (
     <>
       <SiteHeader />
@@ -157,6 +164,7 @@ export default function HomePage() {
                 method="get"
                 className="mt-8 rounded-2xl border border-black/10 bg-paper/70 p-3 shadow-lg backdrop-blur sm:p-4"
               >
+                {targetCity && <input type="hidden" name="city" value={targetCity.slug} />}
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <input
                     name="pickup"
