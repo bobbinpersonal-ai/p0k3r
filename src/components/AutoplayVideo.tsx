@@ -2,16 +2,30 @@
 
 import { useEffect, useRef } from "react";
 
+// A background video that degrades to a still frame instead of to nothing.
+//
 // The poster is painted as a plain CSS background on the wrapper rather than
-// as an <img>/next-image. That way the hero always shows something — even if
-// the video is blocked by an autoplay policy, hidden by Reduce Motion, fails
-// to decode, or never loads at all. The video layers on top and takes over
-// once it can play. Filenames carry their own version (…-v6.…) so replacing
-// the footage busts every browser/CDN cache without query strings, which some
+// as an <img>/next-image, so the block always shows artwork — even if the
+// video is blocked by an autoplay policy, hidden by Reduce Motion, fails to
+// decode, or never loads. The video layers on top and takes over once it can
+// play. Asset filenames carry their own version (…-v6.…) so replacing the
+// footage busts every browser/CDN cache without query strings, which some
 // browsers and image pipelines handle inconsistently.
-const POSTER = "/images/hero-truck-poster-v6.jpg";
-
-export default function HeroVideo() {
+export default function AutoplayVideo({
+  mp4,
+  webm,
+  poster,
+  alt,
+  className = "",
+  videoClassName = "",
+}: {
+  mp4: string;
+  webm?: string;
+  poster: string;
+  alt?: string;
+  className?: string;
+  videoClassName?: string;
+}) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
@@ -42,8 +56,10 @@ export default function HeroVideo() {
 
   return (
     <div
-      className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-      style={{ backgroundImage: `url('${POSTER}')` }}
+      role={alt ? "img" : undefined}
+      aria-label={alt}
+      className={`bg-cover bg-center bg-no-repeat ${className}`}
+      style={{ backgroundImage: `url('${poster}')` }}
     >
       <video
         ref={videoRef}
@@ -52,12 +68,12 @@ export default function HeroVideo() {
         loop
         playsInline
         preload="auto"
-        poster={POSTER}
-        className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
+        poster={poster}
+        className={videoClassName}
       >
         {/* mp4 first: it's the only format WebKit plays, and it's the smaller file. */}
-        <source src="/videos/hero-truck-v6.mp4" type="video/mp4" />
-        <source src="/videos/hero-truck-v6.webm" type="video/webm" />
+        <source src={mp4} type="video/mp4" />
+        {webm && <source src={webm} type="video/webm" />}
       </video>
     </div>
   );

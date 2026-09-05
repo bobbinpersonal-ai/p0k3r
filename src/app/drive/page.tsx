@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import FleetIcons from "@/components/FleetIcons";
 import HelperIcon from "@/components/HelperIcon";
+import AutoplayVideo from "@/components/AutoplayVideo";
 import DriveApplicationForm from "./DriveApplicationForm";
 import { CITIES, getCity } from "@/lib/cities";
 import { isSourceValue } from "@/lib/sources";
@@ -141,13 +141,13 @@ export default function DrivePage({
               </div>
             </div>
             <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 glow">
-              <Image
-                src="/images/helper-cart-branded.png"
-                alt="A LoveMeAfter helper moving boxes on a hand cart next to the truck"
-                fill
-                priority
-                sizes="(min-width: 1024px) 40vw, 90vw"
-                className="object-cover"
+              <AutoplayVideo
+                mp4="/videos/hero-truck-v6.mp4"
+                webm="/videos/hero-truck-v6.webm"
+                poster="/images/hero-truck-poster-v6.jpg"
+                alt="A LoveMeAfter truck out on a delivery run at night"
+                className="absolute inset-0"
+                videoClassName="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
               />
             </div>
           </div>
