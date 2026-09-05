@@ -125,7 +125,7 @@ export default function HomePage() {
               sizes="100vw"
               className="object-cover object-bottom"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-paper via-paper/90 to-transparent lg:hidden" />
+            <div className="absolute inset-0 bg-gradient-to-b from-paper/90 via-paper/55 to-transparent lg:hidden" />
             <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-paper via-paper/85 to-paper/40" />
             <div className="absolute inset-0 hidden lg:block bg-gradient-to-t from-paper via-transparent to-paper/30" />
           </div>
@@ -155,7 +155,7 @@ export default function HomePage() {
               <form
                 action="/book"
                 method="get"
-                className="mt-8 rounded-2xl border border-black/10 bg-paper/90 p-3 shadow-lg backdrop-blur sm:p-4"
+                className="mt-8 rounded-2xl border border-black/10 bg-paper/70 p-3 shadow-lg backdrop-blur sm:p-4"
               >
                 <div className="flex flex-col gap-2 sm:flex-row">
                   <input
@@ -188,7 +188,7 @@ export default function HomePage() {
                   Continue
                 </button>
               </form>
-              <div className="mt-4 rounded-xl bg-paper/80 px-3 py-2 backdrop-blur-sm">
+              <div className="mt-4 rounded-xl bg-paper/60 px-3 py-2 backdrop-blur-sm">
                 <a
                   href="#how-it-works"
                   className="text-sm font-semibold text-ink hover:text-brand-cyan"
