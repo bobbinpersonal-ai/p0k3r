@@ -114,7 +114,6 @@ export default function HomePage({
 
   return (
     <>
-      <SiteHeader />
       <main>
         <section className="relative overflow-hidden">
           {/* The truck is a full-bleed background behind the text on every
@@ -122,7 +121,10 @@ export default function HomePage({
               scrim fades top-to-bottom and clears by the bottom of the hero
               so the truck's face shows unobscured without needing to
               scroll. At lg+ the text sits in a left column, so the scrim
-              fades left-to-right instead, same as before. */}
+              fades left-to-right instead, same as before. The nav is
+              transparent and sits inside this section (instead of above
+              it) so the photo runs all the way to the top of the page,
+              behind the header, instead of stopping at a solid bar. */}
           <div className="absolute inset-0">
             <Image
               src="/images/box-truck-road.jpg"
@@ -136,6 +138,8 @@ export default function HomePage({
             <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-paper via-paper/85 to-paper/40" />
             <div className="absolute inset-0 hidden lg:block bg-gradient-to-t from-paper via-transparent to-paper/30" />
           </div>
+
+          <SiteHeader transparent />
 
           <div className="relative mx-auto max-w-6xl px-4 pt-10 pb-56 sm:px-6 lg:py-40">
             <div className="max-w-2xl">

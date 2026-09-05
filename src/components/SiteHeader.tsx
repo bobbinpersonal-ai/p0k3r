@@ -8,29 +8,45 @@ export default function SiteHeader({
   ctaLabel = "Get a quote",
   ctaHref = "/book",
   phoneHours,
+  transparent = false,
 }: {
   ctaLabel?: string;
   ctaHref?: string;
   phoneHours?: string;
+  transparent?: boolean;
 }) {
   const isExternalCta = ctaHref.startsWith("tel:") || ctaHref.startsWith("mailto:");
 
   return (
-    <header className="border-b border-black/10 bg-paper/80 backdrop-blur">
+    <header
+      className={
+        transparent
+          ? "relative z-10 bg-transparent"
+          : "border-b border-black/10 bg-paper/80 backdrop-blur"
+      }
+    >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
         <Link href="/">
-          <Logo name={SITE_NAME} />
+          <Logo name={SITE_NAME} light={transparent} />
         </Link>
         <nav className="flex items-center gap-4 sm:gap-6">
           <Link
             href="/drive"
-            className="hidden text-sm font-medium text-neutral-500 hover:text-brand-cyan sm:block"
+            className={`hidden text-sm font-medium sm:block ${
+              transparent
+                ? "text-white/90 hover:text-white"
+                : "text-neutral-500 hover:text-brand-cyan"
+            }`}
           >
             Drive with us
           </Link>
           <a
             href={`tel:${SUPPORT_PHONE.replace(/[^\d+]/g, "")}`}
-            className="hidden font-mono text-sm text-neutral-500 hover:text-brand-cyan sm:block"
+            className={`hidden font-mono text-sm sm:block ${
+              transparent
+                ? "text-white/90 hover:text-white"
+                : "text-neutral-500 hover:text-brand-cyan"
+            }`}
           >
             {SUPPORT_PHONE}
             {phoneHours ? ` · ${phoneHours}` : ""}
