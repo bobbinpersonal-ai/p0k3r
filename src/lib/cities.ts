@@ -46,7 +46,14 @@ export const CITIES: City[] = [
     region: "San Francisco Bay Area",
     blurb:
       "Movers who know Bay Area buildings — walk-ups, tight street parking, and elevator reservations included.",
-    neighborhoods: ["San Francisco", "Oakland", "San Jose", "Berkeley", "Peninsula"],
+    neighborhoods: [
+      "San Francisco",
+      "Oakland",
+      "San Jose",
+      "UC Berkeley",
+      "Saint Mary's College",
+      "Peninsula",
+    ],
     community: {
       heading: "Staffed by the Bay, for the Bay",
       body: "Bay Area moves come with narrow streets, walk-ups, and elevator reservations — our crews live here and deal with it every day, so nothing about your building surprises them.",
@@ -76,7 +83,15 @@ export const CITIES: City[] = [
     region: "Los Angeles County",
     blurb:
       "Movers for LA apartments, hillside homes, and everything from Downtown to the Valley — booked in minutes.",
-    neighborhoods: ["Downtown LA", "Hollywood", "Silver Lake", "Santa Monica", "San Fernando Valley"],
+    neighborhoods: [
+      "Downtown LA",
+      "Hollywood",
+      "Silver Lake",
+      "Santa Monica",
+      "San Fernando Valley",
+      "Westwood / UCLA",
+      "USC",
+    ],
     community: {
       heading: "Staffed by LA, for LA",
       body: "From Downtown high-rises to Valley houses, LA moves are never one-size-fits-all. Our crews live in the city and know how to handle its traffic, parking, and buildings.",
