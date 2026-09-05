@@ -39,7 +39,7 @@ export default function SiteHeader({
   const content = (
     <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
       <Link href="/">
-        <Logo name={SITE_NAME} light={isLight} />
+        <Logo name={SITE_NAME} />
       </Link>
       <nav className="flex items-center gap-4 sm:gap-6">
         <Link

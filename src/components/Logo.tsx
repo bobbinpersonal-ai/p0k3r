@@ -5,11 +5,9 @@
 export default function Logo({
   name = "LoveMeAfter",
   className = "",
-  light = false,
 }: {
   name?: string;
   className?: string;
-  light?: boolean;
 }) {
   return (
     <span className={`inline-flex items-center gap-2 ${className}`}>
@@ -20,13 +18,7 @@ export default function Logo({
           fill="#FFFDFB"
         />
       </svg>
-      <span
-        className={`font-sans text-xl font-extrabold tracking-tight ${
-          light ? "text-white" : "text-ink"
-        }`}
-      >
-        {name}
-      </span>
+      <span className="font-sans text-xl font-extrabold tracking-tight text-ink">{name}</span>
     </span>
   );
 }
