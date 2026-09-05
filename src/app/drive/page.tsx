@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import FleetIcons from "@/components/FleetIcons";
@@ -82,7 +83,7 @@ export default function DrivePage({
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-grid-fade" />
           <div className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-brand/20 blur-[120px]" />
-          <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-2 lg:items-center">
             <div className="max-w-2xl">
               <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
@@ -117,6 +118,16 @@ export default function DrivePage({
                   or call now — {SUPPORT_PHONE} · {RECRUITING_HOURS}
                 </a>
               </div>
+            </div>
+            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 glow">
+              <Image
+                src="/images/mover-cart.jpg"
+                alt="A LoveMeAfter helper moving boxes on a hand cart"
+                fill
+                priority
+                sizes="(min-width: 1024px) 40vw, 90vw"
+                className="object-cover"
+              />
             </div>
           </div>
         </section>

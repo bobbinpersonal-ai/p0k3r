@@ -61,19 +61,23 @@ Sign in to `/admin` with the `ADMIN_PASSWORD` you set in `.env`.
 | `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL` | The conversion action's label (`AbC-D_efG-h123`) from Google Ads > Goals > Conversions. |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Optional GA4 measurement ID (`G-XXXXXXXXXX`), independent of the two Ads vars above. |
 
-## Generating visuals with KLING
+## Visuals
 
-Two asset slots are marked in the code with placeholder gradients today — drop the
-real thing in once it's generated, no other code changes needed:
+Real photos are in place today, in `public/images/`:
 
-- **Hero background** — `HERO ASSET SLOT` comment in `src/app/page.tsx`. To use a
-  video: export it to `public/hero.mp4` (plus a poster frame at
-  `public/hero-poster.jpg`), then replace that `<section>`'s background with a
-  `<video autoPlay muted loop playsInline poster="/hero-poster.jpg">` pointing at
-  `/hero.mp4`, keeping the gradient behind it as a fallback.
-- **People-moving image** — `PEOPLE-MOVING ASSET SLOT` comment in
-  `src/app/movers/[city]/page.tsx`, in the community section (currently only shown on
-  the Davis page). Replace that gradient `<div>` with an `<img>` or `<video>`.
+- `box-truck-road.jpg` — homepage hero (`src/app/page.tsx`)
+- `mover-cart.jpg` — `/drive` recruiting hero (`src/app/drive/page.tsx`)
+- `van-loaded.jpg` — city-page community section (`src/app/movers/[city]/page.tsx`,
+  currently only shown on the Davis page)
+
+To swap any of these for a different photo, replace the file in `public/images/` (keep
+the same filename) or update the `src` on that page's `<Image>`. To upgrade the
+homepage hero to a looping video instead: export it to `public/hero.mp4` (plus a
+poster frame at `public/hero-poster.jpg`), then swap that section's `<Image>` for a
+`<video autoPlay muted loop playsInline poster="/hero-poster.jpg">` pointing at
+`/hero.mp4`.
+
+### Generating visuals with KLING
 
 There's also a lightweight hand-built placeholder already live: `src/components/FleetIcons.tsx`
 renders three animated flat-icon vehicles (box truck, van, pickup) on the homepage and

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
@@ -103,14 +104,14 @@ export default function CityLandingPage({ params }: { params: { city: string } }
                   Drive for us in {city.name} →
                 </Link>
               </div>
-              {/*
-                PEOPLE-MOVING ASSET SLOT
-                Drop a faceless, AI-generated "people moving boxes" image or
-                loop here (see the KLING prompt in README.md). Replace this
-                gradient div with an <img> or <video> covering the same area.
-              */}
-              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-brand/20 via-white/5 to-brand-cyan/10">
-                <div className="absolute inset-0 bg-grid-fade opacity-60" />
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/10">
+                <Image
+                  src="/images/van-loaded.jpg"
+                  alt="A LoveMeAfter van loaded and ready for a move"
+                  fill
+                  sizes="(min-width: 1024px) 40vw, 90vw"
+                  className="object-cover"
+                />
               </div>
             </div>
           </section>
