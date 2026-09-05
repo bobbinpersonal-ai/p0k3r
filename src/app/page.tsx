@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import HeroVideo from "@/components/HeroVideo";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 import { CITIES, getCity } from "@/lib/cities";
 import FleetIcons from "@/components/FleetIcons";
@@ -133,25 +134,7 @@ export default function HomePage({
               reduced motion get the poster frame as a static image instead
               of the autoplaying video. */}
           <div className="absolute inset-0">
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              poster={`/images/hero-truck-poster.jpg?v=${HERO_VIDEO_VERSION}`}
-              className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
-            >
-              <source src={`/videos/hero-truck.webm?v=${HERO_VIDEO_VERSION}`} type="video/webm" />
-              <source src={`/videos/hero-truck.mp4?v=${HERO_VIDEO_VERSION}`} type="video/mp4" />
-            </video>
-            <Image
-              src={`/images/hero-truck-poster.jpg?v=${HERO_VIDEO_VERSION}`}
-              alt="A LoveMeAfter moving truck on the road"
-              fill
-              priority
-              sizes="100vw"
-              className="hidden object-cover object-center motion-reduce:block"
-            />
+            <HeroVideo version={HERO_VIDEO_VERSION} />
             <div className="absolute inset-0 bg-gradient-to-b from-paper/90 via-paper/55 to-transparent lg:hidden" />
             <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-paper via-paper/85 to-paper/40" />
             <div className="absolute inset-0 hidden lg:block bg-gradient-to-t from-paper via-transparent to-paper/30" />
