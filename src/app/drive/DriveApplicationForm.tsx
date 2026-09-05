@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CITIES } from "@/lib/cities";
 import { APPLICANT_ROLES, type ApplicantRole } from "@/lib/applicantRoles";
+import { PAYOUT_METHODS, getPayoutMethodPlaceholder, type PayoutMethodValue } from "@/lib/payoutMethods";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white placeholder:text-slate-500 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
@@ -17,6 +18,7 @@ export default function DriveApplicationForm({
   source?: string;
 }) {
   const [role, setRole] = useState<ApplicantRole | null>(initialRole ?? null);
+  const [payoutMethod, setPayoutMethod] = useState<PayoutMethodValue | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -30,9 +32,21 @@ export default function DriveApplicationForm({
       return;
     }
 
-    setSubmitting(true);
+    if (!payoutMethod) {
+      setError("Let us know how you want to get paid.");
+      return;
+    }
 
     const form = new FormData(e.currentTarget);
+    const payoutHandle = String(form.get("payoutHandle") || "").trim();
+
+    if (!payoutHandle) {
+      setError("Let us know your Zelle, Venmo, or Apple Pay info.");
+      return;
+    }
+
+    setSubmitting(true);
+
     const payload = {
       name: String(form.get("name") || ""),
       phone: String(form.get("phone") || ""),
@@ -40,6 +54,8 @@ export default function DriveApplicationForm({
       city: String(form.get("city") || "") || undefined,
       role,
       vehicle: String(form.get("vehicle") || "") || undefined,
+      payoutMethod,
+      payoutHandle,
       availability: String(form.get("availability") || "") || undefined,
       notes: String(form.get("notes") || "") || undefined,
       source,
@@ -168,6 +184,45 @@ export default function DriveApplicationForm({
           />
         </div>
       )}
+
+      <fieldset>
+        <legend className="text-sm font-semibold text-white">
+          How do you want to get paid?
+        </legend>
+        <p className="mt-1 text-sm text-slate-400">
+          You&apos;re paid out by 5pm (or sooner) every day you work.
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          {PAYOUT_METHODS.map((option) => (
+            <label
+              key={option.value}
+              className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
+                payoutMethod === option.value
+                  ? "border-brand bg-brand/10 ring-1 ring-brand"
+                  : "border-white/10 bg-white/[0.02] hover:border-white/20"
+              }`}
+            >
+              <input
+                type="radio"
+                name="payoutMethodRadio"
+                value={option.value}
+                checked={payoutMethod === option.value}
+                onChange={() => setPayoutMethod(option.value)}
+                className="sr-only"
+              />
+              <span className="font-semibold text-white">{option.label}</span>
+            </label>
+          ))}
+        </div>
+        {payoutMethod && (
+          <input
+            name="payoutHandle"
+            required
+            placeholder={getPayoutMethodPlaceholder(payoutMethod)}
+            className={`${inputClass} mt-3`}
+          />
+        )}
+      </fieldset>
 
       <div>
         <label htmlFor="availability" className="block text-sm font-semibold text-white">

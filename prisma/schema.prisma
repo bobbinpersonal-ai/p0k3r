@@ -19,16 +19,19 @@ datasource db {
 // Applicant role: DRIVER | HELPER (see src/lib/applicantRoles.ts)
 // Booking serviceType: SINGLE_ITEM | APARTMENT_HOUSE | STORAGE | OFFICE |
 // DONATION | OTHER (see src/lib/serviceTypes.ts)
+// payoutMethod: ZELLE | VENMO | APPLE_PAY (see src/lib/payoutMethods.ts)
 
 model Driver {
-  id        String    @id @default(cuid())
-  name      String
-  phone     String
-  vehicle   String?
-  active    Boolean   @default(true)
-  notes     String?
-  createdAt DateTime  @default(now())
-  bookings  Booking[]
+  id            String    @id @default(cuid())
+  name          String
+  phone         String
+  vehicle       String?
+  payoutMethod  String?
+  payoutHandle  String?
+  active        Boolean   @default(true)
+  notes         String?
+  createdAt     DateTime  @default(now())
+  bookings      Booking[]
 }
 
 model DriverApplication {
@@ -41,6 +44,8 @@ model DriverApplication {
   city         String?
   role         String?
   vehicle      String?
+  payoutMethod String?
+  payoutHandle String?
   availability String?
   notes        String?
   source       String?

@@ -8,6 +8,7 @@ import { getCity } from "@/lib/cities";
 import { getSourceLabel } from "@/lib/sources";
 import { getApplicantRoleLabel } from "@/lib/applicantRoles";
 import { getServiceTypeLabel } from "@/lib/serviceTypes";
+import { getPayoutMethodLabel } from "@/lib/payoutMethods";
 
 type BookingWithDriver = Booking & { driver: Driver | null };
 
@@ -297,6 +298,13 @@ export default function DispatchBoard({
                       ? "No vehicle — applying as a helper"
                       : "No vehicle listed")}
                 </p>
+                {application.payoutMethod && (
+                  <p className="mt-1 text-slate-400">
+                    <span className="font-medium text-slate-300">Pay:</span>{" "}
+                    {getPayoutMethodLabel(application.payoutMethod)}
+                    {application.payoutHandle ? ` — ${application.payoutHandle}` : ""}
+                  </p>
+                )}
                 {application.availability && (
                   <p className="text-slate-500">{application.availability}</p>
                 )}
@@ -371,6 +379,12 @@ export default function DispatchBoard({
                     {driver.phone}
                     {driver.vehicle ? ` · ${driver.vehicle}` : ""}
                   </p>
+                  {driver.payoutMethod && (
+                    <p className="text-slate-500">
+                      {getPayoutMethodLabel(driver.payoutMethod)}
+                      {driver.payoutHandle ? ` — ${driver.payoutHandle}` : ""}
+                    </p>
+                  )}
                 </div>
                 <button
                   onClick={() => toggleDriverActive(driver)}

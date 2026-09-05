@@ -26,6 +26,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
           name: application.name,
           phone: application.phone,
           vehicle: application.role === "HELPER" ? "Helper (no vehicle)" : application.vehicle,
+          payoutMethod: application.payoutMethod,
+          payoutHandle: application.payoutHandle,
           notes: application.notes,
         },
       }),
