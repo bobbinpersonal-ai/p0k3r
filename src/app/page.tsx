@@ -72,7 +72,11 @@ export default function HomePage() {
       <SiteHeader />
       <main>
         <section className="relative overflow-hidden">
-          <div className="absolute inset-0">
+          {/* lg+: the truck fills the background behind the text — there's
+              enough width for the text column to sit clear of the truck's
+              face. Below lg there isn't, so the photo gets its own block
+              instead (see below) rather than risk covering it. */}
+          <div className="absolute inset-0 hidden lg:block">
             <Image
               src="/images/box-truck-road.jpg"
               alt="A LoveMeAfter moving truck on the road"
@@ -84,7 +88,10 @@ export default function HomePage() {
             <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/40" />
             <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/30" />
           </div>
-          <div className="relative mx-auto max-w-6xl px-4 py-24 sm:px-6 sm:py-40">
+          <div className="absolute inset-0 bg-grid-fade lg:hidden" />
+          <div className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-brand/20 blur-[120px] lg:hidden" />
+
+          <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-40">
             <div className="max-w-2xl">
               <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
@@ -122,6 +129,17 @@ export default function HomePage() {
                   or call to book — {SUPPORT_PHONE}
                 </a>
               </p>
+            </div>
+
+            <div className="relative mt-10 aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 glow lg:hidden">
+              <Image
+                src="/images/box-truck-road.jpg"
+                alt="A LoveMeAfter moving truck on the road"
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover"
+              />
             </div>
           </div>
         </section>
