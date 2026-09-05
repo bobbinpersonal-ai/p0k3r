@@ -132,7 +132,17 @@ export default function HomePage() {
 
           <div className="relative mx-auto max-w-6xl px-4 pt-10 pb-56 sm:px-6 lg:py-40">
             <div className="max-w-2xl">
-              <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-6xl">
+              <div className="w-full overflow-hidden rounded-full border border-black/10 bg-black/5 py-1.5">
+                <div className="flex w-max animate-marquee gap-10 whitespace-nowrap px-3 font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                  {[0, 1].map((i) => (
+                    <span key={i} className="flex shrink-0 items-center gap-2">
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-cyan" />
+                      Now booking · {BOOKING_CITIES_BADGE}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-6xl">
                 Movers and a truck,{" "}
                 <span className="bg-gradient-to-r from-brand-light via-orange-400 to-brand-cyan bg-clip-text text-transparent">
                   booked in minutes.
@@ -140,8 +150,7 @@ export default function HomePage() {
               </h1>
               <p className="mt-4 text-lg text-neutral-600">
                 {SITE_NAME} connects you with local moving crews for apartments, houses, and
-                single big items, same-day when you need it — now booking in{" "}
-                {BOOKING_CITIES_BADGE}.
+                single big items — same-day when you need it.
               </p>
               <form
                 action="/book"
@@ -179,19 +188,24 @@ export default function HomePage() {
                   Continue
                 </button>
               </form>
-              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+              <div className="mt-4 rounded-xl bg-paper/80 px-3 py-2 backdrop-blur-sm">
                 <a
                   href="#how-it-works"
                   className="text-sm font-semibold text-ink hover:text-brand-cyan"
                 >
                   How it works
                 </a>
-                <a
-                  href={`tel:${SUPPORT_PHONE_DIGITS}`}
-                  className="font-mono text-sm text-neutral-600 hover:text-brand-cyan"
-                >
-                  or call to book — {SUPPORT_PHONE}
-                </a>
+                <p className="mt-1 text-sm text-neutral-600">
+                  Prefer to talk to a live human about our pricing process? Call our Bay Area
+                  office —{" "}
+                  <a
+                    href={`tel:${SUPPORT_PHONE_DIGITS}`}
+                    className="font-mono font-semibold text-ink hover:text-brand-cyan"
+                  >
+                    {SUPPORT_PHONE}
+                  </a>
+                  .
+                </p>
               </div>
             </div>
           </div>
