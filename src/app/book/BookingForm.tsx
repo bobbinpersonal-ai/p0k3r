@@ -87,6 +87,35 @@ export default function BookingForm({
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 space-y-8">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label htmlFor="pickupAddress" className="block text-sm font-semibold text-ink">
+            Pickup address
+          </label>
+          <input
+            id="pickupAddress"
+            name="pickupAddress"
+            required
+            defaultValue={initialPickup}
+            className={inputClass}
+            placeholder="123 Main St, Apt 4B"
+          />
+        </div>
+        <div>
+          <label htmlFor="dropoffAddress" className="block text-sm font-semibold text-ink">
+            Drop-off address
+          </label>
+          <input
+            id="dropoffAddress"
+            name="dropoffAddress"
+            required
+            defaultValue={initialDropoff}
+            className={inputClass}
+            placeholder="456 Oak Ave"
+          />
+        </div>
+      </div>
+
       <fieldset>
         <legend className="text-sm font-semibold text-ink">
           What do you need help with?
@@ -151,35 +180,6 @@ export default function BookingForm({
           ))}
         </div>
       </fieldset>
-
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label htmlFor="pickupAddress" className="block text-sm font-semibold text-ink">
-            Pickup address
-          </label>
-          <input
-            id="pickupAddress"
-            name="pickupAddress"
-            required
-            defaultValue={initialPickup}
-            className={inputClass}
-            placeholder="123 Main St, Apt 4B"
-          />
-        </div>
-        <div>
-          <label htmlFor="dropoffAddress" className="block text-sm font-semibold text-ink">
-            Drop-off address
-          </label>
-          <input
-            id="dropoffAddress"
-            name="dropoffAddress"
-            required
-            defaultValue={initialDropoff}
-            className={inputClass}
-            placeholder="456 Oak Ave"
-          />
-        </div>
-      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>

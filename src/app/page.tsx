@@ -237,11 +237,11 @@ export default function HomePage() {
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Get a quote</p>
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            Pick the size that fits your move
+            Get your 60-second quote
           </h2>
           <p className="mt-2 text-neutral-500">
-            Tell us what&apos;s moving and your dispatcher will confirm your price — usually
-            within 30 minutes.
+            Pick the size that fits your move — it takes about 60 seconds. A dispatcher
+            confirms your final price by phone shortly after.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {MOVE_SIZE_OPTIONS.map((option) => (
