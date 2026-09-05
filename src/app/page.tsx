@@ -4,6 +4,7 @@ import SiteFooter from "@/components/SiteFooter";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 import { CITIES } from "@/lib/cities";
 import FleetIcons from "@/components/FleetIcons";
+import CaliforniaMap from "@/components/CaliforniaMap";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const BOOKING_CITIES_BADGE = CITIES.map((c) => c.name).join(" · ");
@@ -114,21 +115,35 @@ export default function HomePage() {
 
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Coverage</p>
-          <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Now serving</h2>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {CITIES.map((city) => (
-              <Link
-                key={city.slug}
-                href={`/movers/${city.slug}`}
-                className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-brand/40 hover:bg-white/[0.06]"
-              >
-                <p className="font-semibold text-white">{city.name}</p>
-                <p className="mt-1 text-sm text-slate-500">{city.region}</p>
-                <p className="mt-3 font-mono text-xs text-brand-cyan opacity-0 transition group-hover:opacity-100">
-                  view city page →
-                </p>
-              </Link>
-            ))}
+          <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+            Now serving California
+          </h2>
+          <p className="mt-2 max-w-2xl text-slate-400">
+            From the Central Valley to the coast — wherever we&apos;ve got movers, you can book
+            in minutes.
+          </p>
+          <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:items-center">
+            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+              <div className="absolute inset-0 bg-grid-fade" />
+              <div className="relative">
+                <CaliforniaMap />
+              </div>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {CITIES.map((city) => (
+                <Link
+                  key={city.slug}
+                  href={`/movers/${city.slug}`}
+                  className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-brand/40 hover:bg-white/[0.06]"
+                >
+                  <p className="font-semibold text-white">{city.name}</p>
+                  <p className="mt-1 text-sm text-slate-500">{city.region}</p>
+                  <p className="mt-3 font-mono text-xs text-brand-cyan opacity-0 transition group-hover:opacity-100">
+                    view city page →
+                  </p>
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
 

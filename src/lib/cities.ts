@@ -58,6 +58,30 @@ export const CITIES: City[] = [
       "University of the Pacific area",
     ],
   },
+  {
+    slug: "los-angeles",
+    name: "Los Angeles",
+    region: "Los Angeles County",
+    blurb:
+      "Movers for LA apartments, hillside homes, and everything from Downtown to the Valley — booked in minutes.",
+    neighborhoods: ["Downtown LA", "Hollywood", "Silver Lake", "Santa Monica", "San Fernando Valley"],
+  },
+  {
+    slug: "merced",
+    name: "Merced",
+    region: "Merced County",
+    blurb:
+      "Local movers for Merced apartments, Central Valley homes, and UC Merced move-ins and move-outs.",
+    neighborhoods: ["Downtown Merced", "UC Merced", "North Merced", "Bear Creek"],
+  },
+  {
+    slug: "salinas",
+    name: "Salinas",
+    region: "Monterey County",
+    blurb:
+      "Local movers for Salinas homes and apartments, from Downtown to the Alisal — booked in minutes.",
+    neighborhoods: ["Downtown Salinas", "Alisal", "Northridge", "Harden Ranch"],
+  },
 ];
 
 export function getCity(slug: string): City | undefined {
