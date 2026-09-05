@@ -29,6 +29,10 @@ const PERKS = [
     title: "Work close to home",
     body: "Local moves in your own city — no long hauls, no living out of a truck.",
   },
+  {
+    title: "Get paid fast",
+    body: "Same-day cashout is coming, so the work you do today turns into money today.",
+  },
 ];
 
 export default function DrivePage({
@@ -89,7 +93,25 @@ export default function DrivePage({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <div className="grid gap-6 sm:grid-cols-3">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 sm:p-10">
+            <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+              Our mission
+            </p>
+            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+              If you want to work, there&apos;s a place for you here.
+            </h2>
+            <p className="mt-4 max-w-2xl text-slate-400">
+              We&apos;re not just filling moving jobs — we want to be a fast, honest way for
+              people in Davis, Sacramento, and the Bay Area to find real work the moment they
+              need it. No stressful screening, no long hiring pipeline. We take everyone who
+              wants to work — a dispatcher gets back to you and gets you onboarded, usually
+              within 2 hours, 9am–9pm.
+            </p>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {PERKS.map((perk) => (
               <div
                 key={perk.title}
@@ -144,7 +166,8 @@ export default function DrivePage({
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Apply</p>
           <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Tell us about you</h2>
           <p className="mt-2 text-slate-400">
-            A dispatcher reviews every application and follows up by phone or text.
+            We take everyone who wants to work — no stressful screening. A dispatcher gets
+            back to you and gets you onboarded, usually within 2 hours, 9am–9pm.
           </p>
           <DriveApplicationForm initialCity={city?.slug} source={source} />
         </section>

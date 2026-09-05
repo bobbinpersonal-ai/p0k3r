@@ -192,7 +192,13 @@ report conversions back the moment the campaign goes live.
   Distance Matrix / Mapbox).
 - **Automated dispatch**: SMS the next available driver directly (Twilio) instead of
   manual calls, with accept/decline.
-- **Payments**: take a card on booking or on completion (Stripe).
+- **Payments (customer-facing)**: take a card on booking or on completion (Stripe).
+- **Same-day pay / instant cashout (driver & helper-facing)**: `/drive` already promises
+  this is "coming" — there's no payout system built yet at all, not even a basic one, so
+  right now driver/helper pay happens entirely outside the app. Worth scoping this
+  properly (a payout provider like Stripe Connect or similar handles the actual money
+  movement) before advertising it as live, since promising instant cashout and not
+  delivering it burns trust with exactly the people this app is trying to recruit.
 - **Driver app**: a lightweight mobile view for drivers to see and accept jobs
   without going through the dispatcher.
 - **Before you scale up volume or drivers**: California requires a permit (a "Cal-T"

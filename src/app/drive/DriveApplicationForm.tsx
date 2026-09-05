@@ -61,7 +61,8 @@ export default function DriveApplicationForm({
         </div>
         <h3 className="mt-4 text-lg font-semibold text-white">Application received</h3>
         <p className="mt-2 text-slate-400">
-          A dispatcher will call or text you to follow up. Thanks for wanting to work with us.
+          We&apos;ll get to your application and get you onboarded — usually within 2 hours,
+          9am–9pm. Thanks for wanting to work with us.
         </p>
       </div>
     );
