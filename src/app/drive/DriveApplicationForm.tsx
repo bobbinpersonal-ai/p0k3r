@@ -28,7 +28,7 @@ export default function DriveApplicationForm({
       phone: String(form.get("phone") || ""),
       email: String(form.get("email") || "") || undefined,
       city: String(form.get("city") || "") || undefined,
-      vehicle: String(form.get("vehicle") || ""),
+      vehicle: String(form.get("vehicle") || "") || undefined,
       availability: String(form.get("availability") || "") || undefined,
       notes: String(form.get("notes") || "") || undefined,
       source,
@@ -61,7 +61,7 @@ export default function DriveApplicationForm({
         </div>
         <h3 className="mt-4 text-lg font-semibold text-white">Application received</h3>
         <p className="mt-2 text-slate-400">
-          A dispatcher will call or text you to follow up. Thanks for wanting to drive with us.
+          A dispatcher will call or text you to follow up. Thanks for wanting to work with us.
         </p>
       </div>
     );
@@ -115,12 +115,11 @@ export default function DriveApplicationForm({
 
       <div>
         <label htmlFor="vehicle" className="block text-sm font-semibold text-white">
-          What do you drive?
+          What do you drive? (optional — leave blank to apply as a helper, no vehicle needed)
         </label>
         <input
           id="vehicle"
           name="vehicle"
-          required
           placeholder="e.g. 2019 F-150 with a hitch, or a 16ft box truck"
           className={inputClass}
         />

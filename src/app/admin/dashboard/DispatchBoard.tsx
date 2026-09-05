@@ -256,6 +256,11 @@ export default function DispatchBoard({
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-medium text-white">{application.name}</p>
                   <div className="flex flex-wrap justify-end gap-1">
+                    {!application.vehicle && (
+                      <span className="rounded-full border border-amber-400/30 bg-amber-500/10 px-2 py-0.5 font-mono text-xs text-amber-300">
+                        Helper
+                      </span>
+                    )}
                     {application.source && (
                       <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-xs text-slate-400">
                         {getSourceLabel(application.source)}
@@ -271,7 +276,9 @@ export default function DispatchBoard({
                 <a href={`tel:${application.phone}`} className="text-brand-cyan">
                   {application.phone}
                 </a>
-                <p className="mt-1 text-slate-400">{application.vehicle}</p>
+                <p className="mt-1 text-slate-400">
+                  {application.vehicle || "No vehicle — applying as a helper"}
+                </p>
                 {application.availability && (
                   <p className="text-slate-500">{application.availability}</p>
                 )}

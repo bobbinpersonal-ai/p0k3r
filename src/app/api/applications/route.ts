@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
 
   const { name, phone, email, city, vehicle, availability, notes, source } = body;
 
-  const requiredFields: Record<string, unknown> = { name, phone, vehicle };
+  const requiredFields: Record<string, unknown> = { name, phone };
   for (const [field, value] of Object.entries(requiredFields)) {
     if (typeof value !== "string" || value.trim().length === 0) {
       return NextResponse.json({ error: `Missing required field: ${field}` }, { status: 400 });
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
       phone,
       email: typeof email === "string" && email ? email : null,
       city: typeof city === "string" && getCity(city) ? city : null,
-      vehicle,
+      vehicle: typeof vehicle === "string" && vehicle ? vehicle : null,
       availability: typeof availability === "string" && availability ? availability : null,
       notes: typeof notes === "string" && notes ? notes : null,
       source: typeof source === "string" && isSourceValue(source) ? source : null,

@@ -7,6 +7,9 @@ import { getCity } from "@/lib/cities";
 import { isSourceValue } from "@/lib/sources";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
+const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(555) 555-0100";
+const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
+const RECRUITING_HOURS = "9am–9pm";
 
 export const metadata: Metadata = {
   title: `Drive for ${SITE_NAME} | Flexible moving gig work`,
@@ -42,7 +45,11 @@ export default function DrivePage({
 
   return (
     <>
-      <SiteHeader />
+      <SiteHeader
+        ctaLabel="Work with us, call now"
+        ctaHref={`tel:${SUPPORT_PHONE_DIGITS}`}
+        phoneHours={RECRUITING_HOURS}
+      />
       <main>
         <section className="relative overflow-hidden">
           <div className="absolute inset-0 bg-grid-fade" />
@@ -63,12 +70,18 @@ export default function DrivePage({
                 Drive your own truck, van, or pickup and help people in your community move —
                 on a schedule that works around your life, not the other way around.
               </p>
-              <div className="mt-10">
+              <div className="mt-10 flex flex-wrap items-center gap-4">
                 <a
                   href="#apply"
                   className="rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
                 >
                   Apply to drive
+                </a>
+                <a
+                  href={`tel:${SUPPORT_PHONE_DIGITS}`}
+                  className="font-mono text-sm text-slate-400 hover:text-brand-cyan"
+                >
+                  or call now — {SUPPORT_PHONE} · {RECRUITING_HOURS}
                 </a>
               </div>
             </div>
@@ -102,6 +115,28 @@ export default function DrivePage({
           </p>
           <div className="mt-8">
             <FleetIcons />
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 sm:p-10">
+            <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+              No truck? No problem
+            </p>
+            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+              Be a helper. Ride shotgun.
+            </h2>
+            <p className="mt-4 max-w-2xl text-slate-400">
+              Every move needs muscle as much as it needs a truck. Ride along with a driver,
+              load and carry, wrap the furniture, keep things moving — split the job, split the
+              pay. No vehicle required. Just show up ready to work.
+            </p>
+            <a
+              href="#apply"
+              className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:border-brand/40 hover:bg-white/5"
+            >
+              Apply as a helper →
+            </a>
           </div>
         </section>
 

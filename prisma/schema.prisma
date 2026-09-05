@@ -36,7 +36,7 @@ model DriverApplication {
   phone        String
   email        String?
   city         String?
-  vehicle      String
+  vehicle      String?
   availability String?
   notes        String?
   source       String?

@@ -3,7 +3,17 @@ import Link from "next/link";
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(555) 555-0100";
 
-export default function SiteHeader() {
+export default function SiteHeader({
+  ctaLabel = "Get a quote",
+  ctaHref = "/book",
+  phoneHours,
+}: {
+  ctaLabel?: string;
+  ctaHref?: string;
+  phoneHours?: string;
+}) {
+  const isExternalCta = ctaHref.startsWith("tel:") || ctaHref.startsWith("mailto:");
+
   return (
     <header className="border-b border-white/10 bg-ink/80 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
@@ -23,13 +33,23 @@ export default function SiteHeader() {
             className="hidden font-mono text-sm text-slate-400 hover:text-brand-cyan sm:block"
           >
             {SUPPORT_PHONE}
+            {phoneHours ? ` · ${phoneHours}` : ""}
           </a>
-          <Link
-            href="/book"
-            className="rounded-full bg-gradient-to-r from-brand to-brand-cyan px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
-          >
-            Get a quote
-          </Link>
+          {isExternalCta ? (
+            <a
+              href={ctaHref}
+              className="rounded-full bg-gradient-to-r from-brand to-brand-cyan px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+            >
+              {ctaLabel}
+            </a>
+          ) : (
+            <Link
+              href={ctaHref}
+              className="rounded-full bg-gradient-to-r from-brand to-brand-cyan px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
+            >
+              {ctaLabel}
+            </Link>
+          )}
         </nav>
       </div>
     </header>
