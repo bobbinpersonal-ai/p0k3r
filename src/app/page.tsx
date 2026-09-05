@@ -28,7 +28,7 @@ const BOOKING_CITIES_BADGE = CITIES.map((c) => c.name).join(" · ");
 // Bump this whenever public/videos/hero-truck.* or the poster is replaced —
 // the files keep the same name across edits, so without a cache-busting
 // query param, browsers/CDNs keep serving the old cached video indefinitely.
-const HERO_VIDEO_VERSION = 5;
+const HERO_VIDEO_VERSION = 6;
 
 const USE_CASES = [
   {
