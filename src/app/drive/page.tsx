@@ -240,7 +240,7 @@ export default function DrivePage({
             truck with you.
           </p>
           <div className="mt-8">
-            <FleetIcons />
+            <FleetIcons showRates />
           </div>
         </section>
 

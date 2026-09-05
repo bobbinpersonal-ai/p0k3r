@@ -85,7 +85,7 @@ const FLEET = [
   { Icon: BoxTruckIcon, label: "Box truck", rate: "$32/hr" },
 ];
 
-export default function FleetIcons() {
+export default function FleetIcons({ showRates = false }: { showRates?: boolean }) {
   return (
     <div className="grid grid-cols-3 gap-4">
       {FLEET.map(({ Icon, label, rate }, i) => (
@@ -97,7 +97,7 @@ export default function FleetIcons() {
             <Icon />
           </div>
           <p className="font-mono text-xs text-neutral-500">{label}</p>
-          <p className="font-mono text-sm font-bold text-brand-cyan">{rate}</p>
+          {showRates && <p className="font-mono text-sm font-bold text-brand-cyan">{rate}</p>}
         </div>
       ))}
     </div>
