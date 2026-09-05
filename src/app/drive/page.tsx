@@ -69,6 +69,10 @@ const PERKS = [
     title: "We cover your gas",
     body: "Gas reimbursement is coming soon — we're building it into our pricing so getting to the job doesn't cost you out of pocket.",
   },
+  {
+    title: "A real path to driving",
+    body: "Start as a helper and earn right away — no vehicle needed. Plenty of helpers move up to driving once they're ready, and driving pays more — up to $32/hour running a box truck.",
+  },
 ];
 
 export default function DrivePage({
@@ -261,6 +265,11 @@ export default function DrivePage({
               Most mornings, you and your driver pick a meetup spot that&apos;s convenient for
               both of you, hop in the truck together, and head out to the day&apos;s jobs as a
               team.
+            </p>
+            <p className="mt-2 max-w-2xl text-slate-400">
+              It&apos;s also a path, not just a starting point. Plenty of helpers move up to
+              driving once they&apos;re ready — you start earning right away as a helper, and
+              driving pays more once you get there.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-4">
               <HelperIcon />
