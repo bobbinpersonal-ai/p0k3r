@@ -109,15 +109,15 @@ export default function DrivePage({
                 Now recruiting{city ? ` in ${city.name}` : ` · ${RECRUITING_CITIES_BADGE}`}
               </p>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                Good work,{" "}
+                Monetize your truck,{" "}
                 <span className="bg-gradient-to-r from-brand-light via-orange-400 to-brand-cyan bg-clip-text text-transparent">
-                  close to home.
+                  make $25+ an hour.
                 </span>
               </h1>
               <p className="mt-6 text-lg text-neutral-500">
-                Drive your own truck, van, or pickup — or just bring the muscle as a helper, no
-                vehicle needed. Either way, help your neighbors move on a schedule that works
-                for you.
+                Drive your own truck, van, or pickup and earn $25–$32/hour — or bring the
+                muscle as a helper at $19/hour plus tips, no vehicle needed. Either way, work
+                on a schedule that works for you.
               </p>
               <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
