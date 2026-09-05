@@ -247,6 +247,32 @@ export default function HomePage({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+          <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 glow">
+              <Image
+                src="/images/helper-van-door-branded.png"
+                alt="A LoveMeAfter mover getting ready to start a move"
+                fill
+                sizes="(min-width: 1024px) 40vw, 90vw"
+                className="object-cover"
+              />
+            </div>
+            <div>
+              <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                Real crews
+              </p>
+              <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
+                Every move gets a real person, not just an address
+              </h2>
+              <p className="mt-4 text-neutral-500">
+                Your dispatcher lines up a local mover who shows up ready to work — loading,
+                driving, and unloading handled, so you just point at where things go.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Get a quote</p>
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             Get your 60-second quote

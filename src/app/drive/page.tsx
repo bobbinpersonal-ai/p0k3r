@@ -136,8 +136,8 @@ export default function DrivePage({
             </div>
             <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 glow">
               <Image
-                src="/images/mover-cart.jpg"
-                alt="A LoveMeAfter helper moving boxes on a hand cart"
+                src="/images/helper-cart-branded.png"
+                alt="A LoveMeAfter helper moving boxes on a hand cart next to the truck"
                 fill
                 priority
                 sizes="(min-width: 1024px) 40vw, 90vw"
