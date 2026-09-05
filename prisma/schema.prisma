@@ -17,6 +17,8 @@ datasource db {
 // MoveSize: FEW_ITEMS | STUDIO | ONE_BED | TWO_BED | THREE_PLUS_BED
 // Application status: PENDING | APPROVED | REJECTED
 // Applicant role: DRIVER | HELPER (see src/lib/applicantRoles.ts)
+// Booking serviceType: SINGLE_ITEM | APARTMENT_HOUSE | STORAGE | OFFICE |
+// DONATION | OTHER (see src/lib/serviceTypes.ts)
 
 model Driver {
   id        String    @id @default(cuid())
@@ -61,6 +63,8 @@ model Booking {
   city            String?
 
   moveSize        String
+  serviceType     String?
+  serviceTypeOther String?
   details         String?
 
   estimateLow     Int

@@ -28,7 +28,8 @@ export default function BookPage({
           Book your {city ? `${city.name} ` : ""}move
         </h1>
         <p className="mt-2 text-slate-400">
-          Fill this out and a dispatcher confirms your crew and final price shortly after.
+          Fill this out and a dispatcher confirms your crew and final price — usually
+          within 30 minutes.
         </p>
         <p className="mt-2">
           <a

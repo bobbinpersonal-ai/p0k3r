@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { prisma } from "@/lib/prisma";
+import { getServiceTypeLabel } from "@/lib/serviceTypes";
 
 export default async function ConfirmationPage({
   searchParams,
@@ -30,7 +31,7 @@ export default async function ConfirmationPage({
         <p className="mt-2 text-slate-400">
           We&apos;re lining up a crew for your move. You&apos;ll get a call or text at{" "}
           <span className="font-semibold text-white">{booking.customerPhone}</span> to confirm
-          your final price and pickup window.
+          your final price and pickup window — usually within 30 minutes.
         </p>
 
         <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-left">
@@ -61,6 +62,15 @@ export default async function ConfirmationPage({
               <dt className="text-slate-500">Window</dt>
               <dd className="font-medium text-white">{booking.timeWindow}</dd>
             </div>
+            {booking.serviceType && (
+              <div className="flex justify-between gap-4">
+                <dt className="text-slate-500">Service</dt>
+                <dd className="text-right font-medium text-white">
+                  {getServiceTypeLabel(booking.serviceType)}
+                  {booking.serviceTypeOther ? ` — ${booking.serviceTypeOther}` : ""}
+                </dd>
+              </div>
+            )}
             <div className="flex justify-between gap-4">
               <dt className="text-slate-500">Estimate</dt>
               <dd className="font-mono font-medium text-brand-cyan">

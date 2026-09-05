@@ -135,8 +135,8 @@ export default function CityLandingPage({ params }: { params: { city: string } }
             {city.name} move sizes
           </h2>
           <p className="mt-2 text-slate-400">
-            Tell us what&apos;s moving and your dispatcher will confirm your price shortly
-            after — usually within a couple hours.
+            Tell us what&apos;s moving and your dispatcher will confirm your price — usually
+            within 30 minutes.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {MOVE_SIZE_OPTIONS.map((option) => (

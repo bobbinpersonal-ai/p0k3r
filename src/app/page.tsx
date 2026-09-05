@@ -12,6 +12,41 @@ const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
 const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
 const BOOKING_CITIES_BADGE = CITIES.map((c) => c.name).join(" · ");
 
+const USE_CASES = [
+  {
+    title: "Single item pickup or delivery",
+    body: "A couch, mattress, appliance, or one big thing that won't fit in your car.",
+  },
+  {
+    title: "Furniture & marketplace finds",
+    body: "IKEA runs, Facebook Marketplace and Craigslist pickups, delivered same day.",
+  },
+  {
+    title: "Apartment & dorm moves",
+    body: "Studio to multi-bedroom, move-in or move-out, on your schedule.",
+  },
+  {
+    title: "Storage unit moves",
+    body: "Load up, empty out, or shuffle items between units.",
+  },
+  {
+    title: "Office & small business moves",
+    body: "Desks, inventory, and equipment — moved without shutting down for a week.",
+  },
+  {
+    title: "Donation drop-offs",
+    body: "Give old furniture a second life instead of hauling it yourself.",
+  },
+  {
+    title: "Estate cleanouts & downsizing",
+    body: "Help sorting through and moving a lifetime of belongings.",
+  },
+  {
+    title: "Same-day & last-minute moves",
+    body: "Didn't plan ahead? We can usually still make it happen today.",
+  },
+];
+
 const HOW_IT_WORKS = [
   {
     title: "Tell us what's moving",
@@ -33,9 +68,19 @@ export default function HomePage() {
       <SiteHeader />
       <main>
         <section className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid-fade" />
-          <div className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-brand/20 blur-[120px]" />
-          <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-24 sm:px-6 sm:py-32 lg:grid-cols-2 lg:items-center">
+          <div className="absolute inset-0">
+            <Image
+              src="/images/box-truck-road.jpg"
+              alt="A LoveMeAfter moving truck on the road"
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-ink/40" />
+            <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/30" />
+          </div>
+          <div className="relative mx-auto max-w-6xl px-4 py-24 sm:px-6 sm:py-40">
             <div className="max-w-2xl">
               <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
@@ -47,7 +92,7 @@ export default function HomePage() {
                   booked in minutes.
                 </span>
               </h1>
-              <p className="mt-6 text-lg text-slate-400">
+              <p className="mt-6 text-lg text-slate-300">
                 {SITE_NAME} connects you with local moving crews for apartments, houses, and
                 single big items — same-day when you need it.
               </p>
@@ -60,7 +105,7 @@ export default function HomePage() {
                 </Link>
                 <a
                   href="#how-it-works"
-                  className="rounded-full border border-white/15 px-6 py-3 text-base font-semibold text-white transition hover:bg-white/5"
+                  className="rounded-full border border-white/15 bg-ink/40 px-6 py-3 text-base font-semibold text-white backdrop-blur transition hover:bg-white/10"
                 >
                   How it works
                 </a>
@@ -68,21 +113,39 @@ export default function HomePage() {
               <p className="mt-4">
                 <a
                   href={`tel:${SUPPORT_PHONE_DIGITS}`}
-                  className="font-mono text-sm text-slate-400 hover:text-brand-cyan"
+                  className="font-mono text-sm text-slate-300 hover:text-brand-cyan"
                 >
                   or call to book — {SUPPORT_PHONE}
                 </a>
               </p>
             </div>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 glow">
-              <Image
-                src="/images/box-truck-road.jpg"
-                alt="A LoveMeAfter moving truck on the road"
-                fill
-                priority
-                sizes="(min-width: 1024px) 40vw, 90vw"
-                className="object-cover"
-              />
+          </div>
+        </section>
+
+        <section className="relative overflow-hidden">
+          <div className="absolute inset-0 bg-grid-fade" />
+          <div className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-brand/20 blur-[120px]" />
+          <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6">
+            <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+              What we do
+            </p>
+            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+              What people book us for
+            </h2>
+            <p className="mt-2 max-w-2xl text-slate-400">
+              Not sure if we&apos;re a fit? Here&apos;s what most people are moving when they
+              book us.
+            </p>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {USE_CASES.map((useCase) => (
+                <div
+                  key={useCase.title}
+                  className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+                >
+                  <p className="font-semibold text-white">{useCase.title}</p>
+                  <p className="mt-1 text-sm text-slate-400">{useCase.body}</p>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -134,30 +197,12 @@ export default function HomePage() {
             Now serving California
           </h2>
           <p className="mt-2 max-w-2xl text-slate-400">
-            From the Central Valley to the coast — wherever we&apos;ve got movers, you can book
-            in minutes.
+            From the Central Valley to the coast — click a city to book your move.
           </p>
-          <div className="mt-8 grid gap-8 lg:grid-cols-2 lg:items-center">
-            <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-              <div className="absolute inset-0 bg-grid-fade" />
-              <div className="relative">
-                <CaliforniaMap />
-              </div>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              {CITIES.map((city) => (
-                <Link
-                  key={city.slug}
-                  href={`/movers/${city.slug}`}
-                  className="group rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-brand/40 hover:bg-white/[0.06]"
-                >
-                  <p className="font-semibold text-white">{city.name}</p>
-                  <p className="mt-1 text-sm text-slate-500">{city.region}</p>
-                  <p className="mt-3 font-mono text-xs text-brand-cyan opacity-0 transition group-hover:opacity-100">
-                    view city page →
-                  </p>
-                </Link>
-              ))}
+          <div className="relative mx-auto mt-8 max-w-md overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+            <div className="absolute inset-0 bg-grid-fade" />
+            <div className="relative">
+              <CaliforniaMap />
             </div>
           </div>
         </section>
@@ -168,8 +213,8 @@ export default function HomePage() {
             Pick the size that fits your move
           </h2>
           <p className="mt-2 text-slate-400">
-            Tell us what&apos;s moving and your dispatcher will confirm your price shortly
-            after — usually within a couple hours.
+            Tell us what&apos;s moving and your dispatcher will confirm your price — usually
+            within 30 minutes.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {MOVE_SIZE_OPTIONS.map((option) => (

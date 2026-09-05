@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MOVE_SIZE_OPTIONS, TIME_WINDOWS, type MoveSizeValue } from "@/lib/moveSizes";
+import { SERVICE_TYPES, type ServiceTypeValue } from "@/lib/serviceTypes";
 import { trackBookingConversion } from "@/lib/analytics";
 
 const inputClass =
@@ -21,15 +22,29 @@ export default function BookingForm({
 }) {
   const router = useRouter();
   const [moveSize, setMoveSize] = useState<MoveSizeValue>(initialSize ?? "STUDIO");
+  const [serviceType, setServiceType] = useState<ServiceTypeValue | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
-    setSubmitting(true);
+
+    if (!serviceType) {
+      setError("Let us know what kind of help you need.");
+      return;
+    }
 
     const form = new FormData(e.currentTarget);
+    const serviceTypeOther = String(form.get("serviceTypeOther") || "").trim();
+
+    if (serviceType === "OTHER" && !serviceTypeOther) {
+      setError("Tell us a bit about what you need help with.");
+      return;
+    }
+
+    setSubmitting(true);
+
     const payload = {
       customerName: String(form.get("customerName") || ""),
       customerPhone: String(form.get("customerPhone") || ""),
@@ -39,6 +54,8 @@ export default function BookingForm({
       moveDate: String(form.get("moveDate") || ""),
       timeWindow: String(form.get("timeWindow") || ""),
       moveSize,
+      serviceType,
+      serviceTypeOther: serviceType === "OTHER" ? serviceTypeOther : undefined,
       details: String(form.get("details") || "") || undefined,
       city,
     };
@@ -66,6 +83,44 @@ export default function BookingForm({
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 space-y-8">
+      <fieldset>
+        <legend className="text-sm font-semibold text-white">
+          What do you need help with?
+        </legend>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {SERVICE_TYPES.map((option) => (
+            <label
+              key={option.value}
+              className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
+                serviceType === option.value
+                  ? "border-brand bg-brand/10 ring-1 ring-brand"
+                  : "border-white/10 bg-white/[0.02] hover:border-white/20"
+              }`}
+            >
+              <input
+                type="radio"
+                name="serviceTypeRadio"
+                value={option.value}
+                checked={serviceType === option.value}
+                onChange={() => setServiceType(option.value)}
+                className="sr-only"
+              />
+              <span className="font-semibold text-white">{option.label}</span>
+              <span className="mt-1 text-sm text-slate-400">{option.description}</span>
+            </label>
+          ))}
+        </div>
+        {serviceType === "OTHER" && (
+          <textarea
+            name="serviceTypeOther"
+            rows={2}
+            required
+            className={`${inputClass} mt-3`}
+            placeholder="Tell us what you need — we'll follow up with a price."
+          />
+        )}
+      </fieldset>
+
       <fieldset>
         <legend className="text-sm font-semibold text-white">How much is moving?</legend>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -197,8 +252,8 @@ export default function BookingForm({
 
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
         <p className="text-sm text-slate-400">
-          Submit this and your dispatcher will confirm your price shortly after, based on
-          your crew and distance.
+          Submit this and your dispatcher will call or text you with a price — usually
+          within 30 minutes.
         </p>
       </div>
 

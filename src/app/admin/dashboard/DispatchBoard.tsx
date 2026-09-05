@@ -7,6 +7,7 @@ import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 import { getCity } from "@/lib/cities";
 import { getSourceLabel } from "@/lib/sources";
 import { getApplicantRoleLabel } from "@/lib/applicantRoles";
+import { getServiceTypeLabel } from "@/lib/serviceTypes";
 
 type BookingWithDriver = Booking & { driver: Driver | null };
 
@@ -185,6 +186,13 @@ export default function DispatchBoard({
                     ${booking.estimateLow}–${booking.estimateHigh}
                   </span>
                 </p>
+                {booking.serviceType && (
+                  <p>
+                    <span className="font-medium text-slate-300">Service:</span>{" "}
+                    {getServiceTypeLabel(booking.serviceType)}
+                    {booking.serviceTypeOther ? ` — ${booking.serviceTypeOther}` : ""}
+                  </p>
+                )}
                 {booking.details && (
                   <p>
                     <span className="font-medium text-slate-300">Notes:</span> {booking.details}
