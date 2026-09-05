@@ -13,7 +13,7 @@ const GTAG_ID = GOOGLE_ADS_ID || GA_MEASUREMENT_ID;
 
 export const metadata: Metadata = {
   title: `${SITE_NAME} — Movers on demand`,
-  description: `Book a truck and a crew in minutes. ${SITE_NAME} dispatches local movers for apartments, houses, and single-item moves.`,
+  description: `Book a truck and a crew in minutes. ${SITE_NAME} shows up and gets your move done at an affordable price — apartments, houses, and single-item moves.`,
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

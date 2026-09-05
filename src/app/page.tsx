@@ -96,7 +96,7 @@ const HOW_IT_WORKS = [
   },
   {
     title: "We dispatch a crew",
-    body: "A local mover with a truck confirms your pickup window and heads your way.",
+    body: "One of our crews confirms your pickup window and heads your way with a truck.",
   },
   {
     title: "They do the heavy lifting",
@@ -149,8 +149,8 @@ export default function HomePage() {
                 </span>
               </h1>
               <p className="mt-4 text-lg text-neutral-600">
-                {SITE_NAME} connects you with local moving crews for apartments, houses, and
-                single big items — same-day when you need it.
+                {SITE_NAME} shows up and gets it done — apartments, houses, and single big
+                items, same-day when you need it. We&apos;re proud to keep it affordable.
               </p>
               <form
                 action="/book"
