@@ -262,8 +262,8 @@ export default function HomePage({
           <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
             <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 glow">
               <Image
-                src="/images/helper-van-door-branded.png"
-                alt="A LoveMeAfter mover getting ready to start a move"
+                src="/images/mover-handcart.jpg"
+                alt="A mover wheeling boxes on a hand cart out to the truck"
                 fill
                 sizes="(min-width: 1024px) 40vw, 90vw"
                 className="object-cover"
