@@ -132,19 +132,16 @@ export default function HomePage() {
 
           <div className="relative mx-auto max-w-6xl px-4 pt-10 pb-56 sm:px-6 lg:py-40">
             <div className="max-w-2xl">
-              <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
-                Now booking · {BOOKING_CITIES_BADGE}
-              </p>
-              <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-6xl">
+              <h1 className="text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-6xl">
                 Movers and a truck,{" "}
                 <span className="bg-gradient-to-r from-brand-light via-orange-400 to-brand-cyan bg-clip-text text-transparent">
                   booked in minutes.
                 </span>
               </h1>
-              <p className="mt-6 text-lg text-neutral-600">
+              <p className="mt-4 text-lg text-neutral-600">
                 {SITE_NAME} connects you with local moving crews for apartments, houses, and
-                single big items — same-day when you need it.
+                single big items, same-day when you need it — now booking in{" "}
+                {BOOKING_CITIES_BADGE}.
               </p>
               <form
                 action="/book"
