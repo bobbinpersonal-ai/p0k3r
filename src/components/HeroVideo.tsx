@@ -15,6 +15,12 @@ export default function HeroVideo({ version }: { version: number }) {
     const video = videoRef.current;
     if (!video) return;
 
+    // Safari/WebKit (so Brave on iOS too, since it's WebKit under the hood)
+    // sometimes fails to pick up <source> children after React hydrates the
+    // page, leaving the video stuck with nothing loaded at all — not even
+    // the poster. Forcing a reload once on mount makes it re-read them.
+    video.load();
+
     const tryPlay = () => {
       video.play().catch(() => {});
     };
@@ -22,8 +28,12 @@ export default function HeroVideo({ version }: { version: number }) {
 
     const events: Array<keyof DocumentEventMap> = ["touchstart", "pointerdown", "keydown", "scroll"];
     events.forEach((event) => document.addEventListener(event, tryPlay, { once: true, passive: true }));
+    video.addEventListener("loadeddata", tryPlay);
+    video.addEventListener("canplay", tryPlay);
     return () => {
       events.forEach((event) => document.removeEventListener(event, tryPlay));
+      video.removeEventListener("loadeddata", tryPlay);
+      video.removeEventListener("canplay", tryPlay);
     };
   }, []);
 
