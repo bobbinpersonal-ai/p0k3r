@@ -7,22 +7,25 @@
 function PickupIcon() {
   return (
     <svg viewBox="0 0 120 80" className="h-16 w-24" aria-hidden="true">
-      <rect x="14" y="30" width="52" height="26" rx="4" fill="url(#pickupBed)" />
+      <rect x="6" y="40" width="4" height="16" rx="1" fill="#4338ca" />
+      <rect x="8" y="36" width="50" height="20" rx="3" fill="url(#pickupBed)" />
+      <rect x="8" y="36" width="50" height="5" rx="2" fill="#ffffff" opacity="0.15" />
       <path
-        d="M114,30 C114,23 108,18 101,18 L81,18 C75,18 70,21 67,27 L61,38 L114,38 Z"
+        d="M52,56 L52,28 Q52,18 62,18 L80,18 Q88,18 92,25 L100,34 L108,34 L108,56 Z"
         fill="url(#pickupCab)"
       />
-      <rect x="88" y="24" width="16" height="10" rx="2" fill="#0d0f18" opacity="0.5" />
+      <rect x="60" y="21" width="20" height="7" rx="2" fill="#bff7ff" opacity="0.7" />
+      <circle cx="104" cy="30" r="2.5" fill="#fef08a" />
       <circle cx="32" cy="60" r="9" fill="#0d0f18" />
       <circle cx="32" cy="60" r="4" fill="#94a3b8" />
       <circle cx="92" cy="60" r="9" fill="#0d0f18" />
       <circle cx="92" cy="60" r="4" fill="#94a3b8" />
       <defs>
-        <linearGradient id="pickupBed" x1="14" y1="30" x2="66" y2="56">
+        <linearGradient id="pickupBed" x1="8" y1="36" x2="58" y2="56">
           <stop offset="0" stopColor="#6366f1" />
           <stop offset="1" stopColor="#4338ca" />
         </linearGradient>
-        <linearGradient id="pickupCab" x1="61" y1="18" x2="114" y2="38">
+        <linearGradient id="pickupCab" x1="52" y1="18" x2="108" y2="56">
           <stop offset="0" stopColor="#818cf8" />
           <stop offset="1" stopColor="#22d3ee" />
         </linearGradient>

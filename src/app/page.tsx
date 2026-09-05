@@ -6,6 +6,20 @@ import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 import { CITIES } from "@/lib/cities";
 import FleetIcons from "@/components/FleetIcons";
 import CaliforniaMap from "@/components/CaliforniaMap";
+import {
+  BoxIcon,
+  CouchIcon,
+  BuildingIcon,
+  StorageIcon,
+  BriefcaseIcon,
+  HeartIcon,
+  HaulIcon,
+  HouseIcon,
+  BoltIcon,
+  TVIcon,
+  BikeIcon,
+  DollyIcon,
+} from "@/components/UseCaseIcons";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
@@ -16,50 +30,62 @@ const USE_CASES = [
   {
     title: "Single item pickup or delivery",
     body: "A couch, mattress, appliance, or one big thing that won't fit in your car.",
+    Icon: BoxIcon,
   },
   {
     title: "Furniture & marketplace finds",
     body: "IKEA runs, Facebook Marketplace and Craigslist pickups, delivered same day.",
+    Icon: CouchIcon,
   },
   {
     title: "Apartment & dorm moves",
     body: "Studio to multi-bedroom, move-in or move-out, on your schedule.",
+    Icon: BuildingIcon,
   },
   {
     title: "Storage unit moves",
     body: "Load up, empty out, or shuffle items between units.",
+    Icon: StorageIcon,
   },
   {
     title: "Office & small business moves",
     body: "Desks, inventory, and equipment — moved without shutting down for a week.",
+    Icon: BriefcaseIcon,
   },
   {
     title: "Donation drop-offs",
     body: "Give old furniture a second life instead of hauling it yourself.",
+    Icon: HeartIcon,
   },
   {
     title: "Hauling services",
     body: "Couches, appliances, furniture — we'll load it up and haul it wherever it needs to go.",
+    Icon: HaulIcon,
   },
   {
     title: "Estate cleanouts & downsizing",
     body: "Help sorting through and moving a lifetime of belongings.",
+    Icon: HouseIcon,
   },
   {
     title: "Same-day & last-minute moves",
     body: "Didn't plan ahead? We can usually still make it happen today.",
+    Icon: BoltIcon,
   },
   {
     title: "Appliances, TVs & electronics",
     body: "Washers, dryers, TVs, and other electronics — delivered and placed where you need them.",
+    Icon: TVIcon,
   },
   {
     title: "Bikes, plants & odd-shaped items",
     body: "Not everything fits in a car. If it's awkward to move alone, we can probably move it.",
+    Icon: BikeIcon,
   },
   {
     title: "Loading & unloading help",
     body: "Already have a truck or rental? We'll send a helper just to load or unload it.",
+    Icon: DollyIcon,
   },
 ];
 
@@ -180,6 +206,29 @@ export default function HomePage() {
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Get a quote</p>
+          <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+            Pick the size that fits your move
+          </h2>
+          <p className="mt-2 text-slate-400">
+            Tell us what&apos;s moving and your dispatcher will confirm your price — usually
+            within 30 minutes.
+          </p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {MOVE_SIZE_OPTIONS.map((option) => (
+              <Link
+                key={option.value}
+                href={{ pathname: "/book", query: { size: option.value } }}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-brand/40 hover:bg-white/[0.06]"
+              >
+                <p className="font-semibold text-white">{option.label}</p>
+                <p className="mt-1 text-sm text-slate-500">{option.description}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
@@ -234,32 +283,10 @@ export default function HomePage() {
                 key={useCase.title}
                 className="w-64 shrink-0 snap-start rounded-2xl border border-white/10 bg-white/[0.03] p-5"
               >
-                <p className="font-semibold text-white">{useCase.title}</p>
+                <useCase.Icon />
+                <p className="mt-3 font-semibold text-white">{useCase.title}</p>
                 <p className="mt-1 text-sm text-slate-400">{useCase.body}</p>
               </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Get a quote</p>
-          <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
-            Pick the size that fits your move
-          </h2>
-          <p className="mt-2 text-slate-400">
-            Tell us what&apos;s moving and your dispatcher will confirm your price — usually
-            within 30 minutes.
-          </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {MOVE_SIZE_OPTIONS.map((option) => (
-              <Link
-                key={option.value}
-                href={{ pathname: "/book", query: { size: option.value } }}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-brand/40 hover:bg-white/[0.06]"
-              >
-                <p className="font-semibold text-white">{option.label}</p>
-                <p className="mt-1 text-sm text-slate-500">{option.description}</p>
-              </Link>
             ))}
           </div>
         </section>
