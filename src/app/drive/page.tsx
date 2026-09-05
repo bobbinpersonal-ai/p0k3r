@@ -27,8 +27,8 @@ const PERKS = [
     body: "See what's near you and take what works for you. Turn one down any time — no penalty, you're never locked in.",
   },
   {
-    title: "Keep most of what you earn",
-    body: "You quote the job with your dispatcher and take home your cut of every move.",
+    title: "Some of the best pay in the business",
+    body: "No corporate middleman shrinking your cut. You and your dispatcher agree on the price, and you keep the largest share of every move you run.",
   },
   {
     title: "Get paid fast",
