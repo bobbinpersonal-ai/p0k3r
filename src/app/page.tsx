@@ -25,6 +25,10 @@ const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
 const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
 const BOOKING_CITIES_BADGE = CITIES.map((c) => c.name).join(" · ");
+// Bump this whenever public/videos/hero-truck.* or the poster is replaced —
+// the files keep the same name across edits, so without a cache-busting
+// query param, browsers/CDNs keep serving the old cached video indefinitely.
+const HERO_VIDEO_VERSION = 5;
 
 const USE_CASES = [
   {
@@ -134,14 +138,14 @@ export default function HomePage({
               muted
               loop
               playsInline
-              poster="/images/hero-truck-poster.jpg"
+              poster={`/images/hero-truck-poster.jpg?v=${HERO_VIDEO_VERSION}`}
               className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
             >
-              <source src="/videos/hero-truck.webm" type="video/webm" />
-              <source src="/videos/hero-truck.mp4" type="video/mp4" />
+              <source src={`/videos/hero-truck.webm?v=${HERO_VIDEO_VERSION}`} type="video/webm" />
+              <source src={`/videos/hero-truck.mp4?v=${HERO_VIDEO_VERSION}`} type="video/mp4" />
             </video>
             <Image
-              src="/images/hero-truck-poster.jpg"
+              src={`/images/hero-truck-poster.jpg?v=${HERO_VIDEO_VERSION}`}
               alt="A LoveMeAfter moving truck on the road"
               fill
               priority
