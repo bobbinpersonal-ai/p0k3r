@@ -70,6 +70,7 @@ model Booking {
   moveSize        String
   serviceType     String?
   serviceTypeOther String?
+  needsHelper     Boolean   @default(true)
   details         String?
 
   estimateLow     Int

@@ -28,9 +28,11 @@ export default function BookingForm({
   const router = useRouter();
   const [moveSize, setMoveSize] = useState<MoveSizeValue>(initialSize ?? "STUDIO");
   const [serviceType, setServiceType] = useState<ServiceTypeValue | null>(null);
+  const [needsHelper, setNeedsHelper] = useState<boolean | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const moveSizeRef = useRef<HTMLFieldSetElement>(null);
+  const helperRef = useRef<HTMLFieldSetElement>(null);
   const dateTimeRef = useRef<HTMLDivElement>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -50,6 +52,11 @@ export default function BookingForm({
       return;
     }
 
+    if (needsHelper === null) {
+      setError("Let us know if you need an extra helper.");
+      return;
+    }
+
     setSubmitting(true);
 
     const payload = {
@@ -63,6 +70,7 @@ export default function BookingForm({
       moveSize,
       serviceType,
       serviceTypeOther: serviceType === "OTHER" ? serviceTypeOther : undefined,
+      needsHelper,
       details: String(form.get("details") || "") || undefined,
       city,
     };
@@ -179,7 +187,7 @@ export default function BookingForm({
                 checked={moveSize === option.value}
                 onChange={() => {
                   setMoveSize(option.value);
-                  scrollToNext(dateTimeRef);
+                  scrollToNext(helperRef);
                 }}
                 className="sr-only"
               />
@@ -187,6 +195,59 @@ export default function BookingForm({
               <span className="mt-1 text-sm text-neutral-500">{option.description}</span>
             </label>
           ))}
+        </div>
+      </fieldset>
+
+      <fieldset ref={helperRef}>
+        <legend className="text-sm font-semibold text-ink">Do you need an extra helper?</legend>
+        <p className="mt-1 text-sm text-neutral-500">
+          Not every job needs two people — let us know so we send the right crew size.
+        </p>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <label
+            className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
+              needsHelper === true
+                ? "border-brand bg-brand/10 ring-1 ring-brand"
+                : "border-black/10 bg-black/[0.02] hover:border-black/20"
+            }`}
+          >
+            <input
+              type="radio"
+              name="needsHelperRadio"
+              checked={needsHelper === true}
+              onChange={() => {
+                setNeedsHelper(true);
+                scrollToNext(dateTimeRef);
+              }}
+              className="sr-only"
+            />
+            <span className="font-semibold text-ink">Yes, send a helper</span>
+            <span className="mt-1 text-sm text-neutral-500">
+              Two on the crew — extra hands for lifting and stairs.
+            </span>
+          </label>
+          <label
+            className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
+              needsHelper === false
+                ? "border-brand bg-brand/10 ring-1 ring-brand"
+                : "border-black/10 bg-black/[0.02] hover:border-black/20"
+            }`}
+          >
+            <input
+              type="radio"
+              name="needsHelperRadio"
+              checked={needsHelper === false}
+              onChange={() => {
+                setNeedsHelper(false);
+                scrollToNext(dateTimeRef);
+              }}
+              className="sr-only"
+            />
+            <span className="font-semibold text-ink">No, just the driver</span>
+            <span className="mt-1 text-sm text-neutral-500">
+              One person and the truck — enough for this job.
+            </span>
+          </label>
         </div>
       </fieldset>
 

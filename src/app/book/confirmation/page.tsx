@@ -72,6 +72,12 @@ export default async function ConfirmationPage({
               </div>
             )}
             <div className="flex justify-between gap-4">
+              <dt className="text-neutral-400">Crew</dt>
+              <dd className="text-right font-medium text-ink">
+                {booking.needsHelper ? "Driver + helper" : "Driver only"}
+              </dd>
+            </div>
+            <div className="flex justify-between gap-4">
               <dt className="text-neutral-400">Estimate</dt>
               <dd className="font-mono font-medium text-brand-cyan">
                 ${booking.estimateLow}–${booking.estimateHigh}

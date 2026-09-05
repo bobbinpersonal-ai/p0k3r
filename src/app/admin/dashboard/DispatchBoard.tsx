@@ -187,6 +187,10 @@ export default function DispatchBoard({
                     ${booking.estimateLow}–${booking.estimateHigh}
                   </span>
                 </p>
+                <p>
+                  <span className="font-medium text-neutral-600">Crew:</span>{" "}
+                  {booking.needsHelper ? "Driver + helper" : "Driver only"}
+                </p>
                 {booking.serviceType && (
                   <p>
                     <span className="font-medium text-neutral-600">Service:</span>{" "}

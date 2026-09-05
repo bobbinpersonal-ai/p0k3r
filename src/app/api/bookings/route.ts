@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
     moveSize,
     serviceType,
     serviceTypeOther,
+    needsHelper,
     details,
     city,
   } = body;
@@ -62,6 +63,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (typeof needsHelper !== "boolean") {
+    return NextResponse.json(
+      { error: "Please let us know if you need an extra helper." },
+      { status: 400 }
+    );
+  }
+
   const parsedDate = new Date(moveDate);
   if (Number.isNaN(parsedDate.getTime())) {
     return NextResponse.json({ error: "Invalid move date." }, { status: 400 });
@@ -81,6 +89,7 @@ export async function POST(req: NextRequest) {
       moveSize,
       serviceType,
       serviceTypeOther: serviceType === "OTHER" ? serviceTypeOther : null,
+      needsHelper,
       details: typeof details === "string" && details ? details : null,
       city: typeof city === "string" && getCity(city) ? city : null,
       estimateLow,
