@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import FleetIcons from "@/components/FleetIcons";
+import HelperIcon from "@/components/HelperIcon";
 import DriveApplicationForm from "./DriveApplicationForm";
 import { getCity } from "@/lib/cities";
 import { isSourceValue } from "@/lib/sources";
@@ -37,6 +38,10 @@ const PERKS = [
   {
     title: "Get paid fast",
     body: "Same-day cashout is coming, so the work you do today turns into money today.",
+  },
+  {
+    title: "LoveMeAfter gear, on us",
+    body: "Complete your first 3 moves and we'll ship you a free LoveMeAfter shirt.",
   },
 ];
 
@@ -125,7 +130,7 @@ export default function DrivePage({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {PERKS.map((perk) => (
               <div
                 key={perk.title}
@@ -173,16 +178,24 @@ export default function DrivePage({
               You&apos;re never doing this solo — every job pairs a driver and a helper, so you
               always have someone riding shotgun with you.
             </p>
-            <a
-              href={`?${new URLSearchParams({
-                ...(city ? { city: city.slug } : {}),
-                ...(source ? { source } : {}),
-                role: "helper",
-              }).toString()}#apply`}
-              className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:border-brand/40 hover:bg-white/5"
-            >
-              Apply as a helper →
-            </a>
+            <p className="mt-2 max-w-2xl text-slate-400">
+              Most mornings, you and your driver pick a meetup spot that&apos;s convenient for
+              both of you, hop in the truck together, and head out to the day&apos;s jobs as a
+              team.
+            </p>
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <HelperIcon />
+              <a
+                href={`?${new URLSearchParams({
+                  ...(city ? { city: city.slug } : {}),
+                  ...(source ? { source } : {}),
+                  role: "helper",
+                }).toString()}#apply`}
+                className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:border-brand/40 hover:bg-white/5"
+              >
+                Apply as a helper →
+              </a>
+            </div>
           </div>
         </section>
 
