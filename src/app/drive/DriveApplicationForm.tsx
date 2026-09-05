@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { CITIES } from "@/lib/cities";
 import { APPLICANT_ROLES, type ApplicantRole } from "@/lib/applicantRoles";
 import { PAYOUT_METHODS, getPayoutMethodPlaceholder, type PayoutMethodValue } from "@/lib/payoutMethods";
+import { scrollToNext } from "@/lib/scrollToNext";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-black/10 bg-black/5 px-3 py-2 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
@@ -22,6 +23,7 @@ export default function DriveApplicationForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
+  const nameRef = useRef<HTMLDivElement>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -116,7 +118,10 @@ export default function DriveApplicationForm({
                 name="roleRadio"
                 value={option.value}
                 checked={role === option.value}
-                onChange={() => setRole(option.value)}
+                onChange={() => {
+                  setRole(option.value);
+                  scrollToNext(nameRef);
+                }}
                 className="sr-only"
               />
               <span className="font-semibold text-ink">{option.label}</span>
@@ -126,7 +131,7 @@ export default function DriveApplicationForm({
         </div>
       </fieldset>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div ref={nameRef} className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="name" className="block text-sm font-semibold text-ink">
             Full name

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MOVE_SIZE_OPTIONS, TIME_WINDOWS, type MoveSizeValue } from "@/lib/moveSizes";
 import { SERVICE_TYPES, type ServiceTypeValue } from "@/lib/serviceTypes";
 import { trackBookingConversion } from "@/lib/analytics";
+import { scrollToNext } from "@/lib/scrollToNext";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-black/10 bg-black/5 px-3 py-2 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
@@ -29,6 +30,8 @@ export default function BookingForm({
   const [serviceType, setServiceType] = useState<ServiceTypeValue | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const moveSizeRef = useRef<HTMLFieldSetElement>(null);
+  const dateTimeRef = useRef<HTMLDivElement>(null);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -135,7 +138,10 @@ export default function BookingForm({
                 name="serviceTypeRadio"
                 value={option.value}
                 checked={serviceType === option.value}
-                onChange={() => setServiceType(option.value)}
+                onChange={() => {
+                  setServiceType(option.value);
+                  if (option.value !== "OTHER") scrollToNext(moveSizeRef);
+                }}
                 className="sr-only"
               />
               <span className="font-semibold text-ink">{option.label}</span>
@@ -154,7 +160,7 @@ export default function BookingForm({
         )}
       </fieldset>
 
-      <fieldset>
+      <fieldset ref={moveSizeRef}>
         <legend className="text-sm font-semibold text-ink">How much is moving?</legend>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {MOVE_SIZE_OPTIONS.map((option) => (
@@ -171,7 +177,10 @@ export default function BookingForm({
                 name="moveSizeRadio"
                 value={option.value}
                 checked={moveSize === option.value}
-                onChange={() => setMoveSize(option.value)}
+                onChange={() => {
+                  setMoveSize(option.value);
+                  scrollToNext(dateTimeRef);
+                }}
                 className="sr-only"
               />
               <span className="font-semibold text-ink">{option.label}</span>
@@ -181,7 +190,7 @@ export default function BookingForm({
         </div>
       </fieldset>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div ref={dateTimeRef} className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="moveDate" className="block text-sm font-semibold text-ink">
             Move date
