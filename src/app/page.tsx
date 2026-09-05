@@ -129,7 +129,7 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-grid-fade lg:hidden" />
           <div className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-brand/20 blur-[120px] lg:hidden" />
 
-          <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:py-40">
+          <div className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-40">
             <div className="max-w-2xl">
               <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
@@ -169,14 +169,14 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="relative mt-10 aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 glow lg:hidden">
+            <div className="relative mt-6 aspect-[16/9] overflow-hidden rounded-3xl border border-black/10 glow lg:hidden">
               <Image
                 src="/images/box-truck-road.jpg"
                 alt="A LoveMeAfter moving truck on the road"
                 fill
                 priority
                 sizes="100vw"
-                className="object-cover"
+                className="object-cover object-bottom"
               />
             </div>
           </div>
