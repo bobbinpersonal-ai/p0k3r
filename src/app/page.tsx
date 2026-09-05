@@ -6,6 +6,7 @@ import { CITIES } from "@/lib/cities";
 import FleetIcons from "@/components/FleetIcons";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
+const BOOKING_CITIES_BADGE = CITIES.map((c) => c.name).join(" · ");
 
 const HOW_IT_WORKS = [
   {
@@ -40,7 +41,7 @@ export default function HomePage() {
             <div className="max-w-2xl">
               <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
-                Now booking · Davis · Sacramento · Bay Area
+                Now booking · {BOOKING_CITIES_BADGE}
               </p>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-6xl">
                 Movers and a truck,{" "}
@@ -114,7 +115,7 @@ export default function HomePage() {
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Coverage</p>
           <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Now serving</h2>
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {CITIES.map((city) => (
               <Link
                 key={city.slug}

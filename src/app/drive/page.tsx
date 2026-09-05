@@ -4,7 +4,7 @@ import SiteFooter from "@/components/SiteFooter";
 import FleetIcons from "@/components/FleetIcons";
 import HelperIcon from "@/components/HelperIcon";
 import DriveApplicationForm from "./DriveApplicationForm";
-import { getCity } from "@/lib/cities";
+import { CITIES, getCity } from "@/lib/cities";
 import { isSourceValue } from "@/lib/sources";
 import { isApplicantRole } from "@/lib/applicantRoles";
 
@@ -12,6 +12,12 @@ const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(555) 555-0100";
 const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
 const RECRUITING_HOURS = "9am–9pm";
+const RECRUITING_CITY_NAMES = CITIES.map((c) => c.name);
+const RECRUITING_CITIES_BADGE = RECRUITING_CITY_NAMES.join(" · ");
+const RECRUITING_CITIES_SENTENCE = new Intl.ListFormat("en", {
+  style: "long",
+  type: "conjunction",
+}).format(RECRUITING_CITY_NAMES);
 
 export const metadata: Metadata = {
   title: `Drive for ${SITE_NAME} | Flexible moving gig work`,
@@ -41,7 +47,11 @@ const PERKS = [
   },
   {
     title: "LoveMeAfter gear, on us",
-    body: "Complete your first 3 moves and we'll ship you a free LoveMeAfter shirt.",
+    body: "Complete your first 3 moves and we'll ship you free LoveMeAfter shirt + merch.",
+  },
+  {
+    title: "We cover your gas",
+    body: "Gas reimbursement is coming soon — we're building it into our pricing so getting to the job doesn't cost you out of pocket.",
   },
 ];
 
@@ -76,7 +86,7 @@ export default function DrivePage({
             <div className="max-w-2xl">
               <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
-                Now recruiting{city ? ` in ${city.name}` : " · Davis · Sacramento · Bay Area"}
+                Now recruiting{city ? ` in ${city.name}` : ` · ${RECRUITING_CITIES_BADGE}`}
               </p>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl">
                 Good work,{" "}
@@ -121,7 +131,7 @@ export default function DrivePage({
             </h2>
             <p className="mt-4 max-w-2xl text-slate-400">
               We&apos;re not just filling moving jobs — we want to be a fast, honest way for
-              people in Davis, Sacramento, and the Bay Area to find real work the moment they
+              people in {RECRUITING_CITIES_SENTENCE} to find real work the moment they
               need it. No stressful screening, no long hiring pipeline. We take everyone who
               wants to work — a dispatcher gets back to you and gets you onboarded, usually
               within 2 hours, 9am–9pm.
@@ -130,7 +140,7 @@ export default function DrivePage({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {PERKS.map((perk) => (
               <div
                 key={perk.title}

@@ -44,6 +44,20 @@ export const CITIES: City[] = [
       "Movers who know Bay Area buildings — walk-ups, tight street parking, and elevator reservations included.",
     neighborhoods: ["San Francisco", "Oakland", "San Jose", "Berkeley", "Peninsula"],
   },
+  {
+    slug: "stockton",
+    name: "Stockton",
+    region: "San Joaquin County",
+    blurb:
+      "Local movers for Stockton apartments, Central Valley homes, and everything in between — booked in minutes.",
+    neighborhoods: [
+      "Downtown Stockton",
+      "Lincoln Village",
+      "Brookside",
+      "Weston Ranch",
+      "University of the Pacific area",
+    ],
+  },
 ];
 
 export function getCity(slug: string): City | undefined {
