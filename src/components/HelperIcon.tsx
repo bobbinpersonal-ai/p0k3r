@@ -34,6 +34,8 @@ export default function HelperIcon() {
         <HelperFigure />
       </div>
       <p className="font-mono text-xs text-slate-400">Helper</p>
+      <p className="font-mono text-sm font-bold text-brand-cyan">$19/hr</p>
+      <p className="font-mono text-[10px] text-slate-500">+ keep all tips</p>
     </div>
   );
 }
