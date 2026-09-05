@@ -199,7 +199,7 @@ report conversions back the moment the campaign goes live.
   manual calls, with accept/decline.
 - **Payments (customer-facing)**: take a card on booking or on completion (Stripe).
 - **Same-day pay (driver & helper-facing)**: `/drive` now advertises this as live —
-  paid out by 5pm every day worked, sent via Zelle, Venmo, or Apple Pay. This is a
+  paid out by 5pm (or sooner) every day worked, sent via Zelle, Venmo, or Apple Pay. This is a
   manual process today (the dispatcher sends each payment by hand at the end of the
   day) — there's no in-app payout automation, and none is needed for this to be a
   real, honest promise. If volume grows past what's manageable by hand, a payout

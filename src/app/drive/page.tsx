@@ -35,7 +35,7 @@ const WHAT_TO_EXPECT = [
     body: "Show up, load up, and get the move done with your driver or helper partner.",
   },
   {
-    title: "You're paid out by 5pm",
+    title: "You're paid out by 5pm (or sooner)",
     body: "Same-day pay, every day you work — sent straight to your Zelle, Venmo, or Apple Pay.",
   },
 ];
@@ -59,7 +59,7 @@ const PERKS = [
   },
   {
     title: "Paid out the same day",
-    body: "Every day you work, you're paid out by 5pm — sent straight to your Zelle, Venmo, or Apple Pay.",
+    body: "Every day you work, you're paid out by 5pm (or sooner) — sent straight to your Zelle, Venmo, or Apple Pay.",
   },
   {
     title: "LoveMeAfter gear, on us",
