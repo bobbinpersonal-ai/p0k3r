@@ -115,6 +115,9 @@ export default function DrivePage({
                 muscle as a helper at $19/hour plus tips, no vehicle needed. Either way, work
                 on a schedule that works for you.
               </p>
+              <div className="mt-6">
+                <FleetIcons showRates />
+              </div>
               <div className="mt-4 flex flex-wrap items-start gap-4">
                 <p className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                   <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
