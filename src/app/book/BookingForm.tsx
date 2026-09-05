@@ -15,9 +15,13 @@ function todayISODate() {
 
 export default function BookingForm({
   initialSize,
+  initialPickup,
+  initialDropoff,
   city,
 }: {
   initialSize?: MoveSizeValue;
+  initialPickup?: string;
+  initialDropoff?: string;
   city?: string;
 }) {
   const router = useRouter();
@@ -157,6 +161,7 @@ export default function BookingForm({
             id="pickupAddress"
             name="pickupAddress"
             required
+            defaultValue={initialPickup}
             className={inputClass}
             placeholder="123 Main St, Apt 4B"
           />
@@ -169,6 +174,7 @@ export default function BookingForm({
             id="dropoffAddress"
             name="dropoffAddress"
             required
+            defaultValue={initialDropoff}
             className={inputClass}
             placeholder="456 Oak Ave"
           />

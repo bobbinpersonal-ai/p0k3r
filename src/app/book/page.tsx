@@ -19,6 +19,12 @@ export default function BookPage({
   const cityParam = searchParams.city;
   const city = typeof cityParam === "string" ? getCity(cityParam) : undefined;
 
+  const pickupParam = searchParams.pickup;
+  const initialPickup = typeof pickupParam === "string" ? pickupParam : undefined;
+
+  const dropoffParam = searchParams.dropoff;
+  const initialDropoff = typeof dropoffParam === "string" ? dropoffParam : undefined;
+
   return (
     <>
       <SiteHeader />
@@ -39,7 +45,12 @@ export default function BookPage({
             Prefer to book by phone? Call {SUPPORT_PHONE}
           </a>
         </p>
-        <BookingForm initialSize={initialSize} city={city?.slug} />
+        <BookingForm
+          initialSize={initialSize}
+          initialPickup={initialPickup}
+          initialDropoff={initialDropoff}
+          city={city?.slug}
+        />
       </main>
       <SiteFooter />
     </>

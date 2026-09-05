@@ -146,28 +146,56 @@ export default function HomePage() {
                 {SITE_NAME} connects you with local moving crews for apartments, houses, and
                 single big items — same-day when you need it.
               </p>
-              <div className="mt-10 flex flex-wrap gap-4">
-                <Link
-                  href="/book"
-                  className="rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
+              <form
+                action="/book"
+                method="get"
+                className="mt-8 rounded-2xl border border-black/10 bg-paper/90 p-3 shadow-lg backdrop-blur sm:p-4"
+              >
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <input
+                    name="pickup"
+                    required
+                    placeholder="Pickup address"
+                    className="flex-1 rounded-xl border border-black/10 bg-black/5 px-3 py-2.5 text-sm text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                  />
+                  <input
+                    name="dropoff"
+                    placeholder="Drop-off address"
+                    className="flex-1 rounded-xl border border-black/10 bg-black/5 px-3 py-2.5 text-sm text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                  />
+                  <select
+                    name="size"
+                    defaultValue={MOVE_SIZE_OPTIONS[0].value}
+                    className="rounded-xl border border-black/10 bg-black/5 px-3 py-2.5 text-sm text-ink [color-scheme:light] focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:w-44"
+                  >
+                    {MOVE_SIZE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value} className="bg-paper">
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  type="submit"
+                  className="mt-3 w-full rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
                 >
-                  Request a quote
-                </Link>
+                  Continue
+                </button>
+              </form>
+              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
                 <a
                   href="#how-it-works"
-                  className="rounded-full border border-black/15 bg-paper/40 px-6 py-3 text-base font-semibold text-ink backdrop-blur transition hover:bg-black/10"
+                  className="text-sm font-semibold text-ink hover:text-brand-cyan"
                 >
                   How it works
                 </a>
-              </div>
-              <p className="mt-4">
                 <a
                   href={`tel:${SUPPORT_PHONE_DIGITS}`}
                   className="font-mono text-sm text-neutral-600 hover:text-brand-cyan"
                 >
                   or call to book — {SUPPORT_PHONE}
                 </a>
-              </p>
+              </div>
             </div>
           </div>
         </section>
