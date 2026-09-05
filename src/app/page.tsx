@@ -114,17 +114,20 @@ export default function HomePage({
 
   return (
     <>
+      <SiteHeader transparent />
       <main>
         <section className="relative overflow-hidden">
           {/* The truck video is a full-bleed background behind the text on
               every breakpoint. Below lg the text stacks full-width on top,
               so the scrim fades top-to-bottom; at lg+ the text sits in a
               left column, so the scrim fades left-to-right instead. The nav
-              is transparent and sits inside this section (instead of above
-              it) so the video runs all the way to the top of the page,
-              behind the header, instead of stopping at a solid bar. Users
-              who prefer reduced motion get the poster frame as a static
-              image instead of the autoplaying video. */}
+              is fixed (see SiteHeader) and starts transparent here so the
+              video runs all the way to the top of the page, behind the
+              header, instead of stopping at a solid bar; the extra top
+              padding below clears the header's own height since it no
+              longer reserves any space in normal flow. Users who prefer
+              reduced motion get the poster frame as a static image instead
+              of the autoplaying video. */}
           <div className="absolute inset-0">
             <video
               autoPlay
@@ -150,9 +153,7 @@ export default function HomePage({
             <div className="absolute inset-0 hidden lg:block bg-gradient-to-t from-paper via-transparent to-paper/30" />
           </div>
 
-          <SiteHeader transparent />
-
-          <div className="relative mx-auto max-w-6xl px-4 pt-10 pb-56 sm:px-6 lg:py-40">
+          <div className="relative mx-auto max-w-6xl px-4 pt-28 pb-56 sm:px-6 lg:pb-40 lg:pt-[15.5rem]">
             <div className="max-w-2xl">
               <div className="w-full overflow-hidden rounded-full border border-black/10 bg-black/5 py-1.5">
                 <div className="flex w-max animate-marquee gap-10 whitespace-nowrap px-3 font-mono text-xs uppercase tracking-widest text-brand-cyan">
@@ -208,7 +209,7 @@ export default function HomePage({
                   type="submit"
                   className="mt-3 w-full rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
                 >
-                  Continue
+                  Get my 30-second quote
                 </button>
               </form>
               <div className="mt-4 rounded-xl bg-paper/60 px-3 py-2 backdrop-blur-sm">
