@@ -25,6 +25,21 @@ export const metadata: Metadata = {
   description: `Earn on your own schedule moving your neighbors. Own a pickup, cargo van, or box truck? Apply to drive for ${SITE_NAME}.`,
 };
 
+const WHAT_TO_EXPECT = [
+  {
+    title: "You're dispatched every morning",
+    body: "Each morning, your dispatcher lines up your move for the day and gets you on the road.",
+  },
+  {
+    title: "You do the job",
+    body: "Show up, load up, and get the move done with your driver or helper partner.",
+  },
+  {
+    title: "You're paid out by 5pm",
+    body: "Same-day pay, every day you work — sent straight to your Zelle, Venmo, or Apple Pay.",
+  },
+];
+
 const PERKS = [
   {
     title: "Work when you want",
@@ -43,8 +58,8 @@ const PERKS = [
     body: "We don't send anyone out solo. Every job runs with a driver and a helper riding together, so you've always got someone with you.",
   },
   {
-    title: "Get paid fast",
-    body: "Same-day cashout is coming, so the work you do today turns into money today.",
+    title: "Paid out the same day",
+    body: "Every day you work, you're paid out by 5pm — sent straight to your Zelle, Venmo, or Apple Pay.",
   },
   {
     title: "LoveMeAfter gear, on us",
@@ -167,6 +182,29 @@ export default function DrivePage({
               wants to work — a dispatcher gets back to you and gets you onboarded, usually
               within 2 hours, 9am–9pm.
             </p>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+            What to expect
+          </p>
+          <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+            Your day, start to finish
+          </h2>
+          <div className="mt-8 grid gap-6 sm:grid-cols-3">
+            {WHAT_TO_EXPECT.map((step, i) => (
+              <div
+                key={step.title}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6"
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 font-mono text-sm font-bold text-brand-cyan">
+                  {String(i + 1).padStart(2, "0")}
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-white">{step.title}</h3>
+                <p className="mt-2 text-slate-400">{step.body}</p>
+              </div>
+            ))}
           </div>
         </section>
 

@@ -198,12 +198,13 @@ report conversions back the moment the campaign goes live.
 - **Automated dispatch**: SMS the next available driver directly (Twilio) instead of
   manual calls, with accept/decline.
 - **Payments (customer-facing)**: take a card on booking or on completion (Stripe).
-- **Same-day pay / instant cashout (driver & helper-facing)**: `/drive` already promises
-  this is "coming" — there's no payout system built yet at all, not even a basic one, so
-  right now driver/helper pay happens entirely outside the app. Worth scoping this
-  properly (a payout provider like Stripe Connect or similar handles the actual money
-  movement) before advertising it as live, since promising instant cashout and not
-  delivering it burns trust with exactly the people this app is trying to recruit.
+- **Same-day pay (driver & helper-facing)**: `/drive` now advertises this as live —
+  paid out by 5pm every day worked, sent via Zelle, Venmo, or Apple Pay. This is a
+  manual process today (the dispatcher sends each payment by hand at the end of the
+  day) — there's no in-app payout automation, and none is needed for this to be a
+  real, honest promise. If volume grows past what's manageable by hand, a payout
+  provider (Stripe Connect or similar) would automate the sending, but that's a scale
+  problem to solve later, not a blocker to making the promise now.
 - **Driver app**: a lightweight mobile view for drivers to see and accept jobs
   without going through the dispatcher.
 - **Before you scale up volume or drivers**: California requires a permit (a "Cal-T"
