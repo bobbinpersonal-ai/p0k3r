@@ -26,10 +26,6 @@ const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
 const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
 const BOOKING_CITIES_BADGE = CITIES.map((c) => c.name).join(" · ");
-// Bump this whenever public/videos/hero-truck.* or the poster is replaced —
-// the files keep the same name across edits, so without a cache-busting
-// query param, browsers/CDNs keep serving the old cached video indefinitely.
-const HERO_VIDEO_VERSION = 6;
 
 const USE_CASES = [
   {
@@ -134,7 +130,7 @@ export default function HomePage({
               reduced motion get the poster frame as a static image instead
               of the autoplaying video. */}
           <div className="absolute inset-0">
-            <HeroVideo version={HERO_VIDEO_VERSION} />
+            <HeroVideo />
             <div className="absolute inset-0 bg-gradient-to-b from-paper/90 via-paper/55 to-transparent lg:hidden" />
             <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-paper via-paper/85 to-paper/40" />
             <div className="absolute inset-0 hidden lg:block bg-gradient-to-t from-paper via-transparent to-paper/30" />

@@ -1,24 +1,25 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import Image from "next/image";
 
-// A muted+playsInline <video autoPlay> should self-start in every modern
-// browser, but some autoplay policies (Brave's Shields, iOS Low Power Mode)
-// silently block it anyway and just sit on the poster frame. Those policies
-// all exempt play() calls made from a real user gesture, so retry once on
-// the first touch/click/keypress/scroll to recover from that case.
-export default function HeroVideo({ version }: { version: number }) {
+// The poster is painted as a plain CSS background on the wrapper rather than
+// as an <img>/next-image. That way the hero always shows something — even if
+// the video is blocked by an autoplay policy, hidden by Reduce Motion, fails
+// to decode, or never loads at all. The video layers on top and takes over
+// once it can play. Filenames carry their own version (…-v6.…) so replacing
+// the footage busts every browser/CDN cache without query strings, which some
+// browsers and image pipelines handle inconsistently.
+const POSTER = "/images/hero-truck-poster-v6.jpg";
+
+export default function HeroVideo() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    // Safari/WebKit (so Brave on iOS too, since it's WebKit under the hood)
-    // sometimes fails to pick up <source> children after React hydrates the
-    // page, leaving the video stuck with nothing loaded at all — not even
-    // the poster. Forcing a reload once on mount makes it re-read them.
+    // Safari/WebKit (so Brave on iOS too) can fail to pick up <source>
+    // children after React hydrates the page around them; load() re-reads them.
     video.load();
 
     const tryPlay = () => {
@@ -26,6 +27,8 @@ export default function HeroVideo({ version }: { version: number }) {
     };
     tryPlay();
 
+    // Autoplay policies (Brave Shields, iOS Low Power Mode) block muted
+    // autoplay but exempt play() from a real user gesture, so retry on one.
     const events: Array<keyof DocumentEventMap> = ["touchstart", "pointerdown", "keydown", "scroll"];
     events.forEach((event) => document.addEventListener(event, tryPlay, { once: true, passive: true }));
     video.addEventListener("loadeddata", tryPlay);
@@ -38,27 +41,24 @@ export default function HeroVideo({ version }: { version: number }) {
   }, []);
 
   return (
-    <>
+    <div
+      className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url('${POSTER}')` }}
+    >
       <video
         ref={videoRef}
         autoPlay
         muted
         loop
         playsInline
-        poster={`/images/hero-truck-poster.jpg?v=${version}`}
+        preload="auto"
+        poster={POSTER}
         className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
       >
-        <source src={`/videos/hero-truck.webm?v=${version}`} type="video/webm" />
-        <source src={`/videos/hero-truck.mp4?v=${version}`} type="video/mp4" />
+        {/* mp4 first: it's the only format WebKit plays, and it's the smaller file. */}
+        <source src="/videos/hero-truck-v6.mp4" type="video/mp4" />
+        <source src="/videos/hero-truck-v6.webm" type="video/webm" />
       </video>
-      <Image
-        src={`/images/hero-truck-poster.jpg?v=${version}`}
-        alt="A LoveMeAfter moving truck on the road"
-        fill
-        priority
-        sizes="100vw"
-        className="hidden object-cover object-center motion-reduce:block"
-      />
-    </>
+    </div>
   );
 }
