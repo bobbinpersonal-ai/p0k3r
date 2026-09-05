@@ -34,7 +34,7 @@ export const CITIES: City[] = [
     region: "Sacramento County",
     blurb:
       "Local movers for Midtown apartments, suburban houses, and everything in between the greater Sacramento area.",
-    neighborhoods: ["Midtown", "East Sacramento", "Land Park", "Natomas", "Elk Grove"],
+    neighborhoods: ["Midtown", "East Sacramento", "Land Park", "Natomas", "Elk Grove", "Sac State"],
     community: {
       heading: "Staffed by Sacramento, for Sacramento",
       body: "Our Sacramento crews live in the neighborhoods they serve — Midtown, East Sac, Natomas, Elk Grove — so they know the parking, the stairs, and the shortcuts. Real local movers, not a call center dispatching strangers.",
