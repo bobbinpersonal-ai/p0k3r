@@ -57,6 +57,7 @@ Sign in to `/admin` with the `ADMIN_PASSWORD` you set in `.env`.
 | `SESSION_SECRET` | Optional; used to sign the admin session cookie. Falls back to `ADMIN_PASSWORD` if unset — set a separate long random value in production. |
 | `NEXT_PUBLIC_SITE_NAME` | Brand name shown in the header, footer, and page titles |
 | `NEXT_PUBLIC_SUPPORT_PHONE` | Phone number shown in the header/footer |
+| `NEXT_PUBLIC_SUPPORT_EMAIL` | Support email shown in the footer. Defaults to `hello@lovemeafter.com`. |
 | `NEXT_PUBLIC_GOOGLE_ADS_ID` | Google Ads account ID (`AW-XXXXXXXXX`). Leave blank until you have one — nothing loads without it. |
 | `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL` | The conversion action's label (`AbC-D_efG-h123`) from Google Ads > Goals > Conversions. |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Optional GA4 measurement ID (`G-XXXXXXXXXX`), independent of the two Ads vars above. |
