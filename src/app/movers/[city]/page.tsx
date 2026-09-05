@@ -8,6 +8,8 @@ import { CITIES, getCity } from "@/lib/cities";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
+const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
+const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
 
 export function generateStaticParams() {
   return CITIES.map((city) => ({ city: city.slug }));
@@ -18,7 +20,7 @@ export function generateMetadata({ params }: { params: { city: string } }): Meta
   if (!city) return {};
   return {
     title: `Movers in ${city.name} | ${SITE_NAME}`,
-    description: `Book a local moving crew in ${city.name} in minutes. Instant pricing, same-day availability. ${city.blurb}`,
+    description: `Book a local moving crew in ${city.name} in minutes. Same-day availability, fast dispatcher confirmation. ${city.blurb}`,
   };
 }
 
@@ -51,15 +53,23 @@ export default function CityLandingPage({ params }: { params: { city: string } }
                   href={{ pathname: "/book", query: { city: city.slug } }}
                   className="rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
                 >
-                  Get an instant quote
+                  Request a quote
                 </Link>
                 <a
                   href="#pricing"
                   className="rounded-full border border-white/15 px-6 py-3 text-base font-semibold text-white transition hover:bg-white/5"
                 >
-                  See pricing
+                  See move sizes
                 </a>
               </div>
+              <p className="mt-4">
+                <a
+                  href={`tel:${SUPPORT_PHONE_DIGITS}`}
+                  className="font-mono text-sm text-slate-400 hover:text-brand-cyan"
+                >
+                  or call to book — {SUPPORT_PHONE}
+                </a>
+              </p>
             </div>
           </div>
         </section>
@@ -75,8 +85,8 @@ export default function CityLandingPage({ params }: { params: { city: string } }
               <p className="mt-1 text-slate-400">crews who know {city.region}</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-              <p className="font-mono text-2xl font-bold text-brand-cyan">Instant</p>
-              <p className="mt-1 text-slate-400">price range before you book</p>
+              <p className="font-mono text-2xl font-bold text-brand-cyan">Fast</p>
+              <p className="mt-1 text-slate-400">price confirmed after you submit</p>
             </div>
           </div>
 
@@ -118,12 +128,15 @@ export default function CityLandingPage({ params }: { params: { city: string } }
         )}
 
         <section id="pricing" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Pricing</p>
+          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+            Get a quote
+          </p>
           <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
-            {city.name} moving prices
+            {city.name} move sizes
           </h2>
           <p className="mt-2 text-slate-400">
-            Ballpark pricing up front — your dispatcher confirms the exact price before pickup.
+            Tell us what&apos;s moving and your dispatcher will confirm your price shortly
+            after — usually within a couple hours.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {MOVE_SIZE_OPTIONS.map((option) => (
@@ -134,9 +147,6 @@ export default function CityLandingPage({ params }: { params: { city: string } }
               >
                 <p className="font-semibold text-white">{option.label}</p>
                 <p className="mt-1 text-sm text-slate-500">{option.description}</p>
-                <p className="mt-4 font-mono text-lg font-bold text-brand-cyan">
-                  ${option.estimateLow}–${option.estimateHigh}
-                </p>
               </Link>
             ))}
           </div>

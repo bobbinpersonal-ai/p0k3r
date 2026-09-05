@@ -8,12 +8,14 @@ import FleetIcons from "@/components/FleetIcons";
 import CaliforniaMap from "@/components/CaliforniaMap";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
+const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
+const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
 const BOOKING_CITIES_BADGE = CITIES.map((c) => c.name).join(" · ");
 
 const HOW_IT_WORKS = [
   {
     title: "Tell us what's moving",
-    body: "Pickup, drop-off, and how much stuff. Get an instant price range, no account needed.",
+    body: "Pickup, drop-off, and how much stuff — no account needed. Your dispatcher confirms your price shortly after.",
   },
   {
     title: "We dispatch a crew",
@@ -54,7 +56,7 @@ export default function HomePage() {
                   href="/book"
                   className="rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
                 >
-                  Get an instant quote
+                  Request a quote
                 </Link>
                 <a
                   href="#how-it-works"
@@ -63,6 +65,14 @@ export default function HomePage() {
                   How it works
                 </a>
               </div>
+              <p className="mt-4">
+                <a
+                  href={`tel:${SUPPORT_PHONE_DIGITS}`}
+                  className="font-mono text-sm text-slate-400 hover:text-brand-cyan"
+                >
+                  or call to book — {SUPPORT_PHONE}
+                </a>
+              </p>
             </div>
             <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 glow">
               <Image
@@ -153,12 +163,13 @@ export default function HomePage() {
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Pricing</p>
+          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Get a quote</p>
           <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
             Pick the size that fits your move
           </h2>
           <p className="mt-2 text-slate-400">
-            Ballpark pricing up front — your dispatcher confirms the exact price before pickup.
+            Tell us what&apos;s moving and your dispatcher will confirm your price shortly
+            after — usually within a couple hours.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {MOVE_SIZE_OPTIONS.map((option) => (
@@ -169,9 +180,6 @@ export default function HomePage() {
               >
                 <p className="font-semibold text-white">{option.label}</p>
                 <p className="mt-1 text-sm text-slate-500">{option.description}</p>
-                <p className="mt-4 font-mono text-lg font-bold text-brand-cyan">
-                  ${option.estimateLow}–${option.estimateHigh}
-                </p>
               </Link>
             ))}
           </div>

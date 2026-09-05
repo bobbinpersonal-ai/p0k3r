@@ -7,8 +7,8 @@ export type City = {
   region: string;
   blurb: string;
   neighborhoods: string[];
-  // Optional hyper-local angle shown as its own section on the city page —
-  // only set this where it's actually true for that market.
+  // Hyper-local angle shown as its own section on the city's booking page
+  // and (when that city is selected) on the /drive recruiting page.
   community?: {
     heading: string;
     body: string;
@@ -35,6 +35,10 @@ export const CITIES: City[] = [
     blurb:
       "Local movers for Midtown apartments, suburban houses, and everything in between the greater Sacramento area.",
     neighborhoods: ["Midtown", "East Sacramento", "Land Park", "Natomas", "Elk Grove"],
+    community: {
+      heading: "Staffed by Sacramento, for Sacramento",
+      body: "Our Sacramento crews live in the neighborhoods they serve — Midtown, East Sac, Natomas, Elk Grove — so they know the parking, the stairs, and the shortcuts. Real local movers, not a call center dispatching strangers.",
+    },
   },
   {
     slug: "bay-area",
@@ -43,6 +47,10 @@ export const CITIES: City[] = [
     blurb:
       "Movers who know Bay Area buildings — walk-ups, tight street parking, and elevator reservations included.",
     neighborhoods: ["San Francisco", "Oakland", "San Jose", "Berkeley", "Peninsula"],
+    community: {
+      heading: "Staffed by the Bay, for the Bay",
+      body: "Bay Area moves come with narrow streets, walk-ups, and elevator reservations — our crews live here and deal with it every day, so nothing about your building surprises them.",
+    },
   },
   {
     slug: "stockton",
@@ -57,6 +65,10 @@ export const CITIES: City[] = [
       "Weston Ranch",
       "University of the Pacific area",
     ],
+    community: {
+      heading: "Staffed by Stockton, for Stockton",
+      body: "Our Stockton crews are local — people who know the Central Valley heat, the neighborhoods, and how to get your move done without the runaround.",
+    },
   },
   {
     slug: "los-angeles",
@@ -65,6 +77,10 @@ export const CITIES: City[] = [
     blurb:
       "Movers for LA apartments, hillside homes, and everything from Downtown to the Valley — booked in minutes.",
     neighborhoods: ["Downtown LA", "Hollywood", "Silver Lake", "Santa Monica", "San Fernando Valley"],
+    community: {
+      heading: "Staffed by LA, for LA",
+      body: "From Downtown high-rises to Valley houses, LA moves are never one-size-fits-all. Our crews live in the city and know how to handle its traffic, parking, and buildings.",
+    },
   },
   {
     slug: "merced",
@@ -73,6 +89,10 @@ export const CITIES: City[] = [
     blurb:
       "Local movers for Merced apartments, Central Valley homes, and UC Merced move-ins and move-outs.",
     neighborhoods: ["Downtown Merced", "UC Merced", "North Merced", "Bear Creek"],
+    community: {
+      heading: "Staffed by Merced, for Merced",
+      body: "Our Merced crews know the Central Valley — from UC Merced student housing to family homes across town — and treat every move like it's for a neighbor, because it usually is.",
+    },
   },
   {
     slug: "salinas",
@@ -81,6 +101,10 @@ export const CITIES: City[] = [
     blurb:
       "Local movers for Salinas homes and apartments, from Downtown to the Alisal — booked in minutes.",
     neighborhoods: ["Downtown Salinas", "Alisal", "Northridge", "Harden Ranch"],
+    community: {
+      heading: "Staffed by Salinas, for Salinas",
+      body: "Our Salinas crews are local to the Central Coast — they know the Alisal, Downtown, and everywhere in between, and show up ready to work, not just passing through.",
+    },
   },
 ];
 

@@ -24,8 +24,6 @@ export default function BookingForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const selectedOption = MOVE_SIZE_OPTIONS.find((o) => o.value === moveSize)!;
-
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
@@ -90,9 +88,6 @@ export default function BookingForm({
               />
               <span className="font-semibold text-white">{option.label}</span>
               <span className="mt-1 text-sm text-slate-400">{option.description}</span>
-              <span className="mt-2 font-mono text-sm font-bold text-brand-cyan">
-                ${option.estimateLow}–${option.estimateHigh}
-              </span>
             </label>
           ))}
         </div>
@@ -201,12 +196,9 @@ export default function BookingForm({
       </div>
 
       <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-        <p className="text-sm text-slate-400">Estimated price</p>
-        <p className="font-mono text-2xl font-extrabold text-brand-cyan">
-          ${selectedOption.estimateLow}–${selectedOption.estimateHigh}
-        </p>
-        <p className="mt-1 text-xs text-slate-500">
-          Final price is confirmed by your dispatcher based on crew and distance.
+        <p className="text-sm text-slate-400">
+          Submit this and your dispatcher will confirm your price shortly after, based on
+          your crew and distance.
         </p>
       </div>
 

@@ -4,6 +4,9 @@ import BookingForm from "./BookingForm";
 import { isMoveSizeValue } from "@/lib/moveSizes";
 import { getCity } from "@/lib/cities";
 
+const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
+const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
+
 export default function BookPage({
   searchParams,
 }: {
@@ -26,6 +29,14 @@ export default function BookPage({
         </h1>
         <p className="mt-2 text-slate-400">
           Fill this out and a dispatcher confirms your crew and final price shortly after.
+        </p>
+        <p className="mt-2">
+          <a
+            href={`tel:${SUPPORT_PHONE_DIGITS}`}
+            className="font-mono text-sm text-brand-cyan hover:text-white"
+          >
+            Prefer to book by phone? Call {SUPPORT_PHONE}
+          </a>
         </p>
         <BookingForm initialSize={initialSize} city={city?.slug} />
       </main>

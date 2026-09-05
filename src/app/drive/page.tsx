@@ -10,7 +10,7 @@ import { isSourceValue } from "@/lib/sources";
 import { isApplicantRole } from "@/lib/applicantRoles";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
-const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(555) 555-0100";
+const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
 const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
 const RECRUITING_HOURS = "9am–9pm";
 const RECRUITING_CITY_NAMES = CITIES.map((c) => c.name);
@@ -131,6 +131,26 @@ export default function DrivePage({
             </div>
           </div>
         </section>
+
+        {city?.community && (
+          <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 sm:p-10">
+              <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                Community
+              </p>
+              <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+                {city.community.heading}
+              </h2>
+              <p className="mt-4 max-w-2xl text-slate-400">{city.community.body}</p>
+              <a
+                href="#apply"
+                className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:border-brand/40 hover:bg-white/5"
+              >
+                Apply now ↓
+              </a>
+            </div>
+          </section>
+        )}
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 sm:p-10">

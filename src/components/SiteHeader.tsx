@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
-const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(555) 555-0100";
+const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
 
 export default function SiteHeader({
   ctaLabel = "Get a quote",
