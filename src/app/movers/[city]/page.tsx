@@ -116,8 +116,8 @@ export default function CityLandingPage({ params }: { params: { city: string } }
               </div>
               <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-black/10">
                 <Image
-                  src="/images/van-loaded.jpg"
-                  alt="A LoveMeAfter van loaded and ready for a move"
+                  src="/images/truck-bridge-branded.jpg"
+                  alt="A LoveMeAfter truck on the road"
                   fill
                   sizes="(min-width: 1024px) 40vw, 90vw"
                   className="object-cover"
