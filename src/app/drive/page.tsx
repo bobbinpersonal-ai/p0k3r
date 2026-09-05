@@ -147,7 +147,9 @@ export default function DrivePage({
           </h2>
           <p className="mt-2 max-w-2xl text-slate-400">
             Own any of these and know how to drive it safely and legally? You&apos;re a fit —
-            we&apos;ll match you with jobs that suit your vehicle.
+            we&apos;ll match you with jobs that suit your vehicle. Since every job runs with a
+            helper riding along, you&apos;ll need to be comfortable having someone else in the
+            truck with you.
           </p>
           <div className="mt-8">
             <FleetIcons />
