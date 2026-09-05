@@ -110,26 +110,27 @@ export default function HomePage() {
       <SiteHeader />
       <main>
         <section className="relative overflow-hidden">
-          {/* lg+: the truck fills the background behind the text — there's
-              enough width for the text column to sit clear of the truck's
-              face. Below lg there isn't, so the photo gets its own block
-              instead (see below) rather than risk covering it. */}
-          <div className="absolute inset-0 hidden lg:block">
+          {/* The truck is a full-bleed background behind the text on every
+              breakpoint. Below lg the text stacks full-width on top, so the
+              scrim fades top-to-bottom and clears by the bottom of the hero
+              so the truck's face shows unobscured without needing to
+              scroll. At lg+ the text sits in a left column, so the scrim
+              fades left-to-right instead, same as before. */}
+          <div className="absolute inset-0">
             <Image
               src="/images/box-truck-road.jpg"
               alt="A LoveMeAfter moving truck on the road"
               fill
               priority
               sizes="100vw"
-              className="object-cover"
+              className="object-cover object-bottom"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-paper via-paper/85 to-paper/40" />
-            <div className="absolute inset-0 bg-gradient-to-t from-paper via-transparent to-paper/30" />
+            <div className="absolute inset-0 bg-gradient-to-b from-paper via-paper/90 to-transparent lg:hidden" />
+            <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-paper via-paper/85 to-paper/40" />
+            <div className="absolute inset-0 hidden lg:block bg-gradient-to-t from-paper via-transparent to-paper/30" />
           </div>
-          <div className="absolute inset-0 bg-grid-fade lg:hidden" />
-          <div className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-brand/20 blur-[120px] lg:hidden" />
 
-          <div className="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:py-40">
+          <div className="relative mx-auto max-w-6xl px-4 pt-10 pb-56 sm:px-6 lg:py-40">
             <div className="max-w-2xl">
               <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
@@ -167,17 +168,6 @@ export default function HomePage() {
                   or call to book — {SUPPORT_PHONE}
                 </a>
               </p>
-            </div>
-
-            <div className="relative mt-6 aspect-[16/9] overflow-hidden rounded-3xl border border-black/10 glow lg:hidden">
-              <Image
-                src="/images/box-truck-road.jpg"
-                alt="A LoveMeAfter moving truck on the road"
-                fill
-                priority
-                sizes="100vw"
-                className="object-cover object-bottom"
-              />
             </div>
           </div>
         </section>
