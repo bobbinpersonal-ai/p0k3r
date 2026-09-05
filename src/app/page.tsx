@@ -116,23 +116,34 @@ export default function HomePage({
     <>
       <main>
         <section className="relative overflow-hidden">
-          {/* The truck is a full-bleed background behind the text on every
-              breakpoint. Below lg the text stacks full-width on top, so the
-              scrim fades top-to-bottom and clears by the bottom of the hero
-              so the truck's face shows unobscured without needing to
-              scroll. At lg+ the text sits in a left column, so the scrim
-              fades left-to-right instead, same as before. The nav is
-              transparent and sits inside this section (instead of above
-              it) so the photo runs all the way to the top of the page,
-              behind the header, instead of stopping at a solid bar. */}
+          {/* The truck video is a full-bleed background behind the text on
+              every breakpoint. Below lg the text stacks full-width on top,
+              so the scrim fades top-to-bottom; at lg+ the text sits in a
+              left column, so the scrim fades left-to-right instead. The nav
+              is transparent and sits inside this section (instead of above
+              it) so the video runs all the way to the top of the page,
+              behind the header, instead of stopping at a solid bar. Users
+              who prefer reduced motion get the poster frame as a static
+              image instead of the autoplaying video. */}
           <div className="absolute inset-0">
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              poster="/images/hero-truck-poster.jpg"
+              className="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
+            >
+              <source src="/videos/hero-truck.webm" type="video/webm" />
+              <source src="/videos/hero-truck.mp4" type="video/mp4" />
+            </video>
             <Image
-              src="/images/box-truck-road.jpg"
+              src="/images/hero-truck-poster.jpg"
               alt="A LoveMeAfter moving truck on the road"
               fill
               priority
               sizes="100vw"
-              className="object-cover object-bottom"
+              className="hidden object-cover object-center motion-reduce:block"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-paper/90 via-paper/55 to-transparent lg:hidden" />
             <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-paper via-paper/85 to-paper/40" />
