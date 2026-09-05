@@ -115,10 +115,13 @@ export default function DrivePage({
                 muscle as a helper at $19/hour plus tips, no vehicle needed. Either way, work
                 on a schedule that works for you.
               </p>
-              <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
-                No truck? No problem — helpers welcome
-              </p>
+              <div className="mt-4 flex flex-wrap items-start gap-4">
+                <p className="inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                  <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
+                  No truck? No problem — helpers welcome
+                </p>
+                <HelperIcon />
+              </div>
               <div className="mt-10 flex flex-wrap items-center gap-4">
                 <a
                   href="#apply"
@@ -231,7 +234,6 @@ export default function DrivePage({
               driving pays more once you get there.
             </p>
             <div className="mt-6 flex flex-wrap items-center gap-4">
-              <HelperIcon />
               <a
                 href={`?${new URLSearchParams({
                   ...(city ? { city: city.slug } : {}),
@@ -267,31 +269,31 @@ export default function DrivePage({
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             Your day, start to finish
           </h2>
-          <div className="mt-8 grid gap-6 sm:grid-cols-3">
+          <div className="mt-8 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
             {WHAT_TO_EXPECT.map((step, i) => (
               <div
                 key={step.title}
-                className="rounded-2xl border border-black/10 bg-black/[0.03] p-6"
+                className="w-64 shrink-0 snap-start rounded-2xl border border-black/10 bg-black/[0.03] p-5"
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 font-mono text-sm font-bold text-brand-cyan">
                   {String(i + 1).padStart(2, "0")}
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-ink">{step.title}</h3>
-                <p className="mt-2 text-neutral-500">{step.body}</p>
+                <p className="mt-3 font-semibold text-ink">{step.title}</p>
+                <p className="mt-1 text-sm text-neutral-500">{step.body}</p>
               </div>
             ))}
           </div>
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
             {PERKS.map((perk) => (
               <div
                 key={perk.title}
-                className="rounded-2xl border border-black/10 bg-black/[0.03] p-6"
+                className="w-64 shrink-0 snap-start rounded-2xl border border-black/10 bg-black/[0.03] p-5"
               >
-                <h3 className="text-lg font-semibold text-ink">{perk.title}</h3>
-                <p className="mt-2 text-neutral-500">{perk.body}</p>
+                <p className="font-semibold text-ink">{perk.title}</p>
+                <p className="mt-1 text-sm text-neutral-500">{perk.body}</p>
               </div>
             ))}
           </div>
