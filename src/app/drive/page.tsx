@@ -18,16 +18,16 @@ export const metadata: Metadata = {
 
 const PERKS = [
   {
-    title: "Set your own hours",
-    body: "Pick up jobs when you're free — weekends, evenings, between classes.",
+    title: "Work when you want",
+    body: "You decide when, where, and how much you work. No schedule to report to, no boss standing over the job.",
+  },
+  {
+    title: "Pick your own jobs",
+    body: "See what's near you and take what works for you. Turn one down any time — no penalty, you're never locked in.",
   },
   {
     title: "Keep most of what you earn",
     body: "You quote the job with your dispatcher and take home your cut of every move.",
-  },
-  {
-    title: "Work close to home",
-    body: "Local moves in your own city — no long hauls, no living out of a truck.",
   },
   {
     title: "Get paid fast",
