@@ -2,17 +2,21 @@
 
 import { useState } from "react";
 import { CITIES } from "@/lib/cities";
+import { APPLICANT_ROLES, type ApplicantRole } from "@/lib/applicantRoles";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white placeholder:text-slate-500 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 
 export default function DriveApplicationForm({
   initialCity,
+  initialRole,
   source,
 }: {
   initialCity?: string;
+  initialRole?: ApplicantRole;
   source?: string;
 }) {
+  const [role, setRole] = useState<ApplicantRole | null>(initialRole ?? null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -20,6 +24,12 @@ export default function DriveApplicationForm({
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
+
+    if (!role) {
+      setError("Let us know whether you're applying as a driver or a helper.");
+      return;
+    }
+
     setSubmitting(true);
 
     const form = new FormData(e.currentTarget);
@@ -28,6 +38,7 @@ export default function DriveApplicationForm({
       phone: String(form.get("phone") || ""),
       email: String(form.get("email") || "") || undefined,
       city: String(form.get("city") || "") || undefined,
+      role,
       vehicle: String(form.get("vehicle") || "") || undefined,
       availability: String(form.get("availability") || "") || undefined,
       notes: String(form.get("notes") || "") || undefined,
@@ -70,6 +81,35 @@ export default function DriveApplicationForm({
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+      <fieldset>
+        <legend className="text-sm font-semibold text-white">
+          I want to apply as a...
+        </legend>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          {APPLICANT_ROLES.map((option) => (
+            <label
+              key={option.value}
+              className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
+                role === option.value
+                  ? "border-brand bg-brand/10 ring-1 ring-brand"
+                  : "border-white/10 bg-white/[0.02] hover:border-white/20"
+              }`}
+            >
+              <input
+                type="radio"
+                name="roleRadio"
+                value={option.value}
+                checked={role === option.value}
+                onChange={() => setRole(option.value)}
+                className="sr-only"
+              />
+              <span className="font-semibold text-white">{option.label}</span>
+              <span className="mt-1 text-sm text-slate-400">{option.description}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="name" className="block text-sm font-semibold text-white">
@@ -114,17 +154,20 @@ export default function DriveApplicationForm({
         </div>
       </div>
 
-      <div>
-        <label htmlFor="vehicle" className="block text-sm font-semibold text-white">
-          What do you drive? (optional — leave blank to apply as a helper, no vehicle needed)
-        </label>
-        <input
-          id="vehicle"
-          name="vehicle"
-          placeholder="e.g. 2019 F-150 with a hitch, or a 16ft box truck"
-          className={inputClass}
-        />
-      </div>
+      {role === "DRIVER" && (
+        <div>
+          <label htmlFor="vehicle" className="block text-sm font-semibold text-white">
+            What do you drive?
+          </label>
+          <input
+            id="vehicle"
+            name="vehicle"
+            required
+            placeholder="e.g. 2019 F-150 with a hitch, or a 16ft box truck"
+            className={inputClass}
+          />
+        </div>
+      )}
 
       <div>
         <label htmlFor="availability" className="block text-sm font-semibold text-white">

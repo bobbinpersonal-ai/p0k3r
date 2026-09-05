@@ -5,6 +5,7 @@ import FleetIcons from "@/components/FleetIcons";
 import DriveApplicationForm from "./DriveApplicationForm";
 import { getCity } from "@/lib/cities";
 import { isSourceValue } from "@/lib/sources";
+import { isApplicantRole } from "@/lib/applicantRoles";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(555) 555-0100";
@@ -47,6 +48,10 @@ export default function DrivePage({
   const source =
     typeof sourceParam === "string" && isSourceValue(sourceParam) ? sourceParam : undefined;
 
+  const roleParam = searchParams.role;
+  const roleParamUpper = typeof roleParam === "string" ? roleParam.toUpperCase() : "";
+  const initialRole = isApplicantRole(roleParamUpper) ? roleParamUpper : undefined;
+
   return (
     <>
       <SiteHeader
@@ -71,15 +76,20 @@ export default function DrivePage({
                 </span>
               </h1>
               <p className="mt-6 text-lg text-slate-400">
-                Drive your own truck, van, or pickup and help people in your community move —
-                on a schedule that works around your life, not the other way around.
+                Drive your own truck, van, or pickup — or just bring the muscle as a helper, no
+                vehicle needed. Either way, help your neighbors move on a schedule that works
+                for you.
+              </p>
+              <p className="mt-4 inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
+                No truck? No problem — helpers welcome
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-4">
                 <a
                   href="#apply"
                   className="rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
                 >
-                  Apply to drive
+                  Apply now
                 </a>
                 <a
                   href={`tel:${SUPPORT_PHONE_DIGITS}`}
@@ -154,7 +164,11 @@ export default function DrivePage({
               pay. No vehicle required. Just show up ready to work.
             </p>
             <a
-              href="#apply"
+              href={`?${new URLSearchParams({
+                ...(city ? { city: city.slug } : {}),
+                ...(source ? { source } : {}),
+                role: "helper",
+              }).toString()}#apply`}
               className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:border-brand/40 hover:bg-white/5"
             >
               Apply as a helper →
@@ -169,7 +183,11 @@ export default function DrivePage({
             We take everyone who wants to work — no stressful screening. A dispatcher gets
             back to you and gets you onboarded, usually within 2 hours, 9am–9pm.
           </p>
-          <DriveApplicationForm initialCity={city?.slug} source={source} />
+          <DriveApplicationForm
+            initialCity={city?.slug}
+            initialRole={initialRole}
+            source={source}
+          />
         </section>
       </main>
       <SiteFooter />

@@ -6,6 +6,7 @@ import type { Booking, Driver, DriverApplication } from "@prisma/client";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 import { getCity } from "@/lib/cities";
 import { getSourceLabel } from "@/lib/sources";
+import { getApplicantRoleLabel } from "@/lib/applicantRoles";
 
 type BookingWithDriver = Booking & { driver: Driver | null };
 
@@ -256,9 +257,15 @@ export default function DispatchBoard({
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-medium text-white">{application.name}</p>
                   <div className="flex flex-wrap justify-end gap-1">
-                    {!application.vehicle && (
-                      <span className="rounded-full border border-amber-400/30 bg-amber-500/10 px-2 py-0.5 font-mono text-xs text-amber-300">
-                        Helper
+                    {application.role && (
+                      <span
+                        className={`rounded-full border px-2 py-0.5 font-mono text-xs ${
+                          application.role === "HELPER"
+                            ? "border-amber-400/30 bg-amber-500/10 text-amber-300"
+                            : "border-sky-400/30 bg-sky-500/10 text-sky-300"
+                        }`}
+                      >
+                        {getApplicantRoleLabel(application.role)}
                       </span>
                     )}
                     {application.source && (
@@ -277,7 +284,10 @@ export default function DispatchBoard({
                   {application.phone}
                 </a>
                 <p className="mt-1 text-slate-400">
-                  {application.vehicle || "No vehicle — applying as a helper"}
+                  {application.vehicle ||
+                    (application.role === "HELPER"
+                      ? "No vehicle — applying as a helper"
+                      : "No vehicle listed")}
                 </p>
                 {application.availability && (
                   <p className="text-slate-500">{application.availability}</p>
