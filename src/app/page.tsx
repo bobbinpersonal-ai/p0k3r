@@ -38,6 +38,10 @@ const USE_CASES = [
     body: "Give old furniture a second life instead of hauling it yourself.",
   },
   {
+    title: "Hauling services",
+    body: "Couches, appliances, furniture — we'll load it up and haul it wherever it needs to go.",
+  },
+  {
     title: "Estate cleanouts & downsizing",
     body: "Help sorting through and moving a lifetime of belongings.",
   },
@@ -136,7 +140,7 @@ export default function HomePage() {
               Not sure if we&apos;re a fit? Here&apos;s what most people are moving when they
               book us.
             </p>
-            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {USE_CASES.map((useCase) => (
                 <div
                   key={useCase.title}
