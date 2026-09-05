@@ -33,7 +33,7 @@ export default function AdminLoginForm() {
   return (
     <form onSubmit={handleSubmit} className="mt-8 space-y-4">
       <div>
-        <label htmlFor="password" className="block text-sm font-semibold text-white">
+        <label htmlFor="password" className="block text-sm font-semibold text-ink">
           Admin password
         </label>
         <input
@@ -43,11 +43,11 @@ export default function AdminLoginForm() {
           autoFocus
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+          className="mt-1 w-full rounded-lg border border-black/10 bg-black/5 px-3 py-2 text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         />
       </div>
       {error && (
-        <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300" role="alert">
+        <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-700" role="alert">
           {error}
         </p>
       )}

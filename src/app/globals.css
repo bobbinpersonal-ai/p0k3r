@@ -7,22 +7,22 @@ html {
 }
 
 body {
-  @apply bg-ink text-slate-100 antialiased;
+  @apply bg-paper text-neutral-800 antialiased;
 }
 
 ::selection {
-  @apply bg-brand/40 text-white;
+  @apply bg-brand/20 text-ink;
 }
 
 .bg-grid-fade {
-  background-image: linear-gradient(to right, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-image: linear-gradient(to right, rgba(34, 32, 30, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(34, 32, 30, 0.05) 1px, transparent 1px);
   background-size: 44px 44px;
   mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
 }
 
 .glow {
-  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.15), 0 0 40px -10px rgba(99, 102, 241, 0.35);
+  box-shadow: 0 0 0 1px rgba(240, 69, 90, 0.12), 0 0 40px -10px rgba(240, 69, 90, 0.3);
 }
 
 @keyframes float {

@@ -24,17 +24,17 @@ export default function BookPage({
       <SiteHeader />
       <main className="relative mx-auto max-w-2xl px-4 py-12 sm:px-6">
         <div className="absolute inset-x-0 top-0 -z-10 h-[300px] bg-grid-fade" />
-        <h1 className="text-3xl font-extrabold tracking-tight text-white">
+        <h1 className="text-3xl font-extrabold tracking-tight text-ink">
           Book your {city ? `${city.name} ` : ""}move
         </h1>
-        <p className="mt-2 text-slate-400">
+        <p className="mt-2 text-neutral-500">
           Fill this out and a dispatcher confirms your crew and final price — usually
           within 30 minutes.
         </p>
         <p className="mt-2">
           <a
             href={`tel:${SUPPORT_PHONE_DIGITS}`}
-            className="font-mono text-sm text-brand-cyan hover:text-white"
+            className="font-mono text-sm text-brand-cyan hover:text-ink"
           >
             Prefer to book by phone? Call {SUPPORT_PHONE}
           </a>

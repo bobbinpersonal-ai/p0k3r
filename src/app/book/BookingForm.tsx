@@ -7,7 +7,7 @@ import { SERVICE_TYPES, type ServiceTypeValue } from "@/lib/serviceTypes";
 import { trackBookingConversion } from "@/lib/analytics";
 
 const inputClass =
-  "mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-white placeholder:text-slate-500 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
+  "mt-1 w-full rounded-lg border border-black/10 bg-black/5 px-3 py-2 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 
 function todayISODate() {
   return new Date().toISOString().slice(0, 10);
@@ -84,7 +84,7 @@ export default function BookingForm({
   return (
     <form onSubmit={handleSubmit} className="mt-8 space-y-8">
       <fieldset>
-        <legend className="text-sm font-semibold text-white">
+        <legend className="text-sm font-semibold text-ink">
           What do you need help with?
         </legend>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -94,7 +94,7 @@ export default function BookingForm({
               className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
                 serviceType === option.value
                   ? "border-brand bg-brand/10 ring-1 ring-brand"
-                  : "border-white/10 bg-white/[0.02] hover:border-white/20"
+                  : "border-black/10 bg-black/[0.02] hover:border-black/20"
               }`}
             >
               <input
@@ -105,8 +105,8 @@ export default function BookingForm({
                 onChange={() => setServiceType(option.value)}
                 className="sr-only"
               />
-              <span className="font-semibold text-white">{option.label}</span>
-              <span className="mt-1 text-sm text-slate-400">{option.description}</span>
+              <span className="font-semibold text-ink">{option.label}</span>
+              <span className="mt-1 text-sm text-neutral-500">{option.description}</span>
             </label>
           ))}
         </div>
@@ -122,7 +122,7 @@ export default function BookingForm({
       </fieldset>
 
       <fieldset>
-        <legend className="text-sm font-semibold text-white">How much is moving?</legend>
+        <legend className="text-sm font-semibold text-ink">How much is moving?</legend>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {MOVE_SIZE_OPTIONS.map((option) => (
             <label
@@ -130,7 +130,7 @@ export default function BookingForm({
               className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
                 moveSize === option.value
                   ? "border-brand bg-brand/10 ring-1 ring-brand"
-                  : "border-white/10 bg-white/[0.02] hover:border-white/20"
+                  : "border-black/10 bg-black/[0.02] hover:border-black/20"
               }`}
             >
               <input
@@ -141,8 +141,8 @@ export default function BookingForm({
                 onChange={() => setMoveSize(option.value)}
                 className="sr-only"
               />
-              <span className="font-semibold text-white">{option.label}</span>
-              <span className="mt-1 text-sm text-slate-400">{option.description}</span>
+              <span className="font-semibold text-ink">{option.label}</span>
+              <span className="mt-1 text-sm text-neutral-500">{option.description}</span>
             </label>
           ))}
         </div>
@@ -150,7 +150,7 @@ export default function BookingForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="pickupAddress" className="block text-sm font-semibold text-white">
+          <label htmlFor="pickupAddress" className="block text-sm font-semibold text-ink">
             Pickup address
           </label>
           <input
@@ -162,7 +162,7 @@ export default function BookingForm({
           />
         </div>
         <div>
-          <label htmlFor="dropoffAddress" className="block text-sm font-semibold text-white">
+          <label htmlFor="dropoffAddress" className="block text-sm font-semibold text-ink">
             Drop-off address
           </label>
           <input
@@ -177,7 +177,7 @@ export default function BookingForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="moveDate" className="block text-sm font-semibold text-white">
+          <label htmlFor="moveDate" className="block text-sm font-semibold text-ink">
             Move date
           </label>
           <input
@@ -187,11 +187,11 @@ export default function BookingForm({
             required
             min={todayISODate()}
             defaultValue={todayISODate()}
-            className={`${inputClass} [color-scheme:dark]`}
+            className={`${inputClass} [color-scheme:light]`}
           />
         </div>
         <div>
-          <label htmlFor="timeWindow" className="block text-sm font-semibold text-white">
+          <label htmlFor="timeWindow" className="block text-sm font-semibold text-ink">
             Time window
           </label>
           <select
@@ -199,10 +199,10 @@ export default function BookingForm({
             name="timeWindow"
             required
             defaultValue={TIME_WINDOWS[0]}
-            className={`${inputClass} [color-scheme:dark]`}
+            className={`${inputClass} [color-scheme:light]`}
           >
             {TIME_WINDOWS.map((w) => (
-              <option key={w} value={w} className="bg-ink">
+              <option key={w} value={w} className="bg-paper">
                 {w}
               </option>
             ))}
@@ -211,7 +211,7 @@ export default function BookingForm({
       </div>
 
       <div>
-        <label htmlFor="details" className="block text-sm font-semibold text-white">
+        <label htmlFor="details" className="block text-sm font-semibold text-ink">
           Anything we should know? (optional)
         </label>
         <textarea
@@ -225,13 +225,13 @@ export default function BookingForm({
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="sm:col-span-1">
-          <label htmlFor="customerName" className="block text-sm font-semibold text-white">
+          <label htmlFor="customerName" className="block text-sm font-semibold text-ink">
             Full name
           </label>
           <input id="customerName" name="customerName" required className={inputClass} />
         </div>
         <div className="sm:col-span-1">
-          <label htmlFor="customerPhone" className="block text-sm font-semibold text-white">
+          <label htmlFor="customerPhone" className="block text-sm font-semibold text-ink">
             Phone
           </label>
           <input
@@ -243,22 +243,22 @@ export default function BookingForm({
           />
         </div>
         <div className="sm:col-span-1">
-          <label htmlFor="customerEmail" className="block text-sm font-semibold text-white">
+          <label htmlFor="customerEmail" className="block text-sm font-semibold text-ink">
             Email (optional)
           </label>
           <input id="customerEmail" name="customerEmail" type="email" className={inputClass} />
         </div>
       </div>
 
-      <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-        <p className="text-sm text-slate-400">
+      <div className="rounded-xl border border-black/10 bg-black/[0.03] p-4">
+        <p className="text-sm text-neutral-500">
           Submit this and your dispatcher will call or text you with a price — usually
           within 30 minutes.
         </p>
       </div>
 
       {error && (
-        <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-300" role="alert">
+        <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-700" role="alert">
           {error}
         </p>
       )}

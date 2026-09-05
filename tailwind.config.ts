@@ -6,13 +6,14 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          DEFAULT: "#6366f1",
-          light: "#818cf8",
-          dark: "#4338ca",
-          cyan: "#22d3ee",
+          DEFAULT: "#F0455A",
+          light: "#FF8A93",
+          dark: "#C22C40",
+          cyan: "#C2760C",
         },
-        ink: "#05060a",
-        surface: "#0d0f18",
+        ink: "#22201E",
+        paper: "#FFFDFB",
+        surface: "#FCF6F1",
       },
       fontFamily: {
         sans: ["var(--font-sans)"],
@@ -20,7 +21,7 @@ const config: Config = {
       },
       backgroundImage: {
         grid:
-          "linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px)",
+          "linear-gradient(to right, rgba(34,32,30,0.05) 1px, transparent 1px), linear-gradient(to bottom, rgba(34,32,30,0.05) 1px, transparent 1px)",
       },
       backgroundSize: {
         grid: "44px 44px",

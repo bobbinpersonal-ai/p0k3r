@@ -11,16 +11,16 @@ function HelperFigure() {
       <ellipse cx="72" cy="31" rx="28" ry="5" fill="url(#helperCap)" />
       <defs>
         <linearGradient id="helperShirt" x1="22" y1="50" x2="98" y2="78">
-          <stop offset="0" stopColor="#818cf8" />
-          <stop offset="1" stopColor="#6366f1" />
+          <stop offset="0" stopColor="#FF8A93" />
+          <stop offset="1" stopColor="#F0455A" />
         </linearGradient>
         <linearGradient id="helperHead" x1="42" y1="22" x2="78" y2="58">
           <stop offset="0" stopColor="#94a3b8" />
           <stop offset="1" stopColor="#64748b" />
         </linearGradient>
         <linearGradient id="helperCap" x1="36" y1="6" x2="84" y2="32">
-          <stop offset="0" stopColor="#22d3ee" />
-          <stop offset="1" stopColor="#0ea5c7" />
+          <stop offset="0" stopColor="#E08E1D" />
+          <stop offset="1" stopColor="#9C5B0A" />
         </linearGradient>
       </defs>
     </svg>
@@ -29,13 +29,13 @@ function HelperFigure() {
 
 export default function HelperIcon() {
   return (
-    <div className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] py-6 px-8">
+    <div className="flex flex-col items-center gap-2 rounded-2xl border border-black/10 bg-black/[0.03] py-6 px-8">
       <div className="animate-float">
         <HelperFigure />
       </div>
-      <p className="font-mono text-xs text-slate-400">Helper</p>
+      <p className="font-mono text-xs text-neutral-500">Helper</p>
       <p className="font-mono text-sm font-bold text-brand-cyan">$19/hr</p>
-      <p className="font-mono text-[10px] text-slate-500">+ keep all tips</p>
+      <p className="font-mono text-[10px] text-neutral-400">+ keep all tips</p>
     </div>
   );
 }

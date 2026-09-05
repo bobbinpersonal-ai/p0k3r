@@ -104,17 +104,17 @@ export default function DrivePage({
           <div className="absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full bg-brand/20 blur-[120px]" />
           <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-2 lg:items-center">
             <div className="max-w-2xl">
-              <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
+              <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
                 Now recruiting{city ? ` in ${city.name}` : ` · ${RECRUITING_CITIES_BADGE}`}
               </p>
-              <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-white sm:text-5xl">
+              <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
                 Good work,{" "}
-                <span className="bg-gradient-to-r from-brand-light via-violet-400 to-brand-cyan bg-clip-text text-transparent">
+                <span className="bg-gradient-to-r from-brand-light via-orange-400 to-brand-cyan bg-clip-text text-transparent">
                   close to home.
                 </span>
               </h1>
-              <p className="mt-6 text-lg text-slate-400">
+              <p className="mt-6 text-lg text-neutral-500">
                 Drive your own truck, van, or pickup — or just bring the muscle as a helper, no
                 vehicle needed. Either way, help your neighbors move on a schedule that works
                 for you.
@@ -132,13 +132,13 @@ export default function DrivePage({
                 </a>
                 <a
                   href={`tel:${SUPPORT_PHONE_DIGITS}`}
-                  className="font-mono text-sm text-slate-400 hover:text-brand-cyan"
+                  className="font-mono text-sm text-neutral-500 hover:text-brand-cyan"
                 >
                   or call now — {SUPPORT_PHONE} · {RECRUITING_HOURS}
                 </a>
               </div>
             </div>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 glow">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 glow">
               <Image
                 src="/images/mover-cart.jpg"
                 alt="A LoveMeAfter helper moving boxes on a hand cart"
@@ -153,17 +153,17 @@ export default function DrivePage({
 
         {city?.community && (
           <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 sm:p-10">
+            <div className="rounded-3xl border border-black/10 bg-black/[0.03] p-8 sm:p-10">
               <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 Community
               </p>
-              <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+              <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
                 {city.community.heading}
               </h2>
-              <p className="mt-4 max-w-2xl text-slate-400">{city.community.body}</p>
+              <p className="mt-4 max-w-2xl text-neutral-500">{city.community.body}</p>
               <a
                 href="#apply"
-                className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:border-brand/40 hover:bg-white/5"
+                className="mt-6 inline-flex items-center gap-2 rounded-full border border-black/15 px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand/40 hover:bg-black/5"
               >
                 Apply now ↓
               </a>
@@ -172,14 +172,14 @@ export default function DrivePage({
         )}
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 sm:p-10">
+          <div className="rounded-3xl border border-black/10 bg-black/[0.03] p-8 sm:p-10">
             <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
               Our mission
             </p>
-            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+            <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
               If you want to work, there&apos;s a place for you here.
             </h2>
-            <p className="mt-4 max-w-2xl text-slate-400">
+            <p className="mt-4 max-w-2xl text-neutral-500">
               We&apos;re not just filling moving jobs — we want to be a fast, honest way for
               people in {RECRUITING_CITIES_SENTENCE} to find real work the moment they
               need it. No stressful screening, no long hiring pipeline. We take everyone who
@@ -193,20 +193,20 @@ export default function DrivePage({
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
             What to expect
           </p>
-          <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             Your day, start to finish
           </h2>
           <div className="mt-8 grid gap-6 sm:grid-cols-3">
             {WHAT_TO_EXPECT.map((step, i) => (
               <div
                 key={step.title}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6"
+                className="rounded-2xl border border-black/10 bg-black/[0.03] p-6"
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 font-mono text-sm font-bold text-brand-cyan">
                   {String(i + 1).padStart(2, "0")}
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-white">{step.title}</h3>
-                <p className="mt-2 text-slate-400">{step.body}</p>
+                <h3 className="mt-4 text-lg font-semibold text-ink">{step.title}</h3>
+                <p className="mt-2 text-neutral-500">{step.body}</p>
               </div>
             ))}
           </div>
@@ -217,10 +217,10 @@ export default function DrivePage({
             {PERKS.map((perk) => (
               <div
                 key={perk.title}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-6"
+                className="rounded-2xl border border-black/10 bg-black/[0.03] p-6"
               >
-                <h3 className="text-lg font-semibold text-white">{perk.title}</h3>
-                <p className="mt-2 text-slate-400">{perk.body}</p>
+                <h3 className="text-lg font-semibold text-ink">{perk.title}</h3>
+                <p className="mt-2 text-neutral-500">{perk.body}</p>
               </div>
             ))}
           </div>
@@ -230,10 +230,10 @@ export default function DrivePage({
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
             What you&apos;ll drive
           </p>
-          <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             Bring your own vehicle
           </h2>
-          <p className="mt-2 max-w-2xl text-slate-400">
+          <p className="mt-2 max-w-2xl text-neutral-500">
             Own any of these and know how to drive it safely and legally? You&apos;re a fit —
             we&apos;ll match you with jobs that suit your vehicle. Since every job runs with a
             helper riding along, you&apos;ll need to be comfortable having someone else in the
@@ -245,28 +245,28 @@ export default function DrivePage({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 sm:p-10">
+          <div className="rounded-3xl border border-black/10 bg-black/[0.03] p-8 sm:p-10">
             <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
               No truck? No problem
             </p>
-            <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">
+            <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
               Be a helper. Ride shotgun.
             </h2>
-            <p className="mt-4 max-w-2xl text-slate-400">
+            <p className="mt-4 max-w-2xl text-neutral-500">
               Every move needs muscle as much as it needs a truck. Ride along with a driver,
               load and carry, wrap the furniture, keep things moving — split the job, split the
               pay. No vehicle required. Just show up ready to work.
             </p>
-            <p className="mt-2 max-w-2xl text-slate-400">
+            <p className="mt-2 max-w-2xl text-neutral-500">
               You&apos;re never doing this solo — every job pairs a driver and a helper, so you
               always have someone riding shotgun with you.
             </p>
-            <p className="mt-2 max-w-2xl text-slate-400">
+            <p className="mt-2 max-w-2xl text-neutral-500">
               Most mornings, you and your driver pick a meetup spot that&apos;s convenient for
               both of you, hop in the truck together, and head out to the day&apos;s jobs as a
               team.
             </p>
-            <p className="mt-2 max-w-2xl text-slate-400">
+            <p className="mt-2 max-w-2xl text-neutral-500">
               It&apos;s also a path, not just a starting point. Plenty of helpers move up to
               driving once they&apos;re ready — you start earning right away as a helper, and
               driving pays more once you get there.
@@ -279,7 +279,7 @@ export default function DrivePage({
                   ...(source ? { source } : {}),
                   role: "helper",
                 }).toString()}#apply`}
-                className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:border-brand/40 hover:bg-white/5"
+                className="inline-flex items-center gap-2 rounded-full border border-black/15 px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand/40 hover:bg-black/5"
               >
                 Apply as a helper →
               </a>
@@ -289,8 +289,8 @@ export default function DrivePage({
 
         <section id="apply" className="mx-auto max-w-2xl px-4 py-14 sm:px-6">
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Apply</p>
-          <h2 className="mt-2 text-2xl font-bold text-white sm:text-3xl">Tell us about you</h2>
-          <p className="mt-2 text-slate-400">
+          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">Tell us about you</h2>
+          <p className="mt-2 text-neutral-500">
             We take everyone who wants to work — no stressful screening. A dispatcher gets
             back to you and gets you onboarded, usually within 2 hours, 9am–9pm.
           </p>

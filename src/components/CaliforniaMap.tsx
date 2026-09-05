@@ -38,16 +38,16 @@ export default function CaliforniaMap() {
     >
       <defs>
         <linearGradient id="caFill" x1="0" y1="0" x2="300" y2="500">
-          <stop offset="0" stopColor="#6366f1" stopOpacity="0.16" />
-          <stop offset="1" stopColor="#22d3ee" stopOpacity="0.08" />
+          <stop offset="0" stopColor="#F0455A" stopOpacity="0.16" />
+          <stop offset="1" stopColor="#E08E1D" stopOpacity="0.08" />
         </linearGradient>
         <linearGradient id="caStroke" x1="0" y1="0" x2="300" y2="500">
-          <stop offset="0" stopColor="#818cf8" />
-          <stop offset="1" stopColor="#22d3ee" />
+          <stop offset="0" stopColor="#FF8A93" />
+          <stop offset="1" stopColor="#E08E1D" />
         </linearGradient>
         <radialGradient id="markerGlow">
-          <stop offset="0" stopColor="#22d3ee" stopOpacity="0.55" />
-          <stop offset="1" stopColor="#22d3ee" stopOpacity="0" />
+          <stop offset="0" stopColor="#E08E1D" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#E08E1D" stopOpacity="0" />
         </radialGradient>
       </defs>
 
@@ -66,14 +66,14 @@ export default function CaliforniaMap() {
             cx={m.x}
             cy={m.y}
             r="4"
-            className="fill-brand-cyan transition group-hover:fill-white"
+            className="fill-brand transition group-hover:fill-brand-dark"
           />
-          <circle cx={m.x} cy={m.y} r="4" fill="none" stroke="#05060a" strokeWidth="1.5" />
+          <circle cx={m.x} cy={m.y} r="4" fill="none" stroke="#FFFDFB" strokeWidth="1.5" />
           <text
             x={m.x + m.labelDx}
             y={m.y + m.labelDy}
             textAnchor={m.anchor}
-            className="fill-slate-200 transition group-hover:fill-white"
+            className="fill-neutral-500 transition group-hover:fill-ink"
             style={{ font: "11px var(--font-mono), monospace" }}
           >
             {m.label}

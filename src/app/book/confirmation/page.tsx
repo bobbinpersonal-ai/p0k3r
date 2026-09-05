@@ -25,32 +25,32 @@ export default async function ConfirmationPage({
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-brand/30 bg-brand/10 text-2xl text-brand-cyan">
           ✓
         </div>
-        <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-white">
+        <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-ink">
           Request received
         </h1>
-        <p className="mt-2 text-slate-400">
+        <p className="mt-2 text-neutral-500">
           We&apos;re lining up a crew for your move. You&apos;ll get a call or text at{" "}
-          <span className="font-semibold text-white">{booking.customerPhone}</span> to confirm
+          <span className="font-semibold text-ink">{booking.customerPhone}</span> to confirm
           your final price and pickup window — usually within 30 minutes.
         </p>
 
-        <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-left">
+        <div className="mt-8 rounded-2xl border border-black/10 bg-black/[0.03] p-6 text-left">
           <dl className="space-y-3 text-sm">
             <div className="flex justify-between gap-4">
-              <dt className="text-slate-500">Confirmation #</dt>
-              <dd className="font-mono font-medium text-white">{booking.id}</dd>
+              <dt className="text-neutral-400">Confirmation #</dt>
+              <dd className="font-mono font-medium text-ink">{booking.id}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-slate-500">Pickup</dt>
-              <dd className="text-right font-medium text-white">{booking.pickupAddress}</dd>
+              <dt className="text-neutral-400">Pickup</dt>
+              <dd className="text-right font-medium text-ink">{booking.pickupAddress}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-slate-500">Drop-off</dt>
-              <dd className="text-right font-medium text-white">{booking.dropoffAddress}</dd>
+              <dt className="text-neutral-400">Drop-off</dt>
+              <dd className="text-right font-medium text-ink">{booking.dropoffAddress}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-slate-500">Date</dt>
-              <dd className="font-medium text-white">
+              <dt className="text-neutral-400">Date</dt>
+              <dd className="font-medium text-ink">
                 {new Date(booking.moveDate).toLocaleDateString(undefined, {
                   weekday: "short",
                   month: "short",
@@ -59,20 +59,20 @@ export default async function ConfirmationPage({
               </dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-slate-500">Window</dt>
-              <dd className="font-medium text-white">{booking.timeWindow}</dd>
+              <dt className="text-neutral-400">Window</dt>
+              <dd className="font-medium text-ink">{booking.timeWindow}</dd>
             </div>
             {booking.serviceType && (
               <div className="flex justify-between gap-4">
-                <dt className="text-slate-500">Service</dt>
-                <dd className="text-right font-medium text-white">
+                <dt className="text-neutral-400">Service</dt>
+                <dd className="text-right font-medium text-ink">
                   {getServiceTypeLabel(booking.serviceType)}
                   {booking.serviceTypeOther ? ` — ${booking.serviceTypeOther}` : ""}
                 </dd>
               </div>
             )}
             <div className="flex justify-between gap-4">
-              <dt className="text-slate-500">Estimate</dt>
+              <dt className="text-neutral-400">Estimate</dt>
               <dd className="font-mono font-medium text-brand-cyan">
                 ${booking.estimateLow}–${booking.estimateHigh}
               </dd>
@@ -82,7 +82,7 @@ export default async function ConfirmationPage({
 
         <Link
           href="/"
-          className="mt-8 inline-block rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/5"
+          className="mt-8 inline-block rounded-full border border-black/15 px-6 py-3 text-sm font-semibold text-ink transition hover:bg-black/5"
         >
           Back to home
         </Link>
