@@ -56,6 +56,11 @@ export default function StepVehicle({
   // the mode supplies the trip instead — nothing for an on-site job, a typical
   // local run when we're picking the destination.
   const needsDropoff = requiresDropoffAddress(dropoffMode);
+  // Until the route lands we don't know the mileage, and a price without it is
+  // not a smaller price — it's the wrong one. Showing it and then correcting it
+  // upward is the single most alarming thing this screen can do, so hold the
+  // number rather than publish one we're about to raise.
+  const priceUnknown = needsDropoff && loadingRoute;
   const tiers = quoteTiers(
     moveSize,
     routeForMode(dropoffMode, {
@@ -83,7 +88,9 @@ export default function StepVehicle({
       )}
 
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-widest text-neutral-500">
-        {loadingRoute && <span>{needsDropoff ? "Measuring the route…" : "Finding you…"}</span>}
+        {loadingRoute && (
+          <span>{needsDropoff ? "Measuring the route to price it…" : "Finding you…"}</span>
+        )}
 
         {/* A one-address job has no route to report, so say what's actually
             priced instead of warning about a missing address nobody entered. */}
@@ -148,10 +155,12 @@ export default function StepVehicle({
               type="button"
               onClick={() => onSelectTier(tier.value)}
               aria-pressed={isSelected}
-              className={`block w-full rounded-2xl border p-5 text-left transition ${
+              // Picking a truck is picking a price, so it waits for the number.
+              disabled={priceUnknown}
+              className={`block w-full rounded-2xl border p-5 text-left transition disabled:cursor-wait ${
                 isSelected
                   ? "border-brand bg-brand/5"
-                  : "border-black/10 bg-black/[0.02] hover:border-brand/40"
+                  : "border-black/10 bg-black/[0.02] enabled:hover:border-brand/40"
               }`}
             >
               <div className="flex items-start justify-between gap-4">
@@ -163,12 +172,24 @@ export default function StepVehicle({
                     </span>
                   </div>
                   <p className="mt-1 text-sm text-neutral-500">{tier.fits}</p>
-                  <p className="mt-3 text-2xl font-bold text-ink">
-                    ${low}–${high}
-                  </p>
+                  {priceUnknown ? (
+                    <p className="mt-3 flex items-center gap-2 text-2xl font-bold text-neutral-300">
+                      <span
+                        aria-hidden
+                        className="inline-block h-6 w-24 animate-pulse rounded bg-black/10"
+                      />
+                      <span className="sr-only">Working out the price</span>
+                    </p>
+                  ) : (
+                    <p className="mt-3 text-2xl font-bold text-ink">
+                      ${low}–${high}
+                    </p>
+                  )}
                   <p className="font-mono text-xs text-neutral-500">
                     {tier.dimensions}
-                    {route && ` · ~${formatHours(hoursLow)}–${formatHours(hoursHigh)} hrs`}
+                    {!priceUnknown &&
+                      route &&
+                      ` · ~${formatHours(hoursLow)}–${formatHours(hoursHigh)} hrs`}
                   </p>
                 </div>
                 <TierArt tier={tier.value} />

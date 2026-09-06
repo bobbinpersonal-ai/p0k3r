@@ -46,6 +46,16 @@ const TOTAL_STEPS = 6;
 /** Which step collects the addresses — the one that triggers routing. */
 const ADDRESS_STEP = 2;
 
+/** Shown next to "Step 3 of 6" and on the tappable progress segments. */
+const STEP_LABELS = [
+  "What you need",
+  "Addresses",
+  "Your truck",
+  "Arrival time",
+  "Details",
+  "Your info",
+];
+
 export default function BookingFlow({
   initialSize,
   initialPickup,
@@ -63,6 +73,10 @@ export default function BookingFlow({
   const router = useRouter();
   // Arriving from a homepage job chip means step 1 is already answered.
   const [step, setStep] = useState(initialServiceType ? ADDRESS_STEP : 1);
+  // Read inside the popstate effect, which is registered once and must not
+  // close over a stale step.
+  const stepRef = useRef(step);
+  stepRef.current = step;
   const jobPreset = initialServiceType ? getServiceType(initialServiceType) : undefined;
   const topRef = useRef<HTMLDivElement>(null);
 
@@ -116,6 +130,64 @@ export default function BookingFlow({
   useEffect(() => {
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [step]);
+
+  // Every step gets a history entry, so the phone's back gesture and the
+  // browser's back button walk the wizard instead of leaving the page — which
+  // previously threw away everything the customer had typed. Going back in the
+  // UI calls history.back() rather than setting state directly, so both routes
+  // in and out stay on the same stack and can't disagree.
+  //
+  // Next's router keeps its own fields on history.state, so spread the existing
+  // state rather than replacing it, or its own navigation breaks.
+  useEffect(() => {
+    window.history.replaceState({ ...window.history.state, bookingStep: 1 }, "");
+    if (stepRef.current !== 1) {
+      // Arrived on a later step from a homepage job chip. Seed the entry for
+      // step 1 underneath it, so the first Back press shows the job list they
+      // skipped rather than dropping them back onto the homepage.
+      window.history.pushState(
+        { ...window.history.state, bookingStep: stepRef.current },
+        "",
+      );
+    }
+    function onPopState(event: PopStateEvent) {
+      const target = (event.state as { bookingStep?: number } | null)?.bookingStep;
+      // No marker means this entry isn't ours — the customer is leaving /book,
+      // so let the browser do it.
+      if (typeof target !== "number") return;
+      setError(null);
+      setStep(target);
+    }
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, []);
+
+  function goForward(target: number) {
+    setError(null);
+    setStep(target);
+    window.history.pushState({ ...window.history.state, bookingStep: target }, "");
+  }
+
+  function goBackTo(target: number) {
+    if (target >= step) return;
+    setError(null);
+
+    if (target === step - 1) {
+      // One step back is a real history step, which keeps this button and the
+      // phone's back gesture interchangeable.
+      window.history.back();
+      return;
+    }
+
+    // Jumping several steps can't be expressed as a fixed number of history
+    // entries: the customer may have used the browser's own back and forward in
+    // between, so the step delta and the stack depth drift apart — and guessing
+    // wrong walks them off the page with everything they typed. Push instead.
+    // It always lands where they asked, and their next back press returns them
+    // to wherever they jumped from.
+    setStep(target);
+    window.history.pushState({ ...window.history.state, bookingStep: target }, "");
+  }
 
   const matchedCrew = matchCrew(tier);
 
@@ -239,7 +311,7 @@ export default function BookingFlow({
     }
     setError(null);
     if (step === ADDRESS_STEP) void loadRoute();
-    setStep((s) => Math.min(s + 1, TOTAL_STEPS));
+    goForward(Math.min(step + 1, TOTAL_STEPS));
   }
 
   async function submit() {
@@ -299,17 +371,39 @@ export default function BookingFlow({
 
   return (
     <div ref={topRef} className="mt-8 scroll-mt-24">
-      {/* Progress */}
+      {/* Progress. The finished segments are buttons: on a six-step form the
+          fastest way back to something you want to change is to tap it. */}
       <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
-        Step {step}/{TOTAL_STEPS}
+        Step {step}/{TOTAL_STEPS} · {STEP_LABELS[step - 1]}
       </p>
-      <div className="mt-3 flex gap-2" aria-hidden>
-        {Array.from({ length: TOTAL_STEPS }, (_, i) => (
-          <span
-            key={i}
-            className={`h-1.5 flex-1 rounded-full ${i < step ? "bg-brand" : "bg-black/10"}`}
-          />
-        ))}
+      <div className="mt-3 flex gap-2">
+        {Array.from({ length: TOTAL_STEPS }, (_, i) => {
+          const stepNumber = i + 1;
+          const done = stepNumber < step;
+          return (
+            <button
+              key={i}
+              type="button"
+              disabled={!done}
+              onClick={() => goBackTo(stepNumber)}
+              title={done ? `Back to ${STEP_LABELS[i]}` : STEP_LABELS[i]}
+              aria-label={
+                done
+                  ? `Go back to step ${stepNumber}: ${STEP_LABELS[i]}`
+                  : `Step ${stepNumber}: ${STEP_LABELS[i]}`
+              }
+              aria-current={stepNumber === step ? "step" : undefined}
+              // Tall enough to hit with a thumb, while the bar itself stays thin.
+              className="group flex-1 py-2 disabled:cursor-default"
+            >
+              <span
+                className={`block h-1.5 rounded-full transition ${
+                  stepNumber <= step ? "bg-brand" : "bg-black/10"
+                } ${done ? "group-hover:bg-brand-cyan" : ""}`}
+              />
+            </button>
+          );
+        })}
       </div>
 
       {/* Who'd be driving. Sits above the step itself: once someone has been
@@ -425,23 +519,20 @@ export default function BookingFlow({
         {step > 1 && (
           <button
             type="button"
-            onClick={() => {
-              setError(null);
-              setStep((s) => s - 1);
-            }}
-            aria-label="Go back"
-            className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-black/15 text-ink transition hover:border-brand/40"
+            onClick={() => goBackTo(step - 1)}
+            className="flex h-14 shrink-0 items-center gap-1.5 rounded-2xl border border-black/15 px-4 font-semibold text-ink transition hover:border-brand/40"
           >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
               <path d="M15 5l-7 7 7 7" />
             </svg>
+            Back
           </button>
         )}
         <button
           type="button"
           onClick={step === TOTAL_STEPS ? submit : next}
           disabled={submitting}
-          className="flex-1 rounded-2xl bg-gradient-to-r from-brand to-brand-cyan px-6 py-4 text-lg font-semibold text-white shadow-md transition enabled:hover:opacity-90 disabled:opacity-50"
+          className="h-14 flex-1 rounded-2xl bg-gradient-to-r from-brand to-brand-cyan px-6 text-lg font-semibold text-white shadow-md transition enabled:hover:opacity-90 disabled:opacity-50"
         >
           {step === TOTAL_STEPS ? (submitting ? "Booking…" : "Book my move") : "Continue"}
         </button>

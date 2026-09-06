@@ -157,6 +157,23 @@ with step 1 already answered.
 The whole draft lives in `BookingFlow.tsx`, so stepping backwards never loses what
 was already entered. Each step validates before it lets you advance.
 
+**Going back** works three ways, and all of them keep the draft: the labelled
+Back button, tapping any completed segment of the progress bar, and the
+browser's own back button or a phone's back gesture. That last one matters most
+— the wizard lives at a single URL, so without history entries a back swipe used
+to leave the site and discard everything typed. Each step pushes an entry
+carrying `bookingStep` (spread onto Next's own history state, not replacing it).
+One step back calls `history.back()` so the button and the gesture stay
+interchangeable; jumping several steps pushes instead, because the step delta
+and the history depth drift apart once someone has used the browser's own back
+and forward, and guessing wrong navigates them off the page.
+
+**Prices are withheld until they're final.** The vehicle cards can render before
+the route has been measured, and a price without mileage isn't a smaller price —
+it's the wrong one. Showing it and then revising it upward is the most alarming
+thing this screen can do, so while the route is loading the cards show a
+placeholder and can't be selected.
+
 Arrival windows come from `src/lib/arrivalWindows.ts`, which drops today's slots as
 they pass (plus a two-hour lead-time buffer) and rolls the picker to tomorrow once
 the day is used up. Date keys are local `YYYY-MM-DD` and the API pins them to local
