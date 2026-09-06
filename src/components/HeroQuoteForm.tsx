@@ -43,8 +43,11 @@ export default function HeroQuoteForm({ city }: { city?: string }) {
           onChange={setPickup}
         />
         <HeroAddressInput
-          label="Move to"
-          placeholder="Drop-off city or address"
+          // Plenty of these jobs have nowhere to go — a dump run, a donation, help
+          // loading a container in the driveway. Two identical boxes read as
+          // "both required", so say plainly that this one isn't.
+          label="Move to (optional)"
+          placeholder="Leave blank for a dump or donation run"
           icon={<ArrowIcon direction="down" />}
           value={dropoff}
           onChange={setDropoff}
@@ -54,12 +57,16 @@ export default function HeroQuoteForm({ city }: { city?: string }) {
       {/* Fills the pickup box with the town and ZIP only. The street is the
           part a GPS fix gets wrong anyway, and the part nobody tapping a
           convenience button meant to hand over. */}
-      <UseMyLocationButton
-        className="mt-2"
-        onResolved={({ city, zip }) =>
-          setPickup(formatAddress({ ...EMPTY_ADDRESS, city, zip }))
-        }
-      />
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+        <UseMyLocationButton
+          onResolved={({ city, zip }) =>
+            setPickup(formatAddress({ ...EMPTY_ADDRESS, city, zip }))
+          }
+        />
+        <p className="text-xs text-neutral-500">
+          Junk haul, donation, or just loading help? Skip the second address.
+        </p>
+      </div>
       <select
         value={size}
         onChange={(e) => setSize(e.target.value as MoveSizeValue)}
