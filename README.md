@@ -153,7 +153,7 @@ link you use for each channel and it shows up as a badge next to each applicant 
 the dashboard. Recognized values live in `src/lib/sources.ts` — add a row there for
 any new channel. For today's channels:
 
-- QR business card → `https://lovemeafter.com/drive?source=qr-card`
+- QR business card → `https://lovemeafter.com/apply` (redirects to `/drive?source=qr-card#apply` — this is the URL printed on the physical cards/flyers)
 - Craigslist post → `https://lovemeafter.com/drive?source=craigslist`
 - Someone refers a friend → `https://lovemeafter.com/drive?source=referral`
 
