@@ -142,10 +142,10 @@ export default function DrivePage({
             </div>
             <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 glow">
               <AutoplayVideo
-                mp4="/videos/hero-truck-v6.mp4"
-                webm="/videos/hero-truck-v6.webm"
-                poster="/images/hero-truck-poster-v6.jpg"
-                alt="A LoveMeAfter truck out on a delivery run at night"
+                mp4="/videos/pickup-a-v1.mp4"
+                webm="/videos/pickup-a-v1.webm"
+                poster="/images/pickup-a-v1-poster.jpg"
+                alt="A pickup truck out on a delivery run"
                 className="absolute inset-0"
                 videoClassName="absolute inset-0 h-full w-full object-cover object-center"
               />
