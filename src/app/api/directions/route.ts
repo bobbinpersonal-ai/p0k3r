@@ -128,6 +128,20 @@ async function routeViaOsrm(a: LatLng, b: LatLng) {
   return parseRouteResponse((await res.json()) as OsrmLikeResponse);
 }
 
+/**
+ * Runs one router, treating a thrown error — a timeout, DNS failure, or a body
+ * that didn't parse — like a refusal: null, so the ladder moves on. Sharing one
+ * try block would mean a Google timeout skipping OSRM and drawing a dashed
+ * straight line when a real road route was one call away.
+ */
+async function attempt(run: () => Promise<RouteResult | null>): Promise<RouteResult | null> {
+  try {
+    return await run();
+  } catch {
+    return null;
+  }
+}
+
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -147,18 +161,16 @@ export async function POST(request: Request) {
   const googleKey = process.env.GOOGLE_MAPS_API_KEY;
   const token = process.env.MAPBOX_TOKEN;
 
-  try {
-    // Best available first, then down the ladder — each step also covers the
-    // one above it failing, not just being unconfigured.
-    const route =
-      (googleKey ? await routeViaGoogle(pickup, dropoff, googleKey) : null) ??
-      (token ? await routeViaMapbox(pickup, dropoff, token) : null) ??
-      (await routeViaOsrm(pickup, dropoff));
-    if (route) return NextResponse.json(route);
-  } catch {
-    // fall through to the straight-line estimate below
-  }
+  // Best available first, then down the ladder — each step also covers the one
+  // above it failing, not just being unconfigured.
+  const route =
+    (googleKey ? await attempt(() => routeViaGoogle(pickup, dropoff, googleKey)) : null) ??
+    (token ? await attempt(() => routeViaMapbox(pickup, dropoff, token)) : null) ??
+    (await attempt(() => routeViaOsrm(pickup, dropoff)));
+  if (route) return NextResponse.json(route);
 
+  // Every router is unreachable: quote off a straight line scaled for street
+  // detours and flag it, rather than dead-ending a booking on a map failure.
   const miles = estimateRoadMiles(pickup, dropoff);
   return NextResponse.json({
     miles,

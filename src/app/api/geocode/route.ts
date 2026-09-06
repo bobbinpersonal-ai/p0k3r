@@ -17,6 +17,9 @@ import { findServiceAreaPlace } from "@/lib/serviceAreaPlaces";
 //      coverage is far better than the OSM-based autocomplete we fall back
 //      to. US-only, which is fine: we only move people in California.
 //   4. Photon, as a last network attempt
+//
+// A tier that's configured but *failing* is skipped rather than fatal, so the
+// free tiers still run when Google is down or its billing hasn't gone active.
 //   5. any of the above retried with the town appended, since a bare street
 //      name is often unresolvable alone but fine once anchored to a city
 //   6. the service-area town centre, which still puts the trip on the map
@@ -104,40 +107,27 @@ async function geocodeViaCensus(query: string): Promise<GeocodeResult | null> {
   };
 }
 
-async function geocodeViaProvider(query: string): Promise<GeocodeResult | null> {
-  const googleKey = process.env.GOOGLE_MAPS_API_KEY;
-  const token = process.env.MAPBOX_TOKEN;
+async function geocodeViaMapbox(query: string, token: string): Promise<GeocodeResult | null> {
+  const url =
+    `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json` +
+    `?access_token=${encodeURIComponent(token)}&limit=1&country=us` +
+    `&proximity=${CALIFORNIA_CENTER.lng},${CALIFORNIA_CENTER.lat}`;
+  const res = await fetchWithTimeout(url);
+  if (!res.ok) return null;
+  const data = (await res.json()) as {
+    features?: { center?: [number, number]; place_name?: string }[];
+  };
+  const hit = data.features?.[0];
+  if (!hit?.center) return null;
+  return {
+    lng: hit.center[0],
+    lat: hit.center[1],
+    precision: "address",
+    label: hit.place_name ?? query,
+  };
+}
 
-  if (googleKey) {
-    const viaGoogle = await geocodeViaGoogle(query, googleKey);
-    if (viaGoogle) return viaGoogle;
-  }
-
-  if (token) {
-    const url =
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json` +
-      `?access_token=${encodeURIComponent(token)}&limit=1&country=us` +
-      `&proximity=${CALIFORNIA_CENTER.lng},${CALIFORNIA_CENTER.lat}`;
-    const res = await fetchWithTimeout(url);
-    if (!res.ok) return null;
-    const data = (await res.json()) as {
-      features?: { center?: [number, number]; place_name?: string }[];
-    };
-    const hit = data.features?.[0];
-    if (!hit?.center) return null;
-    return {
-      lng: hit.center[0],
-      lat: hit.center[1],
-      precision: "address",
-      label: hit.place_name ?? query,
-    };
-  }
-
-  // No paid provider configured: try the Census first, since it actually
-  // knows US house numbers, and only then fall back to Photon.
-  const viaCensus = await geocodeViaCensus(query);
-  if (viaCensus) return viaCensus;
-
+async function geocodeViaPhoton(query: string): Promise<GeocodeResult | null> {
   const url =
     `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}` +
     `&limit=1&lang=en&bbox=${CALIFORNIA_BBOX}`;
@@ -158,6 +148,36 @@ async function geocodeViaProvider(query: string): Promise<GeocodeResult | null> 
   const label =
     [props.housenumber, props.street].filter(Boolean).join(" ") || props.name || query;
   return { lng: coords[0], lat: coords[1], precision: "address", label };
+}
+
+/**
+ * Runs one provider, treating a thrown error — a timeout, DNS failure, or a
+ * body that didn't parse — exactly like "no match": null, so the ladder moves
+ * on to the next tier instead of collapsing to the town centre.
+ */
+async function attempt<T>(run: () => Promise<T | null>): Promise<T | null> {
+  try {
+    return await run();
+  } catch {
+    return null;
+  }
+}
+
+async function geocodeViaProvider(query: string): Promise<GeocodeResult | null> {
+  const googleKey = process.env.GOOGLE_MAPS_API_KEY;
+  const token = process.env.MAPBOX_TOKEN;
+
+  // Most accurate first, and every tier runs regardless of what's configured
+  // above it. Census in particular is free and keyless, so there's no reason to
+  // skip it just because a Google key exists — if Google is down, mid-billing,
+  // or over quota, a Census rooftop is a far better answer than dropping the
+  // customer's building to the middle of their town.
+  return (
+    (googleKey ? await attempt(() => geocodeViaGoogle(query, googleKey)) : null) ??
+    (token ? await attempt(() => geocodeViaMapbox(query, token)) : null) ??
+    (await attempt(() => geocodeViaCensus(query))) ??
+    (await attempt(() => geocodeViaPhoton(query)))
+  );
 }
 
 /**

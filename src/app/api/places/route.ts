@@ -16,8 +16,16 @@ import type { PlaceSuggestion } from "@/lib/geo";
 //                         this is the tier to move off once you're spending on
 //                         ads (see /api/geocode, which backstops it).
 //
-// Autocomplete is an enhancement, never a gate: if a provider is down, slow, or
-// rate-limiting us, we return an empty list and the customer just types their
+// Each tier also covers the one above it *failing*, not just being
+// unconfigured. That matters most on the day a key is first added: a Google key
+// whose billing hasn't gone active yet answers REQUEST_DENIED, and without the
+// fall-through, setting the env var would take autocomplete from "working on
+// Photon" to "returns nothing" — a config change silently making the site
+// worse. A provider that fails is skipped; only a provider that genuinely has
+// no matches ends the search.
+//
+// Autocomplete is an enhancement, never a gate: if every provider is down, slow,
+// or rate-limiting us, we return an empty list and the customer just types their
 // address by hand. The booking still goes through.
 
 export const runtime = "nodejs";
@@ -43,11 +51,12 @@ type GooglePrediction = {
   structured_formatting?: { main_text?: string; secondary_text?: string };
 };
 
+/** Returns null when Google couldn't answer, [] when it has no matches. */
 async function searchGoogle(
   query: string,
   key: string,
   sessionToken?: string,
-): Promise<PlaceSuggestion[]> {
+): Promise<PlaceSuggestion[] | null> {
   const url =
     `https://maps.googleapis.com/maps/api/place/autocomplete/json` +
     `?input=${encodeURIComponent(query)}&key=${encodeURIComponent(key)}` +
@@ -60,10 +69,25 @@ async function searchGoogle(
     (sessionToken ? `&sessiontoken=${encodeURIComponent(sessionToken)}` : "");
 
   const res = await fetchWithTimeout(url);
-  if (!res.ok) return [];
-  const data = (await res.json()) as { status?: string; predictions?: GooglePrediction[] };
-  // REQUEST_DENIED usually means the key is missing Places API or billing.
-  if (data.status && data.status !== "OK" && data.status !== "ZERO_RESULTS") return [];
+  if (!res.ok) return null;
+  const data = (await res.json()) as {
+    status?: string;
+    error_message?: string;
+    predictions?: GooglePrediction[];
+  };
+  // REQUEST_DENIED means the key is missing the Places API, missing billing, or
+  // restricted away from this caller; OVER_QUERY_LIMIT means we've been cut off.
+  // Either way Google can't answer, so hand back null and let the next provider
+  // try. Logged because this is the failure someone has to be able to diagnose
+  // from the Vercel logs after wiring up a key — the query itself is a fragment
+  // of a customer's address, so it stays out of the log line.
+  if (data.status && data.status !== "OK" && data.status !== "ZERO_RESULTS") {
+    console.warn(
+      `[places] Google autocomplete unavailable: ${data.status}` +
+        (data.error_message ? ` — ${data.error_message}` : ""),
+    );
+    return null;
+  }
 
   return (data.predictions ?? []).slice(0, 5).flatMap((prediction) => {
     const primary = prediction.structured_formatting?.main_text ?? prediction.description ?? "";
@@ -90,7 +114,8 @@ type MapboxFeature = {
   context?: { id: string; text: string; short_code?: string }[];
 };
 
-async function searchMapbox(query: string, token: string): Promise<PlaceSuggestion[]> {
+/** Returns null when Mapbox couldn't answer, [] when it has no matches. */
+async function searchMapbox(query: string, token: string): Promise<PlaceSuggestion[] | null> {
   const url =
     `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json` +
     `?access_token=${encodeURIComponent(token)}` +
@@ -98,7 +123,7 @@ async function searchMapbox(query: string, token: string): Promise<PlaceSuggesti
     `&proximity=${CALIFORNIA_CENTER.lng},${CALIFORNIA_CENTER.lat}`;
 
   const res = await fetchWithTimeout(url);
-  if (!res.ok) return [];
+  if (!res.ok) return null;
   const data = (await res.json()) as { features?: MapboxFeature[] };
 
   return (data.features ?? []).flatMap((feature) => {
@@ -197,6 +222,22 @@ async function searchPhoton(query: string): Promise<PlaceSuggestion[]> {
     .map((s) => s.suggestion);
 }
 
+/**
+ * Runs one provider, treating a thrown error — a timeout, DNS failure, or a
+ * body that didn't parse — exactly like a refusal: null, so the ladder moves
+ * on. Without this the tiers share a single try block, and a Google timeout
+ * would skip the fallbacks it exists to reach.
+ */
+async function attempt(
+  run: () => Promise<PlaceSuggestion[] | null>,
+): Promise<PlaceSuggestion[] | null> {
+  try {
+    return await run();
+  } catch {
+    return null;
+  }
+}
+
 export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const query = params.get("q")?.trim() ?? "";
@@ -210,16 +251,15 @@ export async function GET(request: Request) {
   const googleKey = process.env.GOOGLE_MAPS_API_KEY;
   const token = process.env.MAPBOX_TOKEN;
 
-  try {
-    const suggestions = googleKey
-      ? await searchGoogle(query, googleKey, sessionToken)
-      : token
-        ? await searchMapbox(query, token)
-        : await searchPhoton(query);
-    return NextResponse.json({ suggestions });
-  } catch {
-    // Timed out, blocked, or malformed upstream response — fall back to
-    // free-text entry rather than surfacing an error the customer can't act on.
-    return NextResponse.json({ suggestions: [] });
-  }
+  // `??` rather than a ternary chain: a configured provider that fails falls
+  // through to the next one instead of ending the search empty-handed.
+  const suggestions =
+    (googleKey ? await attempt(() => searchGoogle(query, googleKey, sessionToken)) : null) ??
+    (token ? await attempt(() => searchMapbox(query, token)) : null) ??
+    (await attempt(() => searchPhoton(query))) ??
+    // Everything is down. The customer types their address by hand and the
+    // booking still goes through — /api/geocode resolves it on Continue.
+    [];
+
+  return NextResponse.json({ suggestions });
 }
