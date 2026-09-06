@@ -25,6 +25,7 @@ export default function StepVehicle({
   dropoffPoint,
   route,
   loadingRoute,
+  approximate,
   moveSize,
   selectedTier,
   onMoveSizeChange,
@@ -34,6 +35,8 @@ export default function StepVehicle({
   dropoffPoint: LatLng | null;
   route: RouteState | null;
   loadingRoute: boolean;
+  /** One or both ends resolved to a town centre rather than a building. */
+  approximate: boolean;
   moveSize: MoveSizeValue;
   selectedTier: VehicleTierValue | null;
   onMoveSizeChange: (size: MoveSizeValue) => void;
@@ -66,13 +69,19 @@ export default function StepVehicle({
             <span className="text-brand-cyan">{route.miles.toFixed(1)} mi</span>
             <span aria-hidden>·</span>
             <span>~{Math.round(route.minutes)} min drive</span>
-            {route.estimated && <span className="normal-case tracking-normal">(approx.)</span>}
+            {(route.estimated || approximate) && (
+              <span className="normal-case tracking-normal">
+                {approximate
+                  ? "· approximate — measured town to town, dispatch confirms the exact address"
+                  : "(approx.)"}
+              </span>
+            )}
           </>
         )}
         {!loadingRoute && !route && (
           <span className="normal-case tracking-normal">
-            We couldn&apos;t map this route, so mileage isn&apos;t included below — dispatch
-            will confirm it.
+            We couldn&apos;t place one of these addresses. Mileage isn&apos;t included below —
+            dispatch will confirm it when they call.
           </span>
         )}
       </div>

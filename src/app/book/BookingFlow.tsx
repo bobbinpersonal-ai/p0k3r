@@ -58,6 +58,9 @@ export default function BookingFlow({
   });
   const [route, setRoute] = useState<RouteState | null>(null);
   const [loadingRoute, setLoadingRoute] = useState(false);
+  // True when one or both ends fell back to a town centre rather than a
+  // building, so the UI can say the distance is a ballpark.
+  const [approximate, setApproximate] = useState(false);
   const [moveSize, setMoveSize] = useState<MoveSizeValue>(initialSize ?? "STUDIO");
   const [tier, setTier] = useState<VehicleTierValue | null>(null);
   const [estimate, setEstimate] = useState<{ low: number; high: number } | null>(null);
@@ -95,15 +98,54 @@ export default function BookingFlow({
   const dropoffPoint: LatLng | null =
     dropoff.lat !== null && dropoff.lng !== null ? { lat: dropoff.lat, lng: dropoff.lng } : null;
 
+  /**
+   * Resolve an address that has no coordinates yet — i.e. one typed out
+   * rather than picked from the dropdown, which is the common case.
+   */
+  async function resolve(value: AddressValue): Promise<{ point: LatLng | null; approx: boolean }> {
+    if (value.lat !== null && value.lng !== null) {
+      return { point: { lat: value.lat, lng: value.lng }, approx: false };
+    }
+    if (!value.address.trim()) return { point: null, approx: false };
+    try {
+      const res = await fetch("/api/geocode", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address: value.address }),
+      });
+      if (!res.ok) return { point: null, approx: false };
+      const { result } = (await res.json()) as {
+        result: { lat: number; lng: number; precision: "address" | "city" } | null;
+      };
+      if (!result) return { point: null, approx: false };
+      return {
+        point: { lat: result.lat, lng: result.lng },
+        approx: result.precision === "city",
+      };
+    } catch {
+      return { point: null, approx: false };
+    }
+  }
+
   async function loadRoute() {
     setRoute(null);
-    if (!pickupPoint || !dropoffPoint) return; // free-text addresses: no route, still bookable
+    setApproximate(false);
     setLoadingRoute(true);
     try {
+      // Geocode whatever doesn't already have coordinates, then route.
+      const [from, to] = await Promise.all([resolve(pickup), resolve(dropoff)]);
+      if (!from.point || !to.point) return;
+
+      setApproximate(from.approx || to.approx);
+      // Keep the resolved coordinates so the map draws pins and the booking
+      // records where the job actually is.
+      if (pickup.lat === null) setPickup((p) => ({ ...p, ...from.point }));
+      if (dropoff.lat === null) setDropoff((d) => ({ ...d, ...to.point }));
+
       const res = await fetch("/api/directions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ pickup: pickupPoint, dropoff: dropoffPoint }),
+        body: JSON.stringify({ pickup: from.point, dropoff: to.point }),
       });
       if (res.ok) setRoute((await res.json()) as RouteState);
     } catch {
@@ -224,6 +266,7 @@ export default function BookingFlow({
             dropoffPoint={dropoffPoint}
             route={route}
             loadingRoute={loadingRoute}
+            approximate={approximate}
             moveSize={moveSize}
             selectedTier={tier}
             onMoveSizeChange={setMoveSize}
