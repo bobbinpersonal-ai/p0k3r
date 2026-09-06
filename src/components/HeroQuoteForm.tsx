@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { MOVE_SIZE_OPTIONS, type MoveSizeValue } from "@/lib/moveSizes";
+import { EMPTY_ADDRESS, formatAddress } from "@/lib/address";
+import UseMyLocationButton from "@/components/UseMyLocationButton";
 
 // The hero quote form: two plain address boxes and a size, forwarded to /book.
 //
@@ -48,6 +50,16 @@ export default function HeroQuoteForm({ city }: { city?: string }) {
           onChange={setDropoff}
         />
       </div>
+
+      {/* Fills the pickup box with the town and ZIP only. The street is the
+          part a GPS fix gets wrong anyway, and the part nobody tapping a
+          convenience button meant to hand over. */}
+      <UseMyLocationButton
+        className="mt-2"
+        onResolved={({ city, zip }) =>
+          setPickup(formatAddress({ ...EMPTY_ADDRESS, city, zip }))
+        }
+      />
       <select
         value={size}
         onChange={(e) => setSize(e.target.value as MoveSizeValue)}

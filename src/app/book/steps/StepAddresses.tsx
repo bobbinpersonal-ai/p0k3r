@@ -32,6 +32,9 @@ export default function StepAddresses({
           icon={<ArrowIcon direction="up" />}
           value={pickup}
           onChange={(v) => onChange({ pickup: v, dropoff })}
+          // Pickup only: "my location" means where they are now, which is where
+          // the stuff is. Offering it on the drop-off would fill in the wrong end.
+          enableLocation
         />
 
         <div className="relative mx-4 border-t border-black/10">

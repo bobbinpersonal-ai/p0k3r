@@ -201,13 +201,28 @@ would cost more bookings than a tidy address is worth. `parseAddress()` in
 `src/lib/address.ts` splits what they typed into the booking form's fields,
 where they can correct it before anything is priced.
 
-Two API routes do the lookups, each trying providers in order of accuracy and
+Three API routes do the lookups, each trying providers in order of accuracy and
 falling through on failure, not just on missing config:
 
 | | `GOOGLE_MAPS_API_KEY` | `MAPBOX_TOKEN` | No key |
 | --- | --- | --- | --- |
 | `/api/geocode` (address → coordinates) | Google Geocoding | Mapbox | **US Census** (structured, then one-line), then Photon, then town centre |
+| `/api/reverse-geocode` (coordinates → city + ZIP) | Google | Mapbox | **US Census** geographies, then Photon, then nearest town |
 | `/api/directions` (distance + route line) | Google Directions | Mapbox | OSRM, then straight-line estimate |
+
+**"Use my location"** (`UseMyLocationButton`) fills the city and ZIP and never
+the street, on the homepage hero and on the booking form's pickup. That is a
+deliberate limit, not a missing feature. A GPS fix indoors is routinely off by a
+building, so a reverse-geocoded street line is a guess presented as a fact —
+and someone tapping a convenience button hasn't asked us to record where they
+are standing. Coordinates are rounded to three decimals (~110m) on the device
+*and* again on the server before any third party sees them, and
+`/api/reverse-geocode` returns nothing but a city and a ZIP.
+
+Location is never requested on page load, only on a tap: an unprompted
+permission dialog gets denied reflexively, and a denial is sticky. Every failure
+path — denied, unsupported, geocoder down — ends with a short line of text and a
+form the customer can still type into.
 
 A Google key is an upgrade, not a dependency, and it needs a Cloud account with
 billing **active** — a key created while payment is pending answers

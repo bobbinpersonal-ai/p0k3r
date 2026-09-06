@@ -5,6 +5,7 @@ import {
   isValidZip,
   type StructuredAddress,
 } from "@/lib/address";
+import UseMyLocationButton from "@/components/UseMyLocationButton";
 
 // Street / unit / city / ZIP, asked for separately.
 //
@@ -22,12 +23,15 @@ export default function AddressFields({
   value,
   onChange,
   autoFocus,
+  enableLocation = false,
 }: {
   legend: string;
   icon: React.ReactNode;
   value: StructuredAddress;
   onChange: (value: StructuredAddress) => void;
   autoFocus?: boolean;
+  /** Offer "use my location" to fill city and ZIP. Pickup only — see StepAddresses. */
+  enableLocation?: boolean;
 }) {
   const id = useId();
   const zipTouched = value.zip.trim().length > 0;
@@ -114,6 +118,18 @@ export default function AddressFields({
 
       {zipInvalid && (
         <p className="mt-2 text-xs text-red-600">ZIP needs to be 5 digits.</p>
+      )}
+
+      {enableLocation && (
+        // Fills city and ZIP and deliberately leaves street alone: a GPS fix is
+        // routinely off by a building indoors, so a street line from it would
+        // be a guess wearing the costume of a fact.
+        <UseMyLocationButton
+          className="mt-3"
+          onResolved={({ city, zip }) =>
+            set({ city: city || value.city, zip: zip || value.zip })
+          }
+        />
       )}
     </fieldset>
   );
