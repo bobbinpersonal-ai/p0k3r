@@ -6,11 +6,17 @@ import { useEffect, useRef } from "react";
 //
 // The poster is painted as a plain CSS background on the wrapper rather than
 // as an <img>/next-image, so the block always shows artwork — even if the
-// video is blocked by an autoplay policy, hidden by Reduce Motion, fails to
-// decode, or never loads. The video layers on top and takes over once it can
-// play. Asset filenames carry their own version (…-v6.…) so replacing the
-// footage busts every browser/CDN cache without query strings, which some
-// browsers and image pipelines handle inconsistently.
+// video is blocked by an autoplay policy, fails to decode, or never loads.
+// The video layers on top and takes over once it can play. Asset filenames
+// carry their own version (…-v6.…) so replacing the footage busts every
+// browser/CDN cache without query strings, which some browsers and image
+// pipelines handle inconsistently.
+//
+// Note: the video deliberately does NOT opt out under prefers-reduced-motion.
+// A motion-reduce:hidden rule used to sit on it, which meant anyone browsing
+// with iOS Reduce Motion enabled saw only the frozen poster — the footage is
+// a slow, steady drive rather than the parallax/zoom effects that setting is
+// meant to suppress, and it's the whole point of the hero.
 export default function AutoplayVideo({
   mp4,
   webm,
@@ -32,25 +38,55 @@ export default function AutoplayVideo({
     const video = videoRef.current;
     if (!video) return;
 
-    // Safari/WebKit (so Brave on iOS too) can fail to pick up <source>
-    // children after React hydrates the page around them; load() re-reads them.
-    video.load();
+    let playing = false;
 
+    // Never call load() up front: it resets the element and aborts any
+    // autoplay the browser already started, leaving the poster frozen on
+    // screen. It's only useful as a last-resort recovery below, when
+    // nothing has loaded at all.
     const tryPlay = () => {
-      video.play().catch(() => {});
+      if (playing) return;
+      const attempt = video.play();
+      if (attempt) attempt.then(teardown).catch(() => {});
     };
+
+    // Retries stay registered until playback actually succeeds. An earlier
+    // version used { once: true }, so a scroll fired on load, play() was
+    // rejected, and the listener deleted itself — every later tap was dead.
+    const events: Array<keyof DocumentEventMap> = ["touchstart", "pointerdown", "click", "keydown", "scroll"];
+    const mediaEvents = ["loadeddata", "canplay", "canplaythrough"];
+
+    function teardown() {
+      playing = true;
+      events.forEach((event) => document.removeEventListener(event, tryPlay));
+      mediaEvents.forEach((event) => video!.removeEventListener(event, tryPlay));
+    }
+
+    events.forEach((event) => document.addEventListener(event, tryPlay, { passive: true }));
+    mediaEvents.forEach((event) => video.addEventListener(event, tryPlay));
+
+    // iOS won't start a video that's scrolled out of view, which is the
+    // normal case for the cards further down the city and recruiting pages.
+    const observer = new IntersectionObserver(
+      (entries) => entries.forEach((entry) => entry.isIntersecting && tryPlay()),
+      { threshold: 0.1 },
+    );
+    observer.observe(video);
+
     tryPlay();
 
-    // Autoplay policies (Brave Shields, iOS Low Power Mode) block muted
-    // autoplay but exempt play() from a real user gesture, so retry on one.
-    const events: Array<keyof DocumentEventMap> = ["touchstart", "pointerdown", "keydown", "scroll"];
-    events.forEach((event) => document.addEventListener(event, tryPlay, { once: true, passive: true }));
-    video.addEventListener("loadeddata", tryPlay);
-    video.addEventListener("canplay", tryPlay);
+    // If the source genuinely never loaded (readyState 0), re-read it once.
+    const recover = window.setTimeout(() => {
+      if (!playing && video.readyState === 0) {
+        video.load();
+        tryPlay();
+      }
+    }, 3000);
+
     return () => {
-      events.forEach((event) => document.removeEventListener(event, tryPlay));
-      video.removeEventListener("loadeddata", tryPlay);
-      video.removeEventListener("canplay", tryPlay);
+      window.clearTimeout(recover);
+      observer.disconnect();
+      teardown();
     };
   }, []);
 

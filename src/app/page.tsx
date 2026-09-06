@@ -135,7 +135,7 @@ export default function HomePage({
               webm="/videos/hero-truck-v6.webm"
               poster="/images/hero-truck-poster-v6.jpg"
               className="absolute inset-0"
-              videoClassName="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
+              videoClassName="absolute inset-0 h-full w-full object-cover object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-paper/90 via-paper/55 to-transparent lg:hidden" />
             <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-paper via-paper/85 to-paper/40" />

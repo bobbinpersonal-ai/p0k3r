@@ -147,7 +147,7 @@ export default function DrivePage({
                 poster="/images/hero-truck-poster-v6.jpg"
                 alt="A LoveMeAfter truck out on a delivery run at night"
                 className="absolute inset-0"
-                videoClassName="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
+                videoClassName="absolute inset-0 h-full w-full object-cover object-center"
               />
             </div>
           </div>
