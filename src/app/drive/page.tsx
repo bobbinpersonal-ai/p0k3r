@@ -192,20 +192,40 @@ export default function DrivePage({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
-            What you&apos;ll drive
-          </p>
-          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            Bring your own vehicle
-          </h2>
-          <p className="mt-2 max-w-2xl text-neutral-500">
-            Own any of these and know how to drive it safely and legally? You&apos;re a fit —
-            we&apos;ll match you with jobs that suit your vehicle. Since every job runs with a
-            helper riding along, you&apos;ll need to be comfortable having someone else in the
-            truck with you.
-          </p>
-          <div className="mt-8">
-            <FleetIcons showRates />
+          <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+            <div>
+              <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                What you&apos;ll drive
+              </p>
+              <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
+                Bring your own vehicle
+              </h2>
+              <p className="mt-2 max-w-2xl text-neutral-500">
+                Own any of these and know how to drive it safely and legally? You&apos;re a fit —
+                we&apos;ll match you with jobs that suit your vehicle. Since every job runs with a
+                helper riding along, you&apos;ll need to be comfortable having someone else in the
+                truck with you.
+              </p>
+              <p className="mt-2 max-w-2xl text-neutral-500">
+                It doesn&apos;t need to be new. We keep the bar at{" "}
+                <span className="font-semibold text-ink">1998 or newer</span> — running well
+                and road-legal matters a lot more to us than the model year. We want this work
+                to be accessible, not gatekept behind a newer truck than you&apos;ve got.
+              </p>
+              <div className="mt-8">
+                <FleetIcons showRates />
+              </div>
+            </div>
+            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 glow">
+              <AutoplayVideo
+                mp4="/videos/pickup-tacoma-v1.mp4"
+                webm="/videos/pickup-tacoma-v1.webm"
+                poster="/images/pickup-tacoma-v1-poster.jpg"
+                alt="An older pickup truck, still road-ready, out on a job"
+                className="absolute inset-0"
+                videoClassName="absolute inset-0 h-full w-full object-cover object-center"
+              />
+            </div>
           </div>
         </section>
 
