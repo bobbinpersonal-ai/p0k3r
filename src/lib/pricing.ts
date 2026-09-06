@@ -112,8 +112,8 @@ export type PriceBreakdown = {
 
 export type TierQuote = PriceBreakdown & { tier: VehicleTier };
 
-export function crewHourlyFor(tier: VehicleTierValue): number {
-  return DRIVER_HOURLY[tier] + helpersFor(tier) * HELPER_HOURLY;
+export function crewHourlyFor(tier: VehicleTierValue, extraHelper = false): number {
+  return DRIVER_HOURLY[tier] + (helpersFor(tier) + (extraHelper ? 1 : 0)) * HELPER_HOURLY;
 }
 
 /**
@@ -132,13 +132,21 @@ export type RouteInput = {
   minutes?: number | null;
 };
 
+export type QuoteOptions = {
+  /** An extra pair of hands on top of whatever the vehicle tier includes. */
+  extraHelper?: boolean;
+};
+
 export function quoteTier(
   moveSize: MoveSizeValue,
   tierValue: VehicleTierValue,
   route: RouteInput,
+  options: QuoteOptions = {},
 ): PriceBreakdown {
   const labor = LABOR_HOURS[moveSize];
-  const crewHourly = crewHourlyFor(tierValue);
+  const extraHelper = options.extraHelper === true;
+  const baseCrewHourly = crewHourlyFor(tierValue);
+  const crewHourly = crewHourlyFor(tierValue, extraHelper);
   const miles = route.miles;
 
   // Drive time is paid work, so it goes into the hours, not just the mileage.
@@ -153,11 +161,26 @@ export function quoteTier(
   const vehicleAllowance =
     miles === null ? 0 : miles * DEADHEAD_FACTOR * VEHICLE_PER_MILE[tierValue];
 
-  const payoutLow = hoursLow * crewHourly + vehicleAllowance;
-  const payoutHigh = hoursHigh * crewHourly + vehicleAllowance;
+  const payoutLow = hoursLow * baseCrewHourly + vehicleAllowance;
+  const payoutHigh = hoursHigh * baseCrewHourly + vehicleAllowance;
 
-  const low = Math.max(MINIMUM_PRICE, ceilToFive(payoutLow / (1 - PLATFORM_RATE)));
-  const high = Math.max(low + 5, ceilToFive(payoutHigh / (1 - PLATFORM_RATE)));
+  const baseLow = Math.max(MINIMUM_PRICE, ceilToFive(payoutLow / (1 - PLATFORM_RATE)));
+  const baseHigh = Math.max(baseLow + 5, ceilToFive(payoutHigh / (1 - PLATFORM_RATE)));
+
+  // The extra helper is priced as what they are: another person on the clock at
+  // the advertised helper wage, for as long as the job runs. Not a flat fee —
+  // that would underpay them badly on a long move. And added on top of the
+  // minimum rather than folded in before it, because a floor that swallows the
+  // add-on would put a second pair of hands on a small job for free.
+  const helperLow = extraHelper
+    ? ceilToFive((hoursLow * HELPER_HOURLY) / (1 - PLATFORM_RATE))
+    : 0;
+  const helperHigh = extraHelper
+    ? ceilToFive((hoursHigh * HELPER_HOURLY) / (1 - PLATFORM_RATE))
+    : 0;
+
+  const low = baseLow + helperLow;
+  const high = baseHigh + helperHigh;
 
   // Report the payout implied by the price the customer actually sees, so the
   // crew's share and the platform's share always add up to the quote. Rounded
@@ -182,10 +205,14 @@ export function quoteTier(
 }
 
 /** Price every tier for the cards on the "pick your truck" step. */
-export function quoteTiers(moveSize: MoveSizeValue, route: RouteInput): TierQuote[] {
+export function quoteTiers(
+  moveSize: MoveSizeValue,
+  route: RouteInput,
+  options: QuoteOptions = {},
+): TierQuote[] {
   return VEHICLE_TIERS.map((tier) => ({
     tier,
-    ...quoteTier(moveSize, tier.value, route),
+    ...quoteTier(moveSize, tier.value, route, options),
   }));
 }
 
@@ -193,8 +220,29 @@ export function quoteForTier(
   moveSize: MoveSizeValue,
   route: RouteInput,
   tierValue: VehicleTierValue,
+  options: QuoteOptions = {},
 ): TierQuote | undefined {
-  return quoteTiers(moveSize, route).find((q) => q.tier.value === tierValue);
+  return quoteTiers(moveSize, route, options).find((q) => q.tier.value === tierValue);
+}
+
+/**
+ * What ticking "yes, send an extra helper" adds to the quote.
+ *
+ * Derived by differencing the two quotes rather than computed alongside them,
+ * so the number written on the button is exactly the change the customer will
+ * see in their total — the two can't drift apart.
+ */
+export function extraHelperFee(
+  moveSize: MoveSizeValue,
+  tierValue: VehicleTierValue,
+  route: RouteInput,
+): { low: number; high: number } {
+  const without = quoteTier(moveSize, tierValue, route);
+  const withHelper = quoteTier(moveSize, tierValue, route, { extraHelper: true });
+  return {
+    low: withHelper.low - without.low,
+    high: withHelper.high - without.high,
+  };
 }
 
 /** Exposed for the pricing sanity table and any future admin view. */

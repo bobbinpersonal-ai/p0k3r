@@ -19,9 +19,12 @@ export type ItemsValue = {
 export default function StepItems({
   value,
   onChange,
+  helperFee,
 }: {
   value: ItemsValue;
   onChange: (next: ItemsValue) => void;
+  /** What an extra helper adds to this job, or null before a truck is picked. */
+  helperFee: { low: number; high: number } | null;
 }) {
   const set = (patch: Partial<ItemsValue>) => onChange({ ...value, ...patch });
 
@@ -94,10 +97,26 @@ export default function StepItems({
 
       <fieldset className="mt-6">
         <legend className="text-sm font-semibold text-ink">Need an extra helper?</legend>
+        <p className="mt-1.5 text-sm text-neutral-500">
+          An extra pair of hands for the whole job. Priced at what we pay them, so it
+          scales with how long your move takes.
+        </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {[
-            { value: true, label: "Yes, send a helper", body: "Two people loading and carrying" },
-            { value: false, label: "No, driver only", body: "I'll help load it myself" },
+            {
+              value: true,
+              label: "Yes, send a helper",
+              body: "Two people loading and carrying",
+              // Shown on the button itself, and it's exactly what the running
+              // total below will move by — the two come from the same figure.
+              price: helperFee ? `+$${helperFee.low}–$${helperFee.high}` : null,
+            },
+            {
+              value: false,
+              label: "No, driver only",
+              body: "I'll help load it myself",
+              price: "No extra charge",
+            },
           ].map((option) => {
             const isSelected = value.needsHelper === option.value;
             return (
@@ -114,6 +133,15 @@ export default function StepItems({
               >
                 <span className="block font-semibold text-ink">{option.label}</span>
                 <span className="mt-0.5 block text-sm text-neutral-500">{option.body}</span>
+                {option.price && (
+                  <span
+                    className={`mt-2 block font-mono text-sm ${
+                      option.value ? "font-bold text-ink" : "text-neutral-500"
+                    }`}
+                  >
+                    {option.price}
+                  </span>
+                )}
               </button>
             );
           })}

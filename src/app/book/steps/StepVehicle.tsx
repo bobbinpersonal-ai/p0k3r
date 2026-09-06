@@ -41,7 +41,7 @@ export default function StepVehicle({
   moveSize: MoveSizeValue;
   selectedTier: VehicleTierValue | null;
   onMoveSizeChange: (size: MoveSizeValue) => void;
-  onSelectTier: (tier: VehicleTierValue, low: number, high: number) => void;
+  onSelectTier: (tier: VehicleTierValue) => void;
 }) {
   // Drive time is paid crew time, so the quote uses the routed duration when we
   // have one rather than inferring it from the mileage.
@@ -117,7 +117,7 @@ export default function StepVehicle({
             <button
               key={tier.value}
               type="button"
-              onClick={() => onSelectTier(tier.value, low, high)}
+              onClick={() => onSelectTier(tier.value)}
               aria-pressed={isSelected}
               className={`block w-full rounded-2xl border p-5 text-left transition ${
                 isSelected

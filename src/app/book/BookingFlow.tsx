@@ -19,6 +19,7 @@ import type { VehicleTierValue } from "@/lib/vehicleTiers";
 import { firstBookableDay, windowLabel } from "@/lib/arrivalWindows";
 import { matchCrew } from "@/lib/crew";
 import { getVehicleTier } from "@/lib/vehicleTiers";
+import { extraHelperFee, quoteForTier } from "@/lib/pricing";
 import CrewMatchCard from "@/components/CrewMatchCard";
 import { trackBookingConversion } from "@/lib/analytics";
 import type { LatLng } from "@/lib/geo";
@@ -63,7 +64,6 @@ export default function BookingFlow({
   const [approximate, setApproximate] = useState(false);
   const [moveSize, setMoveSize] = useState<MoveSizeValue>(initialSize ?? "STUDIO");
   const [tier, setTier] = useState<VehicleTierValue | null>(null);
-  const [estimate, setEstimate] = useState<{ low: number; high: number } | null>(null);
 
   const [schedule, setSchedule] = useState<{ dayKey: string; arrivalHour: number | null }>(() => ({
     dayKey: firstBookableDay().key,
@@ -92,6 +92,17 @@ export default function BookingFlow({
   }, [step]);
 
   const matchedCrew = matchCrew(tier);
+
+  // Price is derived, never stored: the running total has to move the moment
+  // the customer answers the extra-helper question two steps later, and a
+  // number captured when they picked a truck can't do that.
+  const routeInput = { miles: route?.miles ?? null, minutes: route?.minutes ?? null };
+  const estimate = tier
+    ? (quoteForTier(moveSize, routeInput, tier, {
+        extraHelper: items.needsHelper === true,
+      }) ?? null)
+    : null;
+  const helperFee = tier ? extraHelperFee(moveSize, tier, routeInput) : null;
 
   /** Turn the typed address parts into a point on the map. */
   async function resolve(
@@ -249,6 +260,15 @@ export default function BookingFlow({
         ))}
       </div>
 
+      {/* Who'd be driving. Sits above the step itself: once someone has been
+          matched to a real person and a real truck, that's the most reassuring
+          thing on the page and shouldn't be below the fold. */}
+      {step > 2 && matchedCrew && (
+        <div className="mt-8">
+          <CrewMatchCard member={matchedCrew} vehicleLabel={getVehicleTier(tier ?? "")?.label} />
+        </div>
+      )}
+
       <div className="mt-8">
         {step === 1 && (
           <StepAddresses
@@ -273,9 +293,8 @@ export default function BookingFlow({
             moveSize={moveSize}
             selectedTier={tier}
             onMoveSizeChange={setMoveSize}
-            onSelectTier={(value, low, high) => {
+            onSelectTier={(value) => {
               setTier(value);
-              setEstimate({ low, high });
               setError(null);
             }}
           />
@@ -290,17 +309,11 @@ export default function BookingFlow({
             }}
           />
         )}
-        {step === 4 && <StepItems value={items} onChange={setItems} />}
+        {step === 4 && (
+          <StepItems value={items} onChange={setItems} helperFee={helperFee} />
+        )}
         {step === 5 && <StepContact value={contact} onChange={setContact} />}
       </div>
-
-      {/* Who'd be driving. Shown from the moment a truck is picked, well
-          before we ask for a name or a number. */}
-      {step > 2 && matchedCrew && (
-        <div className="mt-8">
-          <CrewMatchCard member={matchedCrew} vehicleLabel={getVehicleTier(tier ?? "")?.label} />
-        </div>
-      )}
 
       {/* Running total, once there's something to show */}
       {step > 2 && estimate && (
@@ -310,6 +323,11 @@ export default function BookingFlow({
             ${estimate.low}–${estimate.high}
           </span>
           {route && ` · ${route.miles.toFixed(1)} mi`}
+          {items.needsHelper === true && helperFee && (
+            <span className="mt-1 block text-xs">
+              includes +${helperFee.low}–${helperFee.high} for the extra helper
+            </span>
+          )}
         </p>
       )}
 

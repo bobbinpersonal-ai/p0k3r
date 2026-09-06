@@ -105,6 +105,9 @@ export async function POST(req: NextRequest) {
     moveSize,
     { miles: num(distanceMiles), minutes: num(driveMinutes) },
     tier ?? "VAN",
+    // The extra helper is part of what the customer was quoted, so it has to be
+    // part of what dispatch reads back.
+    { extraHelper: needsHelper === true },
   );
   const estimateLow = quoted?.low ?? 0;
   const estimateHigh = quoted?.high ?? 0;
