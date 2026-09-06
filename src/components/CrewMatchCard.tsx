@@ -16,6 +16,10 @@ export default function CrewMatchCard({
   member: CrewMember;
   vehicleLabel?: string;
 }) {
+  // Roster names are stored as "First L." — the sentence below reads better
+  // with just the first name.
+  const firstName = member.name.split(" ")[0];
+
   return (
     <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-4">
       <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
@@ -42,7 +46,7 @@ export default function CrewMatchCard({
         </div>
       </div>
       <p className="mt-3 text-sm text-neutral-500">
-        A dispatcher confirms your actual crew when they call — if Bobbin&apos;s already on a
+        A dispatcher confirms your actual crew when they call — if {firstName} is already on a
         job, someone else from the roster takes it.
       </p>
     </div>

@@ -29,7 +29,7 @@ export const CREW: CrewMember[] = [
     vehicle: "Dodge Ram 2500",
     tiers: ["PICKUP", "VAN"],
     homeBase: "Davis",
-    note: "Founder — still runs moves himself",
+    note: "Apartments, dorms, and single big items",
   },
 ];
 
