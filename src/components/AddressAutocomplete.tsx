@@ -10,7 +10,19 @@ import type { PlaceSuggestion } from "@/lib/geo";
 // returns nothing, the customer types their address normally and the booking
 // still works — they just don't get a mapped route until dispatch confirms.
 
-const DEBOUNCE_MS = 220;
+// Every keystroke past this delay is a billable autocomplete request once a
+// Google key is configured, so the debounce is deliberately unhurried and we
+// wait for a few characters. Session tokens (below) do most of the work, but
+// there's no reason to send requests nobody reads.
+const DEBOUNCE_MS = 350;
+const MIN_QUERY_LENGTH = 4;
+
+/** Groups a typing burst into one billable Google autocomplete session. */
+function newSessionToken() {
+  return typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID()
+    : Math.random().toString(36).slice(2);
+}
 
 export type AddressValue = {
   address: string;
@@ -45,6 +57,9 @@ export default function AddressAutocomplete({
   // Set when the customer picks a suggestion, so we don't immediately re-query
   // for the text we just wrote into the field.
   const skipNextQuery = useRef(false);
+  // One token per typing burst; replaced after each pick so the next search
+  // starts a fresh session.
+  const sessionToken = useRef(newSessionToken());
 
   useEffect(() => {
     if (skipNextQuery.current) {
@@ -52,7 +67,7 @@ export default function AddressAutocomplete({
       return;
     }
     const query = value.address.trim();
-    if (query.length < 3) {
+    if (query.length < MIN_QUERY_LENGTH) {
       setSuggestions([]);
       setLoading(false);
       return;
@@ -64,9 +79,10 @@ export default function AddressAutocomplete({
 
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch(`/api/places?q=${encodeURIComponent(query)}`, {
-          signal: controller.signal,
-        });
+        const res = await fetch(
+          `/api/places?q=${encodeURIComponent(query)}&session=${sessionToken.current}`,
+          { signal: controller.signal },
+        );
         const data = (await res.json()) as { suggestions?: PlaceSuggestion[] };
         if (cancelled) return;
         setSuggestions(data.suggestions ?? []);
@@ -98,12 +114,43 @@ export default function AddressAutocomplete({
     };
   }, []);
 
-  function pick(suggestion: PlaceSuggestion) {
+  async function pick(suggestion: PlaceSuggestion) {
     skipNextQuery.current = true;
     onChange({ address: suggestion.full, lat: suggestion.lat, lng: suggestion.lng });
     setSuggestions([]);
     setOpen(false);
     setActiveIndex(-1);
+
+    // Google hands back an id rather than a point. Resolving it here — with
+    // the token this typing burst used — both closes the billing session and
+    // means the map has coordinates before the customer hits Continue.
+    if (suggestion.lat === null && suggestion.placeId) {
+      const tokenForSession = sessionToken.current;
+      sessionToken.current = newSessionToken();
+      try {
+        const res = await fetch("/api/geocode", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            placeId: suggestion.placeId,
+            sessionToken: tokenForSession,
+            address: suggestion.full,
+          }),
+        });
+        if (!res.ok) return;
+        const { result } = (await res.json()) as {
+          result: { lat: number; lng: number } | null;
+        };
+        if (result) {
+          skipNextQuery.current = true;
+          onChange({ address: suggestion.full, lat: result.lat, lng: result.lng });
+        }
+      } catch {
+        // The booking flow geocodes the text on Continue as a backstop.
+      }
+      return;
+    }
+    sessionToken.current = newSessionToken();
   }
 
   function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
@@ -116,7 +163,7 @@ export default function AddressAutocomplete({
       setActiveIndex((i) => (i <= 0 ? suggestions.length - 1 : i - 1));
     } else if (event.key === "Enter" && activeIndex >= 0) {
       event.preventDefault();
-      pick(suggestions[activeIndex]);
+      void pick(suggestions[activeIndex]);
     } else if (event.key === "Escape") {
       setOpen(false);
     }
@@ -177,7 +224,7 @@ export default function AddressAutocomplete({
                 // otherwise close the list before the click registers.
                 onMouseDown={(e) => {
                   e.preventDefault();
-                  pick(suggestion);
+                  void pick(suggestion);
                 }}
                 className={`flex w-full items-center gap-3 px-4 py-3 text-left transition ${
                   index === activeIndex ? "bg-black/[0.04]" : ""

@@ -17,6 +17,13 @@ export type PlaceSuggestion = {
   // the chosen text through /api/geocode before it needs a map.
   lat: number | null;
   lng: number | null;
+  /**
+   * Google's opaque place identifier, when the suggestion came from Google.
+   * Resolving this through Place Details with the same session token bills
+   * the whole typing burst as one session instead of one charge per
+   * keystroke, so it's much cheaper than geocoding the text.
+   */
+  placeId?: string;
 };
 
 const EARTH_RADIUS_MILES = 3958.8;

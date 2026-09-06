@@ -160,12 +160,70 @@ async function geocodeViaProvider(query: string): Promise<GeocodeResult | null> 
   return { lng: coords[0], lat: coords[1], precision: "address", label };
 }
 
+/**
+ * Turn a Google place id into coordinates.
+ *
+ * Passing the same session token the autocomplete used closes that billing
+ * session, so the customer's whole typing burst plus this lookup costs one
+ * session instead of one charge per keystroke. Always prefer this over
+ * geocoding the text when we have an id.
+ */
+async function detailsViaGoogle(
+  placeId: string,
+  key: string,
+  sessionToken: string | undefined,
+): Promise<GeocodeResult | null> {
+  const url =
+    `https://maps.googleapis.com/maps/api/place/details/json` +
+    `?place_id=${encodeURIComponent(placeId)}&key=${encodeURIComponent(key)}` +
+    `&fields=geometry,formatted_address` +
+    (sessionToken ? `&sessiontoken=${encodeURIComponent(sessionToken)}` : "");
+  const res = await fetchWithTimeout(url);
+  if (!res.ok) return null;
+  const data = (await res.json()) as {
+    status?: string;
+    result?: {
+      geometry?: { location?: { lat: number; lng: number } };
+      formatted_address?: string;
+    };
+  };
+  const location = data.result?.geometry?.location;
+  if (data.status !== "OK" || !location) return null;
+  return {
+    lat: location.lat,
+    lng: location.lng,
+    precision: "address",
+    label: (data.result?.formatted_address ?? "").replace(/, USA$/, ""),
+  };
+}
+
 export async function POST(request: Request) {
   let body: unknown;
   try {
     body = await request.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+  }
+
+  const { placeId, sessionToken } = (body ?? {}) as {
+    placeId?: unknown;
+    sessionToken?: unknown;
+  };
+  const googleKey = process.env.GOOGLE_MAPS_API_KEY;
+
+  // Cheapest and most accurate path: the customer picked a Google suggestion,
+  // so we already have an exact place id.
+  if (googleKey && typeof placeId === "string" && placeId) {
+    try {
+      const details = await detailsViaGoogle(
+        placeId,
+        googleKey,
+        typeof sessionToken === "string" ? sessionToken : undefined,
+      );
+      if (details) return NextResponse.json({ result: details });
+    } catch {
+      // fall through to resolving the text below
+    }
   }
 
   const address = String((body as { address?: unknown })?.address ?? "").trim();

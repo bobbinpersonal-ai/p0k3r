@@ -39,16 +39,25 @@ async function fetchWithTimeout(url: string, init?: RequestInit) {
 
 type GooglePrediction = {
   description?: string;
+  place_id?: string;
   structured_formatting?: { main_text?: string; secondary_text?: string };
 };
 
-async function searchGoogle(query: string, key: string): Promise<PlaceSuggestion[]> {
+async function searchGoogle(
+  query: string,
+  key: string,
+  sessionToken?: string,
+): Promise<PlaceSuggestion[]> {
   const url =
     `https://maps.googleapis.com/maps/api/place/autocomplete/json` +
     `?input=${encodeURIComponent(query)}&key=${encodeURIComponent(key)}` +
     `&components=country:us&types=address` +
     // Bias toward the service area without hard-excluding anything outside it.
-    `&location=${CALIFORNIA_CENTER.lat},${CALIFORNIA_CENTER.lng}&radius=250000`;
+    `&location=${CALIFORNIA_CENTER.lat},${CALIFORNIA_CENTER.lng}&radius=250000` +
+    // Billing: with a session token, every keystroke in one typing burst plus
+    // the Place Details lookup that follows is charged as a single session
+    // rather than per request.
+    (sessionToken ? `&sessiontoken=${encodeURIComponent(sessionToken)}` : "");
 
   const res = await fetchWithTimeout(url);
   if (!res.ok) return [];
@@ -64,9 +73,10 @@ async function searchGoogle(query: string, key: string): Promise<PlaceSuggestion
         primary,
         secondary: (prediction.structured_formatting?.secondary_text ?? "").replace(/, USA$/, ""),
         full: (prediction.description ?? primary).replace(/, USA$/, ""),
-        // Coordinates come later, from /api/geocode on the picked text.
+        // Coordinates come later, from Place Details on the picked place id.
         lat: null,
         lng: null,
+        placeId: prediction.place_id,
       },
     ];
   });
@@ -188,7 +198,9 @@ async function searchPhoton(query: string): Promise<PlaceSuggestion[]> {
 }
 
 export async function GET(request: Request) {
-  const query = new URL(request.url).searchParams.get("q")?.trim() ?? "";
+  const params = new URL(request.url).searchParams;
+  const query = params.get("q")?.trim() ?? "";
+  const sessionToken = params.get("session") ?? undefined;
 
   // Below three characters every provider just returns noise.
   if (query.length < 3) {
@@ -200,7 +212,7 @@ export async function GET(request: Request) {
 
   try {
     const suggestions = googleKey
-      ? await searchGoogle(query, googleKey)
+      ? await searchGoogle(query, googleKey, sessionToken)
       : token
         ? await searchMapbox(query, token)
         : await searchPhoton(query);
