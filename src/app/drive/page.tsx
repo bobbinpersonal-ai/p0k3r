@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import FleetIcons from "@/components/FleetIcons";
@@ -216,15 +217,26 @@ export default function DrivePage({
                 <FleetIcons showRates />
               </div>
             </div>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 glow">
-              <AutoplayVideo
-                mp4="/videos/pickup-tacoma-v1.mp4"
-                webm="/videos/pickup-tacoma-v1.webm"
-                poster="/images/pickup-tacoma-v1-poster.jpg"
-                alt="An older pickup truck, still road-ready, out on a job"
-                className="absolute inset-0"
-                videoClassName="absolute inset-0 h-full w-full object-cover object-center"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="relative aspect-square overflow-hidden rounded-3xl border border-black/10 glow">
+                <AutoplayVideo
+                  mp4="/videos/pickup-tacoma-v1.mp4"
+                  webm="/videos/pickup-tacoma-v1.webm"
+                  poster="/images/pickup-tacoma-v1-poster.jpg"
+                  alt="An older pickup truck, still road-ready, out on a job"
+                  className="absolute inset-0"
+                  videoClassName="absolute inset-0 h-full w-full object-cover object-center"
+                />
+              </div>
+              <div className="relative aspect-square overflow-hidden rounded-3xl border border-black/10 glow">
+                <Image
+                  src="/images/cargo-van-v1.jpg"
+                  alt="A cargo van, another vehicle type that qualifies"
+                  fill
+                  sizes="(min-width: 1024px) 20vw, 45vw"
+                  className="object-cover"
+                />
+              </div>
             </div>
           </div>
         </section>
