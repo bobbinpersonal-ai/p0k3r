@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { PRIMARY_SERVICE_TYPES } from "@/lib/serviceTypes";
 import { MOVE_SIZE_OPTIONS, type MoveSizeValue } from "@/lib/moveSizes";
 import { EMPTY_ADDRESS, formatAddress } from "@/lib/address";
 import UseMyLocationButton from "@/components/UseMyLocationButton";
@@ -34,6 +36,21 @@ export default function HeroQuoteForm({ city }: { city?: string }) {
       onSubmit={submit}
       className="mt-8 rounded-2xl border border-black/10 bg-paper/70 p-3 shadow-lg backdrop-blur sm:p-4"
     >
+      {/* The jobs we do, before we ask anyone for an address. Most paid traffic
+          lands here from a Marketplace ad, and the first thing that has to
+          happen is someone recognising their own errand. Each chip jumps
+          straight into the booking flow with that answer already given. */}
+      <div className="flex flex-wrap gap-1.5 pb-3">
+        {PRIMARY_SERVICE_TYPES.map((job) => (
+          <Link
+            key={job.value}
+            href={`/book?job=${job.value}${city ? `&city=${city}` : ""}`}
+            className="rounded-full border border-black/10 bg-paper px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-brand/50 hover:text-brand"
+          >
+            {job.label}
+          </Link>
+        ))}
+      </div>
       <div className="grid gap-2 sm:grid-cols-2">
         <HeroAddressInput
           label="Pick up from"
@@ -47,7 +64,9 @@ export default function HeroQuoteForm({ city }: { city?: string }) {
           // loading a container in the driveway. Two identical boxes read as
           // "both required", so say plainly that this one isn't.
           label="Move to (optional)"
-          placeholder="Leave blank for a dump or donation run"
+          // Kept short: the label says optional and the line below explains, so
+          // a longer placeholder just truncates on a phone.
+          placeholder="Drop-off city or address"
           icon={<ArrowIcon direction="down" />}
           value={dropoff}
           onChange={setDropoff}

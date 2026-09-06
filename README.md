@@ -132,13 +132,27 @@ Davis page) — just keep the "no faces" constraint in every variant.
 
 ## How the booking flow works
 
-`/book` is a five-step wizard, one step on screen at a time with a progress bar:
+`/book` is a six-step wizard, one step on screen at a time with a progress bar:
 
-1. **Addresses** — street, city and ZIP for the pickup, then where it goes
-2. **Pick your truck** — the route on a map, plus a priced card per vehicle tier
-3. **Arrival time** — day chips and one-hour arrival windows
-4. **What are you moving** — service type, free-text description, helper yes/no
-5. **Personal info** — name, phone, optional email, then submit
+1. **What do you need** — one tap from a short list of the jobs we do
+2. **Addresses** — street, city and ZIP for the pickup, then where it goes
+3. **Pick your truck** — the route on a map, plus a priced card per vehicle tier
+4. **Arrival time** — day chips and one-hour arrival windows
+5. **Anything we should know** — free-text description, helper yes/no
+6. **Personal info** — name, phone, optional email, then submit
+
+**Step 1 leads because of where the traffic comes from.** Most paid traffic is
+Facebook Marketplace ads, so the first thing on screen has to be the customer's
+own errand — "Marketplace pickup", "Need a hand" — not a form asking where they
+live. It also earns its slot rather than just adding one: each job in
+`src/lib/serviceTypes.ts` carries a `defaultDropoffMode` and sometimes a
+`defaultMoveSize`, so answering it means "Need a hand" is never asked for a
+drop-off address and a single-item pickup is never asked how many bedrooms.
+
+Six jobs show by default and the rest sit behind "More options" — a first screen
+people scan in two seconds beats a complete one they read none of. The homepage
+hero shows the same six as chips linking to `/book?job=…`, which lands on step 2
+with step 1 already answered.
 
 The whole draft lives in `BookingFlow.tsx`, so stepping backwards never loses what
 was already entered. Each step validates before it lets you advance.

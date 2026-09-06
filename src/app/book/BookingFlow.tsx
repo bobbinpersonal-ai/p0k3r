@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import StepJob from "@/app/book/steps/StepJob";
 import StepAddresses from "@/app/book/steps/StepAddresses";
 import StepVehicle, { type RouteState } from "@/app/book/steps/StepVehicle";
 import StepSchedule from "@/app/book/steps/StepSchedule";
@@ -20,6 +21,7 @@ import { firstBookableDay, windowLabel } from "@/lib/arrivalWindows";
 import { matchCrew } from "@/lib/crew";
 import { getVehicleTier } from "@/lib/vehicleTiers";
 import { extraHelperFee, quoteForTier } from "@/lib/pricing";
+import { getServiceType, type ServiceTypeValue } from "@/lib/serviceTypes";
 import {
   dropoffLabelForMode,
   requiresDropoffAddress,
@@ -30,25 +32,38 @@ import CrewMatchCard from "@/components/CrewMatchCard";
 import { trackBookingConversion } from "@/lib/analytics";
 import type { LatLng } from "@/lib/geo";
 
-// The five-step booking wizard: addresses → truck → arrival time → what
-// you're moving → who you are. One step on screen at a time, with the whole
-// draft held here so moving backwards never loses what was already entered.
+// The booking wizard: what you need → addresses → truck → arrival time →
+// details → who you are. One step on screen at a time, with the whole draft
+// held here so moving backwards never loses what was already entered.
+//
+// "What you need" leads because most of our paid traffic arrives from
+// Marketplace ads, where the first thing someone has to see is their own errand
+// on the list. It also earns its place: the answer presets the drop-off mode
+// and often the move size, so later steps ask less.
 
-const TOTAL_STEPS = 5;
+const TOTAL_STEPS = 6;
+
+/** Which step collects the addresses — the one that triggers routing. */
+const ADDRESS_STEP = 2;
 
 export default function BookingFlow({
   initialSize,
   initialPickup,
   initialDropoff,
+  initialServiceType,
   city,
 }: {
   initialSize?: MoveSizeValue;
   initialPickup?: string;
   initialDropoff?: string;
+  /** Set when they tapped a job on the homepage, so we don't ask again. */
+  initialServiceType?: ServiceTypeValue;
   city?: string;
 }) {
   const router = useRouter();
-  const [step, setStep] = useState(1);
+  // Arriving from a homepage job chip means step 1 is already answered.
+  const [step, setStep] = useState(initialServiceType ? ADDRESS_STEP : 1);
+  const jobPreset = initialServiceType ? getServiceType(initialServiceType) : undefined;
   const topRef = useRef<HTMLDivElement>(null);
 
   // The hero form takes a single line for speed; split it into fields here so
@@ -59,7 +74,9 @@ export default function BookingFlow({
   const [dropoff, setDropoff] = useState<StructuredAddress>(() =>
     initialDropoff ? parseAddress(initialDropoff) : { ...EMPTY_ADDRESS },
   );
-  const [dropoffMode, setDropoffMode] = useState<DropoffMode>("ADDRESS");
+  const [dropoffMode, setDropoffMode] = useState<DropoffMode>(
+    jobPreset?.defaultDropoffMode ?? "ADDRESS",
+  );
   // Coordinates are derived from the addresses by the geocoder, so they live
   // separately and get cleared whenever the address they belong to changes.
   const [pickupPoint, setPickupPoint] = useState<LatLng | null>(null);
@@ -69,7 +86,9 @@ export default function BookingFlow({
   // True when one or both ends fell back to a town centre rather than a
   // building, so the UI can say the distance is a ballpark.
   const [approximate, setApproximate] = useState(false);
-  const [moveSize, setMoveSize] = useState<MoveSizeValue>(initialSize ?? "STUDIO");
+  const [moveSize, setMoveSize] = useState<MoveSizeValue>(
+    initialSize ?? jobPreset?.defaultMoveSize ?? "STUDIO",
+  );
   const [tier, setTier] = useState<VehicleTierValue | null>(null);
 
   const [schedule, setSchedule] = useState<{ dayKey: string; arrivalHour: number | null }>(() => ({
@@ -78,7 +97,7 @@ export default function BookingFlow({
   }));
 
   const [items, setItems] = useState<ItemsValue>({
-    serviceType: null,
+    serviceType: (initialServiceType ?? null) as ServiceTypeValue | null,
     serviceTypeOther: "",
     details: "",
     needsHelper: null,
@@ -185,6 +204,12 @@ export default function BookingFlow({
 
   function canAdvance(): string | null {
     if (step === 1) {
+      if (!items.serviceType) return "Pick what you need a hand with.";
+      if (items.serviceType === "OTHER" && !items.serviceTypeOther.trim()) {
+        return "Tell us a bit about what you need help with.";
+      }
+    }
+    if (step === ADDRESS_STEP) {
       // Name what's actually missing — "enter an address" on a four-field form
       // leaves the customer hunting for the empty one.
       const missingPickup = missingAddressFields(pickup);
@@ -198,14 +223,10 @@ export default function BookingFlow({
         }
       }
     }
-    if (step === 2 && !tier) return "Pick a vehicle to continue.";
-    if (step === 3 && schedule.arrivalHour === null) return "Choose an arrival window.";
-    if (step === 4) {
-      if (!items.serviceType) return "Let us know what kind of help you need.";
-      if (items.serviceType === "OTHER" && !items.serviceTypeOther.trim()) {
-        return "Tell us a bit about what you need help with.";
-      }
-      if (items.needsHelper === null) return "Let us know if you need an extra helper.";
+    if (step === 3 && !tier) return "Pick a vehicle to continue.";
+    if (step === 4 && schedule.arrivalHour === null) return "Choose an arrival window.";
+    if (step === 5 && items.needsHelper === null) {
+      return "Let us know if you need an extra helper.";
     }
     return null;
   }
@@ -217,7 +238,7 @@ export default function BookingFlow({
       return;
     }
     setError(null);
-    if (step === 1) void loadRoute();
+    if (step === ADDRESS_STEP) void loadRoute();
     setStep((s) => Math.min(s + 1, TOTAL_STEPS));
   }
 
@@ -294,7 +315,7 @@ export default function BookingFlow({
       {/* Who'd be driving. Sits above the step itself: once someone has been
           matched to a real person and a real truck, that's the most reassuring
           thing on the page and shouldn't be below the fold. */}
-      {step > 2 && matchedCrew && (
+      {step > 3 && matchedCrew && (
         <div className="mt-8">
           <CrewMatchCard member={matchedCrew} vehicleLabel={getVehicleTier(tier ?? "")?.label} />
         </div>
@@ -302,6 +323,32 @@ export default function BookingFlow({
 
       <div className="mt-8">
         {step === 1 && (
+          <StepJob
+            value={items.serviceType}
+            otherText={items.serviceTypeOther}
+            onChange={({ serviceType, otherText }) => {
+              setError(null);
+              // Re-tapping the same option shouldn't wipe choices the customer
+              // has since made further down the flow.
+              if (serviceType === items.serviceType) {
+                setItems((i) => ({ ...i, serviceTypeOther: otherText }));
+                return;
+              }
+              setItems((i) => ({ ...i, serviceType, serviceTypeOther: otherText }));
+
+              // The job implies where things end up and often how big it is.
+              // Both stay editable on the steps that own them.
+              const preset = getServiceType(serviceType);
+              if (preset) {
+                setDropoffMode(preset.defaultDropoffMode);
+                setDropoffPoint(null);
+                setRoute(null);
+                if (preset.defaultMoveSize) setMoveSize(preset.defaultMoveSize);
+              }
+            }}
+          />
+        )}
+        {step === ADDRESS_STEP && (
           <StepAddresses
             pickup={pickup}
             dropoff={dropoff}
@@ -318,7 +365,7 @@ export default function BookingFlow({
             }}
           />
         )}
-        {step === 2 && (
+        {step === 3 && (
           <StepVehicle
             pickupPoint={pickupPoint}
             dropoffPoint={dropoffPoint}
@@ -335,7 +382,7 @@ export default function BookingFlow({
             }}
           />
         )}
-        {step === 3 && (
+        {step === 4 && (
           <StepSchedule
             dayKey={schedule.dayKey}
             arrivalHour={schedule.arrivalHour}
@@ -345,14 +392,14 @@ export default function BookingFlow({
             }}
           />
         )}
-        {step === 4 && (
+        {step === 5 && (
           <StepItems value={items} onChange={setItems} helperFee={helperFee} />
         )}
-        {step === 5 && <StepContact value={contact} onChange={setContact} />}
+        {step === 6 && <StepContact value={contact} onChange={setContact} />}
       </div>
 
       {/* Running total, once there's something to show */}
-      {step > 2 && estimate && (
+      {step > 3 && estimate && (
         <p className="mt-8 rounded-2xl border border-black/10 bg-black/[0.03] px-4 py-3 text-sm text-neutral-500">
           Estimate so far:{" "}
           <span className="font-semibold text-ink">

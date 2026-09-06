@@ -2,6 +2,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import BookingFlow from "./BookingFlow";
 import { isMoveSizeValue } from "@/lib/moveSizes";
+import { isServiceTypeValue } from "@/lib/serviceTypes";
 import { getCity } from "@/lib/cities";
 
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
@@ -24,6 +25,11 @@ export default function BookPage({
 
   const dropoffParam = searchParams.dropoff;
   const initialDropoff = typeof dropoffParam === "string" ? dropoffParam : undefined;
+
+  // Set by the homepage job chips, which answer step 1 before they arrive.
+  const jobParam = searchParams.job;
+  const initialServiceType =
+    typeof jobParam === "string" && isServiceTypeValue(jobParam) ? jobParam : undefined;
 
   return (
     <>
@@ -50,6 +56,7 @@ export default function BookPage({
           initialSize={initialSize}
           initialPickup={initialPickup}
           initialDropoff={initialDropoff}
+          initialServiceType={initialServiceType}
           city={city?.slug}
         />
       </main>
