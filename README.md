@@ -130,11 +130,30 @@ Davis page) — just keep the "no faces" constraint in every variant.
 3. Set real values for `ADMIN_PASSWORD` and `SESSION_SECRET` wherever you deploy —
    don't reuse the ones in `.env.example`.
 
-## How the booking quote works
+## How the booking flow works
 
-`/book` is two steps. First the customer enters both addresses with autocomplete,
-sees the route on a map, and picks a vehicle tier at a quoted price; then they fill
-in the usual details (date, contact, what's moving) and submit.
+`/book` is a five-step wizard, one step on screen at a time with a progress bar:
+
+1. **Addresses** — autocomplete on both fields, with a swap button
+2. **Pick your truck** — the route on a map, plus a priced card per vehicle tier
+3. **Arrival time** — day chips and one-hour arrival windows
+4. **What are you moving** — service type, free-text description, helper yes/no
+5. **Personal info** — name, phone, optional email, then submit
+
+The whole draft lives in `BookingFlow.tsx`, so stepping backwards never loses what
+was already entered. Each step validates before it lets you advance.
+
+Arrival windows come from `src/lib/arrivalWindows.ts`, which drops today's slots as
+they pass (plus a two-hour lead-time buffer) and rolls the picker to tomorrow once
+the day is used up. Date keys are local `YYYY-MM-DD` and the API pins them to local
+noon — parsing a bare date string as UTC would land a Sunday booking on Saturday in
+dispatch and send a crew a day early.
+
+**Two things Lugg's version does that this doesn't yet**, both because they need a
+service that isn't wired up: photo upload of the items (needs a blob store) and
+phone verification by one-time code (needs an SMS provider). The description field
+covers the first well enough for dispatch, and a dispatcher calling to confirm is
+the real verification today.
 
 Pricing lives in `src/lib/vehicleTiers.ts` and builds on the move-size ranges in
 `src/lib/moveSizes.ts` rather than replacing them: the move size sets the base range,

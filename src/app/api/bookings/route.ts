@@ -77,7 +77,15 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const parsedDate = new Date(moveDate);
+  // A bare "YYYY-MM-DD" is parsed as UTC midnight, which reads back as the
+  // previous day anywhere west of Greenwich — a move booked for Sunday would
+  // show up in dispatch as Saturday and a crew would arrive a day early. Pin
+  // date-only values to local noon instead, which is far enough from either
+  // midnight to survive DST shifts.
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.exec(String(moveDate));
+  const parsedDate = dateOnly
+    ? new Date(`${moveDate}T12:00:00`)
+    : new Date(moveDate);
   if (Number.isNaN(parsedDate.getTime())) {
     return NextResponse.json({ error: "Invalid move date." }, { status: 400 });
   }
