@@ -22,12 +22,15 @@ export default function CrewMatchCard({
         Likely your mover
       </p>
       <div className="mt-3 flex items-center gap-4">
+        {/* Rounded square rather than a circle: a circular mask crops the
+            edges of the frame, and these photos have more than a face in
+            them worth keeping. */}
         <Image
           src={member.photo}
           alt={member.name}
-          width={64}
-          height={64}
-          className="h-16 w-16 shrink-0 rounded-full object-cover"
+          width={80}
+          height={80}
+          className="h-20 w-20 shrink-0 rounded-2xl object-cover"
         />
         <div className="min-w-0">
           <p className="text-lg font-bold text-ink">{member.name}</p>
