@@ -1,6 +1,6 @@
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import BookingForm from "./BookingForm";
+import BookingFlow from "./BookingFlow";
 import { isMoveSizeValue } from "@/lib/moveSizes";
 import { getCity } from "@/lib/cities";
 
@@ -34,8 +34,8 @@ export default function BookPage({
           Book your {city ? `${city.name} ` : ""}move
         </h1>
         <p className="mt-2 text-neutral-500">
-          Fill this out and a dispatcher confirms your crew and final price — usually
-          within 30 minutes.
+          Enter your two addresses to see prices, then pick your truck. A dispatcher
+          confirms your crew and final price — usually within 30 minutes.
         </p>
         <p className="mt-2">
           <a
@@ -45,7 +45,7 @@ export default function BookPage({
             Prefer to book by phone? Call {SUPPORT_PHONE}
           </a>
         </p>
-        <BookingForm
+        <BookingFlow
           initialSize={initialSize}
           initialPickup={initialPickup}
           initialDropoff={initialDropoff}

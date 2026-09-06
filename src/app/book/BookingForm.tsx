@@ -4,6 +4,8 @@ import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MOVE_SIZE_OPTIONS, TIME_WINDOWS, type MoveSizeValue } from "@/lib/moveSizes";
 import { SERVICE_TYPES, type ServiceTypeValue } from "@/lib/serviceTypes";
+import { getVehicleTier } from "@/lib/vehicleTiers";
+import type { QuoteResult } from "@/app/book/QuoteStep";
 import { trackBookingConversion } from "@/lib/analytics";
 import { scrollToNext } from "@/lib/scrollToNext";
 
@@ -19,14 +21,19 @@ export default function BookingForm({
   initialPickup,
   initialDropoff,
   city,
+  quote,
+  onEditQuote,
 }: {
   initialSize?: MoveSizeValue;
   initialPickup?: string;
   initialDropoff?: string;
   city?: string;
+  /** Set once the customer has picked addresses and a vehicle in QuoteStep. */
+  quote?: QuoteResult;
+  onEditQuote?: () => void;
 }) {
   const router = useRouter();
-  const [moveSize, setMoveSize] = useState<MoveSizeValue>(initialSize ?? "STUDIO");
+  const [moveSize, setMoveSize] = useState<MoveSizeValue>(quote?.moveSize ?? initialSize ?? "STUDIO");
   const [serviceType, setServiceType] = useState<ServiceTypeValue | null>(null);
   const [needsHelper, setNeedsHelper] = useState<boolean | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -73,6 +80,14 @@ export default function BookingForm({
       needsHelper,
       details: String(form.get("details") || "") || undefined,
       city,
+      // Only present when the customer came through the quote step — lets
+      // dispatch see the mapped route and the tier they picked.
+      pickupLat: quote?.pickup.lat ?? undefined,
+      pickupLng: quote?.pickup.lng ?? undefined,
+      dropoffLat: quote?.dropoff.lat ?? undefined,
+      dropoffLng: quote?.dropoff.lng ?? undefined,
+      distanceMiles: quote?.miles ?? undefined,
+      vehicleTier: quote?.tier,
     };
 
     try {
@@ -98,34 +113,78 @@ export default function BookingForm({
 
   return (
     <form onSubmit={handleSubmit} className="mt-8 space-y-8">
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div>
-          <label htmlFor="pickupAddress" className="block text-sm font-semibold text-ink">
-            Pickup address
-          </label>
-          <input
-            id="pickupAddress"
-            name="pickupAddress"
-            required
-            defaultValue={initialPickup}
-            className={inputClass}
-            placeholder="123 Main St, Apt 4B"
-          />
+      {quote ? (
+        // Addresses were already chosen (and mapped) in the quote step, so show
+        // them back as a summary rather than asking for them twice. The values
+        // still post with the form via the hidden inputs.
+        <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 space-y-3">
+              <div>
+                <p className="font-mono text-xs uppercase tracking-widest text-neutral-500">
+                  Pick up from
+                </p>
+                <p className="truncate text-ink">{quote.pickup.address}</p>
+              </div>
+              <div>
+                <p className="font-mono text-xs uppercase tracking-widest text-neutral-500">
+                  Move to
+                </p>
+                <p className="truncate text-ink">{quote.dropoff.address}</p>
+              </div>
+            </div>
+            <div className="shrink-0 text-right">
+              <p className="text-lg font-bold text-ink">
+                ${quote.estimateLow}–${quote.estimateHigh}
+              </p>
+              <p className="font-mono text-xs text-neutral-500">
+                {getVehicleTier(quote.tier)?.label}
+                {quote.miles !== null && ` · ${quote.miles.toFixed(1)} mi`}
+              </p>
+              {onEditQuote && (
+                <button
+                  type="button"
+                  onClick={onEditQuote}
+                  className="mt-1 font-mono text-xs text-brand-cyan underline underline-offset-2"
+                >
+                  Change
+                </button>
+              )}
+            </div>
+          </div>
+          <input type="hidden" name="pickupAddress" value={quote.pickup.address} />
+          <input type="hidden" name="dropoffAddress" value={quote.dropoff.address} />
         </div>
-        <div>
-          <label htmlFor="dropoffAddress" className="block text-sm font-semibold text-ink">
-            Drop-off address
-          </label>
-          <input
-            id="dropoffAddress"
-            name="dropoffAddress"
-            required
-            defaultValue={initialDropoff}
-            className={inputClass}
-            placeholder="456 Oak Ave"
-          />
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="pickupAddress" className="block text-sm font-semibold text-ink">
+              Pickup address
+            </label>
+            <input
+              id="pickupAddress"
+              name="pickupAddress"
+              required
+              defaultValue={initialPickup}
+              className={inputClass}
+              placeholder="123 Main St, Apt 4B"
+            />
+          </div>
+          <div>
+            <label htmlFor="dropoffAddress" className="block text-sm font-semibold text-ink">
+              Drop-off address
+            </label>
+            <input
+              id="dropoffAddress"
+              name="dropoffAddress"
+              required
+              defaultValue={initialDropoff}
+              className={inputClass}
+              placeholder="456 Oak Ave"
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       <fieldset>
         <legend className="text-sm font-semibold text-ink">

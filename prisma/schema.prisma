@@ -67,6 +67,16 @@ model Booking {
   timeWindow      String
   city            String?
 
+  // Set when the customer books through the map quote flow. Null for phone
+  // bookings and for addresses typed as free text rather than picked from the
+  // autocomplete, so dispatch can tell a mapped route from a hand-entered one.
+  pickupLat       Float?
+  pickupLng       Float?
+  dropoffLat      Float?
+  dropoffLng      Float?
+  distanceMiles   Float?
+  vehicleTier     String?
+
   moveSize        String
   serviceType     String?
   serviceTypeOther String?

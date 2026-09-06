@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isMoveSizeValue, getEstimateForMoveSize } from "@/lib/moveSizes";
+import { isVehicleTierValue, quoteForTier } from "@/lib/vehicleTiers";
 import { isServiceTypeValue } from "@/lib/serviceTypes";
 import { isAdminRequest } from "@/lib/auth";
 import { getCity } from "@/lib/cities";
@@ -25,6 +26,12 @@ export async function POST(req: NextRequest) {
     needsHelper,
     details,
     city,
+    pickupLat,
+    pickupLng,
+    dropoffLat,
+    dropoffLng,
+    distanceMiles,
+    vehicleTier,
   } = body;
 
   const requiredFields: Record<string, unknown> = {
@@ -75,7 +82,23 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid move date." }, { status: 400 });
   }
 
-  const { estimateLow, estimateHigh } = getEstimateForMoveSize(moveSize);
+  // Coordinates and distance are optional extras from the map quote flow —
+  // accept them only when they're actually numbers, so a malformed client
+  // payload can't write junk into dispatch's view of the job.
+  const num = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
+  const tier = typeof vehicleTier === "string" && isVehicleTierValue(vehicleTier) ? vehicleTier : null;
+
+  // The customer sees a tier-adjusted price on the quote cards; store that same
+  // number rather than the bare move-size range, so what dispatch reads back
+  // matches what the customer was actually shown.
+  const { estimateLow, estimateHigh } = tier
+    ? (() => {
+        const quoted = quoteForTier(moveSize, num(distanceMiles), tier);
+        return quoted
+          ? { estimateLow: quoted.low, estimateHigh: quoted.high }
+          : getEstimateForMoveSize(moveSize);
+      })()
+    : getEstimateForMoveSize(moveSize);
 
   const booking = await prisma.booking.create({
     data: {
@@ -94,6 +117,12 @@ export async function POST(req: NextRequest) {
       city: typeof city === "string" && getCity(city) ? city : null,
       estimateLow,
       estimateHigh,
+      pickupLat: num(pickupLat),
+      pickupLng: num(pickupLng),
+      dropoffLat: num(dropoffLat),
+      dropoffLng: num(dropoffLng),
+      distanceMiles: num(distanceMiles),
+      vehicleTier: tier,
     },
   });
 

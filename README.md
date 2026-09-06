@@ -130,6 +130,34 @@ Davis page) — just keep the "no faces" constraint in every variant.
 3. Set real values for `ADMIN_PASSWORD` and `SESSION_SECRET` wherever you deploy —
    don't reuse the ones in `.env.example`.
 
+## How the booking quote works
+
+`/book` is two steps. First the customer enters both addresses with autocomplete,
+sees the route on a map, and picks a vehicle tier at a quoted price; then they fill
+in the usual details (date, contact, what's moving) and submit.
+
+Pricing lives in `src/lib/vehicleTiers.ts` and builds on the move-size ranges in
+`src/lib/moveSizes.ts` rather than replacing them: the move size sets the base range,
+the tier scales it (pickup 0.8×, van 1×, box truck 1.3×), and miles past the first 5
+add $2.50/mile. **All of those numbers are still placeholders** — calibrate them
+against real completed jobs before spending much on ads pointed at this page.
+
+Addresses and distance come from two API routes, each with a provider ladder:
+
+| | With `MAPBOX_TOKEN` | Without a token |
+| --- | --- | --- |
+| `/api/places` (autocomplete) | Mapbox geocoding | Photon (keyless, public) |
+| `/api/directions` (distance + route) | Mapbox Directions | OSRM (keyless, public), then a straight-line estimate |
+
+Nothing here is allowed to block a booking. If autocomplete fails the customer types
+their address as free text; if routing fails the quote drops the mileage component
+and the map draws a dashed line instead of the real route. A booking made that way
+just lands in dispatch without coordinates — `Booking.pickupLat` and friends are
+nullable exactly so you can tell a mapped job from a hand-typed one.
+
+Map tiles are OpenStreetMap, loaded in the visitor's browser, so they need no key
+and no server-side call.
+
 ## How dispatch works today
 
 There's no driver app yet, so dispatch is manual: a booking comes in as `PENDING` on
