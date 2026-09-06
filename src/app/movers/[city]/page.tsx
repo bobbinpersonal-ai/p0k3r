@@ -11,6 +11,43 @@ const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
 const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
 
+// Every city page used the exact same clip, which read as one stock hero
+// reused everywhere. Rotate through the truck/pickup footage instead —
+// assigned by each city's fixed position in CITIES, so a given city always
+// shows the same clip (stable across builds and page reloads) while
+// different cities look different from each other.
+const CITY_HERO_VIDEOS = [
+  {
+    mp4: "/videos/hero-truck-v6.mp4",
+    webm: "/videos/hero-truck-v6.webm",
+    poster: "/images/hero-truck-poster-v6.jpg",
+    alt: "A LoveMeAfter truck out on a delivery run at night",
+  },
+  {
+    mp4: "/videos/pickup-a-v1.mp4",
+    webm: "/videos/pickup-a-v1.webm",
+    poster: "/images/pickup-a-v1-poster.jpg",
+    alt: "A pickup truck out on a delivery run",
+  },
+  {
+    mp4: "/videos/pickup-b-v1.mp4",
+    webm: "/videos/pickup-b-v1.webm",
+    poster: "/images/pickup-b-v1-poster.jpg",
+    alt: "A pickup truck out on a delivery run",
+  },
+  {
+    mp4: "/videos/pickup-tacoma-v1.mp4",
+    webm: "/videos/pickup-tacoma-v1.webm",
+    poster: "/images/pickup-tacoma-v1-poster.jpg",
+    alt: "A pickup truck out on a delivery run",
+  },
+] as const;
+
+function heroVideoForCity(slug: string) {
+  const index = CITIES.findIndex((c) => c.slug === slug);
+  return CITY_HERO_VIDEOS[Math.max(index, 0) % CITY_HERO_VIDEOS.length];
+}
+
 export function generateStaticParams() {
   return CITIES.map((city) => ({ city: city.slug }));
 }
@@ -27,6 +64,7 @@ export function generateMetadata({ params }: { params: { city: string } }): Meta
 export default function CityLandingPage({ params }: { params: { city: string } }) {
   const city = getCity(params.city);
   if (!city) notFound();
+  const heroVideo = heroVideoForCity(city.slug);
 
   return (
     <>
@@ -116,10 +154,10 @@ export default function CityLandingPage({ params }: { params: { city: string } }
               </div>
               <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-black/10">
                 <AutoplayVideo
-                  mp4="/videos/hero-truck-v6.mp4"
-                  webm="/videos/hero-truck-v6.webm"
-                  poster="/images/hero-truck-poster-v6.jpg"
-                  alt="A LoveMeAfter truck out on a delivery run at night"
+                  mp4={heroVideo.mp4}
+                  webm={heroVideo.webm}
+                  poster={heroVideo.poster}
+                  alt={heroVideo.alt}
                   className="absolute inset-0"
                   videoClassName="absolute inset-0 h-full w-full object-cover object-center"
                 />

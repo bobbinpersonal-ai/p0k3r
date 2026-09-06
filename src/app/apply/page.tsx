@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 
-// The recruiting QR card and flyers print "lovemeafter.com/apply" as the
-// memorable, typeable URL — the actual application form lives on /drive.
-// This just forwards there, tagging the source for the dashboard's
-// per-channel tracking (see src/lib/sources.ts) unless the link already
-// carries its own (e.g. someone hands out apply?city=davis&source=referral),
-// and jumps straight to the application form section.
+// The recruiting flyer prints "lovemeafter.com/apply" as the memorable,
+// typeable URL, while its QR code encodes /drive?source=qr-card directly —
+// so this just mirrors that (no #apply anchor) rather than jumping straight
+// to the form, keeping both entry points landing in the same place. Tags
+// the source for the dashboard's per-channel tracking (see
+// src/lib/sources.ts) unless the link already carries its own, e.g.
+// someone hands out apply?city=davis&source=referral.
 export default function ApplyRedirectPage({
   searchParams,
 }: {
@@ -17,5 +18,5 @@ export default function ApplyRedirectPage({
   }
   if (!params.has("source")) params.set("source", "qr-card");
 
-  redirect(`/drive?${params.toString()}#apply`);
+  redirect(`/drive?${params.toString()}`);
 }
