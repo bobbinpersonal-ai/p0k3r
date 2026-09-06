@@ -2,7 +2,8 @@
 
 import dynamic from "next/dynamic";
 import { MOVE_SIZE_OPTIONS, type MoveSizeValue } from "@/lib/moveSizes";
-import { quoteTiers, type VehicleTierValue } from "@/lib/vehicleTiers";
+import { type VehicleTierValue } from "@/lib/vehicleTiers";
+import { quoteTiers } from "@/lib/pricing";
 import type { LatLng } from "@/lib/geo";
 
 // Step 2: the route on a map, then a card per vehicle with a price on it.
@@ -42,14 +43,19 @@ export default function StepVehicle({
   onMoveSizeChange: (size: MoveSizeValue) => void;
   onSelectTier: (tier: VehicleTierValue, low: number, high: number) => void;
 }) {
-  const miles = route?.miles ?? null;
-  const tiers = quoteTiers(moveSize, miles);
+  // Drive time is paid crew time, so the quote uses the routed duration when we
+  // have one rather than inferring it from the mileage.
+  const tiers = quoteTiers(moveSize, {
+    miles: route?.miles ?? null,
+    minutes: route?.minutes ?? null,
+  });
 
   return (
     <div>
       <h2 className="text-2xl font-bold text-ink sm:text-3xl">Pick your truck</h2>
       <p className="mt-2 text-neutral-500">
-        Prices are estimates — a dispatcher confirms the exact number by phone.
+        Every price below covers the crew&apos;s time, their drive, and fuel — no hourly
+        surprises. A dispatcher confirms the exact number by phone.
       </p>
 
       {(pickupPoint || dropoffPoint) && (
@@ -105,7 +111,7 @@ export default function StepVehicle({
       </div>
 
       <div className="mt-6 space-y-3">
-        {tiers.map(({ tier, low, high }) => {
+        {tiers.map(({ tier, low, high, hoursLow, hoursHigh }) => {
           const isSelected = selectedTier === tier.value;
           return (
             <button
@@ -132,7 +138,8 @@ export default function StepVehicle({
                     ${low}–${high}
                   </p>
                   <p className="font-mono text-xs text-neutral-500">
-                    estimate · {tier.dimensions}
+                    {tier.dimensions}
+                    {route && ` · ~${formatHours(hoursLow)}–${formatHours(hoursHigh)} hrs`}
                   </p>
                 </div>
                 <TierArt tier={tier.value} />
@@ -143,6 +150,11 @@ export default function StepVehicle({
       </div>
     </div>
   );
+}
+
+/** Half-hour resolution: "2.5" reads as a real estimate, "2.47" reads as a bug. */
+function formatHours(hours: number): string {
+  return (Math.round(hours * 2) / 2).toString();
 }
 
 function TierArt({ tier }: { tier: VehicleTierValue }) {

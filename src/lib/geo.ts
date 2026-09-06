@@ -1,30 +1,8 @@
 // Geo primitives shared by client and server. Deliberately dependency-free
 // and network-free so it's safe to import anywhere — the actual lookups live
-// behind /api/places and /api/directions.
+// behind /api/geocode and /api/directions.
 
 export type LatLng = { lat: number; lng: number };
-
-export type PlaceSuggestion = {
-  /** Street line, e.g. "1710 Lee Ct" — the bold line in the dropdown. */
-  primary: string;
-  /** City/region line, e.g. "Woodland, CA" — the muted second line. */
-  secondary: string;
-  /** What gets written into the input once picked. */
-  full: string;
-  // Null when the provider returns suggestions without coordinates — Google's
-  // autocomplete works that way, handing back a place description and an id
-  // rather than a point. Picking one still works: the booking flow resolves
-  // the chosen text through /api/geocode before it needs a map.
-  lat: number | null;
-  lng: number | null;
-  /**
-   * Google's opaque place identifier, when the suggestion came from Google.
-   * Resolving this through Place Details with the same session token bills
-   * the whole typing burst as one session instead of one charge per
-   * keystroke, so it's much cheaper than geocoding the text.
-   */
-  placeId?: string;
-};
 
 const EARTH_RADIUS_MILES = 3958.8;
 

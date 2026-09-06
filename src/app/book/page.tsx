@@ -25,14 +25,6 @@ export default function BookPage({
   const dropoffParam = searchParams.dropoff;
   const initialDropoff = typeof dropoffParam === "string" ? dropoffParam : undefined;
 
-  // The hero form forwards the coordinates it already resolved, so the wizard
-  // can map the route straight away instead of making the customer pick the
-  // same two addresses a second time.
-  const coord = (value: string | string[] | undefined) => {
-    const parsed = typeof value === "string" ? Number(value) : NaN;
-    return Number.isFinite(parsed) ? parsed : undefined;
-  };
-
   return (
     <>
       <SiteHeader />
@@ -42,7 +34,7 @@ export default function BookPage({
           Book your {city ? `${city.name} ` : ""}move
         </h1>
         <p className="mt-2 text-neutral-500">
-          Enter your two addresses to see prices, then pick your truck. A dispatcher
+          Enter both full addresses to see prices, then pick your truck. A dispatcher
           confirms your crew and final price — usually within 30 minutes.
         </p>
         <p className="mt-2">
@@ -57,10 +49,6 @@ export default function BookPage({
           initialSize={initialSize}
           initialPickup={initialPickup}
           initialDropoff={initialDropoff}
-          initialPickupLat={coord(searchParams.pickupLat)}
-          initialPickupLng={coord(searchParams.pickupLng)}
-          initialDropoffLat={coord(searchParams.dropoffLat)}
-          initialDropoffLng={coord(searchParams.dropoffLng)}
           city={city?.slug}
         />
       </main>

@@ -7,7 +7,13 @@ import StepVehicle, { type RouteState } from "@/app/book/steps/StepVehicle";
 import StepSchedule from "@/app/book/steps/StepSchedule";
 import StepItems, { type ItemsValue } from "@/app/book/steps/StepItems";
 import StepContact, { type ContactValue } from "@/app/book/steps/StepContact";
-import type { AddressValue } from "@/components/AddressAutocomplete";
+import {
+  EMPTY_ADDRESS,
+  formatAddress,
+  missingAddressFields,
+  parseAddress,
+  type StructuredAddress,
+} from "@/lib/address";
 import type { MoveSizeValue } from "@/lib/moveSizes";
 import type { VehicleTierValue } from "@/lib/vehicleTiers";
 import { firstBookableDay, windowLabel } from "@/lib/arrivalWindows";
@@ -27,35 +33,29 @@ export default function BookingFlow({
   initialSize,
   initialPickup,
   initialDropoff,
-  initialPickupLat,
-  initialPickupLng,
-  initialDropoffLat,
-  initialDropoffLng,
   city,
 }: {
   initialSize?: MoveSizeValue;
   initialPickup?: string;
   initialDropoff?: string;
-  initialPickupLat?: number;
-  initialPickupLng?: number;
-  initialDropoffLat?: number;
-  initialDropoffLng?: number;
   city?: string;
 }) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const topRef = useRef<HTMLDivElement>(null);
 
-  const [pickup, setPickup] = useState<AddressValue>({
-    address: initialPickup ?? "",
-    lat: initialPickupLat ?? null,
-    lng: initialPickupLng ?? null,
-  });
-  const [dropoff, setDropoff] = useState<AddressValue>({
-    address: initialDropoff ?? "",
-    lat: initialDropoffLat ?? null,
-    lng: initialDropoffLng ?? null,
-  });
+  // The hero form takes a single line for speed; split it into fields here so
+  // the customer lands on the booking step with it already filled in.
+  const [pickup, setPickup] = useState<StructuredAddress>(() =>
+    initialPickup ? parseAddress(initialPickup) : { ...EMPTY_ADDRESS },
+  );
+  const [dropoff, setDropoff] = useState<StructuredAddress>(() =>
+    initialDropoff ? parseAddress(initialDropoff) : { ...EMPTY_ADDRESS },
+  );
+  // Coordinates are derived from the addresses by the geocoder, so they live
+  // separately and get cleared whenever the address they belong to changes.
+  const [pickupPoint, setPickupPoint] = useState<LatLng | null>(null);
+  const [dropoffPoint, setDropoffPoint] = useState<LatLng | null>(null);
   const [route, setRoute] = useState<RouteState | null>(null);
   const [loadingRoute, setLoadingRoute] = useState(false);
   // True when one or both ends fell back to a town centre rather than a
@@ -93,25 +93,18 @@ export default function BookingFlow({
 
   const matchedCrew = matchCrew(tier);
 
-  const pickupPoint: LatLng | null =
-    pickup.lat !== null && pickup.lng !== null ? { lat: pickup.lat, lng: pickup.lng } : null;
-  const dropoffPoint: LatLng | null =
-    dropoff.lat !== null && dropoff.lng !== null ? { lat: dropoff.lat, lng: dropoff.lng } : null;
-
-  /**
-   * Resolve an address that has no coordinates yet — i.e. one typed out
-   * rather than picked from the dropdown, which is the common case.
-   */
-  async function resolve(value: AddressValue): Promise<{ point: LatLng | null; approx: boolean }> {
-    if (value.lat !== null && value.lng !== null) {
-      return { point: { lat: value.lat, lng: value.lng }, approx: false };
-    }
-    if (!value.address.trim()) return { point: null, approx: false };
+  /** Turn the typed address parts into a point on the map. */
+  async function resolve(
+    value: StructuredAddress,
+  ): Promise<{ point: LatLng | null; approx: boolean }> {
+    if (!value.street.trim()) return { point: null, approx: false };
     try {
       const res = await fetch("/api/geocode", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address: value.address }),
+        // Parts, not a joined string: the Census geocoder is far more accurate
+        // when it doesn't have to work out where the street name ends.
+        body: JSON.stringify({ street: value.street, city: value.city, zip: value.zip }),
       });
       if (!res.ok) return { point: null, approx: false };
       const { result } = (await res.json()) as {
@@ -139,8 +132,8 @@ export default function BookingFlow({
       setApproximate(from.approx || to.approx);
       // Keep the resolved coordinates so the map draws pins and the booking
       // records where the job actually is.
-      if (pickup.lat === null) setPickup((p) => ({ ...p, ...from.point }));
-      if (dropoff.lat === null) setDropoff((d) => ({ ...d, ...to.point }));
+      setPickupPoint(from.point);
+      setDropoffPoint(to.point);
 
       const res = await fetch("/api/directions", {
         method: "POST",
@@ -157,8 +150,15 @@ export default function BookingFlow({
 
   function canAdvance(): string | null {
     if (step === 1) {
-      if (!pickup.address.trim() || !dropoff.address.trim()) {
-        return "Enter both a pickup and a drop-off address.";
+      // Name what's actually missing — "enter an address" on a four-field form
+      // leaves the customer hunting for the empty one.
+      const missingPickup = missingAddressFields(pickup);
+      if (missingPickup.length > 0) {
+        return `Pickup address needs a ${missingPickup.join(", ")}.`;
+      }
+      const missingDropoff = missingAddressFields(dropoff);
+      if (missingDropoff.length > 0) {
+        return `Drop-off address needs a ${missingDropoff.join(", ")}.`;
       }
     }
     if (step === 2 && !tier) return "Pick a vehicle to continue.";
@@ -195,8 +195,8 @@ export default function BookingFlow({
     const payload = {
       ...contact,
       customerEmail: contact.customerEmail.trim() || undefined,
-      pickupAddress: pickup.address,
-      dropoffAddress: dropoff.address,
+      pickupAddress: formatAddress(pickup),
+      dropoffAddress: formatAddress(dropoff),
       moveDate: schedule.dayKey,
       timeWindow: schedule.arrivalHour !== null ? windowLabel(schedule.arrivalHour) : "",
       moveSize,
@@ -206,11 +206,12 @@ export default function BookingFlow({
       needsHelper: items.needsHelper,
       details: items.details.trim() || undefined,
       city,
-      pickupLat: pickup.lat ?? undefined,
-      pickupLng: pickup.lng ?? undefined,
-      dropoffLat: dropoff.lat ?? undefined,
-      dropoffLng: dropoff.lng ?? undefined,
+      pickupLat: pickupPoint?.lat,
+      pickupLng: pickupPoint?.lng,
+      dropoffLat: dropoffPoint?.lat,
+      dropoffLng: dropoffPoint?.lng,
       distanceMiles: route?.miles ?? undefined,
+      driveMinutes: route?.minutes ?? undefined,
       vehicleTier: tier ?? undefined,
     };
 
@@ -254,6 +255,8 @@ export default function BookingFlow({
             pickup={pickup}
             dropoff={dropoff}
             onChange={({ pickup: p, dropoff: d }) => {
+              if (formatAddress(p) !== formatAddress(pickup)) setPickupPoint(null);
+              if (formatAddress(d) !== formatAddress(dropoff)) setDropoffPoint(null);
               setPickup(p);
               setDropoff(d);
               setRoute(null);

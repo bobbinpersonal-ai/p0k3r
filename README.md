@@ -134,7 +134,7 @@ Davis page) — just keep the "no faces" constraint in every variant.
 
 `/book` is a five-step wizard, one step on screen at a time with a progress bar:
 
-1. **Addresses** — autocomplete on both fields, with a swap button
+1. **Addresses** — street, city and ZIP for both ends, with a swap button
 2. **Pick your truck** — the route on a map, plus a priced card per vehicle tier
 3. **Arrival time** — day chips and one-hour arrival windows
 4. **What are you moving** — service type, free-text description, helper yes/no
@@ -155,32 +155,71 @@ phone verification by one-time code (needs an SMS provider). The description fie
 covers the first well enough for dispatch, and a dispatcher calling to confirm is
 the real verification today.
 
-Pricing lives in `src/lib/vehicleTiers.ts` and builds on the move-size ranges in
-`src/lib/moveSizes.ts` rather than replacing them: the move size sets the base range,
-the tier scales it (pickup 0.8×, van 1×, box truck 1.3×), and miles past the first 5
-add $2.50/mile. **All of those numbers are still placeholders** — calibrate them
-against real completed jobs before spending much on ads pointed at this page.
+## Pricing
 
-Addresses and distance come from three API routes, each trying providers in
-order of accuracy and falling through on failure, not just on missing config:
+`src/lib/pricing.ts` prices a job from what it costs to do it, rather than from a
+flat table:
+
+```
+crew payout   = (labor hours + drive time) x crew hourly + vehicle allowance x miles
+customer pays = crew payout / (1 - platform rate)
+```
+
+The crew rates in that file are **not free parameters** — they are the wages
+`/drive` advertises to applicants ($25/$28/$32 an hour driving a pickup/van/box
+truck, $19 an hour helping). Change one and you must change the other, or the
+site is promising a wage the price can't cover. The platform take is 25%, out of
+which come insurance, card processing, support and marketing; the job minimum is
+$79; prices round **up** to the next $5, because rounding to the nearest one can
+shave the crew's share below the wage it was derived from.
+
+Drive time is paid crew time, so it goes into the hours and not just the mileage.
+The vehicle allowance is paid on 1.6x the route distance, since a driver has to
+reach the pickup and get home again — their *time* for that deadhead isn't paid
+yet, which is the first thing to revisit once real long-distance jobs come in.
+
+Job durations in `LABOR_HOURS` are still estimates. Calibrate them against real
+completed jobs before spending much on ads pointed at this page — they drive
+every number the customer sees.
+
+## Addresses and the map
+
+The form asks for street, city and ZIP as **separate fields** rather than one
+free-text line, and that is a deliberate accuracy decision: the US Census
+geocoder has a structured endpoint that matches the parts against TIGER/Line
+address ranges, and it lands on the building far more often than any parser
+guessing where the street name ends. It is free, keyless and needs no signup, so
+this works on a fresh deploy with nothing configured.
+
+There is no autocomplete dropdown. Good suggestions need a paid Google Places
+key; the keyless ones were confidently wrong often enough to be worse than
+typing, and a customer who picks the wrong "Lee Ct" gets priced for the wrong
+trip without ever knowing.
+
+The homepage hero still takes one box per address — eight inputs above the fold
+would cost more bookings than a tidy address is worth. `parseAddress()` in
+`src/lib/address.ts` splits what they typed into the booking form's fields,
+where they can correct it before anything is priced.
+
+Two API routes do the lookups, each trying providers in order of accuracy and
+falling through on failure, not just on missing config:
 
 | | `GOOGLE_MAPS_API_KEY` | `MAPBOX_TOKEN` | No key |
 | --- | --- | --- | --- |
-| `/api/places` (autocomplete dropdown) | Google Places | Mapbox | Photon |
-| `/api/geocode` (resolve a typed address) | Google Geocoding | Mapbox | **US Census**, then Photon, then town centre |
+| `/api/geocode` (address → coordinates) | Google Geocoding | Mapbox | **US Census** (structured, then one-line), then Photon, then town centre |
 | `/api/directions` (distance + route line) | Google Directions | Mapbox | OSRM, then straight-line estimate |
 
-**Getting good addresses is the single highest-value thing to configure.** With
-no key the autocomplete dropdown runs on Photon, whose US street coverage is
-thin — customers often won't see their address and will type it instead.
-`/api/geocode` backstops that using the US Census geocoder, which is free, needs
-no signup, and is built on the Census Bureau's own TIGER/Line street data, so
-typed US addresses usually still resolve to the right building. A Google key
-fixes the dropdown itself, which is the part customers actually see.
+A Google key is an upgrade, not a dependency, and it needs a Cloud account with
+billing **active** — a key created while payment is pending answers
+`REQUEST_DENIED`. That case is handled: a configured-but-failing provider is
+skipped and the free tiers still run, with the reason logged
+(`[geocode] ...`/`[places] ...`) so it's diagnosable from the deploy logs.
 
-Google needs a Cloud account with billing enabled and three APIs turned on
-(Places, Geocoding, Directions). **Restrict the key to your domain** — an
-unrestricted key can be copied off the site and billed to you.
+**Do not put an HTTP-referrer restriction on the key.** It is read only inside
+the API routes (no `NEXT_PUBLIC_` prefix), so it never reaches the browser and
+server-side calls send no referrer — a domain restriction would deny every
+request. Restrict it by **API** instead (Geocoding and Directions only) and cap
+spend with a billing budget plus per-API daily quotas.
 
 Last resort is `src/lib/serviceAreaPlaces.ts`, a table of ~55 town centres from
 the Bay Area through the Sacramento Valley and down the 99. A Woodland →
@@ -188,9 +227,9 @@ Sacramento move is about twenty miles whichever house it starts at, so this
 still maps the trip and prices the mileage; the UI labels those results
 approximate.
 
-Nothing here is allowed to block a booking. If autocomplete fails the customer types
-their address as free text; if routing fails the quote drops the mileage component
-and the map draws a dashed line instead of the real route. A booking made that way
+Nothing here is allowed to block a booking. If every geocoder misses, the trip is
+measured town to town and the UI says so; if routing fails the quote drops the
+mileage component and the map draws a dashed line instead of the real route. A booking made that way
 just lands in dispatch without coordinates — `Booking.pickupLat` and friends are
 nullable exactly so you can tell a mapped job from a hand-typed one.
 

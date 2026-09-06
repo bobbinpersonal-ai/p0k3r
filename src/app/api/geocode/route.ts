@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { findServiceAreaPlace } from "@/lib/serviceAreaPlaces";
 
-// Resolve a typed address to coordinates.
+// Resolve an address to coordinates.
 //
-// This runs when someone types an address without picking one of the
-// autocomplete suggestions — which happens constantly, either because they
-// typed the whole thing before the dropdown caught up or because the geocoder
-// didn't have their building. Previously that meant no coordinates, so the
-// booking flow skipped the map and the mileage entirely.
+// The booking form asks for street, city and ZIP as separate fields, so this
+// receives the parts rather than a guessed-apart string. That matters: the
+// Census geocoder has a structured endpoint that matches street/city/ZIP
+// against TIGER/Line address ranges, and it lands on the building far more
+// often than handing the same text to a one-line parser does.
 //
 // Attempts run most precise first:
 //   1. Google Geocoding, if GOOGLE_MAPS_API_KEY is set — best US accuracy
@@ -33,6 +33,26 @@ export const runtime = "nodejs";
 const TIMEOUT_MS = 3500;
 const CALIFORNIA_CENTER = { lat: 37.5, lng: -120.5 };
 const CALIFORNIA_BBOX = "-124.5,32.5,-114.1,42.1";
+
+/** The parts the booking form collects. Unit is never sent — it only confuses geocoders. */
+type AddressParts = {
+  street: string;
+  city: string;
+  zip: string;
+};
+
+/**
+ * Geocoder-facing one-liner: no unit, always CA. Empty in, empty out — the
+ * state on its own is not an address, and returning "CA" here would shadow the
+ * free-text fallback in POST.
+ */
+function oneLine(parts: AddressParts): string {
+  const street = parts.street.trim();
+  const city = parts.city.trim();
+  const zip = parts.zip.trim();
+  if (!street && !city && !zip) return "";
+  return [street, city, ["CA", zip].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+}
 
 export type GeocodeResult = {
   lat: number;
@@ -163,6 +183,45 @@ async function attempt<T>(run: () => Promise<T | null>): Promise<T | null> {
   }
 }
 
+/**
+ * The Census geocoder's structured endpoint. Given the parts separately it
+ * doesn't have to guess where the street name ends, which is most of why the
+ * free tier can hit a real address at all. This is the primary path now that
+ * the form collects the parts.
+ */
+async function geocodeViaCensusStructured(
+  parts: AddressParts,
+): Promise<GeocodeResult | null> {
+  const query = new URLSearchParams({
+    street: parts.street,
+    state: "CA",
+    benchmark: "Public_AR_Current",
+    format: "json",
+  });
+  if (parts.city) query.set("city", parts.city);
+  if (parts.zip) query.set("zip", parts.zip);
+
+  const res = await fetchWithTimeout(
+    `https://geocoding.geo.census.gov/geocoder/locations/address?${query.toString()}`,
+  );
+  if (!res.ok) return null;
+  const data = (await res.json()) as {
+    result?: {
+      addressMatches?: { coordinates?: { x: number; y: number }; matchedAddress?: string }[];
+    };
+  };
+  const match = data.result?.addressMatches?.[0];
+  const coords = match?.coordinates;
+  if (!coords || typeof coords.x !== "number" || typeof coords.y !== "number") return null;
+  return {
+    lat: coords.y,
+    lng: coords.x,
+    precision: "address",
+    label: match?.matchedAddress ?? oneLine(parts),
+  };
+}
+
+/** Never throws: every tier is wrapped, so callers can treat null as "no match". */
 async function geocodeViaProvider(query: string): Promise<GeocodeResult | null> {
   const googleKey = process.env.GOOGLE_MAPS_API_KEY;
   const token = process.env.MAPBOX_TOKEN;
@@ -180,43 +239,6 @@ async function geocodeViaProvider(query: string): Promise<GeocodeResult | null> 
   );
 }
 
-/**
- * Turn a Google place id into coordinates.
- *
- * Passing the same session token the autocomplete used closes that billing
- * session, so the customer's whole typing burst plus this lookup costs one
- * session instead of one charge per keystroke. Always prefer this over
- * geocoding the text when we have an id.
- */
-async function detailsViaGoogle(
-  placeId: string,
-  key: string,
-  sessionToken: string | undefined,
-): Promise<GeocodeResult | null> {
-  const url =
-    `https://maps.googleapis.com/maps/api/place/details/json` +
-    `?place_id=${encodeURIComponent(placeId)}&key=${encodeURIComponent(key)}` +
-    `&fields=geometry,formatted_address` +
-    (sessionToken ? `&sessiontoken=${encodeURIComponent(sessionToken)}` : "");
-  const res = await fetchWithTimeout(url);
-  if (!res.ok) return null;
-  const data = (await res.json()) as {
-    status?: string;
-    result?: {
-      geometry?: { location?: { lat: number; lng: number } };
-      formatted_address?: string;
-    };
-  };
-  const location = data.result?.geometry?.location;
-  if (data.status !== "OK" || !location) return null;
-  return {
-    lat: location.lat,
-    lng: location.lng,
-    precision: "address",
-    label: (data.result?.formatted_address ?? "").replace(/, USA$/, ""),
-  };
-}
-
 export async function POST(request: Request) {
   let body: unknown;
   try {
@@ -225,46 +247,41 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { placeId, sessionToken } = (body ?? {}) as {
-    placeId?: unknown;
-    sessionToken?: unknown;
+  const raw = (body ?? {}) as Record<string, unknown>;
+  const parts: AddressParts = {
+    street: String(raw.street ?? "").trim(),
+    city: String(raw.city ?? "").trim(),
+    zip: String(raw.zip ?? "").trim(),
   };
-  const googleKey = process.env.GOOGLE_MAPS_API_KEY;
 
-  // Cheapest and most accurate path: the customer picked a Google suggestion,
-  // so we already have an exact place id.
-  if (googleKey && typeof placeId === "string" && placeId) {
-    try {
-      const details = await detailsViaGoogle(
-        placeId,
-        googleKey,
-        typeof sessionToken === "string" ? sessionToken : undefined,
-      );
-      if (details) return NextResponse.json({ result: details });
-    } catch {
-      // fall through to resolving the text below
-    }
-  }
-
-  const address = String((body as { address?: unknown })?.address ?? "").trim();
-  if (address.length < 3) {
+  // `address` stays supported for anything still posting a single line.
+  const freeText = String(raw.address ?? "").trim();
+  // Build from whatever parts arrived — a city and ZIP with no street number
+  // still deserves a pin, rather than falling through to nothing.
+  const query = oneLine(parts) || freeText;
+  if (query.length < 3) {
     return NextResponse.json({ result: null });
   }
 
-  const town = findServiceAreaPlace(address);
+  // The town centre we'd settle for if every lookup misses. Prefer the city
+  // the customer typed into its own field over guessing from the whole string.
+  const town = findServiceAreaPlace(parts.city || freeText);
 
-  try {
-    const direct = await geocodeViaProvider(address);
-    if (direct) return NextResponse.json({ result: direct });
+  // Structured first when we have the parts — it's the most accurate thing
+  // available without a paid key.
+  if (parts.street && (parts.city || parts.zip)) {
+    const structured = await attempt(() => geocodeViaCensusStructured(parts));
+    if (structured) return NextResponse.json({ result: structured });
+  }
 
-    // Retry with the town spelled out — a bare street name is often
-    // unresolvable on its own but fine once it's anchored to a city.
-    if (town && !new RegExp(town.name, "i").test(address)) {
-      const anchored = await geocodeViaProvider(`${address}, ${town.name}, CA`);
-      if (anchored) return NextResponse.json({ result: anchored });
-    }
-  } catch {
-    // fall through to the town centre
+  const direct = await geocodeViaProvider(query);
+  if (direct) return NextResponse.json({ result: direct });
+
+  // Retry with the town spelled out — a bare street name is often
+  // unresolvable on its own but fine once it's anchored to a city.
+  if (town && !new RegExp(escapeRegExp(town.name), "i").test(query)) {
+    const anchored = await geocodeViaProvider(`${query}, ${town.name}, CA`);
+    if (anchored) return NextResponse.json({ result: anchored });
   }
 
   if (town) {
@@ -279,4 +296,8 @@ export async function POST(request: Request) {
   }
 
   return NextResponse.json({ result: null });
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

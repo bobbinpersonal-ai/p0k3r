@@ -4,10 +4,10 @@ import { estimateDriveMinutes, estimateRoadMiles, isLatLng, type LatLng } from "
 // Drive distance/duration between pickup and drop-off, plus the route shape to
 // draw on the map.
 //
-// Same provider ladder as /api/places: Mapbox when MAPBOX_TOKEN is set,
+// Same provider ladder as /api/geocode: Google or Mapbox when a key is set,
 // otherwise the public OSRM instance, which needs no key.
 //
-// Unlike autocomplete, this one never returns "nothing" — the quote depends on
+// Unlike the geocoder, this one never returns "nothing" — the quote depends on
 // it. If both providers fail we fall back to a straight-line estimate scaled
 // for street detours (see estimateRoadMiles) and say so via `estimated: true`,
 // so the UI can be honest that the number is approximate.

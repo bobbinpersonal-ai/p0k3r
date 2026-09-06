@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { isMoveSizeValue, getEstimateForMoveSize } from "@/lib/moveSizes";
-import { isVehicleTierValue, quoteForTier } from "@/lib/vehicleTiers";
+import { isMoveSizeValue } from "@/lib/moveSizes";
+import { isVehicleTierValue } from "@/lib/vehicleTiers";
+import { quoteForTier } from "@/lib/pricing";
 import { isServiceTypeValue } from "@/lib/serviceTypes";
 import { isAdminRequest } from "@/lib/auth";
 import { getCity } from "@/lib/cities";
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest) {
     dropoffLat,
     dropoffLng,
     distanceMiles,
+    driveMinutes,
     vehicleTier,
   } = body;
 
@@ -96,17 +98,16 @@ export async function POST(req: NextRequest) {
   const num = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
   const tier = typeof vehicleTier === "string" && isVehicleTierValue(vehicleTier) ? vehicleTier : null;
 
-  // The customer sees a tier-adjusted price on the quote cards; store that same
-  // number rather than the bare move-size range, so what dispatch reads back
-  // matches what the customer was actually shown.
-  const { estimateLow, estimateHigh } = tier
-    ? (() => {
-        const quoted = quoteForTier(moveSize, num(distanceMiles), tier);
-        return quoted
-          ? { estimateLow: quoted.low, estimateHigh: quoted.high }
-          : getEstimateForMoveSize(moveSize);
-      })()
-    : getEstimateForMoveSize(moveSize);
+  // Price through the same model the quote cards used, off the same distance
+  // and drive time, so what dispatch reads back is what the customer was shown.
+  // A booking with no tier picked is priced as a cargo van, the middle option.
+  const quoted = quoteForTier(
+    moveSize,
+    { miles: num(distanceMiles), minutes: num(driveMinutes) },
+    tier ?? "VAN",
+  );
+  const estimateLow = quoted?.low ?? 0;
+  const estimateHigh = quoted?.high ?? 0;
 
   const booking = await prisma.booking.create({
     data: {

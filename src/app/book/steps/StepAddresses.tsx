@@ -1,66 +1,73 @@
 "use client";
 
-import AddressAutocomplete, { type AddressValue } from "@/components/AddressAutocomplete";
+import AddressFields from "@/components/AddressFields";
+import { isCompleteAddress, type StructuredAddress } from "@/lib/address";
 
 // Step 1: where it's coming from and where it's going. Everything downstream
-// (route, distance, price) hangs off these two.
+// (route, distance, price) hangs off these two, which is why the full address
+// is asked for here rather than being guessed from a single line.
 
 export default function StepAddresses({
   pickup,
   dropoff,
   onChange,
 }: {
-  pickup: AddressValue;
-  dropoff: AddressValue;
-  onChange: (next: { pickup: AddressValue; dropoff: AddressValue }) => void;
+  pickup: StructuredAddress;
+  dropoff: StructuredAddress;
+  onChange: (next: { pickup: StructuredAddress; dropoff: StructuredAddress }) => void;
 }) {
-  const bothFilled = pickup.address.trim().length > 0 && dropoff.address.trim().length > 0;
+  const bothComplete = isCompleteAddress(pickup) && isCompleteAddress(dropoff);
 
   return (
     <div>
       <h2 className="text-2xl font-bold text-ink sm:text-3xl">Where are we moving you?</h2>
       <p className="mt-2 text-neutral-500">
-        Pick both addresses from the suggestions and we&apos;ll map the route and price the
-        drive.
+        Street, city and ZIP for both ends — that&apos;s what lets us map the exact route and
+        price the drive properly instead of guessing.
       </p>
 
-      <div className="relative mt-8 rounded-3xl border-2 border-brand/60 bg-paper shadow-lg">
-        <AddressAutocomplete
-          label="Pick up from"
-          placeholder="Pickup address"
+      <div className="mt-8 rounded-3xl border-2 border-brand/60 bg-paper shadow-lg">
+        <AddressFields
+          legend="Pick up from"
           icon={<ArrowIcon direction="up" />}
           value={pickup}
           onChange={(v) => onChange({ pickup: v, dropoff })}
         />
-        <div className="mx-4 border-t border-black/10" />
-        <AddressAutocomplete
-          label="Move to"
-          placeholder="Drop-off address"
+
+        <div className="relative mx-4 border-t border-black/10">
+          {bothComplete && (
+            <button
+              type="button"
+              onClick={() => onChange({ pickup: dropoff, dropoff: pickup })}
+              aria-label="Swap pickup and drop-off"
+              className="absolute right-0 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl border border-black/10 bg-paper text-neutral-500 shadow-sm transition hover:text-ink"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.7"
+              >
+                <path d="M7 4v16m0-16 3 3M7 4 4 7" />
+                <path d="M17 20V4m0 16 3-3m-3 3-3-3" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        <AddressFields
+          legend="Move to"
           icon={<ArrowIcon direction="down" />}
           value={dropoff}
           onChange={(v) => onChange({ pickup, dropoff: v })}
         />
-
-        {bothFilled && (
-          <button
-            type="button"
-            onClick={() => onChange({ pickup: dropoff, dropoff: pickup })}
-            aria-label="Swap pickup and drop-off"
-            className="absolute right-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl border border-black/10 bg-paper text-neutral-500 shadow-sm transition hover:text-ink"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.7"
-            >
-              <path d="M7 4v16m0-16 3 3M7 4 4 7" />
-              <path d="M17 20V4m0 16 3-3m-3 3-3-3" />
-            </svg>
-          </button>
-        )}
       </div>
+
+      <p className="mt-3 text-xs text-neutral-500">
+        We only need the ZIP to measure the drive — nothing is charged until a dispatcher
+        confirms the job with you.
+      </p>
     </div>
   );
 }
@@ -69,7 +76,7 @@ function ArrowIcon({ direction }: { direction: "up" | "down" }) {
   return (
     <svg
       viewBox="0 0 24 24"
-      className="h-5 w-5"
+      className="h-4 w-4"
       fill="none"
       stroke="currentColor"
       strokeWidth="2"
