@@ -20,6 +20,12 @@ import { firstBookableDay, windowLabel } from "@/lib/arrivalWindows";
 import { matchCrew } from "@/lib/crew";
 import { getVehicleTier } from "@/lib/vehicleTiers";
 import { extraHelperFee, quoteForTier } from "@/lib/pricing";
+import {
+  dropoffLabelForMode,
+  requiresDropoffAddress,
+  routeForMode,
+  type DropoffMode,
+} from "@/lib/dropoffModes";
 import CrewMatchCard from "@/components/CrewMatchCard";
 import { trackBookingConversion } from "@/lib/analytics";
 import type { LatLng } from "@/lib/geo";
@@ -53,6 +59,7 @@ export default function BookingFlow({
   const [dropoff, setDropoff] = useState<StructuredAddress>(() =>
     initialDropoff ? parseAddress(initialDropoff) : { ...EMPTY_ADDRESS },
   );
+  const [dropoffMode, setDropoffMode] = useState<DropoffMode>("ADDRESS");
   // Coordinates are derived from the addresses by the geocoder, so they live
   // separately and get cleared whenever the address they belong to changes.
   const [pickupPoint, setPickupPoint] = useState<LatLng | null>(null);
@@ -96,7 +103,13 @@ export default function BookingFlow({
   // Price is derived, never stored: the running total has to move the moment
   // the customer answers the extra-helper question two steps later, and a
   // number captured when they picked a truck can't do that.
-  const routeInput = { miles: route?.miles ?? null, minutes: route?.minutes ?? null };
+  // What the price is built on. For a job with no second address there's no
+  // route to measure, so the mode supplies the trip: none at all for an on-site
+  // job, a typical local run when we're the ones choosing the destination.
+  const routeInput = routeForMode(dropoffMode, {
+    miles: route?.miles ?? null,
+    minutes: route?.minutes ?? null,
+  });
   const estimate = tier
     ? (quoteForTier(moveSize, routeInput, tier, {
         extraHelper: items.needsHelper === true,
@@ -136,6 +149,17 @@ export default function BookingFlow({
     setApproximate(false);
     setLoadingRoute(true);
     try {
+      // With no second address there's nothing to route, but the pickup is
+      // still worth placing — the map shows where the crew is headed, and a
+      // single pin beats an empty panel.
+      if (!requiresDropoffAddress(dropoffMode)) {
+        const only = await resolve(pickup);
+        setApproximate(only.approx);
+        setPickupPoint(only.point);
+        setDropoffPoint(null);
+        return;
+      }
+
       // Geocode whatever doesn't already have coordinates, then route.
       const [from, to] = await Promise.all([resolve(pickup), resolve(dropoff)]);
       if (!from.point || !to.point) return;
@@ -167,9 +191,11 @@ export default function BookingFlow({
       if (missingPickup.length > 0) {
         return `Pickup address needs a ${missingPickup.join(", ")}.`;
       }
-      const missingDropoff = missingAddressFields(dropoff);
-      if (missingDropoff.length > 0) {
-        return `Drop-off address needs a ${missingDropoff.join(", ")}.`;
+      if (requiresDropoffAddress(dropoffMode)) {
+        const missingDropoff = missingAddressFields(dropoff);
+        if (missingDropoff.length > 0) {
+          return `Drop-off address needs a ${missingDropoff.join(", ")}.`;
+        }
       }
     }
     if (step === 2 && !tier) return "Pick a vehicle to continue.";
@@ -207,7 +233,12 @@ export default function BookingFlow({
       ...contact,
       customerEmail: contact.customerEmail.trim() || undefined,
       pickupAddress: formatAddress(pickup),
-      dropoffAddress: formatAddress(dropoff),
+      // No second address means dispatch reads what kind of job it is instead
+      // of a blank field.
+      dropoffAddress: requiresDropoffAddress(dropoffMode)
+        ? formatAddress(dropoff)
+        : dropoffLabelForMode(dropoffMode),
+      dropoffMode,
       moveDate: schedule.dayKey,
       timeWindow: schedule.arrivalHour !== null ? windowLabel(schedule.arrivalHour) : "",
       moveSize,
@@ -221,8 +252,8 @@ export default function BookingFlow({
       pickupLng: pickupPoint?.lng,
       dropoffLat: dropoffPoint?.lat,
       dropoffLng: dropoffPoint?.lng,
-      distanceMiles: route?.miles ?? undefined,
-      driveMinutes: route?.minutes ?? undefined,
+      distanceMiles: routeInput.miles ?? undefined,
+      driveMinutes: routeInput.minutes ?? undefined,
       vehicleTier: tier ?? undefined,
     };
 
@@ -274,11 +305,15 @@ export default function BookingFlow({
           <StepAddresses
             pickup={pickup}
             dropoff={dropoff}
-            onChange={({ pickup: p, dropoff: d }) => {
+            dropoffMode={dropoffMode}
+            onChange={({ pickup: p, dropoff: d, dropoffMode: m }) => {
               if (formatAddress(p) !== formatAddress(pickup)) setPickupPoint(null);
-              if (formatAddress(d) !== formatAddress(dropoff)) setDropoffPoint(null);
+              if (formatAddress(d) !== formatAddress(dropoff) || m !== dropoffMode) {
+                setDropoffPoint(null);
+              }
               setPickup(p);
               setDropoff(d);
+              setDropoffMode(m);
               setRoute(null);
             }}
           />
@@ -290,6 +325,7 @@ export default function BookingFlow({
             route={route}
             loadingRoute={loadingRoute}
             approximate={approximate}
+            dropoffMode={dropoffMode}
             moveSize={moveSize}
             selectedTier={tier}
             onMoveSizeChange={setMoveSize}

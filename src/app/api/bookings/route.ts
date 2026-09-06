@@ -4,6 +4,7 @@ import { isMoveSizeValue } from "@/lib/moveSizes";
 import { isVehicleTierValue } from "@/lib/vehicleTiers";
 import { quoteForTier } from "@/lib/pricing";
 import { isServiceTypeValue } from "@/lib/serviceTypes";
+import { getDropoffMode, requiresDropoffAddress } from "@/lib/dropoffModes";
 import { isAdminRequest } from "@/lib/auth";
 import { getCity } from "@/lib/cities";
 
@@ -34,16 +35,24 @@ export async function POST(req: NextRequest) {
     distanceMiles,
     driveMinutes,
     vehicleTier,
+    dropoffMode,
   } = body;
+
+  // Anything unrecognised is treated as a normal two-address move, which is the
+  // stricter reading — it still demands a drop-off below.
+  const mode =
+    (typeof dropoffMode === "string" ? getDropoffMode(dropoffMode) : undefined) ?? "ADDRESS";
 
   const requiredFields: Record<string, unknown> = {
     customerName,
     customerPhone,
     pickupAddress,
-    dropoffAddress,
     moveDate,
     timeWindow,
     moveSize,
+    // Only a real move needs somewhere to go. For the others the client sends a
+    // label describing the job, and an empty one shouldn't fail the booking.
+    ...(requiresDropoffAddress(mode) ? { dropoffAddress } : {}),
   };
   for (const [field, value] of Object.entries(requiredFields)) {
     if (typeof value !== "string" || value.trim().length === 0) {
@@ -118,7 +127,10 @@ export async function POST(req: NextRequest) {
       customerPhone,
       customerEmail: typeof customerEmail === "string" && customerEmail ? customerEmail : null,
       pickupAddress,
-      dropoffAddress,
+      dropoffAddress: typeof dropoffAddress === "string" && dropoffAddress.trim()
+        ? dropoffAddress
+        : null,
+      dropoffMode: mode,
       moveDate: parsedDate,
       timeWindow,
       moveSize,

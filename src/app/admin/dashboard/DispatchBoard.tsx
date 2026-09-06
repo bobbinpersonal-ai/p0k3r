@@ -174,7 +174,8 @@ export default function DispatchBoard({
                   <span className="font-medium text-neutral-600">From:</span> {booking.pickupAddress}
                 </p>
                 <p>
-                  <span className="font-medium text-neutral-600">To:</span> {booking.dropoffAddress}
+                  <span className="font-medium text-neutral-600">To:</span>{" "}
+                  {booking.dropoffAddress ?? "— no drop-off (on-site job)"}
                 </p>
                 <p>
                   <span className="font-medium text-neutral-600">When:</span>{" "}

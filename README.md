@@ -134,7 +134,7 @@ Davis page) — just keep the "no faces" constraint in every variant.
 
 `/book` is a five-step wizard, one step on screen at a time with a progress bar:
 
-1. **Addresses** — street, city and ZIP for both ends, with a swap button
+1. **Addresses** — street, city and ZIP for the pickup, then where it goes
 2. **Pick your truck** — the route on a map, plus a priced card per vehicle tier
 3. **Arrival time** — day chips and one-hour arrival windows
 4. **What are you moving** — service type, free-text description, helper yes/no
@@ -154,6 +154,29 @@ service that isn't wired up: photo upload of the items (needs a blob store) and
 phone verification by one-time code (needs an SMS provider). The description field
 covers the first well enough for dispatch, and a dispatcher calling to confirm is
 the real verification today.
+
+## Jobs that aren't moves
+
+Not every booking has two addresses. A dump run, a donation drop, or two people
+helping load a container already in the driveway has one — and demanding a
+second was the fastest way to lose those customers.
+
+`src/lib/dropoffModes.ts` splits them by what the *crew vehicle* does, since
+that is what the price hangs on:
+
+| Mode | Second address | Priced as |
+| --- | --- | --- |
+| `ADDRESS` | required | the measured route |
+| `SAME_PLACE` | none | crew time only, zero miles |
+| `WE_CHOOSE` | none | a typical local run (`LOCAL_RUN_MILES`) |
+
+Collapsing the last two would mean either charging on-site jobs for a drive
+that never happens, or paying a driver nothing for the run to the dump. Dump
+and donation fees are explicitly *not* included — a dispatcher confirms those.
+
+`Booking.dropoffAddress` is nullable as a result; `Booking.dropoffMode` records
+which kind of job it was, and the client writes a readable label
+("Same address — on-site job") so dispatch never reads a blank field.
 
 ## Pricing
 

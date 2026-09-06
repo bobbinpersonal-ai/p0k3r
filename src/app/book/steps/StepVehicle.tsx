@@ -4,6 +4,12 @@ import dynamic from "next/dynamic";
 import { MOVE_SIZE_OPTIONS, type MoveSizeValue } from "@/lib/moveSizes";
 import { type VehicleTierValue } from "@/lib/vehicleTiers";
 import { quoteTiers } from "@/lib/pricing";
+import {
+  LOCAL_RUN_MILES,
+  requiresDropoffAddress,
+  routeForMode,
+  type DropoffMode,
+} from "@/lib/dropoffModes";
 import type { LatLng } from "@/lib/geo";
 
 // Step 2: the route on a map, then a card per vehicle with a price on it.
@@ -27,6 +33,7 @@ export default function StepVehicle({
   route,
   loadingRoute,
   approximate,
+  dropoffMode,
   moveSize,
   selectedTier,
   onMoveSizeChange,
@@ -38,17 +45,24 @@ export default function StepVehicle({
   loadingRoute: boolean;
   /** One or both ends resolved to a town centre rather than a building. */
   approximate: boolean;
+  dropoffMode: DropoffMode;
   moveSize: MoveSizeValue;
   selectedTier: VehicleTierValue | null;
   onMoveSizeChange: (size: MoveSizeValue) => void;
   onSelectTier: (tier: VehicleTierValue) => void;
 }) {
   // Drive time is paid crew time, so the quote uses the routed duration when we
-  // have one rather than inferring it from the mileage.
-  const tiers = quoteTiers(moveSize, {
-    miles: route?.miles ?? null,
-    minutes: route?.minutes ?? null,
-  });
+  // have one rather than inferring it from the mileage. With no second address
+  // the mode supplies the trip instead — nothing for an on-site job, a typical
+  // local run when we're picking the destination.
+  const needsDropoff = requiresDropoffAddress(dropoffMode);
+  const tiers = quoteTiers(
+    moveSize,
+    routeForMode(dropoffMode, {
+      miles: route?.miles ?? null,
+      minutes: route?.minutes ?? null,
+    }),
+  );
 
   return (
     <div>
@@ -69,8 +83,23 @@ export default function StepVehicle({
       )}
 
       <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-widest text-neutral-500">
-        {loadingRoute && <span>Measuring the route…</span>}
-        {!loadingRoute && route && (
+        {loadingRoute && <span>{needsDropoff ? "Measuring the route…" : "Finding you…"}</span>}
+
+        {/* A one-address job has no route to report, so say what's actually
+            priced instead of warning about a missing address nobody entered. */}
+        {!loadingRoute && dropoffMode === "SAME_PLACE" && (
+          <span className="normal-case tracking-normal">
+            On-site job — priced on the crew&apos;s time, with no drive between addresses.
+          </span>
+        )}
+        {!loadingRoute && dropoffMode === "WE_CHOOSE" && (
+          <span className="normal-case tracking-normal">
+            Includes a ~{LOCAL_RUN_MILES}-mile run to the nearest donation centre or transfer
+            station. Dump and donation fees are confirmed by dispatch.
+          </span>
+        )}
+
+        {!loadingRoute && needsDropoff && route && (
           <>
             <span className="text-brand-cyan">{route.miles.toFixed(1)} mi</span>
             <span aria-hidden>·</span>
@@ -84,7 +113,7 @@ export default function StepVehicle({
             )}
           </>
         )}
-        {!loadingRoute && !route && (
+        {!loadingRoute && needsDropoff && !route && (
           <span className="normal-case tracking-normal">
             We couldn&apos;t place one of these addresses. Mileage isn&apos;t included below —
             dispatch will confirm it when they call.

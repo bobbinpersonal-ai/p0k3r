@@ -62,7 +62,11 @@ model Booking {
   customerEmail   String?
 
   pickupAddress   String
-  dropoffAddress  String
+  // Nullable since not every job is a move: a dump run, a donation drop, or
+  // help loading a container already in the driveway has one address. See
+  // dropoffMode for which kind of job it is.
+  dropoffAddress  String?
+  dropoffMode     String?   @default("ADDRESS")
   moveDate        DateTime
   timeWindow      String
   city            String?

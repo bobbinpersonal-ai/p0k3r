@@ -29,6 +29,16 @@ export const SERVICE_TYPES = [
     description: "Furniture or items headed to a donation center",
   },
   {
+    value: "JUNK_REMOVAL",
+    label: "Junk removal or haul-away",
+    description: "Clear it out — we take it to the dump or a donation center",
+  },
+  {
+    value: "LOADING_HELP",
+    label: "Loading or unloading help",
+    description: "You have the truck, pod, or trailer — we bring the muscle",
+  },
+  {
     value: "OTHER",
     label: "Something else",
     description: "Tell us what you need below",

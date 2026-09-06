@@ -34,8 +34,9 @@ export default function BookPage({
           Book your {city ? `${city.name} ` : ""}move
         </h1>
         <p className="mt-2 text-neutral-500">
-          Enter both full addresses to see prices, then pick your truck. A dispatcher
-          confirms your crew and final price — usually within 30 minutes.
+          Tell us where it&apos;s coming from — and where it&apos;s going, if anywhere —
+          then pick your truck. A dispatcher confirms your crew and final price, usually
+          within 30 minutes.
         </p>
         <p className="mt-2">
           <a

@@ -46,7 +46,9 @@ export default async function ConfirmationPage({
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-neutral-400">Drop-off</dt>
-              <dd className="text-right font-medium text-ink">{booking.dropoffAddress}</dd>
+              <dd className="text-right font-medium text-ink">
+                {booking.dropoffAddress ?? "No drop-off — on-site job"}
+              </dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-neutral-400">Date</dt>
