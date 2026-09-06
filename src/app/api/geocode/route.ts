@@ -9,14 +9,21 @@ import { findServiceAreaPlace } from "@/lib/serviceAreaPlaces";
 // didn't have their building. Previously that meant no coordinates, so the
 // booking flow skipped the map and the mileage entirely.
 //
-// Three attempts, most precise first:
-//   1. the geocoding provider (Mapbox with a token, otherwise Photon)
-//   2. the same provider again, with the town appended if we recognise one —
-//      "1710 Lee Ct" alone is ambiguous, "1710 Lee Ct, Woodland, CA" is not
-//   3. the service-area town centre, which at least puts the trip on the map
+// Attempts run most precise first:
+//   1. Google Geocoding, if GOOGLE_MAPS_API_KEY is set — best US accuracy
+//   2. Mapbox, if MAPBOX_TOKEN is set
+//   3. the US Census geocoder — free, keyless, no signup, and built on the
+//      Census Bureau's own TIGER/Line street data, so its US house-number
+//      coverage is far better than the OSM-based autocomplete we fall back
+//      to. US-only, which is fine: we only move people in California.
+//   4. Photon, as a last network attempt
+//   5. any of the above retried with the town appended, since a bare street
+//      name is often unresolvable alone but fine once anchored to a city
+//   6. the service-area town centre, which still puts the trip on the map
 //      and gets the mileage roughly right
 //
-// `precision` tells the caller which one landed, so the UI can be honest.
+// `precision` tells the caller which kind of answer landed, so the UI can be
+// honest about whether it found a building or just the town.
 
 export const runtime = "nodejs";
 
@@ -42,8 +49,69 @@ async function fetchWithTimeout(url: string, init?: RequestInit) {
   }
 }
 
+async function geocodeViaGoogle(query: string, key: string): Promise<GeocodeResult | null> {
+  const url =
+    `https://maps.googleapis.com/maps/api/geocode/json` +
+    `?address=${encodeURIComponent(query)}&key=${encodeURIComponent(key)}` +
+    `&components=country:US`;
+  const res = await fetchWithTimeout(url);
+  if (!res.ok) return null;
+  const data = (await res.json()) as {
+    status?: string;
+    results?: {
+      geometry?: { location?: { lat: number; lng: number }; location_type?: string };
+      formatted_address?: string;
+    }[];
+  };
+  const hit = data.results?.[0];
+  const location = hit?.geometry?.location;
+  if (data.status !== "OK" || !location) return null;
+  return {
+    lat: location.lat,
+    lng: location.lng,
+    // APPROXIMATE means Google interpolated to a street or wider area rather
+    // than pinning a rooftop, so don't advertise it as an exact address.
+    precision: hit?.geometry?.location_type === "APPROXIMATE" ? "city" : "address",
+    label: (hit?.formatted_address ?? query).replace(/, USA$/, ""),
+  };
+}
+
+// The US Census Bureau's own geocoder. No key, no signup, no rate-limit
+// paperwork, and its street data is the same TIGER/Line set the government
+// uses for the census — which makes it dramatically better at US house
+// numbers than the OSM-derived free options. Nothing to configure, so this
+// runs for everyone on the no-key path.
+async function geocodeViaCensus(query: string): Promise<GeocodeResult | null> {
+  const url =
+    `https://geocoding.geo.census.gov/geocoder/locations/onelineaddress` +
+    `?address=${encodeURIComponent(query)}&benchmark=Public_AR_Current&format=json`;
+  const res = await fetchWithTimeout(url);
+  if (!res.ok) return null;
+  const data = (await res.json()) as {
+    result?: {
+      addressMatches?: { coordinates?: { x: number; y: number }; matchedAddress?: string }[];
+    };
+  };
+  const match = data.result?.addressMatches?.[0];
+  const coords = match?.coordinates;
+  if (!coords || typeof coords.x !== "number" || typeof coords.y !== "number") return null;
+  // Census returns x = longitude, y = latitude.
+  return {
+    lat: coords.y,
+    lng: coords.x,
+    precision: "address",
+    label: match?.matchedAddress ?? query,
+  };
+}
+
 async function geocodeViaProvider(query: string): Promise<GeocodeResult | null> {
+  const googleKey = process.env.GOOGLE_MAPS_API_KEY;
   const token = process.env.MAPBOX_TOKEN;
+
+  if (googleKey) {
+    const viaGoogle = await geocodeViaGoogle(query, googleKey);
+    if (viaGoogle) return viaGoogle;
+  }
 
   if (token) {
     const url =
@@ -64,6 +132,11 @@ async function geocodeViaProvider(query: string): Promise<GeocodeResult | null> 
       label: hit.place_name ?? query,
     };
   }
+
+  // No paid provider configured: try the Census first, since it actually
+  // knows US house numbers, and only then fall back to Photon.
+  const viaCensus = await geocodeViaCensus(query);
+  if (viaCensus) return viaCensus;
 
   const url =
     `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}` +

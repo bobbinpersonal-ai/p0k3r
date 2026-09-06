@@ -3,12 +3,18 @@ import type { PlaceSuggestion } from "@/lib/geo";
 
 // Address autocomplete for the quote step.
 //
-// Two providers, picked by whether a token is configured:
-//   MAPBOX_TOKEN set → Mapbox geocoding (production path — one request returns
-//                      both the formatted address and its coordinates, and the
-//                      free tier covers far more lookups than we'll make)
-//   otherwise        → Photon, which is keyless and needs no signup, so the
-//                      flow works on a fresh deploy with nothing configured
+// Providers in order of accuracy, picked by whichever key is configured:
+//   GOOGLE_MAPS_API_KEY → Google Places Autocomplete. The best US address
+//                         coverage there is, and what Uber/Lugg use. Returns
+//                         descriptions without coordinates; picking one is
+//                         resolved through /api/geocode, which also means we
+//                         pay for one geocode per booking rather than one per
+//                         keystroke.
+//   MAPBOX_TOKEN        → Mapbox geocoding, coordinates included in one call.
+//   neither             → Photon, keyless and signup-free, so the flow works
+//                         on a fresh deploy. Its US street coverage is thin —
+//                         this is the tier to move off once you're spending on
+//                         ads (see /api/geocode, which backstops it).
 //
 // Autocomplete is an enhancement, never a gate: if a provider is down, slow, or
 // rate-limiting us, we return an empty list and the customer just types their
@@ -29,6 +35,41 @@ async function fetchWithTimeout(url: string, init?: RequestInit) {
   } finally {
     clearTimeout(timer);
   }
+}
+
+type GooglePrediction = {
+  description?: string;
+  structured_formatting?: { main_text?: string; secondary_text?: string };
+};
+
+async function searchGoogle(query: string, key: string): Promise<PlaceSuggestion[]> {
+  const url =
+    `https://maps.googleapis.com/maps/api/place/autocomplete/json` +
+    `?input=${encodeURIComponent(query)}&key=${encodeURIComponent(key)}` +
+    `&components=country:us&types=address` +
+    // Bias toward the service area without hard-excluding anything outside it.
+    `&location=${CALIFORNIA_CENTER.lat},${CALIFORNIA_CENTER.lng}&radius=250000`;
+
+  const res = await fetchWithTimeout(url);
+  if (!res.ok) return [];
+  const data = (await res.json()) as { status?: string; predictions?: GooglePrediction[] };
+  // REQUEST_DENIED usually means the key is missing Places API or billing.
+  if (data.status && data.status !== "OK" && data.status !== "ZERO_RESULTS") return [];
+
+  return (data.predictions ?? []).slice(0, 5).flatMap((prediction) => {
+    const primary = prediction.structured_formatting?.main_text ?? prediction.description ?? "";
+    if (!primary) return [];
+    return [
+      {
+        primary,
+        secondary: (prediction.structured_formatting?.secondary_text ?? "").replace(/, USA$/, ""),
+        full: (prediction.description ?? primary).replace(/, USA$/, ""),
+        // Coordinates come later, from /api/geocode on the picked text.
+        lat: null,
+        lng: null,
+      },
+    ];
+  });
 }
 
 type MapboxFeature = {
@@ -154,10 +195,15 @@ export async function GET(request: Request) {
     return NextResponse.json({ suggestions: [] });
   }
 
+  const googleKey = process.env.GOOGLE_MAPS_API_KEY;
   const token = process.env.MAPBOX_TOKEN;
 
   try {
-    const suggestions = token ? await searchMapbox(query, token) : await searchPhoton(query);
+    const suggestions = googleKey
+      ? await searchGoogle(query, googleKey)
+      : token
+        ? await searchMapbox(query, token)
+        : await searchPhoton(query);
     return NextResponse.json({ suggestions });
   } catch {
     // Timed out, blocked, or malformed upstream response — fall back to

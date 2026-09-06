@@ -11,8 +11,12 @@ export type PlaceSuggestion = {
   secondary: string;
   /** What gets written into the input once picked. */
   full: string;
-  lat: number;
-  lng: number;
+  // Null when the provider returns suggestions without coordinates — Google's
+  // autocomplete works that way, handing back a place description and an id
+  // rather than a point. Picking one still works: the booking flow resolves
+  // the chosen text through /api/geocode before it needs a map.
+  lat: number | null;
+  lng: number | null;
 };
 
 const EARTH_RADIUS_MILES = 3958.8;

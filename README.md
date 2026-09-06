@@ -161,12 +161,32 @@ the tier scales it (pickup 0.8×, van 1×, box truck 1.3×), and miles past the 
 add $2.50/mile. **All of those numbers are still placeholders** — calibrate them
 against real completed jobs before spending much on ads pointed at this page.
 
-Addresses and distance come from two API routes, each with a provider ladder:
+Addresses and distance come from three API routes, each trying providers in
+order of accuracy and falling through on failure, not just on missing config:
 
-| | With `MAPBOX_TOKEN` | Without a token |
-| --- | --- | --- |
-| `/api/places` (autocomplete) | Mapbox geocoding | Photon (keyless, public) |
-| `/api/directions` (distance + route) | Mapbox Directions | OSRM (keyless, public), then a straight-line estimate |
+| | `GOOGLE_MAPS_API_KEY` | `MAPBOX_TOKEN` | No key |
+| --- | --- | --- | --- |
+| `/api/places` (autocomplete dropdown) | Google Places | Mapbox | Photon |
+| `/api/geocode` (resolve a typed address) | Google Geocoding | Mapbox | **US Census**, then Photon, then town centre |
+| `/api/directions` (distance + route line) | Google Directions | Mapbox | OSRM, then straight-line estimate |
+
+**Getting good addresses is the single highest-value thing to configure.** With
+no key the autocomplete dropdown runs on Photon, whose US street coverage is
+thin — customers often won't see their address and will type it instead.
+`/api/geocode` backstops that using the US Census geocoder, which is free, needs
+no signup, and is built on the Census Bureau's own TIGER/Line street data, so
+typed US addresses usually still resolve to the right building. A Google key
+fixes the dropdown itself, which is the part customers actually see.
+
+Google needs a Cloud account with billing enabled and three APIs turned on
+(Places, Geocoding, Directions). **Restrict the key to your domain** — an
+unrestricted key can be copied off the site and billed to you.
+
+Last resort is `src/lib/serviceAreaPlaces.ts`, a table of ~55 town centres from
+the Bay Area through the Sacramento Valley and down the 99. A Woodland →
+Sacramento move is about twenty miles whichever house it starts at, so this
+still maps the trip and prices the mileage; the UI labels those results
+approximate.
 
 Nothing here is allowed to block a booking. If autocomplete fails the customer types
 their address as free text; if routing fails the quote drops the mileage component

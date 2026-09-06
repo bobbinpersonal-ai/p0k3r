@@ -53,6 +53,61 @@ function parseRouteResponse(data: OsrmLikeResponse): RouteResult | null {
   };
 }
 
+/** Google encodes route shapes as a polyline string rather than coordinates. */
+function decodePolyline(encoded: string): [number, number][] {
+  const points: [number, number][] = [];
+  let index = 0;
+  let lat = 0;
+  let lng = 0;
+
+  while (index < encoded.length) {
+    for (const axis of ["lat", "lng"] as const) {
+      let result = 0;
+      let shift = 0;
+      let byte: number;
+      do {
+        byte = encoded.charCodeAt(index++) - 63;
+        result |= (byte & 0x1f) << shift;
+        shift += 5;
+      } while (byte >= 0x20);
+      const delta = result & 1 ? ~(result >> 1) : result >> 1;
+      if (axis === "lat") lat += delta;
+      else lng += delta;
+    }
+    // GeoJSON order, matching what the map component expects.
+    points.push([lng / 1e5, lat / 1e5]);
+  }
+  return points;
+}
+
+async function routeViaGoogle(a: LatLng, b: LatLng, key: string): Promise<RouteResult | null> {
+  const url =
+    `https://maps.googleapis.com/maps/api/directions/json` +
+    `?origin=${a.lat},${a.lng}&destination=${b.lat},${b.lng}` +
+    `&mode=driving&key=${encodeURIComponent(key)}`;
+  const res = await fetchWithTimeout(url);
+  if (!res.ok) return null;
+  const data = (await res.json()) as {
+    status?: string;
+    routes?: {
+      overview_polyline?: { points?: string };
+      legs?: { distance?: { value?: number }; duration?: { value?: number } }[];
+    }[];
+  };
+  const route = data.routes?.[0];
+  const leg = route?.legs?.[0];
+  if (data.status !== "OK" || !leg?.distance?.value || !leg?.duration?.value) return null;
+
+  return {
+    miles: leg.distance.value / METERS_PER_MILE,
+    minutes: leg.duration.value / 60,
+    geometry: route?.overview_polyline?.points
+      ? decodePolyline(route.overview_polyline.points)
+      : [],
+    estimated: false,
+  };
+}
+
 async function routeViaMapbox(a: LatLng, b: LatLng, token: string) {
   const url =
     `https://api.mapbox.com/directions/v5/mapbox/driving/` +
@@ -89,12 +144,16 @@ export async function POST(request: Request) {
     );
   }
 
+  const googleKey = process.env.GOOGLE_MAPS_API_KEY;
   const token = process.env.MAPBOX_TOKEN;
 
   try {
-    const route = token
-      ? ((await routeViaMapbox(pickup, dropoff, token)) ?? (await routeViaOsrm(pickup, dropoff)))
-      : await routeViaOsrm(pickup, dropoff);
+    // Best available first, then down the ladder — each step also covers the
+    // one above it failing, not just being unconfigured.
+    const route =
+      (googleKey ? await routeViaGoogle(pickup, dropoff, googleKey) : null) ??
+      (token ? await routeViaMapbox(pickup, dropoff, token) : null) ??
+      (await routeViaOsrm(pickup, dropoff));
     if (route) return NextResponse.json(route);
   } catch {
     // fall through to the straight-line estimate below
