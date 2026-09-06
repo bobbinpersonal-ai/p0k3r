@@ -250,20 +250,23 @@ export default function DrivePage({
               Be a helper. Ride shotgun.
             </h2>
             <p className="mt-4 max-w-2xl text-neutral-500">
-              Every move needs muscle as much as it needs a truck. Ride along with a driver,
-              load and carry, wrap the furniture, keep things moving — split the job, split the
-              pay. No vehicle required. Just show up ready to work.
+              Every move needs muscle as much as it needs a truck. No vehicle required — just
+              show up ready to work.
             </p>
-            <p className="mt-2 max-w-2xl text-neutral-500">
-              You&apos;re never doing this solo — every job pairs a driver and a helper, so you
-              always have someone riding shotgun with you.
-            </p>
-            <p className="mt-2 max-w-2xl text-neutral-500">
-              Most mornings, you and your driver pick a meetup spot that&apos;s convenient for
-              both of you, hop in the truck together, and head out to the day&apos;s jobs as a
-              team.
-            </p>
-            <p className="mt-2 max-w-2xl text-neutral-500">
+            <ul className="mt-4 max-w-2xl space-y-2.5">
+              {[
+                "Load, carry, and wrap furniture so the move goes fast and nothing gets damaged",
+                "Paired with a driver every job — you're never doing this solo",
+                "Pick a meetup spot with your driver each morning and head out together",
+                "Split the job, split the pay",
+              ].map((item) => (
+                <li key={item} className="flex gap-2.5 text-neutral-500">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-cyan" />
+                  <span>{item}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 max-w-2xl text-neutral-500">
               It&apos;s also a path, not just a starting point. Plenty of helpers move up to
               driving once they&apos;re ready — you start earning right away as a helper, and
               driving pays more once you get there.
