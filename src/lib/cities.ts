@@ -78,6 +78,55 @@ export const CITIES: City[] = [
     },
   },
   {
+    slug: "modesto",
+    name: "Modesto",
+    region: "Stanislaus County",
+    blurb:
+      "Local movers for Modesto apartments, Central Valley homes, and single big items — booked in minutes.",
+    neighborhoods: [
+      "Downtown Modesto",
+      "College Area",
+      "Village One",
+      "La Loma",
+      "Modesto Junior College area",
+    ],
+    community: {
+      heading: "Staffed by Modesto, for Modesto",
+      body: "Our Modesto crews are Central Valley locals — they know the neighborhoods, the summer heat, and how to get a move done without the runaround or the surprise fees.",
+    },
+  },
+  {
+    slug: "manteca",
+    name: "Manteca",
+    region: "San Joaquin County",
+    blurb:
+      "Local movers for Manteca homes and apartments, plus quick hauls across the 99 corridor — booked in minutes.",
+    neighborhoods: ["Downtown Manteca", "Woodward Park", "Union Ranch", "Lathrop", "Ripon"],
+    community: {
+      heading: "Staffed by Manteca, for Manteca",
+      body: "Our Manteca crews live in San Joaquin County and cover the whole 99 corridor — new builds out by Union Ranch, older homes downtown, and everything between.",
+    },
+  },
+  {
+    slug: "elk-grove",
+    name: "Elk Grove",
+    region: "Sacramento County",
+    blurb:
+      "Local movers for Elk Grove houses, apartments, and storage runs across south Sacramento — booked in minutes.",
+    neighborhoods: [
+      "Old Town Elk Grove",
+      "Laguna West",
+      "Laguna Creek",
+      "Franklin",
+      "Sheldon",
+      "Wilton",
+    ],
+    community: {
+      heading: "Staffed by Elk Grove, for Elk Grove",
+      body: "Our Elk Grove crews are south Sacramento locals — they know Laguna, Old Town, and the newer builds out toward Sheldon, and they show up ready to work.",
+    },
+  },
+  {
     slug: "los-angeles",
     name: "Los Angeles",
     region: "Los Angeles County",

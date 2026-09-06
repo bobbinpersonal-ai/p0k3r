@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import AutoplayVideo from "@/components/AutoplayVideo";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
@@ -115,12 +115,13 @@ export default function CityLandingPage({ params }: { params: { city: string } }
                 </Link>
               </div>
               <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-black/10">
-                <Image
-                  src="/images/truck-bridge-branded.jpg"
-                  alt="A LoveMeAfter truck on the road"
-                  fill
-                  sizes="(min-width: 1024px) 40vw, 90vw"
-                  className="object-cover"
+                <AutoplayVideo
+                  mp4="/videos/hero-truck-v6.mp4"
+                  webm="/videos/hero-truck-v6.webm"
+                  poster="/images/hero-truck-poster-v6.jpg"
+                  alt="A LoveMeAfter truck out on a delivery run at night"
+                  className="absolute inset-0"
+                  videoClassName="absolute inset-0 h-full w-full object-cover object-center motion-reduce:hidden"
                 />
               </div>
             </div>
