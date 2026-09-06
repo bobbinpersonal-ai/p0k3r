@@ -321,7 +321,11 @@ export default function DrivePage({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <div className="-mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
+          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Perks</p>
+          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
+            The LoveMeAfter standard
+          </h2>
+          <div className="mt-8 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
             {PERKS.map((perk) => (
               <div
                 key={perk.title}
