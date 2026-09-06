@@ -11,6 +11,9 @@ import type { AddressValue } from "@/components/AddressAutocomplete";
 import type { MoveSizeValue } from "@/lib/moveSizes";
 import type { VehicleTierValue } from "@/lib/vehicleTiers";
 import { firstBookableDay, windowLabel } from "@/lib/arrivalWindows";
+import { matchCrew } from "@/lib/crew";
+import { getVehicleTier } from "@/lib/vehicleTiers";
+import CrewMatchCard from "@/components/CrewMatchCard";
 import { trackBookingConversion } from "@/lib/analytics";
 import type { LatLng } from "@/lib/geo";
 
@@ -24,11 +27,19 @@ export default function BookingFlow({
   initialSize,
   initialPickup,
   initialDropoff,
+  initialPickupLat,
+  initialPickupLng,
+  initialDropoffLat,
+  initialDropoffLng,
   city,
 }: {
   initialSize?: MoveSizeValue;
   initialPickup?: string;
   initialDropoff?: string;
+  initialPickupLat?: number;
+  initialPickupLng?: number;
+  initialDropoffLat?: number;
+  initialDropoffLng?: number;
   city?: string;
 }) {
   const router = useRouter();
@@ -37,13 +48,13 @@ export default function BookingFlow({
 
   const [pickup, setPickup] = useState<AddressValue>({
     address: initialPickup ?? "",
-    lat: null,
-    lng: null,
+    lat: initialPickupLat ?? null,
+    lng: initialPickupLng ?? null,
   });
   const [dropoff, setDropoff] = useState<AddressValue>({
     address: initialDropoff ?? "",
-    lat: null,
-    lng: null,
+    lat: initialDropoffLat ?? null,
+    lng: initialDropoffLng ?? null,
   });
   const [route, setRoute] = useState<RouteState | null>(null);
   const [loadingRoute, setLoadingRoute] = useState(false);
@@ -76,6 +87,8 @@ export default function BookingFlow({
   useEffect(() => {
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [step]);
+
+  const matchedCrew = matchCrew(tier);
 
   const pickupPoint: LatLng | null =
     pickup.lat !== null && pickup.lng !== null ? { lat: pickup.lat, lng: pickup.lng } : null;
@@ -234,6 +247,14 @@ export default function BookingFlow({
         {step === 4 && <StepItems value={items} onChange={setItems} />}
         {step === 5 && <StepContact value={contact} onChange={setContact} />}
       </div>
+
+      {/* Who'd be driving. Shown from the moment a truck is picked, well
+          before we ask for a name or a number. */}
+      {step > 2 && matchedCrew && (
+        <div className="mt-8">
+          <CrewMatchCard member={matchedCrew} vehicleLabel={getVehicleTier(tier ?? "")?.label} />
+        </div>
+      )}
 
       {/* Running total, once there's something to show */}
       {step > 2 && estimate && (

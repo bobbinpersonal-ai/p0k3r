@@ -90,10 +90,18 @@ const US_STATE_ABBREVIATIONS: Record<string, string> = {
   Arizona: "AZ",
 };
 
+// Photon ranks worldwide by default, so "1710 Lee Ct" happily returns a street
+// in Belgium above the one down the road. Constraining to a California
+// bounding box and asking for address-level layers first is most of what makes
+// the keyless results usable.
+const CALIFORNIA_BBOX = "-124.5,32.5,-114.1,42.1"; // minLon,minLat,maxLon,maxLat
+
 async function searchPhoton(query: string): Promise<PlaceSuggestion[]> {
   const url =
     `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}` +
-    `&limit=5&lang=en&lat=${CALIFORNIA_CENTER.lat}&lon=${CALIFORNIA_CENTER.lng}`;
+    `&limit=8&lang=en&bbox=${CALIFORNIA_BBOX}` +
+    `&lat=${CALIFORNIA_CENTER.lat}&lon=${CALIFORNIA_CENTER.lng}` +
+    `&layer=house&layer=street&layer=locality`;
 
   const res = await fetchWithTimeout(url, {
     // Photon's usage policy asks that clients identify themselves.
@@ -102,7 +110,7 @@ async function searchPhoton(query: string): Promise<PlaceSuggestion[]> {
   if (!res.ok) return [];
   const data = (await res.json()) as { features?: PhotonFeature[] };
 
-  return (data.features ?? []).flatMap((feature) => {
+  const scored = (data.features ?? []).flatMap((feature) => {
     const coords = feature.geometry?.coordinates;
     const props = feature.properties;
     if (!coords || !props) return [];
@@ -118,14 +126,24 @@ async function searchPhoton(query: string): Promise<PlaceSuggestion[]> {
 
     return [
       {
-        primary,
-        secondary,
-        full: [primary, secondary].filter(Boolean).join(", "),
-        lat,
-        lng,
+        // People type house numbers, so a result that actually has one is
+        // almost always the one they meant — float those above bare streets.
+        rank: props.housenumber ? 0 : props.street ? 1 : 2,
+        suggestion: {
+          primary,
+          secondary,
+          full: [primary, secondary].filter(Boolean).join(", "),
+          lat,
+          lng,
+        },
       },
     ];
   });
+
+  return scored
+    .sort((a, b) => a.rank - b.rank)
+    .slice(0, 5)
+    .map((s) => s.suggestion);
 }
 
 export async function GET(request: Request) {

@@ -3,6 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AutoplayVideo from "@/components/AutoplayVideo";
+import HeroQuoteForm from "@/components/HeroQuoteForm";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 import { CITIES, getCity } from "@/lib/cities";
 import FleetIcons from "@/components/FleetIcons";
@@ -164,43 +165,7 @@ export default function HomePage({
                 {SITE_NAME} shows up and gets it done — apartments, houses, and single big
                 items, same-day when you need it. We&apos;re proud to keep it affordable.
               </p>
-              <form
-                action="/book"
-                method="get"
-                className="mt-8 rounded-2xl border border-black/10 bg-paper/70 p-3 shadow-lg backdrop-blur sm:p-4"
-              >
-                {targetCity && <input type="hidden" name="city" value={targetCity.slug} />}
-                <div className="flex flex-col gap-2 sm:flex-row">
-                  <input
-                    name="pickup"
-                    required
-                    placeholder="Pickup address"
-                    className="flex-1 rounded-xl border border-black/10 bg-black/5 px-3 py-2.5 text-sm text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-                  />
-                  <input
-                    name="dropoff"
-                    placeholder="Drop-off address"
-                    className="flex-1 rounded-xl border border-black/10 bg-black/5 px-3 py-2.5 text-sm text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
-                  />
-                  <select
-                    name="size"
-                    defaultValue={MOVE_SIZE_OPTIONS[0].value}
-                    className="rounded-xl border border-black/10 bg-black/5 px-3 py-2.5 text-sm text-ink [color-scheme:light] focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand sm:w-44"
-                  >
-                    {MOVE_SIZE_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value} className="bg-paper">
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <button
-                  type="submit"
-                  className="mt-3 w-full rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
-                >
-                  Get my 30-second quote
-                </button>
-              </form>
+              <HeroQuoteForm city={targetCity?.slug} />
               <div className="mt-4 rounded-xl bg-paper/60 px-3 py-2 backdrop-blur-sm">
                 <a
                   href="#how-it-works"
