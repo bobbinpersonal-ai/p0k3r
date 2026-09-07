@@ -307,11 +307,34 @@ server-side calls send no referrer — a domain restriction would deny every
 request. Restrict it by **API** instead (Geocoding and Directions only) and cap
 spend with a billing budget plus per-API daily quotas.
 
-Last resort is `src/lib/serviceAreaPlaces.ts`, a table of ~55 town centres from
-the Bay Area through the Sacramento Valley and down the 99. A Woodland →
-Sacramento move is about twenty miles whichever house it starts at, so this
-still maps the trip and prices the mileage; the UI labels those results
-approximate.
+Last resort is `src/lib/serviceAreaPlaces.ts`, a table of ~90 town centres from
+the Bay Area through the Sacramento Valley and down the 99, including the
+unincorporated Greater Sacramento towns and Delta/foothill communities a
+geocoder's own database is thinnest on — Wilton, Rio Vista, Rancho Murieta,
+Placerville, and the like. A Woodland → Sacramento move is about twenty miles
+whichever house it starts at, so this still maps the trip and prices the
+mileage; the UI labels those results approximate.
+
+## Who shows up
+
+`src/lib/crew.ts` matches a real name and vehicle to the booking before the
+customer hands over a phone number — the roster, not the `Driver` table.
+Matching is a straight-line radius from each person's home base, currently
+**150 miles**: nobody on the roster is city-bound, and the point of a home
+base is where someone starts the day, not a fence around where they'll work.
+SF to Sacramento is about 70 miles on its own, so at 150 most of the service
+area is "nearby" to more than one person — that overlap is deliberate, since
+it's what keeps a rural address outside any single town from falling through
+to no match at all. Ties within 15 miles of the closest person are broken by a
+hash of the job's own coordinates, stable per booking (so the card doesn't
+change identity as the page hydrates) and different between bookings (so the
+roster actually shares the work instead of one name winning every tie).
+
+Everyone on the roster works both ways: driving their own vehicle when the
+booked tier matches what they drive, riding as the second pair of hands
+otherwise. Nobody is ruled off a job for owning the wrong truck — the card
+says which role it is (`Likely your mover` vs. `Likely on your crew`) rather
+than implying they own a vehicle they don't.
 
 Nothing here is allowed to block a booking. If every geocoder misses, the trip is
 measured town to town and the UI says so; if routing fails the quote drops the

@@ -87,6 +87,62 @@ export const SERVICE_AREA_PLACES: ServiceAreaPlace[] = [
   { name: "Salinas", aliases: ["salinas"], lat: 36.6777, lng: -121.6555 },
   { name: "Monterey", aliases: ["monterey"], lat: 36.6002, lng: -121.8947 },
   { name: "Los Angeles", aliases: ["los angeles", "la", "l.a."], lat: 34.0522, lng: -118.2437 },
+
+  // --- Rural & unincorporated, Greater Sacramento and the foothills ---
+  //
+  // Everything above this line is an incorporated city — the kind of name a
+  // geocoder's own database already knows. This block exists because a lot of
+  // the Greater Sacramento area isn't that: real customers live in Wilton,
+  // Rio Linda, or out past Rancho Murieta, in communities that are easy for a
+  // human to recognise in an address and easy for a geocoder with thin rural
+  // coverage to miss entirely. Without an anchor for the name itself, a
+  // customer out here who Census and Photon both fail on doesn't fall back to
+  // an approximate price — they fall back to nothing.
+  { name: "Rio Linda", aliases: ["rio linda"], lat: 38.6969, lng: -121.4527 },
+  { name: "Elverta", aliases: ["elverta"], lat: 38.7291, lng: -121.4574 },
+  { name: "Carmichael", aliases: ["carmichael"], lat: 38.6079, lng: -121.3266 },
+  { name: "Fair Oaks", aliases: ["fair oaks"], lat: 38.6446, lng: -121.2716 },
+  { name: "Orangevale", aliases: ["orangevale"], lat: 38.6779, lng: -121.2202 },
+  { name: "North Highlands", aliases: ["north highlands"], lat: 38.6835, lng: -121.386 },
+  { name: "Antelope", aliases: ["antelope"], lat: 38.7141, lng: -121.3688 },
+  { name: "Wilton", aliases: ["wilton"], lat: 38.4021, lng: -121.2455 },
+  { name: "Herald", aliases: ["herald"], lat: 38.3435, lng: -121.2135 },
+  { name: "Sloughhouse", aliases: ["sloughhouse"], lat: 38.4577, lng: -121.1974 },
+  { name: "Rancho Murieta", aliases: ["rancho murieta"], lat: 38.4991, lng: -121.0932 },
+
+  // The Delta — river towns strung along Highway 160 between Sacramento and
+  // Antioch, most of them unincorporated.
+  { name: "Walnut Grove", aliases: ["walnut grove"], lat: 38.2427, lng: -121.5202 },
+  { name: "Courtland", aliases: ["courtland"], lat: 38.3327, lng: -121.5738 },
+  { name: "Locke", aliases: ["locke"], lat: 38.2519, lng: -121.5069 },
+  { name: "Isleton", aliases: ["isleton"], lat: 38.1602, lng: -121.6108 },
+  { name: "Rio Vista", aliases: ["rio vista"], lat: 38.1585, lng: -121.7016 },
+  { name: "Clarksburg", aliases: ["clarksburg"], lat: 38.4295, lng: -121.5388 },
+  { name: "Thornton", aliases: ["thornton"], lat: 38.2385, lng: -121.4232 },
+
+  // Rural Yolo County, west and north of Woodland.
+  { name: "Knights Landing", aliases: ["knights landing"], lat: 38.7999, lng: -121.7202 },
+  { name: "Esparto", aliases: ["esparto"], lat: 38.68, lng: -122.0116 },
+  { name: "Madison", aliases: ["madison"], lat: 38.6841, lng: -121.9636 },
+  { name: "Zamora", aliases: ["zamora"], lat: 38.8021, lng: -121.9174 },
+  { name: "Dunnigan", aliases: ["dunnigan"], lat: 38.89, lng: -121.9613 },
+
+  // The foothills, Placer and El Dorado County — where "further out" mostly
+  // means uphill on Highway 50 or I-80 rather than further across the valley.
+  { name: "Loomis", aliases: ["loomis"], lat: 38.8149, lng: -121.1908 },
+  { name: "Penryn", aliases: ["penryn"], lat: 38.8471, lng: -121.1611 },
+  { name: "Newcastle", aliases: ["newcastle"], lat: 38.8749, lng: -121.1327 },
+  { name: "Lincoln", aliases: ["lincoln"], lat: 38.8916, lng: -121.293 },
+  { name: "Cameron Park", aliases: ["cameron park"], lat: 38.67, lng: -120.9891 },
+  { name: "El Dorado Hills", aliases: ["el dorado hills", "eldorado hills"], lat: 38.6857, lng: -121.0827 },
+  { name: "Shingle Springs", aliases: ["shingle springs"], lat: 38.6541, lng: -120.9302 },
+  { name: "Placerville", aliases: ["placerville"], lat: 38.7296, lng: -120.7985 },
+
+  // Amador County — still inside a 150-mile radius of Sacramento and Manteca.
+  { name: "Ione", aliases: ["ione"], lat: 38.3527, lng: -120.9327 },
+  { name: "Plymouth", aliases: ["plymouth"], lat: 38.4832, lng: -120.8474 },
+  { name: "Sutter Creek", aliases: ["sutter creek"], lat: 38.3927, lng: -120.8021 },
+  { name: "Jackson", aliases: ["jackson"], lat: 38.3488, lng: -120.7738 },
 ];
 
 /**

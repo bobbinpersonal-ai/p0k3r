@@ -11,8 +11,18 @@ import { haversineMiles, type LatLng } from "@/lib/geo";
 import { findServiceAreaPlace, SERVICE_AREA_PLACES } from "@/lib/serviceAreaPlaces";
 import type { VehicleTierValue } from "@/lib/vehicleTiers";
 
-/** How far from home a mover will take a job, unless they say otherwise. */
-export const CREW_RADIUS_MILES = 75;
+/**
+ * How far from home a mover will take a job.
+ *
+ * 150 rather than a tighter number because the roster is explicitly fine with
+ * the drive: nobody is city-bound, and the point of a home base is where
+ * someone starts the day, not a fence around where they'll work. SF to
+ * Sacramento is about 70 miles on its own, so at this radius most of the
+ * service area is "nearby" for more than one person — that overlap is the
+ * point, not a bug, since it's what lets rural addresses outside any single
+ * town still land on someone real instead of falling through to nothing.
+ */
+export const CREW_RADIUS_MILES = 150;
 
 /**
  * Two people the same distance from a job shouldn't always resolve to whichever
@@ -79,10 +89,6 @@ export const CREW: CrewMember[] = [
     drives: ["PICKUP"],
     homeBase: "San Francisco",
     base: baseOf("San Francisco"),
-    // He covers SF and San Jose "plus the rest of the territory", so he ranges
-    // further than the others. Distance still decides, so a wider radius only
-    // means he turns up where nobody closer is available — not everywhere.
-    radiusMiles: 150,
     note: "SF and San Jose, and further out when the day needs it",
   },
   {
