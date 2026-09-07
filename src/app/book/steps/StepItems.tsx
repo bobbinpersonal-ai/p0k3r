@@ -83,7 +83,11 @@ export default function StepItems({
               value: false,
               label: "No, driver only",
               body: "I'll help load it myself",
-              price: "No extra charge",
+              // No price line here on purpose: this option doesn't change the
+              // price, and saying so out loud reads like doing the lifting
+              // yourself is a transaction rather than just... not adding a
+              // helper. The Yes option still shows what it adds.
+              price: null,
             },
           ].map((option) => {
             const isSelected = value.needsHelper === option.value;

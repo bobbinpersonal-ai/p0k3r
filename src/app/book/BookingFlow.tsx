@@ -555,8 +555,17 @@ export default function BookingFlow({
         {step === 6 && <StepContact value={contact} onChange={setContact} />}
       </div>
 
-      {/* Running total, once there's something to show */}
-      {step > 3 && estimate && (
+      {/* The running total used to repeat on every step from "pick your truck"
+          onward, re-showing the same range (and re-showing it again, changed
+          by $50, the moment the helper question was answered) before the
+          customer had finished making the choices that decide it. Now it
+          waits for the one moment it's actually the final number: the last
+          step, right before "Book my move." Every choice that moves the price
+          along the way still has its own answer where it's made — the vehicle
+          cards on step 3 show their own price, the helper buttons on step 5
+          show exactly what saying yes adds — so nothing about the price goes
+          unexplained, it just isn't repeated as a running commentary. */}
+      {step === TOTAL_STEPS && estimate && (
         <p className="mt-8 rounded-2xl border border-black/10 bg-black/[0.03] px-4 py-3 text-sm text-neutral-500">
           Estimate so far:{" "}
           <span className="font-semibold text-ink">
