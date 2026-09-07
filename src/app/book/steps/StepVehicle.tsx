@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import { MOVE_SIZE_OPTIONS, type MoveSizeValue } from "@/lib/moveSizes";
 import { type VehicleTierValue } from "@/lib/vehicleTiers";
-import { quoteTiers } from "@/lib/pricing";
+import { formatHours, quoteTiers } from "@/lib/pricing";
 import {
   LOCAL_RUN_MILES,
   requiresDropoffAddress,
@@ -200,11 +200,6 @@ export default function StepVehicle({
       </div>
     </div>
   );
-}
-
-/** Half-hour resolution: "2.5" reads as a real estimate, "2.47" reads as a bug. */
-function formatHours(hours: number): string {
-  return (Math.round(hours * 2) / 2).toString();
 }
 
 function TierArt({ tier }: { tier: VehicleTierValue }) {

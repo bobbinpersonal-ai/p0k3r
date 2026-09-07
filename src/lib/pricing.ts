@@ -124,6 +124,11 @@ export type PriceBreakdown = {
 
 export type TierQuote = PriceBreakdown & { tier: VehicleTier };
 
+/** Half-hour resolution: "2.5" reads as a real estimate, "2.47" reads as a bug. */
+export function formatHours(hours: number): string {
+  return (Math.round(hours * 2) / 2).toString();
+}
+
 export function crewHourlyFor(tier: VehicleTierValue, extraHelper = false): number {
   return DRIVER_HOURLY[tier] + (helpersFor(tier) + (extraHelper ? 1 : 0)) * HELPER_HOURLY;
 }

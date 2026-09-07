@@ -20,7 +20,7 @@ import type { VehicleTierValue } from "@/lib/vehicleTiers";
 import { firstBookableDay, windowLabel } from "@/lib/arrivalWindows";
 import { matchCrew, matchHelper } from "@/lib/crew";
 import { getVehicleTier } from "@/lib/vehicleTiers";
-import { extraHelperFee, quoteForTier } from "@/lib/pricing";
+import { extraHelperFee, formatHours, quoteForTier } from "@/lib/pricing";
 import { getServiceType, type ServiceTypeValue } from "@/lib/serviceTypes";
 import {
   dropoffLabelForMode,
@@ -556,31 +556,26 @@ export default function BookingFlow({
       </div>
 
       {/* The running total used to repeat on every step from "pick your truck"
-          onward, re-showing the same range (and re-showing it again, changed
-          by $50, the moment the helper question was answered) before the
-          customer had finished making the choices that decide it. Now it
-          waits for the one moment it's actually the final number: the last
-          step, right before "Book my move." Every choice that moves the price
-          along the way still has its own answer where it's made — the vehicle
-          cards on step 3 show their own price, the helper buttons on step 5
-          show exactly what saying yes adds — so nothing about the price goes
-          unexplained, it just isn't repeated as a running commentary. */}
+          onward, re-showing the same range before the customer had finished
+          making the choices that decide it. Now it shows once, on the last
+          step, right before "Book my move" — and as just the three numbers
+          that answer "what am I actually agreeing to": the price, the drive,
+          and about how long it takes. No label, no per-line breakdown of what
+          moved it there — the price already has the helper fee baked in, and
+          the choices that got it there were each explained where they were
+          made (the vehicle cards on step 3, the helper buttons on step 5).
+          Miles and hours only show once there's a real route to report, same
+          rule StepVehicle uses — an on-site job never measured a route, so it
+          has nothing honest to put after the price. */}
       {step === TOTAL_STEPS && estimate && (
         <p className="mt-8 rounded-2xl border border-black/10 bg-black/[0.03] px-4 py-3 text-sm text-neutral-500">
-          Estimate so far:{" "}
           <span className="font-semibold text-ink">
             ${estimate.low}–${estimate.high}
           </span>
-          {route && ` · ${route.miles.toFixed(1)} mi`}
-          {items.needsHelper === true && helperFee && (
-            <span className="mt-1 block text-xs">
-              includes +$
-              {helperFee.low === helperFee.high
-                ? helperFee.low
-                : `${helperFee.low}–$${helperFee.high}`}{" "}
-              for the extra helper
-            </span>
-          )}
+          {route &&
+            ` · ${route.miles.toFixed(1)} mi · ~${formatHours(estimate.hoursLow)}–${formatHours(
+              estimate.hoursHigh,
+            )} hrs`}
         </p>
       )}
 
