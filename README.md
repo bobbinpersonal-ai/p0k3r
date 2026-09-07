@@ -348,10 +348,25 @@ way an earlier version did. That version could show "Bobbin D., based in
 Davis" for a Los Angeles booking with a straight face; this one still finds
 the closest real person (whoever that is) and is honest about it: the card's
 `confident` flag flips the eyebrow from `Likely your mover` to `Closest
-available crew` and the closing line from "a dispatcher confirms your crew"
-to "that's further than usual, a dispatcher will confirm who can actually
-take this one." Nothing is ever blocked — the booking still goes through —
-but nothing pretends a four-hour drive is a normal local match either.
+available crew`, and softens the closing line to a plain "a dispatcher will
+confirm who's covering your move" rather than the normal "a dispatcher
+confirms your actual crew when they call." Nothing is ever blocked — the
+booking still goes through — but nothing pretends a four-hour drive is a
+normal local match either.
+
+**Past `REVEAL_DISTANCE_MILES` (80), the card also stops putting a number on
+it.** Knowing a match is real is one thing; being told it's 300 miles away is
+another — "confident vs. closest-available" was the honest answer to the
+first question, but the specific mileage and home base are still numbers a
+customer has no way to interpret, and the wrong read of "308 mi away" is "is
+anyone actually coming?" rather than "great, they found someone." So the
+distance, the `based in {town}` line, and the roster note (which usually
+names a territory, e.g. "Manteca and Stockton" — the same information in a
+different field) all disappear once the match is far enough that showing them
+would work against the point of showing a name at all. What's still true
+stays visible — the vehicle, the role, whether this is a confident match —
+just without the specific number that would read as alarming rather than
+reassuring.
 
 Nothing here is allowed to block a booking. If every geocoder misses, the trip is
 measured town to town and the UI says so; if routing fails the quote drops the

@@ -32,6 +32,21 @@ export const CREW_RADIUS_MILES = 150;
  */
 const TIE_BAND_MILES = 15;
 
+/**
+ * Past this many miles, the crew card stops naming a home base or a distance.
+ *
+ * A number is honest right up until it's alarming: "308 mi away" or "based in
+ * Manteca" on a Los Angeles booking reads less like reassurance and more like
+ * "is anyone actually coming?" Below this line, distance is proof the match is
+ * real and local. Above it, the same number just raises a question nobody
+ * needs raised before dispatch has even looked at the job — so the UI (see
+ * CrewMatchCard) drops the specifics rather than the honesty: it still says
+ * whether this is a confident local match or just the closest person we've
+ * got (CREW_RADIUS_MILES decides that), it just stops putting a number or a
+ * town name on it once the number would work against the point.
+ */
+export const REVEAL_DISTANCE_MILES = 80;
+
 export type CrewMember = {
   id: string;
   /** First name, or first name + last initial the way delivery apps show one. */
