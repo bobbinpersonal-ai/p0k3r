@@ -31,6 +31,10 @@ import {
 import CrewMatchCard from "@/components/CrewMatchCard";
 import { trackBookingConversion } from "@/lib/analytics";
 import type { LatLng } from "@/lib/geo";
+import { getCity } from "@/lib/cities";
+
+const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
+const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
 
 // The booking wizard: what you need → addresses → truck → arrival time →
 // details → who you are. One step on screen at a time, with the whole draft
@@ -73,6 +77,7 @@ export default function BookingFlow({
   const router = useRouter();
   // Arriving from a homepage job chip means step 1 is already answered.
   const [step, setStep] = useState(initialServiceType ? ADDRESS_STEP : 1);
+  const cityName = city ? getCity(city)?.name : undefined;
   // Read inside the popstate effect, which is registered once and must not
   // close over a stale step.
   const stepRef = useRef(step);
@@ -377,9 +382,56 @@ export default function BookingFlow({
 
   return (
     <div ref={topRef} className="mt-8 scroll-mt-24">
+      {/* The page intro lived above this component until it ate the whole
+          first screen on every step, not just the first one — "Book your
+          move" plus a sentence plus a phone number, repeated above "Pick your
+          truck," "Arrival time," and so on, each of which already says what
+          the step is. Step 1 still gets the full intro (it's the only step
+          where nothing else on the page says what this page is), and it stays
+          in the DOM as an h1 on every step rather than disappearing — a real
+          page needs exactly one, and the per-step h2 below isn't it — just
+          visually collapsed so it costs nothing once the flow's underway. The
+          phone number is still reachable on later steps from the site header
+          and footer, so nothing here is a dead end for someone who'd rather
+          call. */}
+      <h1
+        className={
+          step === 1
+            ? "text-3xl font-extrabold tracking-tight text-ink"
+            : "sr-only"
+        }
+      >
+        Book your {cityName ? `${cityName} ` : ""}move
+      </h1>
+      {step === 1 && (
+        <>
+          <p className="mt-2 text-neutral-500">
+            Tell us where it&apos;s coming from — and where it&apos;s going, if anywhere —
+            then pick your truck. A dispatcher confirms your crew and final price, usually
+            within 30 minutes.
+          </p>
+          <p className="mt-2">
+            <a
+              href={`tel:${SUPPORT_PHONE_DIGITS}`}
+              className="font-mono text-sm text-brand-cyan hover:text-ink"
+            >
+              Prefer to book by phone? Call {SUPPORT_PHONE}
+            </a>
+          </p>
+        </>
+      )}
+
       {/* Progress. The finished segments are buttons: on a six-step form the
-          fastest way back to something you want to change is to tap it. */}
-      <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+          fastest way back to something you want to change is to tap it. The
+          top margin only appears on step 1, where the intro above is visible
+          and needs the breathing room; on later steps the h1 is sr-only (no
+          layout height), so this is already the first visible thing and an
+          extra gap here would just be dead space under the site header. */}
+      <p
+        className={`font-mono text-xs uppercase tracking-widest text-brand-cyan ${
+          step === 1 ? "mt-6" : ""
+        }`}
+      >
         Step {step}/{TOTAL_STEPS} · {STEP_LABELS[step - 1]}
       </p>
       <div className="mt-3 flex gap-2">

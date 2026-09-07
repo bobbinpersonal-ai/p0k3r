@@ -307,13 +307,16 @@ server-side calls send no referrer — a domain restriction would deny every
 request. Restrict it by **API** instead (Geocoding and Directions only) and cap
 spend with a billing budget plus per-API daily quotas.
 
-Last resort is `src/lib/serviceAreaPlaces.ts`, a table of ~90 town centres from
-the Bay Area through the Sacramento Valley and down the 99, including the
-unincorporated Greater Sacramento towns and Delta/foothill communities a
-geocoder's own database is thinnest on — Wilton, Rio Vista, Rancho Murieta,
-Placerville, and the like. A Woodland → Sacramento move is about twenty miles
-whichever house it starts at, so this still maps the trip and prices the
-mileage; the UI labels those results approximate.
+Last resort is `src/lib/serviceAreaPlaces.ts`, a table of ~150 town centres
+covering the full Bay Area ↔ Sacramento ↔ Modesto ↔ Salinas corridor: every
+incorporated city in that quadrilateral, plus the unincorporated Greater
+Sacramento towns and Delta/foothill communities a geocoder's own database is
+thinnest on — Wilton, Rio Vista, Rancho Murieta, Placerville — and the towns
+that actually connect the anchors, like Watsonville and Hollister on the
+Bay-to-Salinas stretch, and Escalon/Oakdale/Patterson/Los Banos filling in
+Modesto ↔ Merced. A Woodland → Sacramento move is about twenty miles whichever
+house it starts at, so this still maps the trip and prices the mileage; the UI
+labels those results approximate.
 
 ## Who shows up
 

@@ -48,7 +48,7 @@ export const SERVICE_AREA_PLACES: ServiceAreaPlace[] = [
   { name: "Napa", aliases: ["napa"], lat: 38.2975, lng: -122.2869 },
   { name: "Santa Rosa", aliases: ["santa rosa"], lat: 38.4404, lng: -122.7141 },
 
-  // --- Bay Area ---
+  // --- Bay Area, the core cities ---
   { name: "San Francisco", aliases: ["san francisco", "sf"], lat: 37.7749, lng: -122.4194 },
   { name: "Oakland", aliases: ["oakland"], lat: 37.8044, lng: -122.2712 },
   { name: "Berkeley", aliases: ["berkeley", "uc berkeley"], lat: 37.8715, lng: -122.273 },
@@ -72,6 +72,58 @@ export const SERVICE_AREA_PLACES: ServiceAreaPlace[] = [
   { name: "Daly City", aliases: ["daly city"], lat: 37.6879, lng: -122.4702 },
   { name: "South San Francisco", aliases: ["south san francisco", "south sf"], lat: 37.6547, lng: -122.4077 },
 
+  // --- East Bay infill — the cities between the ones already listed ---
+  { name: "Alameda", aliases: ["alameda"], lat: 37.7652, lng: -122.2416 },
+  { name: "San Leandro", aliases: ["san leandro"], lat: 37.7249, lng: -122.1561 },
+  { name: "Castro Valley", aliases: ["castro valley"], lat: 37.6941, lng: -122.0863 },
+  { name: "Union City", aliases: ["union city"], lat: 37.5934, lng: -122.0438 },
+  { name: "Newark", aliases: ["newark"], lat: 37.5297, lng: -122.0402 },
+  { name: "Danville", aliases: ["danville"], lat: 37.8216, lng: -121.9999 },
+  { name: "San Ramon", aliases: ["san ramon"], lat: 37.7799, lng: -121.978 },
+  { name: "Martinez", aliases: ["martinez"], lat: 38.0194, lng: -122.1341 },
+  { name: "Pittsburg", aliases: ["pittsburg"], lat: 38.028, lng: -121.8847 },
+  { name: "Pinole", aliases: ["pinole"], lat: 38.0044, lng: -122.2989 },
+  { name: "San Pablo", aliases: ["san pablo"], lat: 37.9622, lng: -122.3455 },
+  { name: "El Cerrito", aliases: ["el cerrito"], lat: 37.9155, lng: -122.3108 },
+
+  // --- Peninsula infill ---
+  { name: "Burlingame", aliases: ["burlingame"], lat: 37.5779, lng: -122.365 },
+  { name: "San Bruno", aliases: ["san bruno"], lat: 37.6305, lng: -122.4111 },
+  { name: "Millbrae", aliases: ["millbrae"], lat: 37.5985, lng: -122.3872 },
+  { name: "Foster City", aliases: ["foster city"], lat: 37.5586, lng: -122.2711 },
+  { name: "Belmont", aliases: ["belmont"], lat: 37.5202, lng: -122.2758 },
+  { name: "San Carlos", aliases: ["san carlos"], lat: 37.5072, lng: -122.2605 },
+  { name: "Menlo Park", aliases: ["menlo park"], lat: 37.453, lng: -122.1817 },
+  { name: "East Palo Alto", aliases: ["east palo alto"], lat: 37.4688, lng: -122.1411 },
+
+  // --- South Bay / Santa Clara Valley infill, toward Salinas via the 101 ---
+  { name: "Milpitas", aliases: ["milpitas"], lat: 37.4323, lng: -121.8996 },
+  { name: "Campbell", aliases: ["campbell"], lat: 37.2872, lng: -121.95 },
+  { name: "Los Gatos", aliases: ["los gatos"], lat: 37.2358, lng: -121.9624 },
+  { name: "Saratoga", aliases: ["saratoga"], lat: 37.2638, lng: -122.023 },
+  { name: "Cupertino", aliases: ["cupertino"], lat: 37.323, lng: -122.0322 },
+  { name: "Morgan Hill", aliases: ["morgan hill"], lat: 37.1305, lng: -121.6544 },
+  { name: "Gilroy", aliases: ["gilroy"], lat: 37.0058, lng: -121.5683 },
+
+  // --- North Bay infill ---
+  { name: "San Rafael", aliases: ["san rafael"], lat: 37.9735, lng: -122.5311 },
+  { name: "Novato", aliases: ["novato"], lat: 38.1074, lng: -122.5697 },
+  { name: "Petaluma", aliases: ["petaluma"], lat: 38.2324, lng: -122.6367 },
+  { name: "Rohnert Park", aliases: ["rohnert park"], lat: 38.3396, lng: -122.7011 },
+  { name: "Sonoma", aliases: ["sonoma"], lat: 38.2919, lng: -122.458 },
+  { name: "American Canyon", aliases: ["american canyon"], lat: 38.1749, lng: -122.2608 },
+
+  // --- Santa Cruz County — Highway 1/17, the San Jose <-> Salinas/Monterey
+  // stretch that's genuinely "between the Bay and Salinas." ---
+  { name: "Santa Cruz", aliases: ["santa cruz"], lat: 36.9741, lng: -122.0308 },
+  { name: "Scotts Valley", aliases: ["scotts valley"], lat: 37.0511, lng: -122.0138 },
+  { name: "Capitola", aliases: ["capitola"], lat: 36.9752, lng: -121.953 },
+  { name: "Watsonville", aliases: ["watsonville"], lat: 36.9102, lng: -121.7569 },
+
+  // --- San Benito County — Highway 25/156, Gilroy <-> Salinas. ---
+  { name: "Hollister", aliases: ["hollister"], lat: 36.8525, lng: -121.4016 },
+  { name: "San Juan Bautista", aliases: ["san juan bautista"], lat: 36.8455, lng: -121.5372 },
+
   // --- Down the 99 / Central Valley ---
   { name: "Lodi", aliases: ["lodi"], lat: 38.1341, lng: -121.2722 },
   { name: "Stockton", aliases: ["stockton"], lat: 37.9577, lng: -121.2908 },
@@ -83,10 +135,34 @@ export const SERVICE_AREA_PLACES: ServiceAreaPlace[] = [
   { name: "Turlock", aliases: ["turlock"], lat: 37.4947, lng: -120.8466 },
   { name: "Merced", aliases: ["merced", "uc merced"], lat: 37.3022, lng: -120.4829 },
 
+  // --- Modesto/Merced area infill, and the towns that connect that stretch
+  // toward Salinas over Pacheco Pass (Highway 152). ---
+  { name: "Escalon", aliases: ["escalon"], lat: 37.7963, lng: -120.9955 },
+  { name: "Oakdale", aliases: ["oakdale"], lat: 37.7663, lng: -120.8471 },
+  { name: "Riverbank", aliases: ["riverbank"], lat: 37.7363, lng: -120.9327 },
+  { name: "Ceres", aliases: ["ceres"], lat: 37.5949, lng: -120.9577 },
+  { name: "Patterson", aliases: ["patterson"], lat: 37.4716, lng: -121.1294 },
+  { name: "Newman", aliases: ["newman"], lat: 37.3138, lng: -121.0208 },
+  { name: "Gustine", aliases: ["gustine"], lat: 37.2588, lng: -120.9994 },
+  { name: "Los Banos", aliases: ["los banos"], lat: 37.0585, lng: -120.8499 },
+  { name: "Atwater", aliases: ["atwater"], lat: 37.3477, lng: -120.6082 },
+
   // --- Coast + Southern markets we list ---
   { name: "Salinas", aliases: ["salinas"], lat: 36.6777, lng: -121.6555 },
   { name: "Monterey", aliases: ["monterey"], lat: 36.6002, lng: -121.8947 },
   { name: "Los Angeles", aliases: ["los angeles", "la", "l.a."], lat: 34.0522, lng: -118.2437 },
+
+  // --- Salinas Valley, south along the 101 from Salinas itself ---
+  { name: "Gonzales", aliases: ["gonzales"], lat: 36.5041, lng: -121.4444 },
+  { name: "Soledad", aliases: ["soledad"], lat: 36.4246, lng: -121.326 },
+  { name: "Greenfield", aliases: ["greenfield"], lat: 36.3216, lng: -121.243 },
+  { name: "King City", aliases: ["king city"], lat: 36.2124, lng: -121.1266 },
+
+  // --- Monterey Peninsula, alongside the existing Monterey entry ---
+  { name: "Marina", aliases: ["marina"], lat: 36.6844, lng: -121.8022 },
+  { name: "Seaside", aliases: ["seaside"], lat: 36.6111, lng: -121.8516 },
+  { name: "Pacific Grove", aliases: ["pacific grove"], lat: 36.6177, lng: -121.9166 },
+  { name: "Prunedale", aliases: ["prunedale"], lat: 36.7825, lng: -121.6539 },
 
   // --- Rural & unincorporated, Greater Sacramento and the foothills ---
   //
