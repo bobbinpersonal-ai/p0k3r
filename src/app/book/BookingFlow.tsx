@@ -189,7 +189,9 @@ export default function BookingFlow({
     window.history.pushState({ ...window.history.state, bookingStep: target }, "");
   }
 
-  const matchedCrew = matchCrew(tier);
+  // City as well as vehicle: a Stockton customer shown the Davis face makes the
+  // whole "crew from your own area" claim ring false.
+  const matchedCrew = matchCrew(tier, city ?? pickup.city);
 
   // Price is derived, never stored: the running total has to move the moment
   // the customer answers the extra-helper question two steps later, and a

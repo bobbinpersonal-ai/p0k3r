@@ -6,6 +6,7 @@ import AutoplayVideo from "@/components/AutoplayVideo";
 import HeroQuoteForm from "@/components/HeroQuoteForm";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 import { CITIES, getCity } from "@/lib/cities";
+import { CREW } from "@/lib/crew";
 import FleetIcons from "@/components/FleetIcons";
 import CaliforniaMap from "@/components/CaliforniaMap";
 import {
@@ -276,6 +277,38 @@ export default function HomePage({
                 Message your crew straight from the booking and track the truck on its way, so
                 you always know exactly where your move is without picking up the phone.
               </p>
+            </div>
+          </div>
+
+          {/* The roster itself. The section's whole claim is that a named local
+              person turns up, and the fastest way to prove that is to name
+              them. Scrolls sideways on a phone rather than stacking four tall
+              portraits down the page. */}
+          <div className="mt-12">
+            <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+              On the roster
+            </p>
+            <div className="mt-4 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
+              {CREW.map((member) => (
+                <div
+                  key={member.id}
+                  className="w-44 shrink-0 snap-start overflow-hidden rounded-2xl border border-black/10 bg-black/[0.02]"
+                >
+                  <div className="relative aspect-[4/5]">
+                    <Image
+                      src={member.photo}
+                      alt={member.name}
+                      fill
+                      sizes="176px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="p-3">
+                    <p className="font-semibold text-ink">{member.name}</p>
+                    <p className="mt-0.5 text-xs text-neutral-500">{member.note}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>

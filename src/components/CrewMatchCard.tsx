@@ -39,9 +39,13 @@ export default function CrewMatchCard({
         <div className="min-w-0">
           <p className="text-lg font-bold text-ink">{member.name}</p>
           <p className="text-sm text-neutral-500">{member.note}</p>
+          {/* Built from the parts we actually have. Not everyone on the roster
+              has a vehicle recorded, and interpolating an undefined one leaves
+              a stray separator floating in front of the home base. */}
           <p className="mt-1 font-mono text-xs text-neutral-500">
-            {member.vehicle}
-            {vehicleLabel ? ` · ${vehicleLabel}` : ""} · based in {member.homeBase}
+            {[member.vehicle, vehicleLabel, `based in ${member.homeBase}`]
+              .filter(Boolean)
+              .join(" · ")}
           </p>
         </div>
       </div>
