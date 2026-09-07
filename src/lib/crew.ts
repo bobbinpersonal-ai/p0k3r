@@ -11,8 +11,16 @@ import { haversineMiles, type LatLng } from "@/lib/geo";
 import { findServiceAreaPlace, SERVICE_AREA_PLACES } from "@/lib/serviceAreaPlaces";
 import type { VehicleTierValue } from "@/lib/vehicleTiers";
 
-/** How far from home each mover will take a job. */
+/** How far from home a mover will take a job, unless they say otherwise. */
 export const CREW_RADIUS_MILES = 75;
+
+/**
+ * Two people the same distance from a job shouldn't always resolve to whichever
+ * one happens to sit higher in the array — that's how a roster ends up with a
+ * member who never appears. Anyone within this far of the closest candidate is
+ * treated as equally close and the tie is spread (see rotationSeed).
+ */
+const TIE_BAND_MILES = 15;
 
 export type CrewMember = {
   id: string;
@@ -30,6 +38,8 @@ export type CrewMember = {
   homeBase: string;
   /** Home base coordinates, for the radius match. */
   base: LatLng;
+  /** Overrides CREW_RADIUS_MILES for someone who ranges wider than the rest. */
+  radiusMiles?: number;
   /** Short line of credibility shown under the name. */
   note: string;
 };
@@ -69,7 +79,11 @@ export const CREW: CrewMember[] = [
     drives: ["PICKUP"],
     homeBase: "San Francisco",
     base: baseOf("San Francisco"),
-    note: "SF and San Jose, and wherever else the day needs him",
+    // He covers SF and San Jose "plus the rest of the territory", so he ranges
+    // further than the others. Distance still decides, so a wider radius only
+    // means he turns up where nobody closer is available — not everywhere.
+    radiusMiles: 150,
+    note: "SF and San Jose, and further out when the day needs it",
   },
   {
     id: "willy",
@@ -91,6 +105,18 @@ export const CREW: CrewMember[] = [
     base: baseOf("Manteca"),
     note: "Manteca and Stockton",
   },
+  {
+    id: "james",
+    name: "James",
+    photo: "/images/crew-james.jpg",
+    // No vehicle recorded: James works as a helper, so `drives` is empty rather
+    // than absent — absent means "we don't know yet", empty means "doesn't
+    // drive for us", and only the second should keep him out of the driver slot.
+    drives: [],
+    homeBase: "Stockton",
+    base: baseOf("Stockton"),
+    note: "Stockton — second pair of hands",
+  },
 ];
 
 /** Where the job is: real coordinates when we have them, a town name if not. */
@@ -110,8 +136,33 @@ function toPoint(location: CrewLocation): LatLng | null {
  * both ways, so a pickup owner on a box-truck booking is the helper.
  */
 export function crewRole(member: CrewMember, tier: VehicleTierValue | null): "driver" | "helper" {
-  if (!tier) return member.drives?.length ? "driver" : "helper";
-  return member.drives?.includes(tier) ? "driver" : "helper";
+  if (!member.drives) return "driver"; // vehicle not recorded yet
+  if (!member.drives.length) return "helper"; // helper-only
+  if (!tier) return "driver";
+  return member.drives.includes(tier) ? "driver" : "helper";
+}
+
+/**
+ * A number that's stable for a given job but varies between jobs.
+ *
+ * Used to break distance ties. Deterministic on purpose: the same booking must
+ * pick the same face on the server and on the client, or the card changes
+ * identity as the page hydrates. Different bookings land on different people,
+ * so the roster spreads instead of one name taking everything.
+ */
+function rotationSeed(point: LatLng): number {
+  const key = `${point.lat.toFixed(3)},${point.lng.toFixed(3)}`;
+  let hash = 0;
+  for (let i = 0; i < key.length; i += 1) {
+    hash = (hash * 31 + key.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash);
+}
+
+/** Everyone within TIE_BAND_MILES of the closest, spread by the job's seed. */
+function pickFromTieBand<T extends { milesAway: number }>(sorted: T[], seed: number): T {
+  const band = sorted.filter((c) => c.milesAway <= sorted[0].milesAway + TIE_BAND_MILES);
+  return band[seed % band.length];
 }
 
 export type CrewMatch = {
@@ -143,14 +194,23 @@ export function matchCrew(
       member,
       milesAway: haversineMiles(point, member.base),
     }))
-      .filter((c) => c.milesAway <= CREW_RADIUS_MILES)
+      .filter((c) => c.milesAway <= (c.member.radiusMiles ?? CREW_RADIUS_MILES))
       .sort((a, b) => a.milesAway - b.milesAway);
 
     if (nearby.length > 0) {
-      // Closest person who can actually drive this tier; otherwise the closest
-      // person full stop, riding as the helper.
-      const driver = nearby.find(({ member }) => crewRole(member, tier) === "driver");
-      const chosen = driver ?? nearby[0];
+      const seed = rotationSeed(point);
+      // Closest first, and only then vehicle. Ranking by vehicle first meant a
+      // Stockton customer booking a cargo van got shown the one van-capable
+      // driver sixty miles away in Davis, which reads exactly as wrong as it
+      // sounds. Among people equally close, prefer whoever can drive the tier;
+      // otherwise the nearest person appears in the role they'd actually work,
+      // and dispatch sources the vehicle.
+      const band = nearby.filter(
+        (c) => c.milesAway <= nearby[0].milesAway + TIE_BAND_MILES,
+      );
+      const driversNearby = band.filter(({ member }) => crewRole(member, tier) === "driver");
+      const pool = driversNearby.length > 0 ? driversNearby : band;
+      const chosen = pool[seed % pool.length];
       return {
         member: chosen.member,
         role: crewRole(chosen.member, tier),
@@ -178,9 +238,11 @@ export function matchHelper(
   if (point) {
     const nearby = others
       .map((member) => ({ member, milesAway: haversineMiles(point, member.base) }))
-      .filter((c) => c.milesAway <= CREW_RADIUS_MILES)
+      .filter((c) => c.milesAway <= (c.member.radiusMiles ?? CREW_RADIUS_MILES))
       .sort((a, b) => a.milesAway - b.milesAway);
-    if (nearby.length > 0) return nearby[0].member;
+    // Offset the seed so the helper slot doesn't keep landing on whoever the
+    // driver rotation just skipped over.
+    if (nearby.length > 0) return pickFromTieBand(nearby, rotationSeed(point) + 1).member;
   }
   return others[0];
 }
