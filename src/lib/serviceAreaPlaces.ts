@@ -4,11 +4,11 @@
 // This is the last line of defence for mapping a trip. When a customer types
 // an address the geocoder can't resolve to a building, we can still almost
 // always recognise the town in it — and a Woodland → Sacramento move is about
-// twenty miles whichever house it starts at. Falling back to town centres
+// twenty miles whichever house it starts at. Falling back to town centers
 // gives a route, a distance and a price instead of a shrug, and the UI marks
 // the result approximate so nobody mistakes it for a surveyed number.
 //
-// Coordinates are town centres, to roughly three decimal places. They are not
+// Coordinates are town centers, to roughly three decimal places. They are not
 // precise enough to quote a final price off — a dispatcher confirms that — but
 // they are far better than nothing.
 

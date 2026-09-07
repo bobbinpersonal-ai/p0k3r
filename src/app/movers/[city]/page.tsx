@@ -4,7 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
-import { CITIES, getCity } from "@/lib/cities";
+import { CITIES, getCity, bareCityName } from "@/lib/cities";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
@@ -171,7 +171,7 @@ export default function CityLandingPage({ params }: { params: { city: string } }
             Get a quote
           </p>
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            {city.name} move sizes
+            {bareCityName(city)} move sizes
           </h2>
           <p className="mt-2 text-neutral-500">
             Pick your size below — it takes about 60 seconds. A dispatcher confirms your
@@ -196,7 +196,7 @@ export default function CityLandingPage({ params }: { params: { city: string } }
             <div className="absolute left-1/2 top-1/2 h-[300px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-[100px]" />
             <div className="relative">
               <h2 className="text-2xl font-bold text-ink sm:text-3xl">
-                Ready to book your {city.name} move?
+                Ready to book your {bareCityName(city)} move?
               </h2>
               <p className="mx-auto mt-2 max-w-xl text-neutral-500">
                 It takes about a minute. No account, no commitment — just a real price and a real

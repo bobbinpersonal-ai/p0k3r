@@ -43,7 +43,7 @@ export default function StepVehicle({
   dropoffPoint: LatLng | null;
   route: RouteState | null;
   loadingRoute: boolean;
-  /** One or both ends resolved to a town centre rather than a building. */
+  /** One or both ends resolved to a town center rather than a building. */
   approximate: boolean;
   dropoffMode: DropoffMode;
   moveSize: MoveSizeValue;
@@ -101,7 +101,7 @@ export default function StepVehicle({
         )}
         {!loadingRoute && dropoffMode === "WE_CHOOSE" && (
           <span className="normal-case tracking-normal">
-            Includes a ~{LOCAL_RUN_MILES}-mile run to the nearest donation centre or transfer
+            Includes a ~{LOCAL_RUN_MILES}-mile run to the nearest donation center or transfer
             station. Dump and donation fees are confirmed by dispatch.
           </span>
         )}

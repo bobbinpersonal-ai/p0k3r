@@ -9,8 +9,8 @@ export default function SiteFooter() {
     <footer className="border-t border-black/10 bg-surface">
       <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-neutral-500 sm:px-6">
         <p>
-          &copy; {new Date().getFullYear()} {SITE_NAME}. We show up, get it done, and keep it
-          affordable.
+          &copy; {new Date().getFullYear()} {SITE_NAME}. Movers and a truck, Bay Area to
+          Sacramento.
         </p>
         <p className="mt-1">
           Questions? Call or text{" "}

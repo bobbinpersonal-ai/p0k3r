@@ -59,8 +59,8 @@ const PERKS = [
     body: "Every day you work, you're paid out by 5pm (or sooner) — sent straight to your Zelle, Venmo, or Apple Pay.",
   },
   {
-    title: "LoveMeAfter gear, on us",
-    body: "Complete your first 3 moves and we'll ship you free LoveMeAfter shirt + merch.",
+    title: "Gear on us",
+    body: "Finish your first 3 moves and we'll ship you a shirt and merch, free.",
   },
   {
     title: "We cover your gas",
@@ -106,7 +106,7 @@ export default function DrivePage({
                 Now recruiting{city ? ` in ${city.name}` : ` · ${RECRUITING_CITIES_BADGE}`}
               </p>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                Monetize your truck,{" "}
+                Put your truck to work,{" "}
                 <span className="bg-gradient-to-r from-brand-light via-orange-400 to-brand-cyan bg-clip-text text-transparent">
                   make $25+ an hour.
                 </span>

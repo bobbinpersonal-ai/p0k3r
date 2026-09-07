@@ -122,7 +122,7 @@ export default function StepAddresses({
 
       <p className="mt-3 text-xs text-neutral-500">
         {dropoffMode === "WE_CHOOSE"
-          ? "We price a typical local run to the nearest donation centre or transfer station. Dump or donation fees aren't included — a dispatcher confirms those with you."
+          ? "We price a typical local run to the nearest donation center or transfer station. Dump or donation fees aren't included — a dispatcher confirms those with you."
           : "Nothing is charged until a dispatcher confirms the job with you."}
       </p>
     </div>

@@ -59,7 +59,7 @@ export function requiresDropoffAddress(mode: DropoffMode): boolean {
 }
 
 /**
- * A typical round trip to the nearest donation centre or transfer station.
+ * A typical round trip to the nearest donation center or transfer station.
  *
  * Deliberately a real distance rather than zero: someone drives it, burns the
  * fuel and spends the time, and the wage model has to see those miles or the

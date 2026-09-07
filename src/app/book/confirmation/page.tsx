@@ -26,7 +26,7 @@ export default async function ConfirmationPage({
           ✓
         </div>
         <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-ink">
-          Request received
+          We&apos;ve got it
         </h1>
         <p className="mt-2 text-neutral-500">
           We&apos;re lining up a crew for your move. You&apos;ll get a call or text at{" "}

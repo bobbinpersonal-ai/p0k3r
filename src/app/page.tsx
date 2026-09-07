@@ -29,14 +29,14 @@ const BOOKING_CITIES_BADGE = CITIES.map((c) => c.name).join(" · ");
 
 const USE_CASES = [
   {
-    title: "Single item pickup or delivery",
-    body: "A couch, mattress, appliance, or one big thing that won't fit in your car.",
-    Icon: BoxIcon,
+    title: "Marketplace & Craigslist pickups",
+    body: "You bought it, we'll go get it. IKEA runs too — usually same day.",
+    Icon: CouchIcon,
   },
   {
-    title: "Furniture & marketplace finds",
-    body: "IKEA runs, Facebook Marketplace and Craigslist pickups, delivered same day.",
-    Icon: CouchIcon,
+    title: "One big item",
+    body: "A couch, mattress, appliance, or the one thing that won't fit in your car.",
+    Icon: BoxIcon,
   },
   {
     title: "Apartment & dorm moves",
@@ -69,8 +69,8 @@ const USE_CASES = [
     Icon: HouseIcon,
   },
   {
-    title: "Same-day & last-minute moves",
-    body: "Didn't plan ahead? We can usually still make it happen today.",
+    title: "Same-day & last-minute",
+    body: "Didn't plan ahead? Most days we can still get you a crew today.",
     Icon: BoltIcon,
   },
   {
@@ -85,23 +85,23 @@ const USE_CASES = [
   },
   {
     title: "Loading & unloading help",
-    body: "Already have a truck or rental? We'll send a helper just to load or unload it.",
+    body: "Already have the truck, pod, or trailer? We'll bring the muscle, no vehicle needed.",
     Icon: DollyIcon,
   },
 ];
 
 const HOW_IT_WORKS = [
   {
-    title: "Tell us what's moving",
-    body: "Pickup, drop-off, and how much stuff — no account needed. Your dispatcher confirms your price shortly after.",
+    title: "See the price first",
+    body: "Tell us what's moving and where. You get a real number on the screen — no account, no waiting on a callback to find out what it costs.",
   },
   {
-    title: "We dispatch our crew",
-    body: "One of our crews confirms your pickup window and heads your way with a truck.",
+    title: "Pick your arrival window",
+    body: "Choose the hour you want us there. A dispatcher confirms your crew and the final number by phone, usually within 30 minutes.",
   },
   {
-    title: "Our crew does the heavy lifting",
-    body: "Loading, driving, and unloading handled — you just point at where things go.",
+    title: "We do the lifting",
+    body: "Two movers and the right truck. Loading, driving, unloading — you point at where things go.",
   },
 ];
 
@@ -179,8 +179,7 @@ export default function HomePage({
                   How it works
                 </a>
                 <p className="mt-1 text-sm text-neutral-600">
-                  Prefer to talk to a live human about our pricing process? Call our Bay Area
-                  office —{" "}
+                  Rather talk it through? Call us —{" "}
                   <a
                     href={`tel:${SUPPORT_PHONE_DIGITS}`}
                     className="font-mono font-semibold text-ink hover:text-brand-cyan"
@@ -230,27 +229,28 @@ export default function HomePage({
             </div>
             <div>
               <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
-                Real crews
+                Your crew
               </p>
               <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-                Every move gets a real person, not just an address
+                You&apos;ll know who&apos;s coming before they knock
               </h2>
               <p className="mt-4 text-neutral-500">
-                Your dispatcher lines up a local mover who shows up ready to work — loading,
-                driving, and unloading handled, so you just point at where things go.
+                Named movers from your own area, shown to you while you&apos;re still booking —
+                not a stranger assigned by a call center an hour before. A dispatcher confirms
+                the crew by phone.
               </p>
             </div>
           </div>
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Get a quote</p>
+          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Move sizes</p>
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            Get your 60-second quote
+            Start with roughly how much there is
           </h2>
           <p className="mt-2 text-neutral-500">
-            Pick the size that fits your move — it takes about 60 seconds. A dispatcher
-            confirms your final price by phone shortly after.
+            Pick the closest one — you can change it once we&apos;ve measured the drive. Nothing
+            is charged until a dispatcher confirms the job with you.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {MOVE_SIZE_OPTIONS.map((option) => (
@@ -273,7 +273,7 @@ export default function HomePage({
                 The fleet
               </p>
               <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-                Any of these work
+                Pickup, van, or box truck
               </h2>
             </div>
             <Link
@@ -291,10 +291,11 @@ export default function HomePage({
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Coverage</p>
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            Now serving California
+            Bay Area to Sacramento, and down the 99
           </h2>
           <p className="mt-2 max-w-2xl text-neutral-500">
-            From the Central Valley to the coast — click a city to book your move.
+            San Francisco, Oakland, Davis, Sacramento, Stockton, Modesto and the towns between.
+            Tap one to book.
           </p>
           <div className="relative mx-auto mt-8 max-w-md overflow-hidden rounded-3xl border border-black/10 bg-black/[0.03] p-6">
             <div className="absolute inset-0 bg-grid-fade" />
@@ -305,15 +306,13 @@ export default function HomePage({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
-            What we do
-          </p>
+          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Jobs</p>
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            What people book us for
+            Most of it isn&apos;t a house move
           </h2>
           <p className="mt-2 max-w-2xl text-neutral-500">
-            Not sure if we&apos;re a fit? Swipe through a few examples of what people move
-            when they book us.
+            A couch off Marketplace, a dorm room in June, a garage cleared out. If it&apos;s
+            awkward to move on your own, it&apos;s probably a job.
           </p>
           <div className="mt-8 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
             {USE_CASES.map((useCase) => (
@@ -334,17 +333,16 @@ export default function HomePage({
             <div className="absolute left-1/2 top-1/2 h-[300px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-[100px]" />
             <div className="relative">
               <h2 className="text-2xl font-bold text-ink sm:text-3xl">
-                Ready to book your move?
+                Find out what it costs
               </h2>
               <p className="mx-auto mt-2 max-w-xl text-neutral-500">
-                It takes about a minute. No account, no commitment — just a real price and a real
-                crew.
+                About a minute, no account, nothing charged. Worst case you know the number.
               </p>
               <Link
                 href="/book"
                 className="mt-6 inline-block rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
               >
-                Start booking
+                See my price
               </Link>
             </div>
           </div>

@@ -15,6 +15,17 @@ export type City = {
   };
 };
 
+/**
+ * The name with any leading "the" removed.
+ *
+ * `name` reads correctly after a preposition — "movers in the Bay Area" — but
+ * dropped straight into a possessive or a modifier it produces "your the Bay
+ * Area move" and "the Bay Area move sizes". Templates in that shape use this.
+ */
+export function bareCityName(city: City): string {
+  return city.name.replace(/^the\s+/i, "");
+}
+
 export const CITIES: City[] = [
   {
     slug: "davis",

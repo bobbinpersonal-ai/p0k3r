@@ -22,7 +22,7 @@ import { findServiceAreaPlace } from "@/lib/serviceAreaPlaces";
 // free tiers still run when Google is down or its billing hasn't gone active.
 //   5. any of the above retried with the town appended, since a bare street
 //      name is often unresolvable alone but fine once anchored to a city
-//   6. the service-area town centre, which still puts the trip on the map
+//   6. the service-area town center, which still puts the trip on the map
 //      and gets the mileage roughly right
 //
 // `precision` tells the caller which kind of answer landed, so the UI can be
@@ -57,7 +57,7 @@ function oneLine(parts: AddressParts): string {
 export type GeocodeResult = {
   lat: number;
   lng: number;
-  /** "address" = a real building; "city" = town centre fallback. */
+  /** "address" = a real building; "city" = town center fallback. */
   precision: "address" | "city";
   label: string;
 };
@@ -173,7 +173,7 @@ async function geocodeViaPhoton(query: string): Promise<GeocodeResult | null> {
 /**
  * Runs one provider, treating a thrown error — a timeout, DNS failure, or a
  * body that didn't parse — exactly like "no match": null, so the ladder moves
- * on to the next tier instead of collapsing to the town centre.
+ * on to the next tier instead of collapsing to the town center.
  */
 async function attempt<T>(run: () => Promise<T | null>): Promise<T | null> {
   try {
@@ -263,7 +263,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ result: null });
   }
 
-  // The town centre we'd settle for if every lookup misses. Prefer the city
+  // The town center we'd settle for if every lookup misses. Prefer the city
   // the customer typed into its own field over guessing from the whole string.
   const town = findServiceAreaPlace(parts.city || freeText);
 

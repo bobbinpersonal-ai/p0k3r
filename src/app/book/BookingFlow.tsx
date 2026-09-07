@@ -97,7 +97,7 @@ export default function BookingFlow({
   const [dropoffPoint, setDropoffPoint] = useState<LatLng | null>(null);
   const [route, setRoute] = useState<RouteState | null>(null);
   const [loadingRoute, setLoadingRoute] = useState(false);
-  // True when one or both ends fell back to a town centre rather than a
+  // True when one or both ends fell back to a town center rather than a
   // building, so the UI can say the distance is a ballpark.
   const [approximate, setApproximate] = useState(false);
   const [moveSize, setMoveSize] = useState<MoveSizeValue>(
