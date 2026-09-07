@@ -76,16 +76,26 @@ export default function HeroQuoteForm({ city }: { city?: string }) {
       {/* Fills the pickup box with the town and ZIP only. The street is the
           part a GPS fix gets wrong anyway, and the part nobody tapping a
           convenience button meant to hand over. */}
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+      {/* One per end. Which one is "here" depends on the job — a Marketplace
+          pickup is at the seller's place and the drop-off is home — so the
+          customer picks, rather than us guessing. */}
+      <div className="mt-2 flex flex-wrap gap-2">
         <UseMyLocationButton
-          onResolved={({ city, zip }) =>
-            setPickup(formatAddress({ ...EMPTY_ADDRESS, city, zip }))
+          label="Pickup is here"
+          onResolved={({ street, city, zip }) =>
+            setPickup(formatAddress({ ...EMPTY_ADDRESS, street, city, zip }))
           }
         />
-        <p className="text-xs text-neutral-500">
-          Junk haul, donation, or just loading help? Skip the second address.
-        </p>
+        <UseMyLocationButton
+          label="Drop-off is here"
+          onResolved={({ street, city, zip }) =>
+            setDropoff(formatAddress({ ...EMPTY_ADDRESS, street, city, zip }))
+          }
+        />
       </div>
+      <p className="mt-2 text-xs text-neutral-500">
+        Junk haul, donation, or just loading help? Skip the second address.
+      </p>
       <select
         value={size}
         onChange={(e) => setSize(e.target.value as MoveSizeValue)}

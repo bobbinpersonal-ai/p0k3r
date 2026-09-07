@@ -30,7 +30,7 @@ export default function AddressFields({
   value: StructuredAddress;
   onChange: (value: StructuredAddress) => void;
   autoFocus?: boolean;
-  /** Offer "use my location" to fill city and ZIP. Pickup only — see StepAddresses. */
+  /** Offer "use my location" for this end. */
   enableLocation?: boolean;
 }) {
   const id = useId();
@@ -121,13 +121,17 @@ export default function AddressFields({
       )}
 
       {enableLocation && (
-        // Fills city and ZIP and deliberately leaves street alone: a GPS fix is
-        // routinely off by a building indoors, so a street line from it would
-        // be a guess wearing the costume of a fact.
+        // Fills whatever the fix supports — house number, street, or just the
+        // town — and never blanks a field the customer already typed.
         <UseMyLocationButton
           className="mt-3"
-          onResolved={({ city, zip }) =>
-            set({ city: city || value.city, zip: zip || value.zip })
+          ariaLabel={`Use my location for ${legend.toLowerCase()}`}
+          onResolved={({ street, city, zip }) =>
+            set({
+              street: street || value.street,
+              city: city || value.city,
+              zip: zip || value.zip,
+            })
           }
         />
       )}

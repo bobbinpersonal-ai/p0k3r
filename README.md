@@ -264,14 +264,31 @@ falling through on failure, not just on missing config:
 | `/api/reverse-geocode` (coordinates → city + ZIP) | Google | Mapbox | **US Census** geographies, then Photon, then nearest town |
 | `/api/directions` (distance + route line) | Google Directions | Mapbox | OSRM, then straight-line estimate |
 
-**"Use my location"** (`UseMyLocationButton`) fills the city and ZIP and never
-the street, on the homepage hero and on the booking form's pickup. That is a
-deliberate limit, not a missing feature. A GPS fix indoors is routinely off by a
-building, so a reverse-geocoded street line is a guess presented as a fact —
-and someone tapping a convenience button hasn't asked us to record where they
-are standing. Coordinates are rounded to three decimals (~110m) on the device
-*and* again on the server before any third party sees them, and
-`/api/reverse-geocode` returns nothing but a city and a ZIP.
+**"Use my location"** (`UseMyLocationButton`) is offered on *both* ends, on the
+homepage hero and on the booking form. Which end is "here" depends on the job —
+a Marketplace pickup is at the seller's place and the drop-off is home, a house
+move is the other way round — so the customer picks rather than us guessing.
+
+How much it fills is decided per request from the accuracy the phone reports,
+not assumed:
+
+| Reported accuracy | Filled | Typical source |
+| --- | --- | --- |
+| ≤ 60m | house number, street, city, ZIP | outdoor GPS |
+| ≤ 150m | street, city, ZIP — no house number | indoors, wifi-assisted |
+| worse, or not reported | city and ZIP | desktop wifi, IP geolocation |
+
+A wrong house number presented as a fact is worse than a blank field, so the
+button says which of the three happened ("check it's right" vs "add your house
+number" vs "add your street") and everything lands in editable fields before
+anything is priced.
+
+Neither free source answers the whole question — the Census geocoder knows the
+authoritative ZIP but has no street-level reverse endpoint, Photon knows house
+numbers from OSM but its US postcodes are patchy — so `/api/reverse-geocode`
+asks both and takes the best of each. Coordinates are rounded to the precision
+the answer needs: ~1m when chasing a house number, ~110m when the answer is only
+a town, so a town-level question never forwards a doorstep to a third party.
 
 Location is never requested on page load, only on a tap: an unprompted
 permission dialog gets denied reflexively, and a denial is sticky. Every failure

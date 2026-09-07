@@ -2,7 +2,15 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// "Use my location" — fills the city and ZIP, never the street.
+// "Use my location" — fills as much of the address as the fix can support.
+//
+// Offered on both ends, because which one is "here" depends on the job: a
+// Marketplace pickup is at the seller's place and the drop-off is home, while a
+// house move is the other way round. Guessing for them was wrong.
+//
+// The server decides how much to claim from the accuracy reported below (house
+// number, street, or just the town), and the status line says which happened,
+// so a coarse fix reads as "add your street" rather than a quietly wrong number.
 //
 // The browser's permission prompt only appears on a real tap, so this is never
 // requested on page load: an unprompted location dialog the moment a page opens
@@ -13,14 +21,29 @@ import { useEffect, useRef, useState } from "react";
 
 type Status = "idle" | "locating" | "done" | "error";
 
-export type LocationFill = { city: string; zip: string };
+export type LocationFill = {
+  street: string;
+  city: string;
+  zip: string;
+  precision: "address" | "street" | "area";
+};
 
 export default function UseMyLocationButton({
   onResolved,
   className = "",
+  label = "Use my location",
+  ariaLabel,
 }: {
   onResolved: (value: LocationFill) => void;
   className?: string;
+  label?: string;
+  /**
+   * Names the end being filled, for screen readers. The visible text stays
+   * short because the surrounding fieldset already says which end this is —
+   * but two buttons reading "Use my location" are indistinguishable when the
+   * layout isn't there to disambiguate them.
+   */
+  ariaLabel?: string;
 }) {
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
@@ -63,45 +86,50 @@ export default function UseMyLocationButton({
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              // ~110m, which is all a city and ZIP need. The server rounds too —
-              // it can't trust a client — but there's no reason for the exact
-              // fix to leave the phone at all.
-              lat: Math.round(position.coords.latitude * 1000) / 1000,
-              lng: Math.round(position.coords.longitude * 1000) / 1000,
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+              // How far off the phone thinks it is. The server rounds the
+              // coordinates to match — full precision only when it's chasing a
+              // house number, ~110m when the answer is just a town.
+              accuracy: position.coords.accuracy,
             }),
           });
-          if (!res.ok) return fail("Couldn't look that up — type your city and ZIP instead.");
+          if (!res.ok) return fail("Couldn't look that up — type your address instead.");
           const { result } = (await res.json()) as { result: LocationFill | null };
           if (!mounted.current) return;
-          if (!result || (!result.city && !result.zip)) {
-            return fail("We couldn't place you — type your city and ZIP instead.");
+          if (!result || (!result.street && !result.city && !result.zip)) {
+            return fail("We couldn't place you — type your address instead.");
           }
           onResolved(result);
           setStatus("done");
+          const where = [result.street, result.city, result.zip].filter(Boolean).join(", ");
           setMessage(
-            result.zip
-              ? `Using ${result.city || "your area"} ${result.zip} — add your street for an exact quote.`
-              : `Using ${result.city} — add your ZIP and street for an exact quote.`,
+            result.precision === "address"
+              ? `Filled in ${where} — check it's right.`
+              : result.precision === "street"
+                ? `Filled in ${where} — add your house number.`
+                : `Filled in ${where} — add your street.`,
           );
         } catch {
-          fail("Couldn't look that up — type your city and ZIP instead.");
+          fail("Couldn't look that up — type your address instead.");
         }
       },
       (error) => {
         // PERMISSION_DENIED is a decision, not a fault — say the least about it.
         fail(
           error.code === error.PERMISSION_DENIED
-            ? "No problem — just type your city and ZIP."
-            : "Couldn't get your location — type your city and ZIP instead.",
+            ? "No problem — just type the address."
+            : "Couldn't get your location — type the address instead.",
         );
       },
       {
-        // A ZIP doesn't need GPS precision, and asking for it costs seconds and
-        // battery. The coarse network fix is both faster and less than we'd be
-        // taking otherwise.
-        enableHighAccuracy: false,
-        timeout: 10000,
-        maximumAge: 5 * 60 * 1000,
+        // Worth the extra second and battery: this is the difference between
+        // filling their street and only naming their town.
+        enableHighAccuracy: true,
+        timeout: 15000,
+        // A fix from the last minute is fine; older than that and someone may
+        // have driven somewhere since.
+        maximumAge: 60 * 1000,
       },
     );
   }
@@ -113,6 +141,7 @@ export default function UseMyLocationButton({
       <button
         type="button"
         onClick={locate}
+        aria-label={ariaLabel}
         disabled={status === "locating"}
         className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-paper px-3 py-1.5 text-xs font-semibold text-ink transition enabled:hover:border-brand/40 disabled:opacity-60"
       >
@@ -124,7 +153,7 @@ export default function UseMyLocationButton({
         ) : (
           <CrosshairIcon />
         )}
-        {status === "locating" ? "Locating…" : "Use my location"}
+        {status === "locating" ? "Locating…" : label}
       </button>
       {message && (
         <p

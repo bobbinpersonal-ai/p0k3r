@@ -47,8 +47,6 @@ export default function StepAddresses({
           icon={<ArrowIcon direction="up" />}
           value={pickup}
           onChange={(v) => onChange({ pickup: v, dropoff, dropoffMode })}
-          // Pickup only: "my location" means where they are now, which is where
-          // the stuff is. Offering it on the drop-off would fill the wrong end.
           enableLocation
         />
 
@@ -114,6 +112,9 @@ export default function StepAddresses({
               icon={<ArrowIcon direction="down" />}
               value={dropoff}
               onChange={(v) => onChange({ pickup, dropoff: v, dropoffMode })}
+              // Both ends, because which one is "here" depends on the job: a
+              // Marketplace pickup is at the seller's and the drop-off is home.
+              enableLocation
             />
           </>
         )}
