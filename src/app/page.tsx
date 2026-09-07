@@ -23,7 +23,6 @@ import {
   DollyIcon,
 } from "@/components/UseCaseIcons";
 
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
 const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
 const BOOKING_CITIES_BADGE = CITIES.map((c) => c.name).join(" · ");
@@ -156,14 +155,20 @@ export default function HomePage({
                 </div>
               </div>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-6xl">
-                Movers and a truck,{" "}
+                Book movers{" "}
                 <span className="bg-gradient-to-r from-brand-light via-orange-400 to-brand-cyan bg-clip-text text-transparent">
-                  booked in minutes.
+                  like you book a ride.
                 </span>
               </h1>
+              {/* Three concrete mechanisms, no adjectives, and no price claim.
+                  The same page has to land in Pacific Heights and in Stockton:
+                  "affordable" reads cheap to one and "premium" prices out the
+                  other, but certainty — you see the number, you pick the hour,
+                  you know who's coming — is what both are actually missing from
+                  every mover they've used. The brand name is the logo's job. */}
               <p className="mt-4 text-lg text-neutral-600">
-                {SITE_NAME} shows up and gets it done — apartments, houses, and single big
-                items, same-day when you need it. We&apos;re proud to keep it affordable.
+                See your price before you book, pick the arrival window, and know who&apos;s
+                coming. One couch or a whole house — Bay Area to Sacramento.
               </p>
               <HeroQuoteForm city={targetCity?.slug} />
               <div className="mt-4 rounded-xl bg-paper/60 px-3 py-2 backdrop-blur-sm">
