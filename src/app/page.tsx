@@ -90,6 +90,23 @@ const USE_CASES = [
   },
 ];
 
+// Faces for the "your crew" section. A list rather than a single hero shot
+// because the whole claim is that a named local person turns up, and one photo
+// reads like stock. Each keeps its own aspect ratio — the van shot is 2.3:1 and
+// cropping it square would lose either the van or the box being carried.
+const CREW_PHOTOS = [
+  {
+    src: "/images/mover-handcart.jpg",
+    alt: "A mover wheeling boxes on a hand cart out to the truck",
+    aspect: "aspect-[4/3]",
+  },
+  {
+    src: "/images/crew-van-loading.jpg",
+    alt: "A mover in a branded shirt carrying a large box from a cargo van",
+    aspect: "aspect-[21/9]",
+  },
+];
+
 const HOW_IT_WORKS = [
   {
     title: "See the price first",
@@ -218,14 +235,21 @@ export default function HomePage({
 
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 glow">
-              <Image
-                src="/images/mover-handcart.jpg"
-                alt="A mover wheeling boxes on a hand cart out to the truck"
-                fill
-                sizes="(min-width: 1024px) 40vw, 90vw"
-                className="object-cover"
-              />
+            <div className="grid gap-3">
+              {CREW_PHOTOS.map((photo) => (
+                <div
+                  key={photo.src}
+                  className={`relative ${photo.aspect} overflow-hidden rounded-3xl border border-black/10 glow`}
+                >
+                  <Image
+                    src={photo.src}
+                    alt={photo.alt}
+                    fill
+                    sizes="(min-width: 1024px) 40vw, 90vw"
+                    className="object-cover"
+                  />
+                </div>
+              ))}
             </div>
             <div>
               <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
