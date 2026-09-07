@@ -336,6 +336,20 @@ otherwise. Nobody is ruled off a job for owning the wrong truck — the card
 says which role it is (`Likely your mover` vs. `Likely on your crew`) rather
 than implying they own a vehicle they don't.
 
+**Distance always wins over giving up on it.** We're running ads into a lot of
+different places, which means bookings from towns nobody on the roster lives
+anywhere near. `matchCrew()` ranks the *entire* roster by real distance and
+never drops location, even when nobody is within `CREW_RADIUS_MILES` — there
+is no cutoff below which it silently falls back to "any available driver" the
+way an earlier version did. That version could show "Bobbin D., based in
+Davis" for a Los Angeles booking with a straight face; this one still finds
+the closest real person (whoever that is) and is honest about it: the card's
+`confident` flag flips the eyebrow from `Likely your mover` to `Closest
+available crew` and the closing line from "a dispatcher confirms your crew"
+to "that's further than usual, a dispatcher will confirm who can actually
+take this one." Nothing is ever blocked — the booking still goes through —
+but nothing pretends a four-hour drive is a normal local match either.
+
 Nothing here is allowed to block a booking. If every geocoder misses, the trip is
 measured town to town and the UI says so; if routing fails the quote drops the
 mileage component and the map draws a dashed line instead of the real route. A booking made that way

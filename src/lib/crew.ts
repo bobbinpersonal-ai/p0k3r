@@ -75,8 +75,8 @@ export const CREW: CrewMember[] = [
     id: "sasha",
     name: "Sasha",
     photo: "/images/crew-sasha.jpg",
-    vehicle: "Ford F-150",
-    drives: ["PICKUP"],
+    vehicle: "Mercedes Sprinter",
+    drives: ["VAN"],
     homeBase: "San Francisco",
     base: baseOf("San Francisco"),
     note: "San Francisco and the wider Bay Area",
@@ -176,17 +176,34 @@ export type CrewMatch = {
   role: "driver" | "helper";
   /** Distance from their home base to the job, when we could measure it. */
   milesAway: number | null;
+  /**
+   * True when the match is inside CREW_RADIUS_MILES — a "yes, that's genuinely
+   * your local crew" match. False means this is just the closest person we've
+   * got on a job further out than anyone's usual range (a Los Angeles booking,
+   * say, on a five-person Central Valley roster). The card reads differently
+   * for each: never claim a 380-mile trip is a snug local match.
+   */
+  confident: boolean;
 };
 
 /**
  * Who'd most likely take this job.
  *
- * Distance first, vehicle second. Everyone works a 75-mile radius from home, so
- * a Fairfield job finds Willy whether or not "Fairfield" was ever typed into a
- * list — and a customer shown the face of someone an hour and a half away would
- * rightly stop believing the "crew from your own area" line. Falls back to
- * anyone who can drive the tier, then to the roster, so the card never
- * disappears mid-booking.
+ * Distance first, vehicle second, and — the part worth spelling out — distance
+ * always wins over giving up on it. We're about to run ads into a lot of
+ * different places, which means bookings from towns nobody on this roster
+ * lives anywhere near. The old version ranked by distance only among people
+ * inside CREW_RADIUS_MILES, and the moment *nobody* qualified it threw location
+ * away entirely and returned the first available driver — so a booking from
+ * Los Angeles would confidently show "Bobbin D., based in Davis" as if that
+ * were a normal local match. That's the opposite of the system knowing its
+ * service area: it's the system pretending distance doesn't exist the one time
+ * it matters most.
+ *
+ * So this always ranks the whole roster by real distance when we have a point,
+ * with no cutoff, and reports the true number every time. CREW_RADIUS_MILES
+ * only decides `confident` — whether to talk about this like a normal local
+ * match, or like the honest "here's the nearest person" answer it actually is.
  */
 export function matchCrew(
   tier: VehicleTierValue | null,
@@ -196,37 +213,41 @@ export function matchCrew(
 
   const point = toPoint(location);
   if (point) {
-    const nearby = CREW.map((member) => ({
+    const ranked = CREW.map((member) => ({
       member,
       milesAway: haversineMiles(point, member.base),
-    }))
-      .filter((c) => c.milesAway <= (c.member.radiusMiles ?? CREW_RADIUS_MILES))
-      .sort((a, b) => a.milesAway - b.milesAway);
+    })).sort((a, b) => a.milesAway - b.milesAway);
 
-    if (nearby.length > 0) {
-      const seed = rotationSeed(point);
-      // Closest first, and only then vehicle. Ranking by vehicle first meant a
-      // Stockton customer booking a cargo van got shown the one van-capable
-      // driver sixty miles away in Davis, which reads exactly as wrong as it
-      // sounds. Among people equally close, prefer whoever can drive the tier;
-      // otherwise the nearest person appears in the role they'd actually work,
-      // and dispatch sources the vehicle.
-      const band = nearby.filter(
-        (c) => c.milesAway <= nearby[0].milesAway + TIE_BAND_MILES,
-      );
-      const driversNearby = band.filter(({ member }) => crewRole(member, tier) === "driver");
-      const pool = driversNearby.length > 0 ? driversNearby : band;
-      const chosen = pool[seed % pool.length];
-      return {
-        member: chosen.member,
-        role: crewRole(chosen.member, tier),
-        milesAway: chosen.milesAway,
-      };
-    }
+    const seed = rotationSeed(point);
+    // Closest first, and only then vehicle. Ranking by vehicle first meant a
+    // Stockton customer booking a cargo van got shown the one van-capable
+    // driver sixty miles away in Davis, which reads exactly as wrong as it
+    // sounds. Among people equally close, prefer whoever can drive the tier;
+    // otherwise the nearest person appears in the role they'd actually work,
+    // and dispatch sources the vehicle.
+    const band = ranked.filter((c) => c.milesAway <= ranked[0].milesAway + TIE_BAND_MILES);
+    const driversNearby = band.filter(({ member }) => crewRole(member, tier) === "driver");
+    const pool = driversNearby.length > 0 ? driversNearby : band;
+    const chosen = pool[seed % pool.length];
+    return {
+      member: chosen.member,
+      role: crewRole(chosen.member, tier),
+      milesAway: chosen.milesAway,
+      confident: chosen.milesAway <= (chosen.member.radiusMiles ?? CREW_RADIUS_MILES),
+    };
   }
 
+  // No location at all yet (nothing typed, nothing geocoded) — not "outside
+  // the service area", just too early to know. Any driver is a fine
+  // placeholder here; loadRoute() replaces this with a real ranked match the
+  // moment an address resolves.
   const fallback = CREW.find((member) => crewRole(member, tier) === "driver") ?? CREW[0];
-  return { member: fallback, role: crewRole(fallback, tier), milesAway: null };
+  return {
+    member: fallback,
+    role: crewRole(fallback, tier),
+    milesAway: null,
+    confident: false,
+  };
 }
 
 /**
@@ -242,13 +263,15 @@ export function matchHelper(
 
   const point = toPoint(location);
   if (point) {
-    const nearby = others
+    // No radius cutoff here either — same reasoning as matchCrew: the second
+    // face offered should be whoever is actually closest, not "closest within
+    // range, or else the first name in the array."
+    const ranked = others
       .map((member) => ({ member, milesAway: haversineMiles(point, member.base) }))
-      .filter((c) => c.milesAway <= (c.member.radiusMiles ?? CREW_RADIUS_MILES))
       .sort((a, b) => a.milesAway - b.milesAway);
     // Offset the seed so the helper slot doesn't keep landing on whoever the
     // driver rotation just skipped over.
-    if (nearby.length > 0) return pickFromTieBand(nearby, rotationSeed(point) + 1).member;
+    return pickFromTieBand(ranked, rotationSeed(point) + 1).member;
   }
   return others[0];
 }
