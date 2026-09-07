@@ -132,9 +132,9 @@ export default function HomePage({
               of the autoplaying video. */}
           <div className="absolute inset-0">
             <AutoplayVideo
-              mp4="/videos/pickup-a-v1.mp4"
-              webm="/videos/pickup-a-v1.webm"
-              poster="/images/pickup-a-v1-poster.jpg"
+              mp4="/videos/hero-home-v1.mp4"
+              webm="/videos/hero-home-v1.webm"
+              poster="/images/hero-home-v1-poster.jpg"
               className="absolute inset-0"
               videoClassName="absolute inset-0 h-full w-full object-cover object-center"
             />
