@@ -155,9 +155,9 @@ export default function HomePage({
                 </div>
               </div>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-6xl">
-                Book movers{" "}
+                Whatever&apos;s next,{" "}
                 <span className="bg-gradient-to-r from-brand-light via-orange-400 to-brand-cyan bg-clip-text text-transparent">
-                  like you book a ride.
+                  we&apos;ll carry it.
                 </span>
               </h1>
               {/* Three concrete mechanisms, no adjectives, and no price claim.
@@ -167,7 +167,7 @@ export default function HomePage({
                   you know who's coming — is what both are actually missing from
                   every mover they've used. The brand name is the logo's job. */}
               <p className="mt-4 text-lg text-neutral-600">
-                See your price before you book, pick the arrival window, and know who&apos;s
+                See your price before you book, pick your arrival window, and know who&apos;s
                 coming. One couch or a whole house — Bay Area to Sacramento.
               </p>
               <HeroQuoteForm city={targetCity?.slug} />
@@ -238,6 +238,19 @@ export default function HomePage({
                 Named movers from your own area, shown to you while you&apos;re still booking —
                 not a stranger assigned by a call center an hour before. A dispatcher confirms
                 the crew by phone.
+              </p>
+
+              {/* Badged, because it isn't built yet. Promising a chat thread and
+                  a truck on a map to someone who just handed over a moving date
+                  is the kind of copy that turns into a support call on the day.
+                  Same treatment as gas reimbursement on /drive. */}
+              <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
+                Coming soon
+              </p>
+              <p className="mt-3 text-neutral-500">
+                Message your crew straight from the booking and track the truck on its way, so
+                you always know exactly where your move is without picking up the phone.
               </p>
             </div>
           </div>
