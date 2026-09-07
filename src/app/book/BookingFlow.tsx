@@ -18,7 +18,7 @@ import {
 import type { MoveSizeValue } from "@/lib/moveSizes";
 import type { VehicleTierValue } from "@/lib/vehicleTiers";
 import { firstBookableDay, windowLabel } from "@/lib/arrivalWindows";
-import { matchCrew } from "@/lib/crew";
+import { matchCrew, matchHelper } from "@/lib/crew";
 import { getVehicleTier } from "@/lib/vehicleTiers";
 import { extraHelperFee, quoteForTier } from "@/lib/pricing";
 import { getServiceType, type ServiceTypeValue } from "@/lib/serviceTypes";
@@ -189,9 +189,13 @@ export default function BookingFlow({
     window.history.pushState({ ...window.history.state, bookingStep: target }, "");
   }
 
-  // City as well as vehicle: a Stockton customer shown the Davis face makes the
-  // whole "crew from your own area" claim ring false.
-  const matchedCrew = matchCrew(tier, city ?? pickup.city);
+  // Where the job actually is, so the 75-mile radius match has something real
+  // to measure from. Coordinates once the pickup has been geocoded; the typed
+  // city until then.
+  const jobLocation = pickupPoint ?? pickup.city ?? city ?? null;
+  const matchedCrew = matchCrew(tier, jobLocation);
+  // A second face for the extra-helper question — someone else nearby.
+  const helperCrew = matchHelper(jobLocation, matchedCrew?.member.id);
 
   // Price is derived, never stored: the running total has to move the moment
   // the customer answers the extra-helper question two steps later, and a
@@ -413,7 +417,7 @@ export default function BookingFlow({
           thing on the page and shouldn't be below the fold. */}
       {step > 3 && matchedCrew && (
         <div className="mt-8">
-          <CrewMatchCard member={matchedCrew} vehicleLabel={getVehicleTier(tier ?? "")?.label} />
+          <CrewMatchCard match={matchedCrew} vehicleLabel={getVehicleTier(tier ?? "")?.label} />
         </div>
       )}
 
@@ -489,7 +493,12 @@ export default function BookingFlow({
           />
         )}
         {step === 5 && (
-          <StepItems value={items} onChange={setItems} helperFee={helperFee} />
+          <StepItems
+            value={items}
+            onChange={setItems}
+            helperFee={helperFee}
+            helper={helperCrew}
+          />
         )}
         {step === 6 && <StepContact value={contact} onChange={setContact} />}
       </div>
@@ -504,7 +513,11 @@ export default function BookingFlow({
           {route && ` · ${route.miles.toFixed(1)} mi`}
           {items.needsHelper === true && helperFee && (
             <span className="mt-1 block text-xs">
-              includes +${helperFee.low}–${helperFee.high} for the extra helper
+              includes +$
+              {helperFee.low === helperFee.high
+                ? helperFee.low
+                : `${helperFee.low}–$${helperFee.high}`}{" "}
+              for the extra helper
             </span>
           )}
         </p>

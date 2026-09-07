@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import type { ServiceTypeValue } from "@/lib/serviceTypes";
+import type { CrewMember } from "@/lib/crew";
 
 // The job description dispatch reads before assigning a crew, plus whether the
 // customer wants a second pair of hands. What *kind* of job it is was already
@@ -21,11 +23,14 @@ export default function StepItems({
   value,
   onChange,
   helperFee,
+  helper,
 }: {
   value: ItemsValue;
   onChange: (next: ItemsValue) => void;
   /** What an extra helper adds to this job, or null before a truck is picked. */
   helperFee: { low: number; high: number } | null;
+  /** Who'd likely ride along, so the offer has a face rather than a price. */
+  helper: CrewMember | null;
 }) {
   const set = (patch: Partial<ItemsValue>) => onChange({ ...value, ...patch });
 
@@ -57,8 +62,7 @@ export default function StepItems({
       <fieldset className="mt-6">
         <legend className="text-sm font-semibold text-ink">Need an extra helper?</legend>
         <p className="mt-1.5 text-sm text-neutral-500">
-          An extra pair of hands for the whole job. Priced at what we pay them, so it
-          scales with how long your move takes.
+          A second person on the job, start to finish. Flat rate, whatever the move.
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {[
@@ -68,7 +72,12 @@ export default function StepItems({
               body: "Two people loading and carrying",
               // Shown on the button itself, and it's exactly what the running
               // total below will move by — the two come from the same figure.
-              price: helperFee ? `+$${helperFee.low}–$${helperFee.high}` : null,
+              // A flat fee has one number, so don't render "+$50–$50".
+              price: helperFee
+                ? helperFee.low === helperFee.high
+                  ? `+$${helperFee.low}`
+                  : `+$${helperFee.low}–$${helperFee.high}`
+                : null,
             },
             {
               value: false,
@@ -90,8 +99,25 @@ export default function StepItems({
                     : "border-black/10 hover:border-brand/40"
                 }`}
               >
-                <span className="block font-semibold text-ink">{option.label}</span>
-                <span className="mt-0.5 block text-sm text-neutral-500">{option.body}</span>
+                <span className="flex items-center gap-3">
+                  {option.value && helper && (
+                    <Image
+                      src={helper.photo}
+                      alt={helper.name}
+                      width={44}
+                      height={44}
+                      className="h-11 w-11 shrink-0 rounded-xl object-cover"
+                    />
+                  )}
+                  <span className="min-w-0">
+                    <span className="block font-semibold text-ink">{option.label}</span>
+                    <span className="mt-0.5 block text-sm text-neutral-500">
+                      {option.value && helper
+                        ? `${helper.name} or someone else nearby rides along`
+                        : option.body}
+                    </span>
+                  </span>
+                </span>
                 {option.price && (
                   <span
                     className={`mt-2 block font-mono text-sm ${

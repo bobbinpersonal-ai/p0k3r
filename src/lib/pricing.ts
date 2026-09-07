@@ -71,6 +71,18 @@ const PLATFORM_RATE = 0.25;
 /** No job is worth dispatching below this, whatever the math says. */
 const MINIMUM_PRICE = 79;
 
+/**
+ * Flat price for an extra pair of hands, set by the business.
+ *
+ * Unlike everything else here this is a fixed number rather than one derived
+ * from hours, so it does not scale with the job. At a 25% platform take it puts
+ * $37.50 in the helper's pocket, which is the advertised $19/hr for about two
+ * hours — right for the studio and one-bedroom jobs that make up most of the
+ * roster's work, and short on a long one. See the coverage table printed by the
+ * pricing invariant check.
+ */
+const EXTRA_HELPER_FEE = 50;
+
 // --- How long a job takes ----------------------------------------------------
 
 /**
@@ -167,17 +179,11 @@ export function quoteTier(
   const baseLow = Math.max(MINIMUM_PRICE, ceilToFive(payoutLow / (1 - PLATFORM_RATE)));
   const baseHigh = Math.max(baseLow + 5, ceilToFive(payoutHigh / (1 - PLATFORM_RATE)));
 
-  // The extra helper is priced as what they are: another person on the clock at
-  // the advertised helper wage, for as long as the job runs. Not a flat fee —
-  // that would underpay them badly on a long move. And added on top of the
-  // minimum rather than folded in before it, because a floor that swallows the
-  // add-on would put a second pair of hands on a small job for free.
-  const helperLow = extraHelper
-    ? ceilToFive((hoursLow * HELPER_HOURLY) / (1 - PLATFORM_RATE))
-    : 0;
-  const helperHigh = extraHelper
-    ? ceilToFive((hoursHigh * HELPER_HOURLY) / (1 - PLATFORM_RATE))
-    : 0;
+  // A flat add-on, and added on top of the minimum rather than folded in
+  // before it — a floor that swallowed it would put a second pair of hands on a
+  // small job for free.
+  const helperLow = extraHelper ? EXTRA_HELPER_FEE : 0;
+  const helperHigh = extraHelper ? EXTRA_HELPER_FEE : 0;
 
   const low = baseLow + helperLow;
   const high = baseHigh + helperHigh;
@@ -254,5 +260,6 @@ export const PRICING_CONSTANTS = {
   DEADHEAD_FACTOR,
   PLATFORM_RATE,
   MINIMUM_PRICE,
+  EXTRA_HELPER_FEE,
   LABOR_HOURS,
 };

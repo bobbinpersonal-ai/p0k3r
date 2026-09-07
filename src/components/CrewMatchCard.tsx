@@ -1,8 +1,8 @@
 import Image from "next/image";
-import type { CrewMember } from "@/lib/crew";
+import type { CrewMatch } from "@/lib/crew";
 
-// The "here's your mover" card — the delivery-app moment where a real face
-// and a real truck show up before you've handed over anything.
+// The "here's your mover" card — the delivery-app moment where a real face and
+// a real truck show up before you've handed over anything.
 //
 // Worth being careful with the wording: dispatch assigns the actual crew after
 // the booking comes in, so this says who'd likely take the job rather than
@@ -10,20 +10,28 @@ import type { CrewMember } from "@/lib/crew";
 // customer remembers when someone else pulls up.
 
 export default function CrewMatchCard({
-  member,
+  match,
   vehicleLabel,
 }: {
-  member: CrewMember;
+  match: CrewMatch;
   vehicleLabel?: string;
 }) {
+  const { member, role, milesAway } = match;
   // Roster names are stored as "First L." — the sentence below reads better
   // with just the first name.
   const firstName = member.name.split(" ")[0];
 
+  // Everyone on the roster works both ways, so say which one this is rather
+  // than implying they're driving a truck they don't own.
+  const detail =
+    role === "driver"
+      ? [member.vehicle, vehicleLabel].filter(Boolean).join(" · ")
+      : "Riding along as your second pair of hands";
+
   return (
     <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-4">
       <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
-        Likely your mover
+        {role === "driver" ? "Likely your mover" : "Likely on your crew"}
       </p>
       <div className="mt-3 flex items-center gap-4">
         {/* Rounded square rather than a circle: a circular mask crops the
@@ -39,13 +47,9 @@ export default function CrewMatchCard({
         <div className="min-w-0">
           <p className="text-lg font-bold text-ink">{member.name}</p>
           <p className="text-sm text-neutral-500">{member.note}</p>
-          {/* Built from the parts we actually have. Not everyone on the roster
-              has a vehicle recorded, and interpolating an undefined one leaves
-              a stray separator floating in front of the home base. */}
           <p className="mt-1 font-mono text-xs text-neutral-500">
-            {[member.vehicle, vehicleLabel, `based in ${member.homeBase}`]
-              .filter(Boolean)
-              .join(" · ")}
+            {[detail, `based in ${member.homeBase}`].filter(Boolean).join(" · ")}
+            {milesAway !== null && milesAway > 1 && ` · ${Math.round(milesAway)} mi away`}
           </p>
         </div>
       </div>
