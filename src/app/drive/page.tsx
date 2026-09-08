@@ -113,8 +113,8 @@ export default function DrivePage({
               </h1>
               <p className="mt-6 text-lg text-neutral-500">
                 Drive your own truck, van, or pickup and earn $25–$32/hour, or bring the
-                muscle as a helper at $19/hour — no vehicle needed. Tips are on top and
-                100% yours either way.
+                muscle as a helper at $19/hour — no vehicle needed. Tips are on top
+                either way.
               </p>
               <div className="mt-6">
                 <FleetIcons showRates />
@@ -129,10 +129,12 @@ export default function DrivePage({
               {/* One line, not four: repeating "+ tip" on every vehicle card and
                   the helper card reads noisy, and it's exactly the layout that
                   made this look like a helper-only perk before. Said once here,
-                  it covers all the cards above evenly. */}
+                  it covers all the cards above evenly. A solo driver keeps the
+                  whole tip; a helper only ever rides along with a driver, so
+                  that job's tip is split between the two of them. */}
               <p className="mt-3 font-mono text-xs text-neutral-400">
-                Rates above are hourly — tips are extra, and every driver and helper keeps
-                100% of theirs.
+                Rates above are hourly — tips are extra. Solo driver jobs, it&apos;s all
+                yours; bring a helper along and you split it 50/50.
               </p>
               <div className="mt-10 flex flex-wrap items-center gap-4">
                 <a
