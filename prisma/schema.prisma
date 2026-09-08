@@ -86,6 +86,9 @@ model Booking {
   serviceTypeOther String?
   needsHelper     Boolean   @default(true)
   details         String?
+  // Which marketing channel this lead came from, tracked the same way as
+  // DriverApplication.source: /book?source=<value>. See src/lib/sources.ts.
+  source          String?
 
   estimateLow     Int
   estimateHigh    Int

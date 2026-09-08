@@ -192,6 +192,11 @@ export default function DispatchBoard({
                   {booking.status === "PENDING" && (
                     <StaleBadge createdAt={booking.createdAt} now={now} />
                   )}
+                  {booking.source && (
+                    <span className="rounded-full border border-black/10 bg-black/5 px-2 py-0.5 font-mono text-xs text-neutral-500">
+                      {getSourceLabel(booking.source)}
+                    </span>
+                  )}
                   {booking.city && (
                     <span className="rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-xs font-semibold text-brand-cyan">
                       {getCity(booking.city)?.name ?? booking.city}

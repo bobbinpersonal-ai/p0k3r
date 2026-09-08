@@ -402,14 +402,17 @@ applicant never shows up in the dispatch driver dropdown. On the dashboard, clic
 **Reject** just marks it `REJECTED`. There's no automated background check or
 onboarding step yet — that's still a manual conversation with whoever you approve.
 
-**Tracking which recruiting channel works**: add `?source=<value>` to the `/drive`
-link you use for each channel and it shows up as a badge next to each applicant on
-the dashboard. Recognized values live in `src/lib/sources.ts` — add a row there for
-any new channel. For today's channels:
+**Tracking which channel works**: add `?source=<value>` to the link you use for
+each channel — `/drive?source=...` for a recruiting post, `/book?source=...` for a
+customer-facing one — and it shows up as a badge next to that applicant or booking
+on the dashboard. Same source list both ways (`src/lib/sources.ts`, add a row for
+any new channel), since a channel like Craigslist runs both kinds of posts. For
+today's channels:
 
 - QR business card → `https://lovemeafter.com/apply` (redirects to `/drive?source=qr-card#apply` — this is the URL printed on the physical cards/flyers)
-- Craigslist post → `https://lovemeafter.com/drive?source=craigslist`
-- Someone refers a friend → `https://lovemeafter.com/drive?source=referral`
+- Craigslist recruiting post → `https://lovemeafter.com/drive?source=craigslist`
+- Craigslist customer post (labor/moving gigs) → `https://lovemeafter.com/book?source=craigslist`
+- Someone refers a friend → `https://lovemeafter.com/drive?source=referral` or `/book?source=referral`
 
 Combine with `city` if you know it going in, e.g. `?source=qr-card&city=davis`.
 

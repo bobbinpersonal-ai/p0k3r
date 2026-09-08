@@ -9,6 +9,7 @@ import { isAdminRequest } from "@/lib/auth";
 import { getCity } from "@/lib/cities";
 import { notifyCustomerBookingConfirmed, notifyNewBooking } from "@/lib/notify";
 import { generateManageToken } from "@/lib/manageToken";
+import { isSourceValue } from "@/lib/sources";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest) {
     driveMinutes,
     vehicleTier,
     dropoffMode,
+    source,
   } = body;
 
   // Anything unrecognised is treated as a normal two-address move, which is the
@@ -141,6 +143,7 @@ export async function POST(req: NextRequest) {
       needsHelper,
       details: typeof details === "string" && details ? details : null,
       city: typeof city === "string" && getCity(city) ? city : null,
+      source: typeof source === "string" && isSourceValue(source) ? source : null,
       estimateLow,
       estimateHigh,
       pickupLat: num(pickupLat),

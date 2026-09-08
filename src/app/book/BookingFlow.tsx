@@ -66,6 +66,7 @@ export default function BookingFlow({
   initialDropoff,
   initialServiceType,
   city,
+  source,
 }: {
   initialSize?: MoveSizeValue;
   initialPickup?: string;
@@ -73,6 +74,8 @@ export default function BookingFlow({
   /** Set when they tapped a job on the homepage, so we don't ask again. */
   initialServiceType?: ServiceTypeValue;
   city?: string;
+  /** Which marketing channel sent them here, from ?source= — see src/lib/sources.ts. */
+  source?: string;
 }) {
   const router = useRouter();
   // Arriving from a homepage job chip means step 1 is already answered.
@@ -359,6 +362,7 @@ export default function BookingFlow({
       distanceMiles: routeInput.miles ?? undefined,
       driveMinutes: routeInput.minutes ?? undefined,
       vehicleTier: tier ?? undefined,
+      source,
     };
 
     try {

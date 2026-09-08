@@ -1,6 +1,8 @@
-// Recruiting channels for driver applications, tracked via /drive?source=<value>.
-// Add a channel here when you start a new one (a different Craigslist repost,
-// a flyer, etc.) — unrecognized values are dropped rather than stored, so a
+// Marketing/recruiting channels, tracked via /drive?source=<value> for driver
+// applications and /book?source=<value> for customer bookings — same list
+// either way, since a channel like Craigslist runs both kinds of posts. Add
+// one here when you start a new channel (a different Craigslist repost, a
+// flyer, etc.) — unrecognized values are dropped rather than stored, so a
 // stray query param can't pollute the data.
 
 export const SOURCES = [

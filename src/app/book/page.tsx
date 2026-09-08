@@ -4,6 +4,7 @@ import BookingFlow from "./BookingFlow";
 import { isMoveSizeValue } from "@/lib/moveSizes";
 import { isServiceTypeValue } from "@/lib/serviceTypes";
 import { getCity } from "@/lib/cities";
+import { isSourceValue } from "@/lib/sources";
 
 export default function BookPage({
   searchParams,
@@ -28,6 +29,10 @@ export default function BookPage({
   const initialServiceType =
     typeof jobParam === "string" && isServiceTypeValue(jobParam) ? jobParam : undefined;
 
+  const sourceParam = searchParams.source;
+  const source =
+    typeof sourceParam === "string" && isSourceValue(sourceParam) ? sourceParam : undefined;
+
   return (
     <>
       <SiteHeader />
@@ -43,6 +48,7 @@ export default function BookPage({
           initialDropoff={initialDropoff}
           initialServiceType={initialServiceType}
           city={city?.slug}
+          source={source}
         />
       </main>
       <SiteFooter />
