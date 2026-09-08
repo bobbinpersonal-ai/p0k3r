@@ -1,25 +1,41 @@
-// Alerts the dispatcher the moment a quote request or application comes in,
-// so they can call back while the lead is still warm — the whole point of a
-// phone-sales operation is speed, and a lead sitting unopened in /admin until
-// someone happens to check it defeats that. Every provider here is optional
-// and independent: set email vars, SMS vars, both, or neither. Nothing below
-// throws — the booking or application is already saved by the time this
-// runs, and a notification failing is never a reason to fail that request.
+// Every automated message the app sends, in one file: the dispatcher's "a
+// lead just came in" alert, the customer's booking receipt and status
+// updates, and the driver's job-assigned text. Every provider is optional
+// and independent — set email vars, SMS vars, both, or neither, per
+// recipient. Nothing below throws — whatever triggered a message (a booking
+// saved, a status changed) has already happened by the time this runs, and a
+// notification failing is never a reason to fail that.
 //
 // Plain fetch against each provider's REST API rather than an SDK, same
 // approach the geocoding ladder (serviceAreaPlaces.ts) takes for the same
 // reason: one dependency-free file, easy to read end to end.
+//
+// One real constraint worth knowing: Resend's shared sandbox sender
+// (onboarding@resend.dev) only delivers to the address that owns the Resend
+// account. That's fine for notifyOwner* below — the owner IS that account —
+// but it means customer- and driver-facing email silently goes nowhere until
+// NOTIFY_FROM_EMAIL points at a verified domain. SMS has no such limit, so
+// it's the channel that actually works out of the box for anyone who isn't
+// the account owner.
 
-import type { Booking, DriverApplication } from "@prisma/client";
+import type { Booking, Driver, DriverApplication } from "@prisma/client";
 import { getCity } from "./cities";
 import { getServiceTypeLabel } from "./serviceTypes";
 import { getApplicantRoleLabel } from "./applicantRoles";
 
-type Lead = { subject: string; lines: string[] };
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
+const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "";
+/** A Google Business (or similar) review link. Unset until the owner has one to give out. */
+const REVIEW_URL = process.env.REVIEW_URL || "";
 
-async function sendEmail({ subject, lines }: Lead): Promise<void> {
+type Message = { subject: string; lines: string[] };
+
+function formatDate(date: Date): string {
+  return date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
+
+async function sendEmail(to: string, { subject, lines }: Message): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY;
-  const to = process.env.NOTIFY_EMAIL;
   if (!apiKey || !to) return;
   try {
     await fetch("https://api.resend.com/emails", {
@@ -29,9 +45,6 @@ async function sendEmail({ subject, lines }: Lead): Promise<void> {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        // Resend's shared sandbox sender works with no domain setup, as long
-        // as it's sending to the same address that owns the Resend account —
-        // exactly this case, a business notifying itself.
         from: process.env.NOTIFY_FROM_EMAIL || "LoveMeAfter <onboarding@resend.dev>",
         to,
         subject,
@@ -43,11 +56,10 @@ async function sendEmail({ subject, lines }: Lead): Promise<void> {
   }
 }
 
-async function sendSms({ subject, lines }: Lead): Promise<void> {
+async function sendSms(to: string, { subject, lines }: Message): Promise<void> {
   const sid = process.env.TWILIO_ACCOUNT_SID;
   const token = process.env.TWILIO_AUTH_TOKEN;
   const from = process.env.TWILIO_FROM_NUMBER;
-  const to = process.env.NOTIFY_PHONE;
   if (!sid || !token || !from || !to) return;
   try {
     await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
@@ -70,23 +82,35 @@ async function sendSms({ subject, lines }: Lead): Promise<void> {
   }
 }
 
-async function notify(lead: Lead): Promise<void> {
-  await Promise.all([sendEmail(lead), sendSms(lead)]);
+async function notifyOwner(message: Message): Promise<void> {
+  await Promise.all([
+    sendEmail(process.env.NOTIFY_EMAIL || "", message),
+    sendSms(process.env.NOTIFY_PHONE || "", message),
+  ]);
 }
+
+async function notifyCustomer(
+  booking: Pick<Booking, "customerEmail" | "customerPhone">,
+  message: Message,
+): Promise<void> {
+  await Promise.all([
+    sendEmail(booking.customerEmail || "", message),
+    sendSms(booking.customerPhone, message),
+  ]);
+}
+
+// ---------------------------------------------------------------------------
+// To the owner/dispatcher: a new lead, or a customer acting on their own.
+// ---------------------------------------------------------------------------
 
 export async function notifyNewBooking(booking: Booking): Promise<void> {
   const city = booking.city ? getCity(booking.city)?.name : null;
-  const when = booking.moveDate.toLocaleDateString("en-US", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-  });
 
-  await notify({
+  await notifyOwner({
     subject: `New quote request — ${booking.customerName} — $${booking.estimateLow}–$${booking.estimateHigh}`,
     lines: [
       `${booking.customerName} — ${booking.customerPhone}`,
-      `$${booking.estimateLow}–$${booking.estimateHigh} · ${when}, ${booking.timeWindow}`,
+      `$${booking.estimateLow}–$${booking.estimateHigh} · ${formatDate(booking.moveDate)}, ${booking.timeWindow}`,
       booking.serviceType ? getServiceTypeLabel(booking.serviceType) : null,
       `Pickup: ${booking.pickupAddress}${city ? ` (${city})` : ""}`,
       booking.dropoffAddress ? `Drop-off: ${booking.dropoffAddress}` : null,
@@ -100,12 +124,111 @@ export async function notifyNewApplication(application: DriverApplication): Prom
   // allows null because a handful of pre-role-selector applicants predate it.
   const role = application.role ? getApplicantRoleLabel(application.role) : "Applicant";
 
-  await notify({
+  await notifyOwner({
     subject: `New ${role.toLowerCase()} application — ${application.name}`,
     lines: [
       `${application.name} — ${application.phone}`,
       `Applying as: ${role}${application.vehicle ? ` (${application.vehicle})` : ""}`,
       city ? `City: ${city}` : null,
+    ].filter((line): line is string => Boolean(line)),
+  });
+}
+
+export async function notifyOwnerBookingCanceled(booking: Booking): Promise<void> {
+  await notifyOwner({
+    subject: `Booking canceled online — ${booking.customerName}`,
+    lines: [
+      `${booking.customerName} — ${booking.customerPhone}`,
+      `They canceled their own booking for ${formatDate(booking.moveDate)}, ${booking.timeWindow} online.`,
+    ],
+  });
+}
+
+export async function notifyOwnerRescheduleRequested(booking: Booking, note: string): Promise<void> {
+  await notifyOwner({
+    subject: `Reschedule requested — ${booking.customerName}`,
+    lines: [
+      `${booking.customerName} — ${booking.customerPhone}`,
+      `Currently booked for ${formatDate(booking.moveDate)}, ${booking.timeWindow}.`,
+      `Their request: ${note}`,
+    ],
+  });
+}
+
+// ---------------------------------------------------------------------------
+// To the customer: what they booked, who's coming, and when.
+// ---------------------------------------------------------------------------
+
+export async function notifyCustomerBookingConfirmed(
+  booking: Booking,
+  manageUrl: string,
+): Promise<void> {
+  const firstName = booking.customerName.split(" ")[0];
+  await notifyCustomer(booking, {
+    subject: `${SITE_NAME}: your quote — $${booking.estimateLow}–$${booking.estimateHigh}`,
+    lines: [
+      `Thanks, ${firstName} — we've got your request.`,
+      `$${booking.estimateLow}–$${booking.estimateHigh} · ${formatDate(booking.moveDate)}, ${booking.timeWindow}`,
+      `Pickup: ${booking.pickupAddress}`,
+      booking.dropoffAddress ? `Drop-off: ${booking.dropoffAddress}` : null,
+      `A dispatcher will call or text to confirm your crew and lock in the final price — nothing's charged yet.`,
+      `Need to reschedule or cancel? ${manageUrl}`,
+    ].filter((line): line is string => Boolean(line)),
+  });
+}
+
+export async function notifyCustomerCrewConfirmed(
+  booking: Booking & { driver: Driver | null },
+): Promise<void> {
+  if (!booking.driver) return;
+  await notifyCustomer(booking, {
+    subject: `${SITE_NAME}: your crew is confirmed`,
+    lines: [
+      `${booking.driver.name} is confirmed for your move — ${formatDate(booking.moveDate)}, ${booking.timeWindow}.`,
+      booking.driver.vehicle ? `Vehicle: ${booking.driver.vehicle}` : null,
+      SUPPORT_PHONE ? `Questions before then? Call or text ${SUPPORT_PHONE}.` : null,
+    ].filter((line): line is string => Boolean(line)),
+  });
+}
+
+export async function notifyCustomerReminder(booking: Booking, manageUrl: string): Promise<void> {
+  await notifyCustomer(booking, {
+    subject: `${SITE_NAME}: your move is tomorrow`,
+    lines: [
+      `Reminder: your move is tomorrow, ${booking.timeWindow}.`,
+      `Pickup: ${booking.pickupAddress}`,
+      `Need to change anything? ${manageUrl}`,
+    ],
+  });
+}
+
+export async function notifyCustomerReviewRequest(booking: Booking): Promise<void> {
+  const firstName = booking.customerName.split(" ")[0];
+  await notifyCustomer(booking, {
+    subject: `${SITE_NAME}: thanks for booking with us`,
+    lines: [
+      `Thanks for choosing ${SITE_NAME}, ${firstName} — hope the move went smoothly.`,
+      REVIEW_URL ? `Got a minute? A review helps a lot: ${REVIEW_URL}` : null,
+    ].filter((line): line is string => Boolean(line)),
+  });
+}
+
+// ---------------------------------------------------------------------------
+// To the driver: a job just landed on their board.
+// ---------------------------------------------------------------------------
+
+export async function notifyDriverAssigned(booking: Booking & { driver: Driver | null }): Promise<void> {
+  // Drivers only ever get SMS — the roster has phone numbers, not emails
+  // (see the Driver model), and a job alert is exactly the kind of thing
+  // that wants a buzz in the pocket, not an inbox to check later.
+  if (!booking.driver) return;
+  await sendSms(booking.driver.phone, {
+    subject: `${SITE_NAME}: new job assigned`,
+    lines: [
+      `${booking.customerName} — ${booking.customerPhone}`,
+      `${formatDate(booking.moveDate)}, ${booking.timeWindow}`,
+      `Pickup: ${booking.pickupAddress}`,
+      booking.dropoffAddress ? `Drop-off: ${booking.dropoffAddress}` : null,
     ].filter((line): line is string => Boolean(line)),
   });
 }

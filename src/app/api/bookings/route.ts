@@ -7,7 +7,8 @@ import { isServiceTypeValue } from "@/lib/serviceTypes";
 import { getDropoffMode, requiresDropoffAddress } from "@/lib/dropoffModes";
 import { isAdminRequest } from "@/lib/auth";
 import { getCity } from "@/lib/cities";
-import { notifyNewBooking } from "@/lib/notify";
+import { notifyCustomerBookingConfirmed, notifyNewBooking } from "@/lib/notify";
+import { generateManageToken } from "@/lib/manageToken";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -148,13 +149,15 @@ export async function POST(req: NextRequest) {
       dropoffLng: num(dropoffLng),
       distanceMiles: num(distanceMiles),
       vehicleTier: tier,
+      manageToken: generateManageToken(),
     },
   });
 
   // Fire-and-forget from the customer's perspective, but awaited here so the
   // send actually completes before this serverless function exits — a
   // notification failure never fails the booking (see notify.ts).
-  await notifyNewBooking(booking);
+  const manageUrl = new URL(`/manage/${booking.manageToken}`, req.nextUrl.origin).toString();
+  await Promise.all([notifyNewBooking(booking), notifyCustomerBookingConfirmed(booking, manageUrl)]);
 
   return NextResponse.json(booking, { status: 201 });
 }

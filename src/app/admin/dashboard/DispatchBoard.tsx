@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Booking, Driver, DriverApplication } from "@prisma/client";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
@@ -29,6 +29,38 @@ function moveSizeLabel(value: string) {
   return MOVE_SIZE_OPTIONS.find((o) => o.value === value)?.label ?? value;
 }
 
+/** A PENDING lead this old has waited long enough that the first ping may
+ *  have been missed — flag it rather than let it go quiet until someone
+ *  happens to scroll past it. A cron doing this instead would need to run
+ *  every 15-30 minutes, well past what Vercel's Hobby plan allows (cron
+ *  jobs there are capped at once a day) — so this is computed on the page
+ *  instead of pushed, and ticks forward while the dashboard stays open. */
+const STALE_MS = 30 * 60 * 1000;
+
+function useNow(intervalMs: number) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), intervalMs);
+    return () => clearInterval(id);
+  }, [intervalMs]);
+  return now;
+}
+
+function StaleBadge({ createdAt, now }: { createdAt: Date | string; now: number }) {
+  const ageMs = now - new Date(createdAt).getTime();
+  if (ageMs < STALE_MS) return null;
+  const minutes = Math.round(ageMs / 60000);
+  const age = minutes < 60 ? `${minutes}m` : `${Math.round(minutes / 60)}h`;
+  return (
+    <span
+      title="Been waiting a while — the first alert may have been missed"
+      className="rounded-full border border-red-400/30 bg-red-500/10 px-2 py-0.5 font-mono text-xs font-semibold text-red-700"
+    >
+      ⚠ {age} old
+    </span>
+  );
+}
+
 export default function DispatchBoard({
   initialBookings,
   initialDrivers,
@@ -39,6 +71,7 @@ export default function DispatchBoard({
   initialApplications: DriverApplication[];
 }) {
   const router = useRouter();
+  const now = useNow(30 * 1000);
   const [bookings, setBookings] = useState(initialBookings);
   const [drivers, setDrivers] = useState(initialDrivers);
   const [applications, setApplications] = useState(initialApplications);
@@ -155,7 +188,10 @@ export default function DispatchBoard({
                     {booking.customerPhone}
                   </a>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  {booking.status === "PENDING" && (
+                    <StaleBadge createdAt={booking.createdAt} now={now} />
+                  )}
                   {booking.city && (
                     <span className="rounded-full border border-brand/30 bg-brand/10 px-3 py-1 font-mono text-xs font-semibold text-brand-cyan">
                       {getCity(booking.city)?.name ?? booking.city}
@@ -271,6 +307,7 @@ export default function DispatchBoard({
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-medium text-ink">{application.name}</p>
                   <div className="flex flex-wrap justify-end gap-1">
+                    <StaleBadge createdAt={application.createdAt} now={now} />
                     {application.role && (
                       <span
                         className={`rounded-full border px-2 py-0.5 font-mono text-xs ${

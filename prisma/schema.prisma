@@ -94,6 +94,18 @@ model Booking {
   driver          Driver?   @relation(fields: [driverId], references: [id])
   dispatchNotes   String?
 
+  // An unguessable link so a customer can cancel or ask to reschedule without
+  // an account — see /manage/[token]. Generated with crypto.randomBytes, not
+  // Prisma's cuid() default: a cuid is unique but not built to resist
+  // guessing, and this one doubles as the only thing standing between a
+  // stranger and someone else's booking.
+  manageToken     String    @unique
+
+  // Idempotency guards: both are set the moment their notification actually
+  // sends, so a retried request or a re-run cron can't double-text someone.
+  reminderSentAt      DateTime?
+  reviewRequestSentAt DateTime?
+
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }

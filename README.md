@@ -18,6 +18,8 @@ Stack: Next.js 14 (App Router) + TypeScript + Tailwind CSS + Prisma + Postgres.
 - **`/book`** — customer booking form with an instant price range; accepts `?city=` and
   `?size=` query params to prefill from a city page or pricing card
 - **`/book/confirmation`** — confirmation screen after a booking is submitted
+- **`/manage/[token]`** — the link every booking confirmation/reminder includes; lets a
+  customer cancel or request a reschedule without calling in (see "Notifications" below)
 - **`/drive`** — recruiting page for prospective movers/drivers (flexible-schedule,
   bring-your-own-vehicle pitch) with an application form; accepts `?city=`
 - **`/admin`** — password-protected sign-in for dispatch
@@ -61,8 +63,11 @@ Sign in to `/admin` with the `ADMIN_PASSWORD` you set in `.env`.
 | `NEXT_PUBLIC_GOOGLE_ADS_ID` | Google Ads account ID (`AW-XXXXXXXXX`). Leave blank until you have one — nothing loads without it. |
 | `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL` | The conversion action's label (`AbC-D_efG-h123`) from Google Ads > Goals > Conversions. |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Optional GA4 measurement ID (`G-XXXXXXXXXX`), independent of the two Ads vars above. |
-| `RESEND_API_KEY`, `NOTIFY_EMAIL`, `NOTIFY_FROM_EMAIL` | Email alert on every new booking/application (see "Lead notifications" below). Leave blank to skip email. |
-| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`, `NOTIFY_PHONE` | Text alert on every new booking/application. Leave blank to skip texting. |
+| `RESEND_API_KEY`, `NOTIFY_EMAIL`, `NOTIFY_FROM_EMAIL` | Powers every automated email — your lead alerts, and (once `NOTIFY_FROM_EMAIL` is on a verified domain) customer/driver messages too. See "Notifications" below. Leave blank to skip email entirely. |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`, `NOTIFY_PHONE` | Same, for text messages — this is the one that reaches customers and drivers with no extra setup. Leave blank to skip texting entirely. |
+| `REVIEW_URL` | Optional review link included in the post-job "thanks for booking" message. |
+| `CRON_SECRET` | Required for the day-before reminder cron to run — see "Notifications" below. |
+| `NEXT_PUBLIC_SITE_URL` | Optional override for the domain used in links the reminder cron builds. Everything else derives this from the real request and needs no configuration. |
 
 ## Visuals
 
@@ -439,23 +444,38 @@ This repo can't create the Ads account, campaigns, or billing for you — that p
 the Google Ads side. This just makes sure the site is ready to receive that traffic and
 report conversions back the moment the campaign goes live.
 
-## Lead notifications
+## Notifications
 
-**Also already wired up** (`src/lib/notify.ts`) — the moment a customer submits `/book`
-or someone submits `/drive`, it can email and/or text you so you can call back while the
-lead is still warm, instead of finding it next time you happen to open `/admin`. Both
-channels are optional and independent of each other; with neither set, everything still
-works exactly as it does today — bookings and applications just wait in `/admin` until
-you check.
+**All wired up** (`src/lib/notify.ts`) — not just an alert to you anymore. Every message
+below fires automatically off something that already happens in the app; nothing here
+needs a separate trigger or a person to remember to send it.
+
+| Who | When | What |
+| --- | --- | --- |
+| You | A booking or application comes in | Enough detail to call back — name, phone, price, address |
+| Customer | Right after they submit `/book` | A receipt (price, date, addresses) with a link to manage their booking |
+| Customer | You assign a driver in `/admin` | "Your crew is confirmed," with who's coming |
+| Customer | The day before their move (cron) | A reminder, with the same manage link |
+| Customer | You mark the booking `Completed` | A thank-you, plus a review link if `REVIEW_URL` is set |
+| Driver | You assign them a job in `/admin` | The job's details — text only, the roster has phone numbers, not emails |
+| You | Customer cancels or requests a reschedule from their manage link | What they asked for |
+
+Every recipient's channels are independent — a customer with no email on file just gets
+texted, a driver only ever gets texted (see the table). With no `RESEND_API_KEY` and no
+`TWILIO_ACCOUNT_SID` set, all of it still saves and works exactly as it does today —
+nothing gets sent, and you check `/admin` the old way.
 
 **Email**, via [Resend](https://resend.com) — free, no credit card, and no domain setup
 needed to start:
 
-1. Sign up, then Dashboard → API Keys → create one.
-2. Set `RESEND_API_KEY` to that key, and `NOTIFY_EMAIL` to the address you want alerts
-   sent to. Resend's shared sender (`onboarding@resend.dev`) works with no further setup
-   as long as `NOTIFY_EMAIL` is the same address you signed up to Resend with — once you
-   verify your own domain there, set `NOTIFY_FROM_EMAIL` to send from it instead.
+1. Sign up, then Dashboard → API Keys → create one with **Sending access** (not
+   *Full access* — this key only ever needs to send).
+2. Set `RESEND_API_KEY` to that key, and `NOTIFY_EMAIL` to the address you want your own
+   alerts sent to. Resend's shared sender (`onboarding@resend.dev`) works with no further
+   setup as long as `NOTIFY_EMAIL` is the same address you signed up to Resend with — but
+   it *only* delivers to that one address. Customer- and driver-facing email goes nowhere
+   until you verify your own domain in Resend and set `NOTIFY_FROM_EMAIL` to an address on
+   it. Until then, texting is the channel that actually reaches them.
 
 **Text message**, via [Twilio](https://twilio.com) — a few dollars a month for the
 phone number, worth it if you want a phone to actually buzz:
@@ -463,21 +483,44 @@ phone number, worth it if you want a phone to actually buzz:
 1. Sign up, buy a number, and grab the Account SID and Auth Token from the console home
    page.
 2. Set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` (the number you
-   bought), and `NOTIFY_PHONE` (your cell) — all in `.env` or your host's env var
-   settings. Phone numbers need the `+1XXXXXXXXXX` format Twilio uses.
+   bought), and `NOTIFY_PHONE` (your cell, for your own alerts) — all in `.env` or your
+   host's env var settings. Numbers need the `+1XXXXXXXXXX` format Twilio uses; customers
+   and drivers get texted at whatever number is already on their booking/application/
+   driver record, no extra config.
 
 Either way: set the env vars and redeploy, no code changes needed. This repo can't
 create the Resend or Twilio account for you — that part's a couple minutes on their
-sites — but the moment the keys are in place, both `/book` and `/drive` start alerting
-you automatically.
+sites — but the moment the keys are in place, everything in the table above starts
+firing automatically.
+
+**The reminder cron** (`/api/cron/reminders`, scheduled once daily in `vercel.json`)
+needs one more thing: set `CRON_SECRET` to any long random string, so the route can tell
+Vercel's actual cron trigger apart from a random request hitting the same URL — without
+it, the route refuses to run rather than risk texting customers on an unauthenticated
+request. It runs once a day by design: Vercel's Hobby plan caps cron jobs at once a day
+each, which is exactly what a day-before reminder wants. A tighter-interval job (say,
+"nag me if a lead sits unanswered 30 minutes") wouldn't fit that cap, which is why that
+one's handled differently — see the ⚠ age badge on stale `PENDING` items in `/admin`
+instead of a push notification for it.
+
+**Manage link**: every booking gets an unguessable `/manage/[token]` page (linked from
+the confirmation and reminder messages) where the customer can cancel outright or ask for
+a different day/time. A cancellation applies immediately; a reschedule request is logged
+and sent to you rather than silently moving the booking — the matched crew's availability
+for the new date hasn't been checked, so a dispatcher confirms it the same way the
+original booking gets confirmed.
 
 ## Roadmap / next steps
 
 - **Real pricing**: the estimate tiers in `src/lib/moveSizes.ts` are placeholders —
   once real jobs come in, tune them or add distance-based pricing (Google Maps
   Distance Matrix / Mapbox).
-- **Automated dispatch**: SMS the next available driver directly (Twilio) instead of
-  manual calls, with accept/decline.
+- **Automated dispatch, the next step**: assigning a driver in `/admin` already texts
+  them the job (see "Notifications") — matching who to assign is still a human picking
+  from a dropdown. Auto-suggesting the closest active driver (the same radius logic
+  `src/lib/crew.ts` uses for the customer-facing match card), or an accept/decline flow
+  the driver replies to instead of dispatch assuming they'll show, are the natural next
+  steps once volume makes the manual pick tedious.
 - **Payments (customer-facing)**: take a card on booking or on completion (Stripe).
 - **Same-day pay (driver & helper-facing)**: `/drive` now advertises this as live —
   paid out by 5pm (or sooner) every day worked, sent via Zelle, Venmo, or Apple Pay. This is a
