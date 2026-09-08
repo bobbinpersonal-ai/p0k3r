@@ -2,43 +2,36 @@ import { NextResponse } from "next/server";
 import { haversineMiles, isLatLng } from "@/lib/geo";
 import { SERVICE_AREA_PLACES } from "@/lib/serviceAreaPlaces";
 
-// Coordinates -> the fullest address we can stand behind.
+// Coordinates -> the fullest address we can find.
 //
-// This backs the "use my location" button. It used to stop at city and ZIP
-// because a GPS fix indoors can be off by a building, and a wrong house number
-// presented as a fact is worse than a blank field. That was the right caution
-// but the wrong lever: the phone tells us how good its fix is, so we can decide
-// per request instead of assuming the worst every time.
+// This backs the "use my location" button. It used to withhold the house
+// number or even the street name when the phone's own reported GPS accuracy
+// was coarse, on the theory that a wrong number presented as fact is worse
+// than a blank field. In practice it just meant a customer with a mediocre
+// indoor fix got a half-filled form for no reason — the result lands in
+// fields they see and can edit before anything is priced, exactly like a
+// typo would, so there's nothing to lose by always filling in whatever the
+// geocoder actually returns and letting them fix it if it's wrong.
 //
-//   accuracy <=  60m  -> house number and street (a good outdoor GPS fix)
-//   accuracy <= 150m  -> street name only; the number would be a coin flip,
-//                        but a street is long enough to still be right
-//   worse             -> town and ZIP, as before (desktop wifi, deep indoors)
+// `precision` still says what we found (a full address, a street with no
+// number, or just the town) so the button's message can say what's worth
+// double-checking — that's reporting honestly, not withholding on a guess.
 //
-// Whatever comes back lands in editable fields the customer sees before
-// anything is priced, and the button says which of the three happened, so a
-// coarse fix reads as "add your street" rather than a silently wrong address.
-//
-// Coordinates are rounded to the precision the answer actually needs — see
-// ROUNDING in POST.
+// Coordinates are sent at full precision so every lookup gets the best shot
+// at a house number, whatever the phone's own fix quality was.
 
 export const runtime = "nodejs";
 
 const TIMEOUT_MS = 3500;
 
 export type ReverseResult = {
-  /** House number and street, street alone, or "" when the fix was too coarse. */
+  /** House number and street, street alone, or "" when neither was found. */
   street: string;
   city: string;
   zip: string;
-  /** What we're claiming: a building, a street, or just the town. */
+  /** What we found: a building, a street, or just the town. */
   precision: "address" | "street" | "area";
 };
-
-/** Below this, a reverse-geocoded house number is worth trusting. */
-const HOUSE_NUMBER_ACCURACY_M = 60;
-/** Below this the street is probably right even if the number isn't. */
-const STREET_ACCURACY_M = 150;
 
 async function fetchWithTimeout(url: string, init?: RequestInit) {
   const controller = new AbortController();
@@ -217,30 +210,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const raw = (body ?? {}) as { lat?: unknown; lng?: unknown; accuracy?: unknown };
-  // Read before the type guard: isLatLng narrows to exactly lat/lng.
-  const reported = raw.accuracy;
-  const point = raw;
+  const point = (body ?? {}) as { lat?: unknown; lng?: unknown };
   if (!isLatLng(point)) {
     return NextResponse.json({ error: "Need numeric lat/lng." }, { status: 400 });
   }
 
-  // How good the phone says its fix is, in metres. Missing or nonsense is
-  // treated as the worst case rather than the best.
-  const accuracy =
-    typeof reported === "number" && Number.isFinite(reported) && reported > 0
-      ? reported
-      : Number.POSITIVE_INFINITY;
-
-  const wantsStreet = accuracy <= STREET_ACCURACY_M;
-  const wantsHouseNumber = accuracy <= HOUSE_NUMBER_ACCURACY_M;
-
-  // ROUNDING: only as precise as the answer needs. Five decimals (~1m) to find
-  // a house number, three (~110m) when we're only naming the town — no reason
-  // to hand a third-party geocoder a doorstep to answer a question about a ZIP.
-  const factor = wantsStreet ? 1e5 : 1e3;
-  const lat = Math.round(point.lat * factor) / factor;
-  const lng = Math.round(point.lng * factor) / factor;
+  // Full precision (~1m), always — every lookup gets the best shot at a
+  // house number regardless of how good the phone's own fix was.
+  const lat = Math.round(point.lat * 1e5) / 1e5;
+  const lng = Math.round(point.lng * 1e5) / 1e5;
 
   const googleKey = process.env.GOOGLE_MAPS_API_KEY;
   const token = process.env.MAPBOX_TOKEN;
@@ -255,7 +233,7 @@ export async function POST(request: Request) {
     // but its US postcodes are patchy — so ask both and take the best of each.
     const [area, fine] = await Promise.all([
       attempt(() => viaCensus(lat, lng)),
-      wantsStreet ? attempt(() => viaPhoton(lat, lng)) : Promise.resolve(null),
+      attempt(() => viaPhoton(lat, lng)),
     ]);
     if (area || fine) {
       parts = {
@@ -270,9 +248,8 @@ export async function POST(request: Request) {
   parts = parts ?? nearestServiceAreaTown(lat, lng);
   if (!parts) return NextResponse.json({ result: null });
 
-  // Only claim as much as the fix supports.
-  const houseNumber = wantsHouseNumber ? (parts.houseNumber ?? "") : "";
-  const street = wantsStreet ? (parts.street ?? "") : "";
+  const houseNumber = parts.houseNumber ?? "";
+  const street = parts.street ?? "";
   const streetLine = [houseNumber, street].filter(Boolean).join(" ").trim();
 
   const result: ReverseResult = {

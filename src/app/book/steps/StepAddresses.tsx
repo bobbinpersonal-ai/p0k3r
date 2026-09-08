@@ -48,6 +48,7 @@ export default function StepAddresses({
           value={pickup}
           onChange={(v) => onChange({ pickup: v, dropoff, dropoffMode })}
           enableLocation
+          section="pickup"
         />
 
         <div className="relative mx-4 border-t border-black/10">
@@ -115,6 +116,7 @@ export default function StepAddresses({
               // Both ends, because which one is "here" depends on the job: a
               // Marketplace pickup is at the seller's and the drop-off is home.
               enableLocation
+              section="dropoff"
             />
           </>
         )}

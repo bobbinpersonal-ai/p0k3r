@@ -24,6 +24,7 @@ export default function AddressFields({
   onChange,
   autoFocus,
   enableLocation = false,
+  section,
 }: {
   legend: string;
   icon: React.ReactNode;
@@ -32,10 +33,22 @@ export default function AddressFields({
   autoFocus?: boolean;
   /** Offer "use my location" for this end. */
   enableLocation?: boolean;
+  /**
+   * Distinguishes this block from the other address on the same page for the
+   * browser's autofill, the same way a checkout form tells shipping and
+   * billing apart — see the `autoComplete` values below. Without it, filling
+   * pickup from a saved address can just as easily land in drop-off too.
+   */
+  section: "pickup" | "dropoff";
 }) {
   const id = useId();
   const zipTouched = value.zip.trim().length > 0;
   const zipInvalid = zipTouched && !isValidZip(value.zip);
+
+  // "section-<name>" is the standard way (used by every shipping/billing form)
+  // to tell the browser that two address blocks on the same page are
+  // different addresses, so it doesn't autofill drop-off with the pickup one.
+  const ac = (field: string) => `section-${section} ${field}`;
 
   function set(patch: Partial<StructuredAddress>) {
     onChange({ ...value, ...patch });
@@ -61,7 +74,11 @@ export default function AddressFields({
             id={`${id}-street`}
             value={value.street}
             autoFocus={autoFocus}
-            autoComplete="street-address"
+            // "address-line1", not "street-address": the latter tells the
+            // browser this ONE field holds the whole address, which is why
+            // iOS was dumping the full "street, city, state zip" string in
+            // here instead of splitting it across the fields below.
+            autoComplete={ac("address-line1")}
             placeholder="Street address"
             onChange={(e) => set({ street: e.target.value })}
             className={fieldClass}
@@ -76,7 +93,7 @@ export default function AddressFields({
             <input
               id={`${id}-city`}
               value={value.city}
-              autoComplete="address-level2"
+              autoComplete={ac("address-level2")}
               placeholder="City"
               onChange={(e) => set({ city: e.target.value })}
               className={fieldClass}
@@ -91,7 +108,7 @@ export default function AddressFields({
               value={value.zip}
               // Numeric keypad on phones, where most of these get typed.
               inputMode="numeric"
-              autoComplete="postal-code"
+              autoComplete={ac("postal-code")}
               maxLength={5}
               placeholder="ZIP"
               aria-invalid={zipInvalid || undefined}
@@ -108,7 +125,7 @@ export default function AddressFields({
           <input
             id={`${id}-unit`}
             value={value.unit}
-            autoComplete="address-line2"
+            autoComplete={ac("address-line2")}
             placeholder="Apt / unit / gate code (optional)"
             onChange={(e) => set({ unit: e.target.value })}
             className={`${fieldClass} text-sm`}

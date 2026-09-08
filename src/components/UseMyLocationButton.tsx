@@ -2,15 +2,17 @@
 
 import { useEffect, useRef, useState } from "react";
 
-// "Use my location" — fills as much of the address as the fix can support.
+// "Use my location" — fills in whatever address the fix resolves to.
 //
 // Offered on both ends, because which one is "here" depends on the job: a
 // Marketplace pickup is at the seller's place and the drop-off is home, while a
 // house move is the other way round. Guessing for them was wrong.
 //
-// The server decides how much to claim from the accuracy reported below (house
-// number, street, or just the town), and the status line says which happened,
-// so a coarse fix reads as "add your street" rather than a quietly wrong number.
+// The result lands in fields the customer can see and edit before anything is
+// priced, so there's no reason to hold back a house number or street just
+// because the fix was coarse — the status line still says what precision we
+// actually found (house number, street, or just the town), so a coarse fix
+// reads as "add your street" rather than silently claiming more than it knows.
 //
 // The browser's permission prompt only appears on a real tap, so this is never
 // requested on page load: an unprompted location dialog the moment a page opens
@@ -88,10 +90,6 @@ export default function UseMyLocationButton({
             body: JSON.stringify({
               lat: position.coords.latitude,
               lng: position.coords.longitude,
-              // How far off the phone thinks it is. The server rounds the
-              // coordinates to match — full precision only when it's chasing a
-              // house number, ~110m when the answer is just a town.
-              accuracy: position.coords.accuracy,
             }),
           });
           if (!res.ok) return fail("Couldn't look that up — type your address instead.");
