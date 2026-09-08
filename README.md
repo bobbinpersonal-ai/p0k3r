@@ -61,6 +61,8 @@ Sign in to `/admin` with the `ADMIN_PASSWORD` you set in `.env`.
 | `NEXT_PUBLIC_GOOGLE_ADS_ID` | Google Ads account ID (`AW-XXXXXXXXX`). Leave blank until you have one — nothing loads without it. |
 | `NEXT_PUBLIC_GOOGLE_ADS_CONVERSION_LABEL` | The conversion action's label (`AbC-D_efG-h123`) from Google Ads > Goals > Conversions. |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Optional GA4 measurement ID (`G-XXXXXXXXXX`), independent of the two Ads vars above. |
+| `RESEND_API_KEY`, `NOTIFY_EMAIL`, `NOTIFY_FROM_EMAIL` | Email alert on every new booking/application (see "Lead notifications" below). Leave blank to skip email. |
+| `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`, `NOTIFY_PHONE` | Text alert on every new booking/application. Leave blank to skip texting. |
 
 ## Visuals
 
@@ -436,6 +438,38 @@ submitted. Nothing loads until you fill in two env vars:
 This repo can't create the Ads account, campaigns, or billing for you — that part's on
 the Google Ads side. This just makes sure the site is ready to receive that traffic and
 report conversions back the moment the campaign goes live.
+
+## Lead notifications
+
+**Also already wired up** (`src/lib/notify.ts`) — the moment a customer submits `/book`
+or someone submits `/drive`, it can email and/or text you so you can call back while the
+lead is still warm, instead of finding it next time you happen to open `/admin`. Both
+channels are optional and independent of each other; with neither set, everything still
+works exactly as it does today — bookings and applications just wait in `/admin` until
+you check.
+
+**Email**, via [Resend](https://resend.com) — free, no credit card, and no domain setup
+needed to start:
+
+1. Sign up, then Dashboard → API Keys → create one.
+2. Set `RESEND_API_KEY` to that key, and `NOTIFY_EMAIL` to the address you want alerts
+   sent to. Resend's shared sender (`onboarding@resend.dev`) works with no further setup
+   as long as `NOTIFY_EMAIL` is the same address you signed up to Resend with — once you
+   verify your own domain there, set `NOTIFY_FROM_EMAIL` to send from it instead.
+
+**Text message**, via [Twilio](https://twilio.com) — a few dollars a month for the
+phone number, worth it if you want a phone to actually buzz:
+
+1. Sign up, buy a number, and grab the Account SID and Auth Token from the console home
+   page.
+2. Set `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER` (the number you
+   bought), and `NOTIFY_PHONE` (your cell) — all in `.env` or your host's env var
+   settings. Phone numbers need the `+1XXXXXXXXXX` format Twilio uses.
+
+Either way: set the env vars and redeploy, no code changes needed. This repo can't
+create the Resend or Twilio account for you — that part's a couple minutes on their
+sites — but the moment the keys are in place, both `/book` and `/drive` start alerting
+you automatically.
 
 ## Roadmap / next steps
 

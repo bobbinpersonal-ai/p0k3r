@@ -5,6 +5,7 @@ import { getCity } from "@/lib/cities";
 import { isSourceValue } from "@/lib/sources";
 import { isApplicantRole } from "@/lib/applicantRoles";
 import { isPayoutMethodValue } from "@/lib/payoutMethods";
+import { notifyNewApplication } from "@/lib/notify";
 
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
@@ -75,6 +76,8 @@ export async function POST(req: NextRequest) {
       source: typeof source === "string" && isSourceValue(source) ? source : null,
     },
   });
+
+  await notifyNewApplication(application);
 
   return NextResponse.json(application, { status: 201 });
 }
