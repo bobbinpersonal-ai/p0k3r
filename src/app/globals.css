@@ -2,9 +2,16 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-behavior: smooth;
-}
+/* (removed) `html { scroll-behavior: smooth; }` used to live here, for the
+   in-page anchor links (#apply, #how-it-works, #pricing) to ease into view.
+   It's also a well-documented WebKit compositor bug: a `position: fixed`
+   header with `backdrop-blur` sitting above content that's smooth-scrolling
+   causes Safari to fail to fully repaint the region it passes over, leaving
+   old content ghosted under new content — worst on iPadOS, where a customer
+   reported the whole site looking broken. The anchor links just jump
+   instantly now instead of easing in; BookingFlow's own scrollIntoView call
+   passes `behavior: "smooth"` directly to the Web API rather than relying on
+   this CSS property, so it's unaffected either way. */
 
 body {
   @apply bg-paper text-neutral-800 antialiased;
