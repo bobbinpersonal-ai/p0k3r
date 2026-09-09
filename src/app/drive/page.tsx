@@ -161,11 +161,14 @@ export default function DrivePage({
               </div>
             </div>
             <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 glow">
+              {/* Real yard-work footage — /drive now leads with yard jobs (see
+                  the hero copy above), so the hero shot should be a crew
+                  actually doing the work rather than a truck on the road. */}
               <AutoplayVideo
-                mp4="/videos/pickup-b-v1.mp4"
-                webm="/videos/pickup-b-v1.webm"
-                poster="/images/pickup-b-v1-poster.jpg"
-                alt="A pickup truck out on a delivery run"
+                mp4="/videos/yard-clip2-v1.mp4"
+                webm="/videos/yard-clip2-v1.webm"
+                poster="/images/yard-clip2-v1-poster.jpg"
+                alt="A LoveMeAfter crew member doing yard work on the job"
                 className="absolute inset-0"
                 videoClassName="absolute inset-0 h-full w-full object-cover object-center"
               />

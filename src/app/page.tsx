@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
+import AutoplayVideo from "@/components/AutoplayVideo";
 import YardPriceFinder from "@/components/YardPriceFinder";
 import CaliforniaMap from "@/components/CaliforniaMap";
 import { YARD_SERVICE_ICONS } from "@/components/YardIcons";
@@ -51,12 +52,29 @@ export default function HomePage({
 
   return (
     <>
-      <SiteHeader />
+      {/* Transparent: the hero video now runs behind the nav all the way to
+          the top of the page, same treatment as /moving's hero. */}
+      <SiteHeader transparent />
       <main>
         <section className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid-fade" />
-          <div className="glow-blob absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full" />
-          <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
+          {/* Real footage now — four clips shot back to back (mowing, a
+              cleanup, trimming, a planting job) concatenated into one file
+              and played in that order as a single looping background. See
+              AutoplayVideo for why this degrades to the poster frame rather
+              than to nothing when it can't play. */}
+          <div className="absolute inset-0">
+            <AutoplayVideo
+              mp4="/videos/hero-yard-v1.mp4"
+              webm="/videos/hero-yard-v1.webm"
+              poster="/images/hero-yard-v1-poster.jpg"
+              className="absolute inset-0"
+              videoClassName="absolute inset-0 h-full w-full object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-paper/90 via-paper/60 to-paper/20 lg:hidden" />
+            <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-paper via-paper/85 to-paper/35" />
+            <div className="absolute inset-0 hidden lg:block bg-gradient-to-t from-paper via-transparent to-paper/25" />
+          </div>
+          <div className="relative mx-auto max-w-6xl px-4 pt-28 pb-12 sm:px-6 sm:pb-16 lg:pt-40">
             {/* min-w-0 on both columns, not decoration: a grid track sizes to
                 min-content by default, and the "now booking" marquee below is
                 `w-max` — deliberately wider than the screen so it can scroll.
