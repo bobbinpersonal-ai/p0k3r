@@ -32,9 +32,20 @@ const GEOGRAPHY_FREE_NOTE: Record<CrewMatch["role"], string> = {
 export default function CrewMatchCard({
   match,
   vehicleLabel,
+  trade = "moving",
 }: {
   match: CrewMatch;
   vehicleLabel?: string;
+  /**
+   * Which of the businesses this job belongs to.
+   *
+   * A move splits the crew into a driver and a helper, because the vehicle is
+   * half the job. A yard job doesn't: the same six people mow, edge and haul,
+   * and there's no truck to be "riding along" in. So the driver/helper wording
+   * below is a moving-side distinction, and landscaping opts out of it rather
+   * than picking one of the two words and being wrong half the time.
+   */
+  trade?: "moving" | "yard";
 }) {
   const { member, role, milesAway, confident } = match;
   // Roster names are stored as "First L." — the sentence below reads better
@@ -46,25 +57,32 @@ export default function CrewMatchCard({
   // Everyone on the roster works both ways, so say which one this is rather
   // than implying they're driving a truck they don't own.
   const detail =
-    role === "driver"
-      ? [member.vehicle, vehicleLabel].filter(Boolean).join(" · ")
-      : "Riding along as your second pair of hands";
+    trade === "yard"
+      ? member.vehicle ?? ""
+      : role === "driver"
+        ? [member.vehicle, vehicleLabel].filter(Boolean).join(" · ")
+        : "Riding along as your second pair of hands";
 
-  const eyebrow = confident
-    ? role === "driver"
-      ? "Likely your mover"
-      : "Likely on your crew"
-    : "Closest available crew";
+  const eyebrow = !confident
+    ? "Closest available crew"
+    : trade === "yard" || role !== "driver"
+      ? "Likely on your crew"
+      : "Likely your mover";
 
   // Most roster notes name a territory ("Manteca and Stockton"), which is
   // exactly the kind of thing being hidden below — showing it here would
   // undo that.
-  const noteText = revealDistance ? member.note : GEOGRAPHY_FREE_NOTE[role];
+  const noteText = revealDistance
+    ? (trade === "yard" && member.yardNote) || member.note
+    : trade === "yard"
+      ? "Part of the LoveMeAfter crew"
+      : GEOGRAPHY_FREE_NOTE[role];
 
+  const jobNoun = trade === "yard" ? "visit" : "move";
   const closingLine =
     confident || milesAway === null
       ? `A dispatcher confirms your actual crew when they call — if ${firstName} is already on a job, someone else from the roster takes it.`
-      : "A dispatcher will confirm who's covering your move before anything's booked.";
+      : `A dispatcher will confirm who's covering your ${jobNoun} before anything's booked.`;
 
   return (
     <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-4">

@@ -8,8 +8,8 @@ const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
 
 export default function SiteHeader({
-  ctaLabel = "Get a quote",
-  ctaHref = "/book",
+  ctaLabel = "Get a yard price",
+  ctaHref = "/yard",
   phoneHours,
   transparent = false,
 }: {
@@ -42,13 +42,34 @@ export default function SiteHeader({
         <Logo name={SITE_NAME} />
       </Link>
       <nav className="flex items-center gap-4 sm:gap-6">
+        {/* The other two businesses. They're only reachable from the homepage
+            otherwise, and a landscaping customer who also needs a truck has no
+            reason to guess that the same company owns one. Hidden below sm
+            along with everything else in the nav — a phone gets the logo and
+            the CTA, and the rest is on the page. */}
+        <Link
+          href="/moving"
+          className={`hidden text-sm font-medium lg:block ${
+            isLight ? "text-white/90 hover:text-white" : "text-neutral-500 hover:text-brand-cyan"
+          }`}
+        >
+          Moving
+        </Link>
+        <Link
+          href="/junk-removal"
+          className={`hidden text-sm font-medium lg:block ${
+            isLight ? "text-white/90 hover:text-white" : "text-neutral-500 hover:text-brand-cyan"
+          }`}
+        >
+          Junk removal
+        </Link>
         <Link
           href="/drive"
           className={`hidden text-sm font-medium sm:block ${
             isLight ? "text-white/90 hover:text-white" : "text-neutral-500 hover:text-brand-cyan"
           }`}
         >
-          Drive with us
+          Work with us
         </Link>
         <a
           href={`tel:${SUPPORT_PHONE.replace(/[^\d+]/g, "")}`}
@@ -83,7 +104,16 @@ export default function SiteHeader({
       <header
         className={
           isLight
-            ? "fixed inset-x-0 top-0 z-50 bg-transparent"
+            ? // Not fully transparent: the nav renders in white so it can sit
+              // over the hero video, and "white text over a video" is only
+              // legible if the video happens to be dark at the top. Ours is a
+              // daylight clip that brightens as it plays, and the nav was
+              // washing out. A short scrim behind the bar — dark at the very
+              // top, gone by the bottom of it — keeps the "video runs to the
+              // top of the page" look while giving the text something to sit
+              // on in every frame. Sized to the bar, so nothing below it is
+              // tinted.
+              "fixed inset-x-0 top-0 z-50 bg-gradient-to-b from-black/45 via-black/25 to-transparent"
             : // Solid, not translucent+blurred: a fixed header with
               // backdrop-blur sitting over smooth-scrolling content is a
               // well-documented WebKit compositor bug (see globals.css) —

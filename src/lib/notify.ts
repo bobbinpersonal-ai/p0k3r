@@ -22,6 +22,8 @@ import type { Booking, Driver, DriverApplication } from "@prisma/client";
 import { getCity } from "./cities";
 import { getServiceTypeLabel } from "./serviceTypes";
 import { getApplicantRoleLabel } from "./applicantRoles";
+import { getServiceLine, isLandscaping } from "./serviceLines";
+import { getFrequency, getLandscapingServiceLabel, getYardSizeLabel } from "./landscaping";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "";
@@ -32,6 +34,49 @@ type Message = { subject: string; lines: string[] };
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" });
+}
+
+/**
+ * How a message should talk about this job: "your move", "your yard service".
+ *
+ * One company, three businesses (see serviceLines.ts), so every automated
+ * message has to know which one it's about. A yard customer told their "move"
+ * is confirmed will assume they got someone else's text.
+ */
+function jobNoun(booking: Pick<Booking, "serviceLine">): string {
+  return getServiceLine(booking.serviceLine).noun;
+}
+
+/**
+ * Flat landscaping pricing stores the same number at both ends of the range
+ * (see the bookings API), so a range would read as "$70–$70".
+ */
+function priceLine(booking: Pick<Booking, "estimateLow" | "estimateHigh">): string {
+  return booking.estimateLow === booking.estimateHigh
+    ? `$${booking.estimateLow}`
+    : `$${booking.estimateLow}–$${booking.estimateHigh}`;
+}
+
+/**
+ * The lines that describe what was actually booked — different for a yard job
+ * (one address, a service, a cadence) and a move (two addresses, a size).
+ */
+function jobLines(booking: Booking): string[] {
+  if (isLandscaping(booking.serviceLine)) {
+    const cadence = booking.frequency ? getFrequency(booking.frequency) : undefined;
+    return [
+      `${getLandscapingServiceLabel(booking.landscapingService)} · ${getYardSizeLabel(
+        booking.yardSize,
+      )} yard`,
+      `At: ${booking.pickupAddress}`,
+      cadence && cadence.visitsPerMonth !== null ? `Repeats: ${cadence.label}` : null,
+    ].filter((line): line is string => Boolean(line));
+  }
+  return [
+    booking.serviceType ? getServiceTypeLabel(booking.serviceType) : null,
+    `Pickup: ${booking.pickupAddress}`,
+    booking.dropoffAddress ? `Drop-off: ${booking.dropoffAddress}` : null,
+  ].filter((line): line is string => Boolean(line));
 }
 
 async function sendEmail(to: string, { subject, lines }: Message): Promise<void> {
@@ -105,15 +150,18 @@ async function notifyCustomer(
 
 export async function notifyNewBooking(booking: Booking): Promise<void> {
   const city = booking.city ? getCity(booking.city)?.name : null;
+  const line = getServiceLine(booking.serviceLine);
 
   await notifyOwner({
-    subject: `New quote request — ${booking.customerName} — $${booking.estimateLow}–$${booking.estimateHigh}`,
+    // The line goes in the subject so a phone lock screen answers "what kind of
+    // job?" without opening anything — which is the difference between a lead
+    // called back in five minutes and one called back in an hour.
+    subject: `New ${line.label.toLowerCase()} lead — ${booking.customerName} — ${priceLine(booking)}`,
     lines: [
       `${booking.customerName} — ${booking.customerPhone}`,
-      `$${booking.estimateLow}–$${booking.estimateHigh} · ${formatDate(booking.moveDate)}, ${booking.timeWindow}`,
-      booking.serviceType ? getServiceTypeLabel(booking.serviceType) : null,
-      `Pickup: ${booking.pickupAddress}${city ? ` (${city})` : ""}`,
-      booking.dropoffAddress ? `Drop-off: ${booking.dropoffAddress}` : null,
+      `${priceLine(booking)} · ${formatDate(booking.moveDate)}, ${booking.timeWindow}`,
+      ...jobLines(booking),
+      city ? `City: ${city}` : null,
     ].filter((line): line is string => Boolean(line)),
   });
 }
@@ -136,7 +184,7 @@ export async function notifyNewApplication(application: DriverApplication): Prom
 
 export async function notifyOwnerBookingCanceled(booking: Booking): Promise<void> {
   await notifyOwner({
-    subject: `Booking canceled online — ${booking.customerName}`,
+    subject: `${getServiceLine(booking.serviceLine).label} booking canceled online — ${booking.customerName}`,
     lines: [
       `${booking.customerName} — ${booking.customerPhone}`,
       `They canceled their own booking for ${formatDate(booking.moveDate)}, ${booking.timeWindow} online.`,
@@ -164,14 +212,16 @@ export async function notifyCustomerBookingConfirmed(
   manageUrl: string,
 ): Promise<void> {
   const firstName = booking.customerName.split(" ")[0];
+  const yard = isLandscaping(booking.serviceLine);
   await notifyCustomer(booking, {
-    subject: `${SITE_NAME}: your quote — $${booking.estimateLow}–$${booking.estimateHigh}`,
+    subject: `${SITE_NAME}: your ${yard ? "yard visit" : "quote"} — ${priceLine(booking)}`,
     lines: [
       `Thanks, ${firstName} — we've got your request.`,
-      `$${booking.estimateLow}–$${booking.estimateHigh} · ${formatDate(booking.moveDate)}, ${booking.timeWindow}`,
-      `Pickup: ${booking.pickupAddress}`,
-      booking.dropoffAddress ? `Drop-off: ${booking.dropoffAddress}` : null,
-      `A dispatcher will call or text to confirm your crew and lock in the final price — nothing's charged yet.`,
+      `${priceLine(booking)}${yard ? " per visit" : ""} · ${formatDate(booking.moveDate)}, ${booking.timeWindow}`,
+      ...jobLines(booking),
+      yard
+        ? `A dispatcher will call or text to confirm your crew — nothing's charged yet, and the price above is the price.`
+        : `A dispatcher will call or text to confirm your crew and lock in the final price — nothing's charged yet.`,
       `Need to reschedule or cancel? ${manageUrl}`,
     ].filter((line): line is string => Boolean(line)),
   });
@@ -184,7 +234,7 @@ export async function notifyCustomerCrewConfirmed(
   await notifyCustomer(booking, {
     subject: `${SITE_NAME}: your crew is confirmed`,
     lines: [
-      `${booking.driver.name} is confirmed for your move — ${formatDate(booking.moveDate)}, ${booking.timeWindow}.`,
+      `${booking.driver.name} is confirmed for your ${jobNoun(booking)} — ${formatDate(booking.moveDate)}, ${booking.timeWindow}.`,
       booking.driver.vehicle ? `Vehicle: ${booking.driver.vehicle}` : null,
       SUPPORT_PHONE ? `Questions before then? Call or text ${SUPPORT_PHONE}.` : null,
     ].filter((line): line is string => Boolean(line)),
@@ -192,11 +242,14 @@ export async function notifyCustomerCrewConfirmed(
 }
 
 export async function notifyCustomerReminder(booking: Booking, manageUrl: string): Promise<void> {
+  const noun = jobNoun(booking);
   await notifyCustomer(booking, {
-    subject: `${SITE_NAME}: your move is tomorrow`,
+    subject: `${SITE_NAME}: your ${noun} is tomorrow`,
     lines: [
-      `Reminder: your move is tomorrow, ${booking.timeWindow}.`,
-      `Pickup: ${booking.pickupAddress}`,
+      `Reminder: your ${noun} is tomorrow, ${booking.timeWindow}.`,
+      isLandscaping(booking.serviceLine)
+        ? `At: ${booking.pickupAddress}`
+        : `Pickup: ${booking.pickupAddress}`,
       `Need to change anything? ${manageUrl}`,
     ],
   });
@@ -207,7 +260,9 @@ export async function notifyCustomerReviewRequest(booking: Booking): Promise<voi
   await notifyCustomer(booking, {
     subject: `${SITE_NAME}: thanks for booking with us`,
     lines: [
-      `Thanks for choosing ${SITE_NAME}, ${firstName} — hope the move went smoothly.`,
+      isLandscaping(booking.serviceLine)
+        ? `Thanks for choosing ${SITE_NAME}, ${firstName} — hope the yard's looking better.`
+        : `Thanks for choosing ${SITE_NAME}, ${firstName} — hope the move went smoothly.`,
       REVIEW_URL ? `Got a minute? A review helps a lot: ${REVIEW_URL}` : null,
     ].filter((line): line is string => Boolean(line)),
   });
@@ -223,12 +278,13 @@ export async function notifyDriverAssigned(booking: Booking & { driver: Driver |
   // that wants a buzz in the pocket, not an inbox to check later.
   if (!booking.driver) return;
   await sendSms(booking.driver.phone, {
-    subject: `${SITE_NAME}: new job assigned`,
+    // Which line it is, up front: a yard job and a move need different kit in
+    // the truck, and that decision gets made from this text.
+    subject: `${SITE_NAME}: new ${getServiceLine(booking.serviceLine).label.toLowerCase()} job assigned`,
     lines: [
       `${booking.customerName} — ${booking.customerPhone}`,
       `${formatDate(booking.moveDate)}, ${booking.timeWindow}`,
-      `Pickup: ${booking.pickupAddress}`,
-      booking.dropoffAddress ? `Drop-off: ${booking.dropoffAddress}` : null,
-    ].filter((line): line is string => Boolean(line)),
+      ...jobLines(booking),
+    ],
   });
 }

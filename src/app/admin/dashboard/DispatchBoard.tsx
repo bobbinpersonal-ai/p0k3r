@@ -8,6 +8,12 @@ import { getCity } from "@/lib/cities";
 import { getSourceLabel } from "@/lib/sources";
 import { getApplicantRoleLabel } from "@/lib/applicantRoles";
 import { getServiceTypeLabel } from "@/lib/serviceTypes";
+import { getServiceLineLabel, isLandscaping } from "@/lib/serviceLines";
+import {
+  getFrequency,
+  getLandscapingServiceLabel,
+  getYardSizeLabel,
+} from "@/lib/landscaping";
 import { getPayoutMethodLabel } from "@/lib/payoutMethods";
 
 type BookingWithDriver = Booking & { driver: Driver | null };
@@ -25,9 +31,25 @@ const STATUS_STYLES: Record<string, string> = {
 const selectClass =
   "mt-1 w-full rounded-lg border border-black/10 bg-black/5 px-2 py-1.5 text-ink [color-scheme:light]";
 
-function moveSizeLabel(value: string) {
+function moveSizeLabel(value: string | null) {
+  if (!value) return "—";
   return MOVE_SIZE_OPTIONS.find((o) => o.value === value)?.label ?? value;
 }
+
+/**
+ * Flat landscaping pricing stores the same number at both ends of the range
+ * (see the bookings API), so a range would read as "$70–$70" on the board.
+ */
+function priceLabel(low: number, high: number) {
+  return low === high ? `$${low}` : `$${low}–$${high}`;
+}
+
+/** Which line a job belongs to, so a yard visit can't be read as a move. */
+const SERVICE_LINE_STYLES: Record<string, string> = {
+  LANDSCAPING: "border-green-600/30 bg-green-600/10 text-green-800",
+  MOVING: "border-black/10 bg-black/5 text-neutral-600",
+  JUNK: "border-amber-600/30 bg-amber-600/10 text-amber-800",
+};
 
 /** A PENDING lead this old has waited long enough that the first ping may
  *  have been missed — flag it rather than let it go quiet until someone
@@ -192,6 +214,13 @@ export default function DispatchBoard({
                   {booking.status === "PENDING" && (
                     <StaleBadge createdAt={booking.createdAt} now={now} />
                   )}
+                  <span
+                    className={`rounded-full border px-2 py-0.5 font-mono text-xs font-semibold ${
+                      SERVICE_LINE_STYLES[booking.serviceLine] ?? SERVICE_LINE_STYLES.MOVING
+                    }`}
+                  >
+                    {getServiceLineLabel(booking.serviceLine)}
+                  </span>
                   {booking.source && (
                     <span className="rounded-full border border-black/10 bg-black/5 px-2 py-0.5 font-mono text-xs text-neutral-500">
                       {getSourceLabel(booking.source)}
@@ -211,34 +240,69 @@ export default function DispatchBoard({
               </div>
 
               <div className="mt-3 grid gap-1 text-sm text-neutral-500">
-                <p>
-                  <span className="font-medium text-neutral-600">From:</span> {booking.pickupAddress}
-                </p>
-                <p>
-                  <span className="font-medium text-neutral-600">To:</span>{" "}
-                  {booking.dropoffAddress ?? "— no drop-off (on-site job)"}
-                </p>
-                <p>
-                  <span className="font-medium text-neutral-600">When:</span>{" "}
-                  {new Date(booking.moveDate).toLocaleDateString()} &middot; {booking.timeWindow}
-                </p>
-                <p>
-                  <span className="font-medium text-neutral-600">Size:</span>{" "}
-                  {moveSizeLabel(booking.moveSize)} &middot;{" "}
-                  <span className="font-mono text-brand-cyan">
-                    ${booking.estimateLow}–${booking.estimateHigh}
-                  </span>
-                </p>
-                <p>
-                  <span className="font-medium text-neutral-600">Crew:</span>{" "}
-                  {booking.needsHelper ? "Driver + helper" : "Driver only"}
-                </p>
-                {booking.serviceType && (
-                  <p>
-                    <span className="font-medium text-neutral-600">Service:</span>{" "}
-                    {getServiceTypeLabel(booking.serviceType)}
-                    {booking.serviceTypeOther ? ` — ${booking.serviceTypeOther}` : ""}
-                  </p>
+                {isLandscaping(booking.serviceLine) ? (
+                  <>
+                    <p>
+                      <span className="font-medium text-neutral-600">At:</span>{" "}
+                      {booking.pickupAddress}
+                    </p>
+                    <p>
+                      <span className="font-medium text-neutral-600">When:</span>{" "}
+                      {new Date(booking.moveDate).toLocaleDateString()} &middot;{" "}
+                      {booking.timeWindow}
+                    </p>
+                    <p>
+                      <span className="font-medium text-neutral-600">Job:</span>{" "}
+                      {getLandscapingServiceLabel(booking.landscapingService)} &middot;{" "}
+                      {getYardSizeLabel(booking.yardSize)} yard &middot;{" "}
+                      <span className="font-mono text-brand-cyan">
+                        {priceLabel(booking.estimateLow, booking.estimateHigh)}
+                      </span>
+                    </p>
+                    <p>
+                      {/* The one field on a yard job dispatch has to act on
+                          beyond the first visit: a weekly plan is a standing
+                          slot, not a one-off that happens to have booked. */}
+                      <span className="font-medium text-neutral-600">Repeats:</span>{" "}
+                      {booking.frequency
+                        ? (getFrequency(booking.frequency)?.label ?? booking.frequency)
+                        : "Just this once"}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p>
+                      <span className="font-medium text-neutral-600">From:</span>{" "}
+                      {booking.pickupAddress}
+                    </p>
+                    <p>
+                      <span className="font-medium text-neutral-600">To:</span>{" "}
+                      {booking.dropoffAddress ?? "— no drop-off (on-site job)"}
+                    </p>
+                    <p>
+                      <span className="font-medium text-neutral-600">When:</span>{" "}
+                      {new Date(booking.moveDate).toLocaleDateString()} &middot;{" "}
+                      {booking.timeWindow}
+                    </p>
+                    <p>
+                      <span className="font-medium text-neutral-600">Size:</span>{" "}
+                      {moveSizeLabel(booking.moveSize)} &middot;{" "}
+                      <span className="font-mono text-brand-cyan">
+                        {priceLabel(booking.estimateLow, booking.estimateHigh)}
+                      </span>
+                    </p>
+                    <p>
+                      <span className="font-medium text-neutral-600">Crew:</span>{" "}
+                      {booking.needsHelper ? "Driver + helper" : "Driver only"}
+                    </p>
+                    {booking.serviceType && (
+                      <p>
+                        <span className="font-medium text-neutral-600">Service:</span>{" "}
+                        {getServiceTypeLabel(booking.serviceType)}
+                        {booking.serviceTypeOther ? ` — ${booking.serviceTypeOther}` : ""}
+                      </p>
+                    )}
+                  </>
                 )}
                 {booking.details && (
                   <p>

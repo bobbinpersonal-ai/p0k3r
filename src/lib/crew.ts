@@ -67,6 +67,14 @@ export type CrewMember = {
   radiusMiles?: number;
   /** Short line of credibility shown under the name. */
   note: string;
+  /**
+   * The same line for a yard booking, where `note` would be about moving.
+   *
+   * Only needed for the notes that name moving work specifically — most are
+   * territories ("Fairfield through Sacramento"), which are true whichever
+   * business the job belongs to. Falls back to `note` when unset.
+   */
+  yardNote?: string;
 };
 
 function baseOf(town: string): LatLng {
@@ -85,6 +93,7 @@ export const CREW: CrewMember[] = [
     homeBase: "Davis",
     base: baseOf("Davis"),
     note: "Apartments, dorms, and single big items",
+    yardNote: "Davis and Yolo County yards",
   },
   {
     id: "sasha",
@@ -137,6 +146,7 @@ export const CREW: CrewMember[] = [
     homeBase: "Stockton",
     base: baseOf("Stockton"),
     note: "Stockton — second pair of hands",
+    yardNote: "Stockton — mowing, clearing and hauling",
   },
 ];
 

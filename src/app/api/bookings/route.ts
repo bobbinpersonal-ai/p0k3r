@@ -10,36 +10,78 @@ import { getCity } from "@/lib/cities";
 import { notifyCustomerBookingConfirmed, notifyNewBooking } from "@/lib/notify";
 import { generateManageToken } from "@/lib/manageToken";
 import { isSourceValue } from "@/lib/sources";
+import { DEFAULT_SERVICE_LINE, isServiceLineValue } from "@/lib/serviceLines";
+import {
+  DEFAULT_FREQUENCY,
+  isFrequencyValue,
+  isLandscapingServiceValue,
+  isYardSizeValue,
+  quoteLandscaping,
+} from "@/lib/landscaping";
+import type { Prisma } from "@prisma/client";
 
-export async function POST(req: NextRequest) {
-  const body = await req.json().catch(() => null);
-  if (!body) {
-    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
-  }
+/**
+ * One endpoint, three businesses.
+ *
+ * A yard job and a move share a customer, an address, a date and a time
+ * window, and nothing else: one is priced flat by yard size, the other from
+ * hours and miles. Rather than one validator full of "unless it's landscaping",
+ * the shared half is checked here and each line brings its own builder for the
+ * fields only it uses. Whichever runs, the result is one Booking row that
+ * dispatch, the manage link, and the notifications all read the same way.
+ */
 
+/**
+ * The columns POST fills in for every job, whichever line it belongs to.
+ * Subtracted from what a builder returns, so the two halves can't both claim
+ * the same column and quietly disagree about it.
+ */
+type SharedColumn =
+  | "customerName"
+  | "customerPhone"
+  | "customerEmail"
+  | "moveDate"
+  | "timeWindow"
+  | "details"
+  | "city"
+  | "source"
+  | "pickupLat"
+  | "pickupLng"
+  | "manageToken";
+
+/** Either the line-specific columns to write, or the error to send back. */
+type BuildResult =
+  | { ok: true; data: Omit<Prisma.BookingUncheckedCreateInput, SharedColumn> }
+  | { ok: false; error: string };
+
+const missing = (field: string) => `Missing required field: ${field}`;
+
+function isFilled(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+/**
+ * Coordinates and distance are optional extras from the map quote flow —
+ * accepted only when they're actually numbers, so a malformed client payload
+ * can't write junk into dispatch's view of the job.
+ */
+const num = (value: unknown) =>
+  typeof value === "number" && Number.isFinite(value) ? value : null;
+
+// --- Moving and junk: priced from hours and miles ----------------------------
+
+function buildMoveBooking(body: Record<string, unknown>): BuildResult {
   const {
-    customerName,
-    customerPhone,
-    customerEmail,
     pickupAddress,
     dropoffAddress,
-    moveDate,
-    timeWindow,
     moveSize,
     serviceType,
     serviceTypeOther,
     needsHelper,
-    details,
-    city,
-    pickupLat,
-    pickupLng,
-    dropoffLat,
-    dropoffLng,
+    dropoffMode,
     distanceMiles,
     driveMinutes,
     vehicleTier,
-    dropoffMode,
-    source,
   } = body;
 
   // Anything unrecognised is treated as a normal two-address move, which is the
@@ -47,69 +89,29 @@ export async function POST(req: NextRequest) {
   const mode =
     (typeof dropoffMode === "string" ? getDropoffMode(dropoffMode) : undefined) ?? "ADDRESS";
 
-  const requiredFields: Record<string, unknown> = {
-    customerName,
-    customerPhone,
-    pickupAddress,
-    moveDate,
-    timeWindow,
-    moveSize,
-    // Only a real move needs somewhere to go. For the others the client sends a
-    // label describing the job, and an empty one shouldn't fail the booking.
-    ...(requiresDropoffAddress(mode) ? { dropoffAddress } : {}),
-  };
-  for (const [field, value] of Object.entries(requiredFields)) {
-    if (typeof value !== "string" || value.trim().length === 0) {
-      return NextResponse.json({ error: `Missing required field: ${field}` }, { status: 400 });
-    }
+  // Only a real move needs somewhere to go. For the others the client sends a
+  // label describing the job, and an empty one shouldn't fail the booking.
+  if (requiresDropoffAddress(mode) && !isFilled(dropoffAddress)) {
+    return { ok: false, error: missing("dropoffAddress") };
   }
 
-  if (!isMoveSizeValue(moveSize)) {
-    return NextResponse.json({ error: "Invalid move size." }, { status: 400 });
-  }
+  if (!isFilled(moveSize)) return { ok: false, error: missing("moveSize") };
+  if (!isMoveSizeValue(moveSize)) return { ok: false, error: "Invalid move size." };
 
   if (typeof serviceType !== "string" || !isServiceTypeValue(serviceType)) {
-    return NextResponse.json(
-      { error: "Please tell us what kind of service you need." },
-      { status: 400 }
-    );
+    return { ok: false, error: "Please tell us what kind of service you need." };
   }
 
-  if (
-    serviceType === "OTHER" &&
-    (typeof serviceTypeOther !== "string" || serviceTypeOther.trim().length === 0)
-  ) {
-    return NextResponse.json(
-      { error: "Please describe what you need help with." },
-      { status: 400 }
-    );
+  if (serviceType === "OTHER" && !isFilled(serviceTypeOther)) {
+    return { ok: false, error: "Please describe what you need help with." };
   }
 
   if (typeof needsHelper !== "boolean") {
-    return NextResponse.json(
-      { error: "Please let us know if you need an extra helper." },
-      { status: 400 }
-    );
+    return { ok: false, error: "Please let us know if you need an extra helper." };
   }
 
-  // A bare "YYYY-MM-DD" is parsed as UTC midnight, which reads back as the
-  // previous day anywhere west of Greenwich — a move booked for Sunday would
-  // show up in dispatch as Saturday and a crew would arrive a day early. Pin
-  // date-only values to local noon instead, which is far enough from either
-  // midnight to survive DST shifts.
-  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.exec(String(moveDate));
-  const parsedDate = dateOnly
-    ? new Date(`${moveDate}T12:00:00`)
-    : new Date(moveDate);
-  if (Number.isNaN(parsedDate.getTime())) {
-    return NextResponse.json({ error: "Invalid move date." }, { status: 400 });
-  }
-
-  // Coordinates and distance are optional extras from the map quote flow —
-  // accept them only when they're actually numbers, so a malformed client
-  // payload can't write junk into dispatch's view of the job.
-  const num = (value: unknown) => (typeof value === "number" && Number.isFinite(value) ? value : null);
-  const tier = typeof vehicleTier === "string" && isVehicleTierValue(vehicleTier) ? vehicleTier : null;
+  const tier =
+    typeof vehicleTier === "string" && isVehicleTierValue(vehicleTier) ? vehicleTier : null;
 
   // Price through the same model the quote cards used, off the same distance
   // and drive time, so what dispatch reads back is what the customer was shown.
@@ -122,37 +124,144 @@ export async function POST(req: NextRequest) {
     // part of what dispatch reads back.
     { extraHelper: needsHelper === true },
   );
-  const estimateLow = quoted?.low ?? 0;
-  const estimateHigh = quoted?.high ?? 0;
+
+  return {
+    ok: true,
+    data: {
+      serviceLine: serviceType === "JUNK_REMOVAL" ? "JUNK" : "MOVING",
+      pickupAddress: String(pickupAddress),
+      dropoffAddress: isFilled(dropoffAddress) ? dropoffAddress.trim() : null,
+      dropoffMode: mode,
+      moveSize,
+      serviceType,
+      serviceTypeOther: serviceType === "OTHER" ? String(serviceTypeOther) : null,
+      needsHelper,
+      estimateLow: quoted?.low ?? 0,
+      estimateHigh: quoted?.high ?? 0,
+      dropoffLat: num(body.dropoffLat),
+      dropoffLng: num(body.dropoffLng),
+      distanceMiles: num(distanceMiles),
+      vehicleTier: tier,
+    },
+  };
+}
+
+// --- Landscaping: one flat price per (service x yard size) -------------------
+
+function buildLandscapingBooking(body: Record<string, unknown>): BuildResult {
+  const { landscapingService, yardSize, frequency, pickupAddress } = body;
+
+  if (!isFilled(landscapingService) || !isLandscapingServiceValue(landscapingService)) {
+    return { ok: false, error: "Please pick which yard service you need." };
+  }
+  if (!isFilled(yardSize) || !isYardSizeValue(yardSize)) {
+    return { ok: false, error: "Please tell us roughly how big the yard is." };
+  }
+
+  // An unrecognised cadence books as a one-off rather than failing: the price
+  // it produces is the higher one, so a garbled value can never undercharge.
+  const requested =
+    isFilled(frequency) && isFrequencyValue(frequency) ? frequency : DEFAULT_FREQUENCY;
+
+  const quote = quoteLandscaping(landscapingService, yardSize, requested);
+  if (!quote) return { ok: false, error: "We don't offer that combination yet." };
+
+  return {
+    ok: true,
+    data: {
+      serviceLine: "LANDSCAPING",
+      // The property is the whole job. There is no second address and no route,
+      // so the fields that describe one stay null rather than holding a
+      // placeholder dispatch would have to learn to ignore.
+      pickupAddress: String(pickupAddress),
+      dropoffAddress: null,
+      dropoffMode: null,
+      landscapingService,
+      yardSize,
+      // What the quote actually settled on, not what was asked for — a
+      // one-time-only service asked for weekly comes back as ONE_TIME.
+      frequency: quote.frequency.value,
+      // Flat pricing has no range, so both ends hold the per-visit price and
+      // every existing "$low–$high" reader collapses to one number on its own.
+      estimateLow: quote.perVisit,
+      estimateHigh: quote.perVisit,
+    },
+  };
+}
+
+export async function POST(req: NextRequest) {
+  const body = await req.json().catch(() => null);
+  if (!body) {
+    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
+  }
+
+  const {
+    customerName,
+    customerPhone,
+    customerEmail,
+    pickupAddress,
+    moveDate,
+    timeWindow,
+    details,
+    city,
+    pickupLat,
+    pickupLng,
+    source,
+    serviceLine,
+  } = body;
+
+  // Everything every job has, whichever business it belongs to.
+  const requiredFields: Record<string, unknown> = {
+    customerName,
+    customerPhone,
+    pickupAddress,
+    moveDate,
+    timeWindow,
+  };
+  for (const [field, value] of Object.entries(requiredFields)) {
+    if (!isFilled(value)) {
+      return NextResponse.json({ error: missing(field) }, { status: 400 });
+    }
+  }
+
+  // A bare "YYYY-MM-DD" is parsed as UTC midnight, which reads back as the
+  // previous day anywhere west of Greenwich — a move booked for Sunday would
+  // show up in dispatch as Saturday and a crew would arrive a day early. Pin
+  // date-only values to local noon instead, which is far enough from either
+  // midnight to survive DST shifts.
+  const dateOnly = /^\d{4}-\d{2}-\d{2}$/.exec(String(moveDate));
+  const parsedDate = dateOnly ? new Date(`${moveDate}T12:00:00`) : new Date(moveDate);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return NextResponse.json({ error: "Invalid move date." }, { status: 400 });
+  }
+
+  // Unrecognised (or absent, on every booking taken before the landscaping
+  // pivot) means a move — the same reading the schema default takes.
+  const line =
+    typeof serviceLine === "string" && isServiceLineValue(serviceLine)
+      ? serviceLine
+      : DEFAULT_SERVICE_LINE;
+
+  const built =
+    line === "LANDSCAPING" ? buildLandscapingBooking(body) : buildMoveBooking(body);
+  if (!built.ok) {
+    return NextResponse.json({ error: built.error }, { status: 400 });
+  }
 
   const booking = await prisma.booking.create({
     data: {
       customerName,
       customerPhone,
-      customerEmail: typeof customerEmail === "string" && customerEmail ? customerEmail : null,
-      pickupAddress,
-      dropoffAddress: typeof dropoffAddress === "string" && dropoffAddress.trim()
-        ? dropoffAddress
-        : null,
-      dropoffMode: mode,
+      customerEmail: isFilled(customerEmail) ? customerEmail : null,
       moveDate: parsedDate,
       timeWindow,
-      moveSize,
-      serviceType,
-      serviceTypeOther: serviceType === "OTHER" ? serviceTypeOther : null,
-      needsHelper,
-      details: typeof details === "string" && details ? details : null,
+      details: isFilled(details) ? details : null,
       city: typeof city === "string" && getCity(city) ? city : null,
       source: typeof source === "string" && isSourceValue(source) ? source : null,
-      estimateLow,
-      estimateHigh,
       pickupLat: num(pickupLat),
       pickupLng: num(pickupLng),
-      dropoffLat: num(dropoffLat),
-      dropoffLng: num(dropoffLng),
-      distanceMiles: num(distanceMiles),
-      vehicleTier: tier,
       manageToken: generateManageToken(),
+      ...built.data,
     },
   });
 

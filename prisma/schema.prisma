@@ -20,6 +20,10 @@ datasource db {
 // Booking serviceType: SINGLE_ITEM | APARTMENT_HOUSE | STORAGE | OFFICE |
 // DONATION | OTHER (see src/lib/serviceTypes.ts)
 // payoutMethod: ZELLE | VENMO | APPLE_PAY (see src/lib/payoutMethods.ts)
+// Booking serviceLine: LANDSCAPING | MOVING | JUNK (see src/lib/serviceLines.ts)
+// Booking yardSize: SMALL | MEDIUM | LARGE | XL, landscapingService:
+// MOW_EDGE_BLOW | CLEANUP | TRIM_HAUL | INSTALL, frequency: ONE_TIME | WEEKLY |
+// BIWEEKLY | MONTHLY (all three: see src/lib/landscaping.ts)
 
 model Driver {
   id            String    @id @default(cuid())
@@ -81,10 +85,28 @@ model Booking {
   distanceMiles   Float?
   vehicleTier     String?
 
-  moveSize        String
+  // Which of the three businesses this job belongs to. It decides which of
+  // the fields below mean anything: a yard job has yardSize and no vehicle
+  // tier or route, a move has moveSize and a distance. Defaulted rather than
+  // nullable so every booking taken before the landscaping pivot reads back
+  // as what it was — a move.
+  serviceLine     String    @default("MOVING")
+
+  // Moving and junk jobs. Nullable since the landscaping pivot: a lawn has no
+  // move size.
+  moveSize        String?
   serviceType     String?
   serviceTypeOther String?
   needsHelper     Boolean   @default(true)
+
+  // Landscaping jobs. The price is flat per (service x yard size), so unlike a
+  // move there's no range: estimateLow and estimateHigh both hold the per-visit
+  // price. frequency is what the customer signed up for — a recurring plan is
+  // one Booking row for the first visit, with dispatch repeating it.
+  landscapingService String?
+  yardSize        String?
+  frequency       String?
+
   details         String?
   // Which marketing channel this lead came from, tracked the same way as
   // DriverApplication.source: /book?source=<value>. See src/lib/sources.ts.

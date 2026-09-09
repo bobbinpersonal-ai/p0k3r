@@ -10,7 +10,14 @@ import { useState } from "react";
 // of this app goes out of its way to avoid, so a dispatcher confirms it
 // same as they confirm the original booking.
 
-export default function ManageActions({ token }: { token: string }) {
+export default function ManageActions({
+  token,
+  noun,
+}: {
+  token: string;
+  /** What this booking is — "move", "yard service", "junk removal". */
+  noun: string;
+}) {
   const [mode, setMode] = useState<"idle" | "reschedule" | "canceling">("idle");
   const [note, setNote] = useState("");
   const [done, setDone] = useState<"canceled" | "requested" | null>(null);
@@ -74,7 +81,7 @@ export default function ManageActions({ token }: { token: string }) {
             onClick={() => setMode("canceling")}
             className="rounded-full border border-black/15 px-5 py-2.5 text-sm font-semibold text-neutral-500 transition hover:border-red-300 hover:text-red-600"
           >
-            Cancel this move
+            Cancel this {noun}
           </button>
         </div>
       )}
@@ -114,7 +121,9 @@ export default function ManageActions({ token }: { token: string }) {
 
       {mode === "canceling" && (
         <div className="rounded-2xl border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-ink">Cancel this move? This can&apos;t be undone from here.</p>
+          <p className="text-sm text-ink">
+            Cancel this {noun}? This can&apos;t be undone from here.
+          </p>
           <div className="mt-3 flex items-center gap-4">
             <button
               type="button"

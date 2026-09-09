@@ -3,6 +3,12 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import { prisma } from "@/lib/prisma";
 import { getServiceTypeLabel } from "@/lib/serviceTypes";
+import { getServiceLine, isLandscaping } from "@/lib/serviceLines";
+import {
+  getFrequency,
+  getLandscapingServiceLabel,
+  getYardSizeLabel,
+} from "@/lib/landscaping";
 import ManageActions from "./ManageActions";
 
 // The link every booking-confirmation message includes. Looked up by the
@@ -19,12 +25,18 @@ export default async function ManageBookingPage({
   if (!booking) notFound();
 
   const isFinal = booking.status === "CANCELED" || booking.status === "COMPLETED";
+  const yard = isLandscaping(booking.serviceLine);
+  const noun = getServiceLine(booking.serviceLine).noun;
+  const cadence = booking.frequency ? getFrequency(booking.frequency) : undefined;
+  const recurring = cadence?.visitsPerMonth != null;
 
   return (
     <>
       <SiteHeader />
       <main className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
-        <h1 className="text-3xl font-extrabold tracking-tight text-ink">Your move</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight text-ink">
+          Your {noun}
+        </h1>
         <p className="mt-2 text-neutral-500">
           {booking.status === "CANCELED"
             ? "This booking has been canceled."
@@ -36,7 +48,7 @@ export default async function ManageBookingPage({
         <div className="mt-8 rounded-2xl border border-black/10 bg-black/[0.03] p-6">
           <dl className="space-y-3 text-sm">
             <div className="flex justify-between gap-4">
-              <dt className="text-neutral-400">Date</dt>
+              <dt className="text-neutral-400">{recurring ? "Next visit" : "Date"}</dt>
               <dd className="font-medium text-ink">
                 {booking.moveDate.toLocaleDateString(undefined, {
                   weekday: "short",
@@ -49,35 +61,64 @@ export default async function ManageBookingPage({
               <dt className="text-neutral-400">Window</dt>
               <dd className="font-medium text-ink">{booking.timeWindow}</dd>
             </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-neutral-400">Pickup</dt>
-              <dd className="text-right font-medium text-ink">{booking.pickupAddress}</dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-neutral-400">Drop-off</dt>
-              <dd className="text-right font-medium text-ink">
-                {booking.dropoffAddress ?? "No drop-off — on-site job"}
-              </dd>
-            </div>
-            {booking.serviceType && (
-              <div className="flex justify-between gap-4">
-                <dt className="text-neutral-400">Service</dt>
-                <dd className="text-right font-medium text-ink">
-                  {getServiceTypeLabel(booking.serviceType)}
-                  {booking.serviceTypeOther ? ` — ${booking.serviceTypeOther}` : ""}
-                </dd>
-              </div>
+            {yard ? (
+              <>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-neutral-400">Address</dt>
+                  <dd className="text-right font-medium text-ink">{booking.pickupAddress}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-neutral-400">Service</dt>
+                  <dd className="text-right font-medium text-ink">
+                    {getLandscapingServiceLabel(booking.landscapingService)} ·{" "}
+                    {getYardSizeLabel(booking.yardSize)} yard
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-neutral-400">How often</dt>
+                  <dd className="text-right font-medium text-ink">
+                    {cadence?.label ?? "Just this once"}
+                  </dd>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-neutral-400">Pickup</dt>
+                  <dd className="text-right font-medium text-ink">{booking.pickupAddress}</dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-neutral-400">Drop-off</dt>
+                  <dd className="text-right font-medium text-ink">
+                    {booking.dropoffAddress ?? "No drop-off — on-site job"}
+                  </dd>
+                </div>
+                {booking.serviceType && (
+                  <div className="flex justify-between gap-4">
+                    <dt className="text-neutral-400">Service</dt>
+                    <dd className="text-right font-medium text-ink">
+                      {getServiceTypeLabel(booking.serviceType)}
+                      {booking.serviceTypeOther ? ` — ${booking.serviceTypeOther}` : ""}
+                    </dd>
+                  </div>
+                )}
+              </>
             )}
             <div className="flex justify-between gap-4">
-              <dt className="text-neutral-400">Estimate</dt>
+              <dt className="text-neutral-400">{yard ? "Price" : "Estimate"}</dt>
               <dd className="font-mono font-medium text-brand-cyan">
-                ${booking.estimateLow}–${booking.estimateHigh}
+                {/* Flat landscaping pricing stores the same number at both ends
+                    (see the bookings API), so a range would read "$60–$60". */}
+                {booking.estimateLow === booking.estimateHigh
+                  ? `$${booking.estimateLow}`
+                  : `$${booking.estimateLow}–$${booking.estimateHigh}`}
+                {recurring ? " per visit" : ""}
               </dd>
             </div>
           </dl>
         </div>
 
-        {!isFinal && <ManageActions token={booking.manageToken} />}
+        {!isFinal && <ManageActions token={booking.manageToken} noun={noun} />}
       </main>
       <SiteFooter />
     </>

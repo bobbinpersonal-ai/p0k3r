@@ -22,18 +22,18 @@ const RECRUITING_CITIES_SENTENCE = new Intl.ListFormat("en", {
 }).format(RECRUITING_CITY_NAMES);
 
 export const metadata: Metadata = {
-  title: `Drive for ${SITE_NAME} | Flexible moving gig work`,
-  description: `Earn on your own schedule moving your neighbors. Own a pickup, cargo van, or box truck? Apply to drive for ${SITE_NAME}.`,
+  title: `Work with ${SITE_NAME} | Flexible yard and moving gig work`,
+  description: `Earn on your own schedule doing yard work, moving and hauling for your neighbors. Truck or no truck — apply to work with ${SITE_NAME}.`,
 };
 
 const WHAT_TO_EXPECT = [
   {
     title: "You're dispatched every morning",
-    body: "Each morning, your dispatcher lines up your move for the day and gets you on the road.",
+    body: "Each morning, your dispatcher lines up your jobs for the day — yards, moves, hauls — and gets you on the road.",
   },
   {
     title: "You do the job",
-    body: "Show up, load up, and get the move done with your driver or helper partner.",
+    body: "Show up, do the work, and get it done with your driver or helper partner.",
   },
   {
     title: "You're paid out by 5pm (or sooner)",
@@ -60,7 +60,7 @@ const PERKS = [
   },
   {
     title: "Gear on us",
-    body: "Finish your first 3 moves and we'll ship you a shirt and merch, free.",
+    body: "Finish your first 3 jobs and we'll ship you a shirt and merch, free.",
   },
   {
     title: "We cover your gas",
@@ -108,13 +108,22 @@ export default function DrivePage({
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
                 {/* Solid color, not gradient bg-clip-text — see the comment on
                     the homepage's headline for why. */}
-                Put your truck to work,{" "}
-                <span className="text-brand-cyan">make $25+ an hour.</span>
+                Yards, moves and hauls.{" "}
+                <span className="text-brand-cyan">$19–$32 an hour.</span>
               </h1>
               <p className="mt-6 text-lg text-neutral-500">
-                Drive your own truck, van, or pickup and earn $25–$32/hour, or bring the
-                muscle as a helper at $19/hour — no vehicle needed. Tips are on top
-                either way.
+                Most of our work is yard work — mowing, cleanups, hauling green waste — with
+                moving and junk runs alongside it. Drive your own truck, van or pickup and
+                earn $25–$32/hour, or bring the muscle as a helper at $19/hour, no vehicle
+                needed. Tips are on top either way.
+              </p>
+              {/* Said plainly near the top: a weekly mowing route is a
+                  fundamentally better offer than one-off moving gigs — the
+                  same yards, the same day each week — and it's the reason
+                  someone would pick this over the other gig apps. */}
+              <p className="mt-3 text-neutral-500">
+                Recurring yard routes mean the same yards on the same day each week — steady
+                hours you can plan around, not just whatever came in today.
               </p>
               <div className="mt-6">
                 <FleetIcons showRates />
@@ -193,7 +202,7 @@ export default function DrivePage({
               If you want to work, there&apos;s a place for you here.
             </h2>
             <p className="mt-4 max-w-2xl text-neutral-500">
-              We&apos;re not just filling moving jobs — we want to be a fast, honest way for
+              We&apos;re not just filling jobs — we want to be a fast, honest way for
               people in {RECRUITING_CITIES_SENTENCE} to find real work the moment they
               need it. No stressful screening, no long hiring pipeline. We take everyone who
               wants to work — a dispatcher gets back to you and gets you onboarded, usually
@@ -260,12 +269,13 @@ export default function DrivePage({
               Be a helper. Ride shotgun.
             </h2>
             <p className="mt-4 max-w-2xl text-neutral-500">
-              Every move needs muscle as much as it needs a truck. No vehicle required — just
-              show up ready to work.
+              Yards and moves both need muscle as much as they need a truck. No vehicle
+              required — just show up ready to work.
             </p>
             <ul className="mt-4 max-w-2xl space-y-2.5">
               {[
-                "Load, carry, and wrap furniture so the move goes fast and nothing gets damaged",
+                "Mow, edge, rake and clear on yard jobs — we bring the gear",
+                "Load, carry, and wrap furniture so a move goes fast and nothing gets damaged",
                 "Paired with a driver every job — you're never doing this solo",
                 "Pick a meetup spot with your driver each morning and head out together",
                 "Split the job, split the pay",

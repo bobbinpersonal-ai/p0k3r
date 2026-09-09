@@ -1,30 +1,57 @@
-# p0k3r Moving
+# LoveMeAfter
 
-A booking + dispatch web app for an on-demand moving marketplace (think Dolly / Lugg):
-customers request a move on the website, a dispatcher assigns it to an independent
-mover/driver, and the driver handles the move with their own vehicle. No native app yet —
-this is the fastest path to taking real bookings today; a driver-facing app is a natural
-next step (see Roadmap).
+A booking + dispatch web app for a local services business running **three lines off one
+crew and one dispatch board**:
+
+| Line | Front door | Booking flow | Priced by |
+| --- | --- | --- | --- |
+| **Landscaping** (the main business) | `/` | `/yard` | flat, per service x yard size |
+| Moving | `/moving` | `/book` | hours + miles |
+| Junk removal | `/junk-removal` | `/book?job=JUNK_REMOVAL` | hours + miles |
+
+Customers book on the website, a dispatcher assigns the job to a crew member, and the
+crew does it with their own vehicle. No native app yet — this is the fastest path to
+taking real bookings today; a crew-facing app is a natural next step (see Roadmap).
+
+Every booking carries a `serviceLine` (`src/lib/serviceLines.ts`) that decides which of
+its columns mean anything, which flow created it, and how dispatch and the automated
+messages talk about it. Rows written before the landscaping pivot read back as `MOVING`,
+which is what they were.
 
 Stack: Next.js 14 (App Router) + TypeScript + Tailwind CSS + Prisma + Postgres.
 
 ## What's here
 
-- **`/`** — marketing landing page (hero, how it works, pricing tiers, CTA)
-- **`/movers/[city]`** — one landing page per launch market, meant as Google Ads
+- **`/`** — the landscaping home page: a live price finder above the fold, the four
+  services and what each includes, and **the entire price list in public** (every
+  service x every yard size). Publishing the prices is the pitch — every competitor
+  in this market quotes after a site visit.
+- **`/yard`** — the landscaping booking flow (5 steps: service → size + cadence →
+  address → time → contact). Accepts `?service=`, `?size=`, `?frequency=`,
+  `?address=`, `?city=` and `?source=`, so a card or the hero widget can answer the
+  first questions before the customer arrives.
+- **`/landscaping/[city]`** — one landscaping landing page per market, with that
+  city's own yard copy and the full price table.
+- **`/moving`** — the moving landing page (what used to be the home page).
+- **`/junk-removal`** — the junk-removal landing page: load sizes priced off the
+  same model `/book` uses, plus what we will and won't take.
+- **`/movers/[city]`** — one moving landing page per launch market, meant as Google Ads
   landing pages (see below): `/movers/davis`, `/movers/sacramento`, `/movers/bay-area`.
-  Add a city by adding one entry to `src/lib/cities.ts` — the page, sitemap entry, and
-  homepage link all follow automatically.
-- **`/book`** — customer booking form with an instant price range; accepts `?city=` and
-  `?size=` query params to prefill from a city page or pricing card
+  Add a city by adding one entry to `src/lib/cities.ts` (with both a `blurb` and a
+  `yardBlurb`) — the moving page, the landscaping page and the homepage link all
+  follow automatically.
+- **`/book`** — the moving/junk booking form with an instant price range; accepts
+  `?city=`, `?size=` and `?job=` query params to prefill from a landing page or card
 - **`/book/confirmation`** — confirmation screen after a booking is submitted
 - **`/manage/[token]`** — the link every booking confirmation/reminder includes; lets a
   customer cancel or request a reschedule without calling in (see "Notifications" below)
-- **`/drive`** — recruiting page for prospective movers/drivers (flexible-schedule,
-  bring-your-own-vehicle pitch) with an application form; accepts `?city=`
+- **`/drive`** — recruiting page for prospective crew (flexible-schedule,
+  bring-your-own-vehicle pitch, now leading with yard work and recurring routes)
+  with an application form; accepts `?city=`
 - **`/admin`** — password-protected sign-in for dispatch
-- **`/admin/dashboard`** — dispatch board: see incoming bookings (tagged by city when
-  known), assign a driver, update status (Pending → Assigned → In Progress →
+- **`/admin/dashboard`** — dispatch board: see incoming bookings (tagged by service
+  line and by city when known — a yard job shows its service, size and cadence; a
+  move shows its addresses and size), assign a driver, update status (Pending → Assigned → In Progress →
   Completed/Canceled), review pending driver applicants (Approve turns one into a
   Driver automatically), manage the driver roster
 
@@ -217,6 +244,36 @@ which kind of job it was, and the client writes a readable label
 ("Same address — on-site job") so dispatch never reads a blank field.
 
 ## Pricing
+
+Two models, on purpose, because the two businesses sell differently.
+
+### Landscaping — flat, and published
+
+`src/lib/landscaping.ts` holds one flat price per (service x yard size). A yard-work
+customer wants **one number before they'll call anyone**, and the job repeats every
+week, so a range would be re-negotiated every visit. Recurring plans discount the
+per-visit price: weekly -20%, every-other-week -10%, monthly 0% — monthly is
+deliberately *not* discounted, because by week four the grass is as long as a one-off's
+and the visit costs the same. Discounting it anyway would be pricing a favour the crew
+pays for.
+
+The prices themselves are **business decisions**, not derived numbers. But `COST_MODEL`
+in the same file records what each job actually takes (person-hours low/high, crew size,
+and the supplies/dump fees that come out before anyone is paid), and the invariant check
+asserts that **every** service x size x cadence still clears the crew wage floor at the
+*slow* end of its hours estimate:
+
+```
+crew payout      = price x (1 - platform rate)
+per person-hour  = (crew payout - supplies) / hours.high   >=  $19
+```
+
+All 64 combinations pass with room to spare — the tightest is a weekly medium mow at
+about $28/person-hour, against a $19 floor. Change a price and that check tells you
+whether you just priced a job below what it costs to do. The floor is $19 because that
+is the lowest wage `/drive` advertises.
+
+### Moving and junk — built up from cost
 
 `src/lib/pricing.ts` prices a job from what it costs to do it, rather than from a
 flat table:

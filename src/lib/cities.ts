@@ -1,11 +1,21 @@
-// Launch markets. Add a city here and a page appears at /movers/<slug>
-// automatically — no other code changes needed.
+// Launch markets. Add a city here and two pages appear automatically — no
+// other code changes needed:
+//
+//   /movers/<slug>       the moving page, off `blurb`
+//   /landscaping/<slug>  the yard page, off `yardBlurb`
+//
+// Both are required rather than one falling back to the other. A moving blurb
+// on a lawn-care page ("student move-outs, apartment turns near campus") is
+// worse than no page at all: it reads as a template someone forgot to fill in,
+// which is exactly the impression a local-services company can least afford.
 
 export type City = {
   slug: string;
   name: string;
   region: string;
   blurb: string;
+  /** The same thing for the landscaping page. What the yards here are like. */
+  yardBlurb: string;
   neighborhoods: string[];
   // Hyper-local angle shown as its own section on the city's booking page
   // and (when that city is selected) on the /drive recruiting page.
@@ -33,6 +43,8 @@ export const CITIES: City[] = [
     region: "Yolo County",
     blurb:
       "Student move-outs, apartment turns near campus, and family moves across town — booked in minutes.",
+    yardBlurb:
+      "Student rentals with lawns nobody signed up to mow, and long-established gardens on the older streets. Weekly and every-other-week plans across town.",
     neighborhoods: ["Downtown Davis", "East Davis", "West Davis", "UC Davis campus"],
     community: {
       heading: "Staffed by Davis, for Davis",
@@ -45,6 +57,8 @@ export const CITIES: City[] = [
     region: "Sacramento County",
     blurb:
       "Local movers for Midtown apartments, suburban houses, and everything in between the greater Sacramento area.",
+    yardBlurb:
+      "Midtown strips, East Sac lawns under the tree canopy, and big Natomas and Elk Grove back yards. Mowing, cleanups and green-waste hauling at a flat price.",
     neighborhoods: ["Midtown", "East Sacramento", "Land Park", "Natomas", "Elk Grove", "Sac State"],
     community: {
       heading: "Staffed by Sacramento, for Sacramento",
@@ -57,6 +71,8 @@ export const CITIES: City[] = [
     region: "San Francisco Bay Area",
     blurb:
       "Movers who know Bay Area buildings — walk-ups, tight street parking, and elevator reservations included.",
+    yardBlurb:
+      "Small city yards where every inch counts, plus the bigger suburban lots out east. Mowing, hedge trimming and full cleanups, priced before we come out.",
     neighborhoods: [
       "San Francisco",
       "Oakland",
@@ -76,6 +92,8 @@ export const CITIES: City[] = [
     region: "San Joaquin County",
     blurb:
       "Local movers for Stockton apartments, Central Valley homes, and everything in between — booked in minutes.",
+    yardBlurb:
+      "Valley lawns that grow fast from March through October, plus the overgrown rentals and side yards that need clearing before they can be kept.",
     neighborhoods: [
       "Downtown Stockton",
       "Lincoln Village",
@@ -94,6 +112,8 @@ export const CITIES: City[] = [
     region: "Stanislaus County",
     blurb:
       "Local movers for Modesto apartments, Central Valley homes, and single big items — booked in minutes.",
+    yardBlurb:
+      "Stanislaus County heat means grass that needs a weekly cut half the year. Regular mowing plans, one-off cleanups, and hauling the green waste away.",
     neighborhoods: [
       "Downtown Modesto",
       "College Area",
@@ -112,6 +132,8 @@ export const CITIES: City[] = [
     region: "San Joaquin County",
     blurb:
       "Local movers for Manteca homes and apartments, plus quick hauls across the 99 corridor — booked in minutes.",
+    yardBlurb:
+      "Newer subdivisions with front lawns to keep, and older lots with fence lines and shrubs that need cutting back. Both priced by yard size.",
     neighborhoods: ["Downtown Manteca", "Woodward Park", "Union Ranch", "Lathrop", "Ripon"],
     community: {
       heading: "Staffed by Manteca, for Manteca",
@@ -124,6 +146,8 @@ export const CITIES: City[] = [
     region: "Sacramento County",
     blurb:
       "Local movers for Elk Grove houses, apartments, and storage runs across south Sacramento — booked in minutes.",
+    yardBlurb:
+      "Big suburban back yards, side gates and long fence lines. Weekly mowing plans, seasonal cleanups, and mulch or sod when the lawn's had enough.",
     neighborhoods: [
       "Old Town Elk Grove",
       "Laguna West",
@@ -143,6 +167,8 @@ export const CITIES: City[] = [
     region: "Los Angeles County",
     blurb:
       "Movers for LA apartments, hillside homes, and everything from Downtown to the Valley — booked in minutes.",
+    yardBlurb:
+      "From Valley lawns to hillside slopes and small Westside yards. Mowing, trimming and clearing, with the price on the screen before anyone drives out.",
     neighborhoods: [
       "Downtown LA",
       "Hollywood",
@@ -163,6 +189,8 @@ export const CITIES: City[] = [
     region: "Merced County",
     blurb:
       "Local movers for Merced apartments, Central Valley homes, and UC Merced move-ins and move-outs.",
+    yardBlurb:
+      "Central Valley yards that need a cut most of the year, UC Merced rentals, and the overgrowth that builds up on a vacant lot over a season.",
     neighborhoods: ["Downtown Merced", "UC Merced", "North Merced", "Bear Creek"],
     community: {
       heading: "Staffed by Merced, for Merced",
@@ -175,6 +203,8 @@ export const CITIES: City[] = [
     region: "Monterey County",
     blurb:
       "Local movers for Salinas homes and apartments, from Downtown to the Alisal — booked in minutes.",
+    yardBlurb:
+      "Coastal weather keeps things growing year-round here. Regular mowing, hedge work, and clearing yards that have got away over a wet winter.",
     neighborhoods: ["Downtown Salinas", "Alisal", "Northridge", "Harden Ranch"],
     community: {
       heading: "Staffed by Salinas, for Salinas",
