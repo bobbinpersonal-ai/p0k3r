@@ -56,9 +56,25 @@ Stack: Next.js 14 (App Router) + TypeScript + Tailwind CSS + Prisma + Postgres.
   Driver automatically), manage the driver roster
 
 Bookings, drivers, and applications are stored in Postgres via Prisma
-(`prisma/schema.prisma`). The `build` script runs `prisma db push` before
-`next build`, so the schema syncs to the database automatically on every
-deploy — no separate migration step to run by hand.
+(`prisma/schema.prisma`). The `build` script syncs the schema to the database
+before `next build`, so there's no separate migration step to run by hand.
+
+That sync goes through `scripts/db-push.mjs` rather than calling `prisma db
+push` directly, because the raw command can hang a deploy indefinitely. A
+deploy that only changes frontend code finds the schema already in sync and
+exits in milliseconds; the first one that actually alters a table runs real
+DDL, and an `ALTER TABLE` blocked on a lock held by another connection waits
+with **no timeout and no output**. The build log stops after Prisma prints the
+datasource line and the deploy dies of old age with nothing saying why. (This
+took the site down once — production sat two days stale while every new deploy
+timed out silently.) The script closes off all three ways that happens: DDL
+always goes to the direct host rather than a pooled one, `lock_timeout` and
+`statement_timeout` turn a blocked statement into a real error in seconds, and
+a wall-clock kill catches anything that stalls before Postgres is reached.
+
+Set `ALLOW_PARTIAL_DEPLOY=1` to let a failed push through. The site deploys
+with a stale schema — every static page works, anything touching a new column
+500s — which beats no deploy at all when you need the marketing pages live.
 
 ## Run it locally
 
