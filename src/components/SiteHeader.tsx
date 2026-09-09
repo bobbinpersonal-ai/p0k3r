@@ -84,7 +84,12 @@ export default function SiteHeader({
         className={
           isLight
             ? "fixed inset-x-0 top-0 z-50 bg-transparent"
-            : "fixed inset-x-0 top-0 z-50 border-b border-black/10 bg-paper/80 backdrop-blur"
+            : // Solid, not translucent+blurred: a fixed header with
+              // backdrop-blur sitting over smooth-scrolling content is a
+              // well-documented WebKit compositor bug (see globals.css) —
+              // worth staying away from the trigger entirely, not just the
+              // scroll-behavior half of it, on older/weaker GPUs.
+              "fixed inset-x-0 top-0 z-50 border-b border-black/10 bg-paper"
         }
       >
         {content}

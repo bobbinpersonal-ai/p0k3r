@@ -32,6 +32,16 @@ body {
   box-shadow: 0 0 0 1px rgba(240, 69, 90, 0.12), 0 0 40px -10px rgba(240, 69, 90, 0.3);
 }
 
+/* The soft ambient glow behind hero copy, drawn as a gradient instead of a
+   solid circle + filter: blur(120px). The blurred version rasterizes a huge
+   shape every frame it's on screen — expensive on any GPU, and one more
+   thing that's misbehaved on old/weak ones in the past (see SiteHeader.tsx,
+   HeroQuoteForm.tsx). A radial gradient paints the same soft-edged glow
+   directly, no blur pass needed. */
+.glow-blob {
+  background: radial-gradient(circle, rgba(240, 69, 90, 0.22) 0%, rgba(240, 69, 90, 0.1) 40%, transparent 72%);
+}
+
 @keyframes float {
   0%,
   100% {

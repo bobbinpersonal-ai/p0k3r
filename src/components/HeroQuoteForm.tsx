@@ -34,7 +34,11 @@ export default function HeroQuoteForm({ city }: { city?: string }) {
   return (
     <form
       onSubmit={submit}
-      className="mt-8 rounded-2xl border border-black/10 bg-paper/70 p-3 shadow-lg backdrop-blur sm:p-4"
+      // Solid rather than translucent+blurred, sitting over the hero video —
+      // backdrop-filter is one of the more inconsistently-supported effects
+      // on older Safari/GPU combinations, and this card needs to read
+      // clearly regardless of what's playing behind it anyway.
+      className="mt-8 rounded-2xl border border-black/10 bg-paper p-3 shadow-lg sm:p-4"
     >
       {/* The jobs we do, before we ask anyone for an address. Most paid traffic
           lands here from a Marketplace ad, and the first thing that has to
