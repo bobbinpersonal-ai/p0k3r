@@ -302,6 +302,14 @@ export default function HomePage({
                       alt={member.name}
                       fill
                       sizes="176px"
+                      // Loaded eagerly rather than the default lazy — these
+                      // sit in a horizontally-scrolling row, a layout where
+                      // lazy-load's intersection check has been flakier in
+                      // practice than a normal vertical scroll, and the six
+                      // photos are compressed enough now (see crew-*.jpg)
+                      // that loading all of them costs less than one of the
+                      // old uncompressed originals did.
+                      loading="eager"
                       className="object-cover"
                     />
                   </div>
