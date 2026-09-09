@@ -80,10 +80,10 @@ export default function CityLandingPage({ params }: { params: { city: string } }
                 Now booking in {city.name}
               </p>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
+                {/* Solid color, not gradient bg-clip-text — see the comment on
+                    the homepage's headline for why. */}
                 Movers in {city.name},{" "}
-                <span className="bg-gradient-to-r from-brand-light via-orange-400 to-brand-cyan bg-clip-text text-transparent">
-                  booked in minutes.
-                </span>
+                <span className="text-brand-cyan">booked in minutes.</span>
               </h1>
               <p className="mt-6 text-lg text-neutral-500">{city.blurb}</p>
               <div className="mt-10 flex flex-wrap gap-4">

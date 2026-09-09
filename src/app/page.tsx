@@ -173,10 +173,12 @@ export default function HomePage({
                 </div>
               </div>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-6xl">
+                {/* Solid color, not a gradient bg-clip-text: -webkit-background-clip: text
+                    is genuinely fragile on older Safari/iPadOS — the gradient mask and the
+                    text glyphs can fall out of sync and part of the word renders invisible.
+                    That's what "the text cuts" turned out to be, on exactly this span. */}
                 Whatever&apos;s next,{" "}
-                <span className="bg-gradient-to-r from-brand-light via-orange-400 to-brand-cyan bg-clip-text text-transparent">
-                  we&apos;ll carry it.
-                </span>
+                <span className="text-brand-cyan">we&apos;ll carry it.</span>
               </h1>
               {/* Three concrete mechanisms, no adjectives, and no price claim.
                   The same page has to land in Pacific Heights and in Stockton:

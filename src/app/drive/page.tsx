@@ -106,10 +106,10 @@ export default function DrivePage({
                 Now recruiting{city ? ` in ${city.name}` : ` · ${RECRUITING_CITIES_BADGE}`}
               </p>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
+                {/* Solid color, not gradient bg-clip-text — see the comment on
+                    the homepage's headline for why. */}
                 Put your truck to work,{" "}
-                <span className="bg-gradient-to-r from-brand-light via-orange-400 to-brand-cyan bg-clip-text text-transparent">
-                  make $25+ an hour.
-                </span>
+                <span className="text-brand-cyan">make $25+ an hour.</span>
               </h1>
               <p className="mt-6 text-lg text-neutral-500">
                 Drive your own truck, van, or pickup and earn $25–$32/hour, or bring the
