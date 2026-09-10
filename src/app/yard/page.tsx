@@ -42,6 +42,19 @@ export default function YardPage({
   const addressParam = searchParams.address;
   const initialAddress = typeof addressParam === "string" ? addressParam : undefined;
 
+  // A real GPS fix from the hero's "use my location". Accepted only as a pair
+  // of finite numbers in range — this decides where we look up the parcel, and
+  // a junk value would either miss or, worse, hit somebody else's lot.
+  const lat = Number(searchParams.lat);
+  const lng = Number(searchParams.lng);
+  const initialPoint =
+    Number.isFinite(lat) &&
+    Number.isFinite(lng) &&
+    Math.abs(lat) <= 90 &&
+    Math.abs(lng) <= 180
+      ? { lat, lng }
+      : undefined;
+
   const cityParam = searchParams.city;
   const city = typeof cityParam === "string" ? getCity(cityParam) : undefined;
 
@@ -59,6 +72,7 @@ export default function YardPage({
           initialYardSize={initialYardSize}
           initialFrequency={initialFrequency}
           initialAddress={initialAddress}
+          initialPoint={initialPoint}
           city={city?.slug}
           source={source}
         />

@@ -28,6 +28,15 @@ export type LocationFill = {
   city: string;
   zip: string;
   precision: "address" | "street" | "area";
+  /**
+   * The fix this came from.
+   *
+   * Worth more than the text for pricing: a GPS reading is the actual building,
+   * where re-geocoding the words we just wrote into the form can land on a town
+   * centre and take the parcel lookup (src/lib/parcel.ts) with it. Callers that
+   * care about the yard should use this and skip geocoding entirely.
+   */
+  point: { lat: number; lng: number };
 };
 
 export default function UseMyLocationButton({
@@ -93,12 +102,20 @@ export default function UseMyLocationButton({
             }),
           });
           if (!res.ok) return fail("Couldn't look that up — type your address instead.");
-          const { result } = (await res.json()) as { result: LocationFill | null };
+          const { result } = (await res.json()) as {
+            result: Omit<LocationFill, "point"> | null;
+          };
           if (!mounted.current) return;
           if (!result || (!result.street && !result.city && !result.zip)) {
             return fail("We couldn't place you — type your address instead.");
           }
-          onResolved(result);
+          onResolved({
+            ...result,
+            point: {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            },
+          });
           setStatus("done");
           const where = [result.street, result.city, result.zip].filter(Boolean).join(", ");
           setMessage(

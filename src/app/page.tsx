@@ -67,7 +67,11 @@ export default function HomePage({
               videoClassName="absolute inset-0 h-full w-full object-cover object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-b from-paper/90 via-paper/60 to-paper/20 lg:hidden" />
-            <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-paper via-paper/85 to-paper/35" />
+            {/* Heavy on the left where the headline sits, and nearly clear on
+                the right where the quote form does — the form is translucent
+                now, so scrimming that side would just fog the footage the
+                customer is meant to see through it. */}
+            <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-paper via-paper/80 to-paper/5" />
             <div className="absolute inset-0 hidden lg:block bg-gradient-to-t from-paper via-transparent to-paper/25" />
           </div>
           <div className="relative mx-auto max-w-6xl px-4 pt-28 pb-12 sm:px-6 sm:pb-16 lg:pt-40">

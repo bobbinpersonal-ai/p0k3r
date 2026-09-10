@@ -62,6 +62,28 @@ export function hasAnyAddress(a: StructuredAddress): boolean {
   return Boolean(a.street.trim() || a.city.trim() || a.zip.trim());
 }
 
+/**
+ * Enough to place the property on the map, even without a house number.
+ *
+ * The yard flow uses this instead of isCompleteAddress to decide whether
+ * someone can move on. A ZIP or a town is enough to look up the county, size
+ * the yard and price the job — a house number only matters to the driver on
+ * the day. Blocking a quote on it turns a 30-second job into a form argument
+ * with someone who hasn't been told a price yet, so the flow lets them
+ * through and asks once, at the end, when they've decided they want it.
+ */
+export function isLocatableAddress(a: StructuredAddress): boolean {
+  return isValidZip(a.zip) || a.city.trim().length >= 2;
+}
+
+/** The bit a crew needs to actually find the door, missing from `a`. */
+export function missingDoorFields(a: StructuredAddress): string[] {
+  const missing: string[] = [];
+  if (a.street.trim().length < 3) missing.push("street address");
+  if (!isValidZip(a.zip)) missing.push("5-digit ZIP");
+  return missing;
+}
+
 function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }

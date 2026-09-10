@@ -28,6 +28,9 @@ export default function YardQuoteStarter({ city }: { city?: string }) {
   const router = useRouter();
   const [address, setAddress] = useState("");
   const [service, setService] = useState<LandscapingServiceValue | null>(null);
+  // Held from "use my location" so the flow can price off the real fix rather
+  // than re-geocoding the text we just wrote into the box.
+  const [point, setPoint] = useState<{ lat: number; lng: number } | null>(null);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -35,16 +38,25 @@ export default function YardQuoteStarter({ city }: { city?: string }) {
     if (address.trim()) params.set("address", address.trim());
     if (service) params.set("service", service);
     if (city) params.set("city", city);
+    if (point) {
+      params.set("lat", String(point.lat));
+      params.set("lng", String(point.lng));
+    }
     router.push(`/yard?${params.toString()}`);
   }
 
   return (
     <form
       onSubmit={submit}
-      className="mt-8 rounded-2xl border border-black/10 bg-paper p-4 shadow-lg sm:p-5"
+      // Translucent so the hero footage reads through it. The blur is behind a
+      // `supports-` guard on purpose: backdrop-filter is one of the least
+      // reliable effects on older Safari/iPadOS, and this site has already been
+      // bitten by that class of bug. Browsers without it get a more opaque
+      // panel — still shows the video, still legible, no compositor risk.
+      className="mt-8 rounded-2xl border border-white/40 bg-paper/85 p-4 shadow-xl ring-1 ring-black/5 supports-[backdrop-filter]:bg-paper/65 supports-[backdrop-filter]:backdrop-blur-md sm:p-5"
     >
       <p className="text-sm font-semibold text-ink">Where&apos;s the yard?</p>
-      <label className="mt-3 flex items-center gap-3 rounded-xl border border-black/10 bg-black/5 px-4 py-3">
+      <label className="mt-3 flex items-center gap-3 rounded-xl border border-black/10 bg-paper/80 px-4 py-3">
         <span className="shrink-0 text-neutral-400">
           <PinIcon />
         </span>
@@ -62,9 +74,10 @@ export default function YardQuoteStarter({ city }: { city?: string }) {
       <div className="mt-2">
         <UseMyLocationButton
           label="Use my location"
-          onResolved={({ street, city: town, zip }) =>
-            setAddress(formatAddress({ ...EMPTY_ADDRESS, street, city: town, zip }))
-          }
+          onResolved={({ street, city: town, zip, point: fix }) => {
+            setAddress(formatAddress({ ...EMPTY_ADDRESS, street, city: town, zip }));
+            setPoint(fix);
+          }}
         />
       </div>
 
@@ -83,7 +96,9 @@ export default function YardQuoteStarter({ city }: { city?: string }) {
               onClick={() => setService(isSelected ? null : option.value)}
               aria-pressed={isSelected}
               className={`flex flex-col items-center gap-1 rounded-xl border px-2 py-3 text-center transition ${
-                isSelected ? "border-brand bg-brand/5" : "border-black/10 hover:border-brand/40"
+                isSelected
+                  ? "border-brand bg-brand/10"
+                  : "border-black/10 bg-paper/60 hover:border-brand/40"
               }`}
             >
               {Icon && <Icon />}

@@ -36,9 +36,24 @@ Stack: Next.js 14 (App Router) + TypeScript + Tailwind CSS + Prisma + Postgres.
   4. **Arrival time**
   5. **Contact** → *Request this booking*
 
-  Accepts `?service=`, `?size=`, `?frequency=`, `?address=`, `?city=` and
-  `?source=`. A service arriving on the query string is remembered for step 3
-  rather than skipping anything — nothing can be priced before the yard is known.
+  Accepts `?service=`, `?size=`, `?frequency=`, `?address=`, `?lat=`/`?lng=`,
+  `?city=` and `?source=`. A service arriving on the query string is remembered
+  for step 3 rather than skipping anything — nothing can be priced before the
+  yard is known. An **address** does skip step 1: the hero already asked, and
+  re-presenting it reads as though the first answer didn't count.
+
+  **The address is asked for as little as possible.** Step 1 needs only a city
+  or a ZIP (`isLocatableAddress`) — that's enough to find the county, size the
+  yard and price the job. The house number and unit matter to the person
+  knocking, not to the price, so they're collected once at the end, on the
+  contact step, where the customer has seen a price and decided they want it.
+  Demanding them earlier turns a 30-second quote into a form argument with
+  someone who hasn't been told a number yet.
+
+  `?lat`/`?lng` carry a real GPS fix from the hero's "use my location". When
+  present the flow uses it directly instead of geocoding the address text —
+  re-geocoding words we just wrote into a form is how building precision gets
+  lost, and the parcel lookup needs the building.
 
   The customer is told, before submitting and again on the confirmation page and
   in their email: **we call within 30 minutes to confirm and take a deposit**, the

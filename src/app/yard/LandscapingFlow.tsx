@@ -11,7 +11,8 @@ import CrewMatchCard from "@/components/CrewMatchCard";
 import {
   EMPTY_ADDRESS,
   formatAddress,
-  missingAddressFields,
+  isLocatableAddress,
+  missingDoorFields,
   parseAddress,
   type StructuredAddress,
 } from "@/lib/address";
@@ -65,6 +66,7 @@ export default function LandscapingFlow({
   initialYardSize,
   initialFrequency,
   initialAddress,
+  initialPoint,
   city,
   source,
 }: {
@@ -73,15 +75,29 @@ export default function LandscapingFlow({
   initialYardSize?: YardSizeValue;
   initialFrequency?: FrequencyValue;
   initialAddress?: string;
+  /**
+   * A real GPS fix from the hero's "use my location", when there was one.
+   *
+   * Worth more than the address text it came with: it's the actual building,
+   * where re-geocoding those words can land on a town centre and take the
+   * parcel lookup with it. When this is present the flow skips geocoding.
+   */
+  initialPoint?: { lat: number; lng: number };
   city?: string;
   /** Which marketing channel sent them here, from ?source= — see src/lib/sources.ts. */
   source?: string;
 }) {
   const router = useRouter();
-  // Always starts at the address now — a service arriving on the query string
-  // (from a "from $X" card) is remembered for the services step rather than
-  // skipping anything, because nothing can be priced until we know the yard.
-  const [step, setStep] = useState(1);
+  const initialAddressParts = initialAddress ? parseAddress(initialAddress) : null;
+  // Don't ask twice. Someone who typed an address into the hero — or tapped
+  // "use my location" there — has already answered step 1, and re-presenting
+  // it as four empty-looking fields reads as though the first one didn't
+  // count. A house number they didn't give isn't a reason to hold them here:
+  // it's collected once at the end, where they've seen a price and decided
+  // they want it. See canAdvance and the door-details block on the last step.
+  const [step, setStep] = useState(
+    initialAddressParts && isLocatableAddress(initialAddressParts) ? SIZE_STEP : 1,
+  );
   const cityName = city ? getCity(city)?.name : undefined;
   const stepRef = useRef(step);
   stepRef.current = step;
@@ -91,10 +107,10 @@ export default function LandscapingFlow({
   const [yardSize, setYardSize] = useState<YardSizeValue | null>(initialYardSize ?? null);
   const [frequency, setFrequency] = useState<FrequencyValue>(initialFrequency ?? DEFAULT_FREQUENCY);
 
-  const [address, setAddress] = useState<StructuredAddress>(() =>
-    initialAddress ? parseAddress(initialAddress) : { ...EMPTY_ADDRESS },
+  const [address, setAddress] = useState<StructuredAddress>(
+    () => initialAddressParts ?? { ...EMPTY_ADDRESS },
   );
-  const [point, setPoint] = useState<LatLng | null>(null);
+  const [point, setPoint] = useState<LatLng | null>(initialPoint ?? null);
   const [estimate, setEstimate] = useState<YardEstimate | null>(null);
   const [estimating, setEstimating] = useState(false);
   // True once the customer has touched the size themselves, so a late-arriving
@@ -107,7 +123,7 @@ export default function LandscapingFlow({
   const locating = useRef<Promise<void> | null>(null);
   // Read by submit right after awaiting the lookup, when the state set by it
   // hasn't re-rendered yet and `point` still holds the previous value.
-  const pointRef = useRef<LatLng | null>(null);
+  const pointRef = useRef<LatLng | null>(initialPoint ?? null);
 
   const [schedule, setSchedule] = useState<{ dayKey: string; arrivalHour: number | null }>(() => ({
     dayKey: firstBookableDay().key,
@@ -128,6 +144,16 @@ export default function LandscapingFlow({
   useEffect(() => {
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [step]);
+
+  // Arriving with an address from the hero skips step 1, and with it the
+  // lookup that step normally triggers. Run it once on mount instead, so the
+  // size question is still pre-answered for the people who took the shortcut.
+  useEffect(() => {
+    if (stepRef.current === 1) return;
+    locating.current = pointRef.current ? guessYardSize(pointRef.current) : locate();
+    // Mount only: later address edits re-trigger this through next().
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Every step gets a history entry, so the phone's back gesture walks the
   // wizard instead of leaving the page and throwing away what was typed. Same
@@ -225,9 +251,10 @@ export default function LandscapingFlow({
   }
 
   function canAdvance(): string | null {
-    if (step === ADDRESS_STEP) {
-      const missing = missingAddressFields(address);
-      if (missing.length > 0) return `The address needs a ${missing.join(", ")}.`;
+    if (step === ADDRESS_STEP && !isLocatableAddress(address)) {
+      // Deliberately the lightest possible gate: a town or a ZIP. Everything
+      // after this only needs to know roughly where the property is.
+      return "Add a city or ZIP so we know where the yard is.";
     }
     if (step === SIZE_STEP && !yardSize) return "Pick roughly how big the yard is.";
     if (step === SERVICES_STEP && !service) return "Pick what the yard needs.";
@@ -244,13 +271,22 @@ export default function LandscapingFlow({
       return;
     }
     setError(null);
-    if (step === ADDRESS_STEP) locating.current = locate();
+    if (step === ADDRESS_STEP) {
+      locating.current = pointRef.current
+        ? guessYardSize(pointRef.current)
+        : locate();
+    }
     goForward(Math.min(step + 1, TOTAL_STEPS));
   }
 
   async function submit() {
     if (!contact.customerName.trim() || !contact.customerPhone.trim()) {
       setError("We need a name and phone number to confirm your visit.");
+      return;
+    }
+    const missingDoor = missingDoorFields(address);
+    if (missingDoor.length > 0) {
+      setError(`Add your ${missingDoor.join(" and ")} so the crew can find you.`);
       return;
     }
     setError(null);
@@ -418,6 +454,58 @@ export default function LandscapingFlow({
         {step === TOTAL_STEPS && (
           <>
             <StepContact value={contact} onChange={setContact} />
+
+            {/* Asked here and nowhere earlier. A house number does nothing for
+                the price — it matters to the person knocking on the day — so
+                demanding it before anyone has seen a number turns a quote into
+                a form argument. By this point they've seen the price and
+                decided they want it, which is when it's reasonable to ask. */}
+            {missingDoorFields(address).length > 0 && (
+              <div className="mt-5 rounded-2xl border border-brand/30 bg-brand/5 p-4">
+                <p className="text-sm font-semibold text-ink">
+                  Don&apos;t forget your house number
+                </p>
+                <p className="mt-1 text-sm text-neutral-500">
+                  We&apos;ve got{" "}
+                  <span className="font-medium text-ink">
+                    {[address.city.trim(), address.zip.trim()].filter(Boolean).join(" ") ||
+                      "your area"}
+                  </span>
+                  . The crew needs the rest to find the door.
+                </p>
+                <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_7rem]">
+                  <input
+                    value={address.street}
+                    autoComplete="address-line1"
+                    placeholder="House number and street"
+                    onChange={(e) => setAddress({ ...address, street: e.target.value })}
+                    className="w-full rounded-xl border border-black/10 bg-black/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                  />
+                  <input
+                    value={address.zip}
+                    inputMode="numeric"
+                    autoComplete="postal-code"
+                    maxLength={5}
+                    placeholder="ZIP"
+                    onChange={(e) =>
+                      setAddress({
+                        ...address,
+                        zip: e.target.value.replace(/\D/g, "").slice(0, 5),
+                      })
+                    }
+                    className="w-full rounded-xl border border-black/10 bg-black/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                  />
+                </div>
+                <input
+                  value={address.unit}
+                  autoComplete="address-line2"
+                  placeholder="Apt / unit / gate code (optional)"
+                  onChange={(e) => setAddress({ ...address, unit: e.target.value })}
+                  className="mt-2 w-full rounded-xl border border-black/10 bg-black/5 px-3 py-2.5 text-sm text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                />
+              </div>
+            )}
+
             <div className="mt-5">
               <label htmlFor="yardDetails" className="block text-sm font-semibold text-ink">
                 Anything we should know?{" "}
