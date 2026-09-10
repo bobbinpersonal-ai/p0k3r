@@ -19,26 +19,105 @@ dispatch board.
 encoder is ours (`scripts/qr.mjs`) and its tests round-trip the data, but a
 test can't tell you the contrast survived your printer.
 
-## The 30 seconds
+## The script
 
-Knock, step back off the mat, and lead with the yard, not the company:
+Learn the shape, not the words. A script read aloud sounds like a script; a
+script you know lets you listen instead of thinking about what comes next.
 
-> "Hi — I'm with LoveMeAfter, we do yard work on this street. Flat price, no
-> walkthrough, no estimate appointment. Can I show you what your yard would
-> cost?"
+### Before you knock
 
-Then get the size in front of them, not a discussion:
+Stand back off the mat, to the side of the door, phone in your hand and down.
+Knock or ring once. If there's a screen door, don't open it. Look at the yard
+while you wait — you're about to talk about it, and you want something true to
+say.
 
-> "Front and back, this looks like a medium lot to me. Clean edge and
-> overgrowth on a yard this size is $X. That's the price — not a starting
-> price."
+### The opener — eight seconds
 
-If they're interested, you fill the form in on the step. You need four things:
-**address, size, service, phone.** Everything else is optional.
+> "Hi, I'm [name] with LoveMeAfter — we do yard work on this street. I'm not
+> selling a quote appointment, I can just tell you what your yard costs. Have
+> you got twenty seconds?"
 
-Then take the deposit before you press **Book it** — see below.
+Three things happen in that sentence: they learn your name, they learn you're
+local, and they learn the thing that makes us different — **no walkthrough, no
+estimate visit, a price now.** That's the whole pitch. Say it before they've
+decided what you are.
 
-If they're not ready, hand them a card and go. Don't work the door twice.
+Then stop talking. Let them answer.
+
+### One question to qualify
+
+> "Who's been doing the yard for you?"
+
+Better than "do you need yard work?", which is a yes/no they can close. This
+one tells you everything: nobody, a neighbour's kid, themselves and their back
+is going, or a company that keeps missing weeks. Whatever they say, the next
+line writes itself.
+
+### The price moment
+
+Look at the yard, name a size, give the number.
+
+> "Front and back, this is a medium lot. Mowing, edging and clearing on a yard
+> this size is $265. That's the price — not a starting price, not 'from'."
+
+Then **stop**. Do not fill the silence. Do not add "but we could look at" or
+"depending on". The number has to land on its own. Whoever speaks first after
+a price is the one who negotiates against themselves, and it should not be you.
+
+If you're not sure of the size, tap **Fill from GPS** in the form and the
+county's own lot size picks it for you.
+
+### The deposit ask
+
+> "Fifty-five to book it, the rest when it's done. You can Venmo or Apple Pay
+> it right now — I'll turn the phone round."
+
+Never "would you like to pay a deposit?" — that's a question with a no in it.
+The deposit is just the next step of a thing already happening. Turn the
+phone round as you say it.
+
+### The close
+
+Two times, never one, and never "does that work?":
+
+> "I can do Thursday morning or Saturday morning. Which is easier?"
+
+While they answer, you're already filling the form. Read back the whole thing
+before you press **Book it**:
+
+> "Thursday, eight to nine, 1512 Ivy Lane, $265 total, $55 down. Confirmation's
+> coming to your phone now — that's your receipt and your agreement, and it's
+> got a three-day cancel on it, no questions."
+
+Say the three days out loud. It's the law, it costs nothing, and it removes the
+last reason to stall.
+
+### If it's a no
+
+> "No problem at all. Here's a card — the price on it is the price, and it
+> works whenever."
+
+Hand it over, thank them, leave. **Do not work the door twice.** A second pass
+turns a maybe-next-season into a complaint, and complaints are what get
+door-knocking banned street by street.
+
+### Nobody home
+
+Card in the door, not the mailbox — a mailbox is a federal offence. Wedge it in
+the frame above the handle where it won't blow away. Don't note it as a lead;
+the QR on the card is tagged, so if they scan it in three days it still counts
+to this street.
+
+### Never say
+
+- **"Free estimate."** We don't do estimates. That's the point of us.
+- **"Licensed and insured."** We are not licensed. Say what's true: not a
+  licensed contractor, minor maintenance only.
+- **"Today only."** It isn't, and the price on the card they're holding proves
+  it isn't.
+- **"My manager could approve..."** There's no discount ladder. One price.
+- Anything about a neighbour by name. "We're on this street" is fine; "we do
+  the Hendersons at number 12" is a privacy complaint waiting to happen.
 
 ## Taking the deposit
 
@@ -131,6 +210,44 @@ show."
   first street, not after the first complaint.
 - **Daylight hours only**, and stop at dusk regardless of what the clock says.
 
+## The agreement, and the three-day right to cancel
+
+Selling on a doorstep is a different transaction in law from selling on a
+website. In California, a sale of $25 or more agreed anywhere other than the
+seller's own place of business is a **home solicitation sale** (Civil Code
+1689.5), and the buyer gets rights they cannot sign away:
+
+- **Three business days to cancel**, for any reason or none. Saturdays count;
+  Sundays and holidays don't.
+- **Everything paid back within ten days** of them telling us — the deposit
+  included, in full, whatever the "24 hours" line in the terms says.
+- **Written notice of that right, at the time of sale**, in the language the
+  sale was conducted in, with **two** copies of a cancellation form they can
+  sign and post — one to send, one to keep.
+
+That last one is the trap. A home solicitation sale without the notice is
+voidable by the buyer, and their three days don't even start running until
+they get it. So it isn't paperwork we do later: the moment a booking is taken,
+the confirmation carries a link to `/agreement/<token>` — their copy of the
+contract, filled in from the booking, with the deadline date computed and both
+cancellation forms on it, ready to print.
+
+**Say it out loud at the door**, on the read-back. It's the law, it costs
+nothing, and it takes away the last reason anyone stalls:
+
+> "Three-day cancel, no questions, it's on the confirmation."
+
+Two things to set before the first street, or the notice is defective:
+`NEXT_PUBLIC_LEGAL_ENTITY` (who the contract is with) and
+`NEXT_PUBLIC_BUSINESS_ADDRESS` (**where a cancellation can be posted** — the
+notice has to say, and the agreement prints a red warning in its place until
+it's set).
+
+And a practical consequence worth planning around: if we do the work inside
+those three days and they then cancel, the refund is still owed. That's a
+risk, not a rule against it — most people won't — but don't schedule a big job
+for the morning after a knock and assume the money is ours.
+
 ## Reading the results
 
 Every booking taken this way is tagged `source=door-knock` — the same tag the
@@ -149,11 +266,25 @@ how, and what's still owed, so the crew going out knows what to collect.
 Still unanswered, and worth an hour of a California construction attorney's
 time before scaling this up:
 
-1. **The $1,000 threshold has conditions.** It applies where no building permit
+1. **Get the agreement reviewed before you use it.** It's built to carry what
+   the statute asks for, but the notice wording is prescribed by law and a
+   defective one is worse than useful. An hour of review is cheap next to a
+   voidable contract on every job you sell.
+2. **Does a longer cancellation period apply to older customers?** California
+   gives seniors a longer window on some home solicitation contracts. If it
+   reaches this kind of work, `CANCELLATION_BUSINESS_DAYS` in
+   `src/lib/agreement.ts` needs a branch on it — the code is written so that's
+   a one-line change.
+3. **Selling in a language other than English.** If the conversation happens
+   in Spanish, Chinese, Tagalog, Vietnamese or Korean, California requires a
+   translated copy of the contract, and the cancellation notice has to be in
+   that language too. Right now we only have English, so sell in English until
+   that's built.
+4. **The $1,000 threshold has conditions.** It applies where no building permit
    is required *and* the person performing the work employs no one else on the
    project. This business pays a crew. If that condition binds, the cap for us
    may be lower and the whole price table needs rebuilding around it.
-2. **Which of our services sit inside the exemption at all** — pressure
+5. **Which of our services sit inside the exemption at all** — pressure
    washing, fence repair and sprinkler work each have a plausible argument
    either way, and the answer can vary with what the local building department
    requires a permit for.

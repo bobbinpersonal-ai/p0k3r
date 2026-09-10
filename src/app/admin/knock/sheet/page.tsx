@@ -69,6 +69,70 @@ function LeaveBehind({ services }: { services: ReturnType<typeof bookableService
   );
 }
 
+/**
+ * The script, cut to what fits in a pocket.
+ *
+ * The full version — with the reasoning, the objection answers and the rules —
+ * is docs/door-knock.md. This is the version you glance at between houses, so
+ * it is the words and nothing else: anything you have to read a paragraph of
+ * is not going to be read on a driveway.
+ */
+const SCRIPT = [
+  {
+    beat: "Opener",
+    say: "Hi, I'm [name] with LoveMeAfter — we do yard work on this street. I'm not selling a quote appointment, I can just tell you what your yard costs. Got twenty seconds?",
+    note: "Stand back off the mat. Then stop talking.",
+  },
+  {
+    beat: "Qualify",
+    say: "Who's been doing the yard for you?",
+    note: "Not \u201cdo you need yard work?\u201d — that's a yes/no they can close.",
+  },
+  {
+    beat: "Price",
+    say: "Front and back, this is a medium lot. Mowing, edging and clearing on a yard this size is $265. That's the price — not a starting price.",
+    note: "Say the number and STOP. Whoever speaks first negotiates against themselves.",
+  },
+  {
+    beat: "Deposit",
+    say: "Fifty-five to book it, the rest when it's done. Venmo or Apple Pay — I'll turn the phone round.",
+    note: "Never \u201cwould you like to pay a deposit?\u201d Turn the phone as you say it.",
+  },
+  {
+    beat: "Close",
+    say: "I can do Thursday morning or Saturday morning. Which is easier?",
+    note: "Two times, never one. Fill the form while they answer.",
+  },
+  {
+    beat: "Read back",
+    say: "Thursday, eight to nine, $265 total, $55 down. Confirmation's coming now — that's your receipt and your agreement, three-day cancel, no questions.",
+    note: "Say the three days out loud. It removes the last reason to stall.",
+  },
+  {
+    beat: "If it's a no",
+    say: "No problem at all. Here's a card — the price on it is the price, and it works whenever.",
+    note: "Hand it over and leave. Never work the same door twice.",
+  },
+];
+
+const OBJECTIONS = [
+  ["How much?", "Give the number. Never defer it — being the one who says the price is the whole pitch."],
+  ["Talk to my spouse", "\u201cTotally fair.\u201d Card, go. Come back another day."],
+  ["Are you licensed?", "Not a licensed contractor. Minor maintenance under $1,000. Anything bigger goes to licensed CSLB contractors who deal with you direct."],
+  ["Tree / patio / roof?", "Take the details, quote nothing. Submit it through /contractors from the truck."],
+  ["Do I pay now?", "Just the deposit — $55 of the $265, holds the slot. If they won't: tap Not yet and book it anyway."],
+  ["Do you come back?", "Weekly, fortnightly or monthly, cheaper per visit. Monthly is NOT discounted — by week four it's a one-off again."],
+  ["I already have a guy", "\u201cMost people we sign up did too — they just wanted a price they could see.\u201d"],
+];
+
+const NEVER_SAY = [
+  "Free estimate — we don't do estimates, that's the point of us",
+  "Licensed and insured — we are not licensed",
+  "Today only — the card in their hand proves it isn't",
+  "My manager could approve… — there is no discount ladder",
+  "A neighbour by name",
+];
+
 export default function PriceSheetPage() {
   if (!isValidAdminSessionCookie(cookies().get(ADMIN_COOKIE_NAME)?.value)) {
     redirect("/admin");
@@ -85,9 +149,9 @@ export default function PriceSheetPage() {
         </p>
         <h1 className="mt-1 text-2xl font-extrabold">Door knock kit</h1>
         <p className="mt-1 text-sm text-neutral-600">
-          Page one is the sheet you quote from. Page two is four leave-behind cards — cut on
-          the dashed lines. Reprint whenever prices change; these read live from the pricing
-          module.
+          Page one is the sheet you quote from, page two is the script, page three cuts into
+          six leave-behind cards. Reprint whenever prices change — the numbers read live from
+          the pricing module.
         </p>
       </div>
 
@@ -204,7 +268,63 @@ export default function PriceSheetPage() {
         </p>
       </section>
 
-      {/* Page two. */}
+      {/* Page two: the script, for the walk between houses. */}
+      <section className="mx-auto max-w-4xl px-4 py-6 print:break-before-page">
+        <header className="flex items-baseline justify-between border-b-2 border-black pb-2">
+          <h2 className="text-xl font-extrabold">The script</h2>
+          <p className="text-xs text-neutral-600">Learn the shape, not the words</p>
+        </header>
+
+        <ol className="mt-3 space-y-2">
+          {SCRIPT.map((line) => (
+            <li key={line.beat} className="break-inside-avoid border-l-4 border-black pl-3">
+              <p className="text-[10px] font-extrabold uppercase tracking-widest text-neutral-500">
+                {line.beat}
+              </p>
+              <p className="text-[13px] font-semibold leading-snug text-black">
+                &ldquo;{line.say}&rdquo;
+              </p>
+              <p className="text-[10px] italic text-neutral-600">{line.note}</p>
+            </li>
+          ))}
+        </ol>
+
+        <div className="mt-5 grid gap-4 break-inside-avoid sm:grid-cols-2">
+          <div>
+            <h3 className="text-xs font-extrabold uppercase tracking-wide">Answers</h3>
+            <dl className="mt-1 space-y-1">
+              {OBJECTIONS.map(([q, a]) => (
+                <div key={q}>
+                  <dt className="text-[11px] font-bold text-black">{q}</dt>
+                  <dd className="text-[11px] leading-snug text-neutral-700">{a}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+          <div>
+            <h3 className="text-xs font-extrabold uppercase tracking-wide">Never say</h3>
+            <ul className="mt-1 space-y-1">
+              {NEVER_SAY.map((item) => (
+                <li key={item} className="text-[11px] leading-snug text-neutral-700">
+                  · {item}
+                </li>
+              ))}
+            </ul>
+            <h3 className="mt-4 text-xs font-extrabold uppercase tracking-wide">
+              And the rules
+            </h3>
+            <ul className="mt-1 space-y-1 text-[11px] leading-snug text-neutral-700">
+              <li>· Skip No Soliciting signs. Every time.</li>
+              <li>· Card in the door frame, never the mailbox — that&apos;s federal.</li>
+              <li>· Daylight only. Stop at dusk.</li>
+              <li>· Carry the city&apos;s solicitor permit.</li>
+              <li>· Never quote a job at or over $1,000 out loud.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* Page three. */}
       <section className="mx-auto max-w-4xl px-4 py-6 print:break-before-page">
         <p className="mb-3 text-xs font-mono uppercase tracking-widest text-neutral-500 print:hidden">
           Leave-behinds · cut on the dashed lines

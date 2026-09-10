@@ -142,6 +142,15 @@ export default async function ManageBookingPage({
           </dl>
         </div>
 
+        <p className="mt-4 text-sm">
+          <a
+            href={`/agreement/${booking.manageToken}`}
+            className="font-medium text-brand-cyan underline"
+          >
+            Your service agreement and right to cancel
+          </a>
+        </p>
+
         {!isFinal && <ManageActions token={booking.manageToken} noun={noun} />}
       </main>
       <SiteFooter />

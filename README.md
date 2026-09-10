@@ -640,8 +640,37 @@ them, so the confirmation message, the `/manage/<token>` page and the dispatch
 chip are the only records that the money moved. Taking real cards (and merchant
 Apple Pay) means adding Stripe.
 
+### The contract, and why it isn't optional
+
+A sale agreed on a doorstep is a **home solicitation sale** under California
+Civil Code 1689.5, and the buyer gets three business days to cancel for any
+reason, a full refund within ten days, and — the part that is easy to miss —
+*written* notice of that right at the time of sale, with two copies of a
+cancellation form. A home solicitation sale without the notice is voidable, and
+the buyer's three days don't start running until they receive it.
+
+So `/agreement/<token>` renders their copy from the booking itself: parties,
+property, service, price, deposit, balance, terms, the licensing disclaimer,
+the bold cancellation statement the statute wants next to the signature, and
+both cancellation forms with the deadline computed. `src/lib/agreement.ts`
+holds the terms and the business-day maths (Saturdays count, Sundays and
+California holidays don't). The link goes out in the confirmation the moment a
+booking is taken, sits on the manage page, and is one tap from the door form so
+the rep can show it there and then.
+
+Set `NEXT_PUBLIC_LEGAL_ENTITY` and `NEXT_PUBLIC_BUSINESS_ADDRESS` — the notice
+has to say where a cancellation can be posted, and the agreement prints a red
+warning in place of a missing address rather than a blank line that reads as
+complete.
+
+**Have a California attorney review it before the first door.** The notice
+wording is prescribed by law, and `docs/door-knock.md` lists what still needs
+answering: whether older customers get a longer window, and what has to change
+before selling in a language other than English.
+
 The script, the objection answers, and the permit/disclaimer rules are in
-[`docs/door-knock.md`](docs/door-knock.md).
+[`docs/door-knock.md`](docs/door-knock.md), and the printable kit carries a
+condensed version of the script as its second page.
 
 ## How recruiting works today
 

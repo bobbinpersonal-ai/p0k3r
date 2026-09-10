@@ -276,6 +276,7 @@ export async function notifyOwnerRescheduleRequested(booking: Booking, note: str
 export async function notifyCustomerBookingConfirmed(
   booking: Booking,
   manageUrl: string,
+  agreementUrl?: string,
 ): Promise<void> {
   const firstName = booking.customerName.split(" ")[0];
   const yard = isLandscaping(booking.serviceLine);
@@ -299,6 +300,13 @@ export async function notifyCustomerBookingConfirmed(
         : yard
           ? `We'll call you within 30 minutes to confirm and take a deposit to get you on the schedule. Nothing has been charged yet, and the price above is the price.`
           : `A dispatcher will call or text to confirm your crew and lock in the final price — nothing's charged yet.`,
+      // A doorstep sale has to hand the buyer their agreement and their
+      // cancellation rights in writing (see src/lib/agreement.ts), and this
+      // message is how that reaches them. It leads the tail of the message
+      // rather than trailing it, because it is the part with a deadline.
+      agreementUrl
+        ? `Your agreement, and your right to cancel within three business days: ${agreementUrl}`
+        : null,
       `Need to reschedule or cancel? ${manageUrl}`,
     ].filter((line): line is string => Boolean(line)),
   });

@@ -304,7 +304,14 @@ export async function POST(req: NextRequest) {
   // send actually completes before this serverless function exits — a
   // notification failure never fails the booking (see notify.ts).
   const manageUrl = new URL(`/manage/${booking.manageToken}`, req.nextUrl.origin).toString();
-  await Promise.all([notifyNewBooking(booking), notifyCustomerBookingConfirmed(booking, manageUrl)]);
+  const agreementUrl = new URL(
+    `/agreement/${booking.manageToken}`,
+    req.nextUrl.origin,
+  ).toString();
+  await Promise.all([
+    notifyNewBooking(booking),
+    notifyCustomerBookingConfirmed(booking, manageUrl, agreementUrl),
+  ]);
 
   return NextResponse.json(booking, { status: 201 });
 }

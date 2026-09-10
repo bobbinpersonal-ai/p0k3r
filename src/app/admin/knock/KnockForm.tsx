@@ -84,6 +84,7 @@ function Choice({
 type Done = {
   id: string;
   manageUrl: string;
+  agreementUrl: string;
   price: number;
   name: string;
   deposit: number;
@@ -207,6 +208,7 @@ export default function KnockForm() {
       setDone({
         id: body.id,
         manageUrl: `/manage/${body.manageToken}`,
+        agreementUrl: `/agreement/${body.manageToken}`,
         price: body.estimateHigh,
         name: customerName.trim(),
         // Read back from the row rather than from the form: the server decides
@@ -275,12 +277,17 @@ export default function KnockForm() {
             ? "Their confirmation is on its way — that message is the receipt."
             : "Confirmation is on its way to their phone."}
         </p>
-        <a
-          href={done.manageUrl}
-          className="mt-4 inline-block font-mono text-sm text-brand-cyan underline"
-        >
-          Open their booking
-        </a>
+        {/* Their copy of what they just agreed to, with the cancellation
+            notice on it. Sending it is automatic; this is for showing them
+            there and then, which is the version that gets read. */}
+        <div className="mt-4 flex flex-wrap gap-4 font-mono text-sm">
+          <a href={done.agreementUrl} className="text-brand-cyan underline">
+            Show them the agreement
+          </a>
+          <a href={done.manageUrl} className="text-neutral-300 underline">
+            Open their booking
+          </a>
+        </div>
         <button
           type="button"
           onClick={nextDoor}
