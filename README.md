@@ -29,7 +29,14 @@ Stack: Next.js 14 (App Router) + TypeScript + Tailwind CSS + Prisma + Postgres.
 - **`/contractors`** — the referral path for work requiring a licensed
   contractor. No price, no schedule, no checkout: a request becomes a
   `ContractorLead` and goes out to independent CSLB-licensed contractors.
-- **`/yard`** — the landscaping booking flow, in this order:
+  **The flow runs inline on this page** (see `src/components/HeroBooking.tsx`):
+  the hero *is* the booking form, and the section updates in place as the
+  customer advances rather than sending them to another page one answer in.
+  Past step one the marketing column steps aside and the form takes the full
+  width — someone who has started answering has stopped reading the pitch.
+- **`/yard`** — the same flow as its own page, for deep links from city pages,
+  ad landing URLs and the service cards. Identical component in both places, so
+  the two can't drift:
 
   1. **Address** — first, so the parcel lookup can take a run at the yard size
      and so the first price anyone sees is already theirs

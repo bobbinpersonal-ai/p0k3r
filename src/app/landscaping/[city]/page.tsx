@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AutoplayVideo from "@/components/AutoplayVideo";
-import YardQuoteStarter from "@/components/YardQuoteStarter";
+import HeroBooking from "@/components/HeroBooking";
 import { YARD_SERVICE_ICONS } from "@/components/YardIcons";
 import { CITIES, getCity, bareCityName } from "@/lib/cities";
 import { LANDSCAPING_SERVICES, startingPriceFor } from "@/lib/landscaping";
@@ -70,34 +70,33 @@ export default function LandscapingCityPage({ params }: { params: { city: string
           <div className="absolute inset-0 bg-grid-fade" />
           <div className="glow-blob absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full" />
           <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
-            {/* min-w-0 on both tracks — see the note on the homepage hero. */}
-            <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)] lg:items-start">
-              <div className="min-w-0">
-                <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
-                  <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
-                  Now booking in {city.name}
-                </p>
-                <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                  {/* Solid color, not gradient bg-clip-text — see the homepage
-                      headline for why. */}
-                  Lawn care in {city.name},{" "}
-                  <span className="text-brand-cyan">priced up front.</span>
-                </h1>
-                <p className="mt-4 text-lg text-neutral-600">{city.yardBlurb}</p>
-                <p className="mt-4">
-                  <a
-                    href={`tel:${SUPPORT_PHONE_DIGITS}`}
-                    className="font-mono text-sm text-neutral-500 hover:text-brand-cyan"
-                  >
-                    or call to book — {SUPPORT_PHONE}
-                  </a>
-                </p>
-              </div>
-
-              <div className="min-w-0">
-                <YardQuoteStarter city={city.slug} />
-              </div>
-            </div>
+            {/* Same inline booking flow as the homepage — see HeroBooking. */}
+            <HeroBooking
+              city={city.slug}
+              intro={
+                <>
+                  <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                    <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
+                    Now booking in {city.name}
+                  </p>
+                  <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
+                    {/* Solid color, not gradient bg-clip-text — see the homepage
+                        headline for why. */}
+                    Lawn care in {city.name},{" "}
+                    <span className="text-brand-cyan">priced up front.</span>
+                  </h1>
+                  <p className="mt-4 text-lg text-neutral-600">{city.yardBlurb}</p>
+                  <p className="mt-4">
+                    <a
+                      href={`tel:${SUPPORT_PHONE_DIGITS}`}
+                      className="font-mono text-sm text-neutral-500 hover:text-brand-cyan"
+                    >
+                      or call to book — {SUPPORT_PHONE}
+                    </a>
+                  </p>
+                </>
+              }
+            />
           </div>
         </section>
 

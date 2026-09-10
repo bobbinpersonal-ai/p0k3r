@@ -3,7 +3,7 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AutoplayVideo from "@/components/AutoplayVideo";
-import YardQuoteStarter from "@/components/YardQuoteStarter";
+import HeroBooking from "@/components/HeroBooking";
 import CaliforniaMap from "@/components/CaliforniaMap";
 import { YARD_SERVICE_ICONS, ToolsIcon } from "@/components/YardIcons";
 import { CITIES, getCity } from "@/lib/cities";
@@ -84,62 +84,58 @@ export default function HomePage({
             <div className="absolute inset-0 hidden lg:block bg-gradient-to-t from-paper via-transparent to-paper/25" />
           </div>
           <div className="relative mx-auto max-w-6xl px-4 pt-28 pb-12 sm:px-6 sm:pb-16 lg:pt-40">
-            {/* min-w-0 on both columns, not decoration: a grid track sizes to
-                min-content by default, and the "now booking" marquee below is
-                `w-max` — deliberately wider than the screen so it can scroll.
-                Without this the marquee's full width becomes the column's
-                minimum, the column becomes ~2,100px, and the price finder
-                renders 1,035px wide inside a 390px phone. */}
-            <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,32rem)] lg:items-start">
-              <div className="min-w-0">
-                <div className="w-full overflow-hidden rounded-full border border-black/10 bg-black/5 py-1.5">
-                  <div className="flex w-max animate-marquee gap-10 whitespace-nowrap px-3 font-mono text-xs uppercase tracking-widest text-brand-cyan">
-                    {[0, 1].map((i) => (
-                      <span key={i} className="flex shrink-0 items-center gap-2">
-                        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-cyan" />
-                        Now booking · {BOOKING_CITIES_BADGE}
-                      </span>
-                    ))}
+            {/* The booking flow lives here rather than on its own page — see
+                HeroBooking. The marketing copy is passed in so this stays a
+                server component; only the step-driven layout is client-side. */}
+            <HeroBooking
+              city={targetCity?.slug}
+              intro={
+                <>
+                  <div className="w-full overflow-hidden rounded-full border border-black/10 bg-black/5 py-1.5">
+                    <div className="flex w-max animate-marquee gap-10 whitespace-nowrap px-3 font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                      {[0, 1].map((i) => (
+                        <span key={i} className="flex shrink-0 items-center gap-2">
+                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-cyan" />
+                          Now booking · {BOOKING_CITIES_BADGE}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                  {/* Solid color, not a gradient bg-clip-text: -webkit-background-clip:
-                      text is genuinely fragile on older Safari/iPadOS — the gradient
-                      mask and the glyphs fall out of sync and part of the word renders
-                      invisible. See the same note on the moving page. */}
-                  Your yard, handled.{" "}
-                  <span className="text-brand-cyan">Price up front.</span>
-                </h1>
-                <p className="mt-4 text-lg text-neutral-600">
-                  Pressure washing, yard care and the small repairs nobody gets round to —
-                  Sacramento, Roseville, Elk Grove and across Northern California. Put in
-                  your address and see every service priced for your property. Bigger job?
-                  We&apos;ll match you with licensed contractors.
-                </p>
-                <div className="mt-6 hidden rounded-xl bg-paper px-3 py-2 lg:block">
-                  <a
-                    href="#pricing"
-                    className="text-sm font-semibold text-ink hover:text-brand-cyan"
-                  >
-                    See every price
-                  </a>
-                  <p className="mt-1 text-sm text-neutral-600">
-                    Rather talk it through? Call us —{" "}
-                    <a
-                      href={`tel:${SUPPORT_PHONE_DIGITS}`}
-                      className="font-mono font-semibold text-ink hover:text-brand-cyan"
-                    >
-                      {SUPPORT_PHONE}
-                    </a>
-                    .
+                  <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
+                    {/* Solid color, not a gradient bg-clip-text: -webkit-background-clip:
+                        text is genuinely fragile on older Safari/iPadOS — the gradient
+                        mask and the glyphs fall out of sync and part of the word renders
+                        invisible. See the same note on the moving page. */}
+                    Your yard, handled.{" "}
+                    <span className="text-brand-cyan">Price up front.</span>
+                  </h1>
+                  <p className="mt-4 text-lg text-neutral-600">
+                    Pressure washing, yard care and the small repairs nobody gets round to —
+                    Sacramento, Roseville, Elk Grove and across Northern California. Put in
+                    your address and see every service priced for your property. Bigger job?
+                    We&apos;ll match you with licensed contractors.
                   </p>
-                </div>
-              </div>
-
-              <div className="min-w-0">
-                <YardQuoteStarter city={targetCity?.slug} />
-              </div>
-            </div>
+                  <div className="mt-6 hidden rounded-xl bg-paper px-3 py-2 lg:block">
+                    <a
+                      href="#pricing"
+                      className="text-sm font-semibold text-ink hover:text-brand-cyan"
+                    >
+                      See every price
+                    </a>
+                    <p className="mt-1 text-sm text-neutral-600">
+                      Rather talk it through? Call us —{" "}
+                      <a
+                        href={`tel:${SUPPORT_PHONE_DIGITS}`}
+                        className="font-mono font-semibold text-ink hover:text-brand-cyan"
+                      >
+                        {SUPPORT_PHONE}
+                      </a>
+                      .
+                    </p>
+                  </div>
+                </>
+              }
+            />
 
             <div className="mt-6 rounded-xl bg-paper px-3 py-2 lg:hidden">
               <a href="#pricing" className="text-sm font-semibold text-ink hover:text-brand-cyan">

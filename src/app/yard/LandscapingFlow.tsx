@@ -69,6 +69,8 @@ export default function LandscapingFlow({
   initialPoint,
   city,
   source,
+  embedded = false,
+  onStepChange,
 }: {
   /** Set when they tapped a service on the homepage, so we don't ask again. */
   initialService?: LandscapingServiceValue;
@@ -86,6 +88,18 @@ export default function LandscapingFlow({
   city?: string;
   /** Which marketing channel sent them here, from ?source= — see src/lib/sources.ts. */
   source?: string;
+  /**
+   * Rendered inside another page rather than as the page itself.
+   *
+   * Two things change. The heading drops to an h2, because the host page
+   * already has the h1 and a document with two is a document with none. And
+   * the mount-time scroll is skipped: on its own page that scroll is a no-op,
+   * but embedded in a homepage hero it would yank a visitor down to the form
+   * before they've read a word.
+   */
+  embedded?: boolean;
+  /** Lets the host page react to progress — see HeroBooking. */
+  onStepChange?: (step: number) => void;
 }) {
   const router = useRouter();
   const initialAddressParts = initialAddress ? parseAddress(initialAddress) : null;
@@ -140,10 +154,21 @@ export default function LandscapingFlow({
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Keep each new step starting at its heading rather than mid-page.
+  // Keep each new step starting at its heading rather than mid-page. Embedded,
+  // the first render is skipped — the host page owns where the visitor starts,
+  // and scrolling them to the form on arrival is the opposite of helpful.
+  const lastScrolledStep = useRef(step);
   useEffect(() => {
+    // Embedded, the step we opened on is the host page's business — only a
+    // step the customer actually moved to is worth scrolling to.
+    if (embedded && lastScrolledStep.current === step) return;
+    lastScrolledStep.current = step;
     topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, [step]);
+  }, [step, embedded]);
+
+  useEffect(() => {
+    onStepChange?.(step);
+  }, [step, onStepChange]);
 
   // Arriving with an address from the hero skips step 1, and with it the
   // lookup that step normally triggers. Run it once on mount instead, so the
@@ -331,15 +356,21 @@ export default function LandscapingFlow({
   }
 
   return (
-    <div ref={topRef} className="mt-8 scroll-mt-24">
+    <div ref={topRef} className={embedded ? "scroll-mt-24" : "mt-8 scroll-mt-24"}>
       {/* The h1 stays in the DOM on every step — a real page needs exactly one,
           and the per-step h2 isn't it — but only takes up space on step 1,
           where nothing else says what this page is. Same reasoning as
           BookingFlow. */}
-      <h1 className={step === 1 ? "text-3xl font-extrabold tracking-tight text-ink" : "sr-only"}>
-        Get your {cityName ? `${cityName} ` : ""}yard priced
-      </h1>
-      {step === 1 && (
+      {/* The host page owns the h1 when embedded, so this drops to an h2
+          there rather than giving the document two. */}
+      {embedded ? (
+        <h2 className="sr-only">Get your {cityName ? `${cityName} ` : ""}yard priced</h2>
+      ) : (
+        <h1 className={step === 1 ? "text-3xl font-extrabold tracking-tight text-ink" : "sr-only"}>
+          Get your {cityName ? `${cityName} ` : ""}yard priced
+        </h1>
+      )}
+      {step === 1 && !embedded && (
         <>
           <p className="mt-2 text-neutral-500">
             Tell us where the yard is and roughly how big it is, and we&apos;ll show you
