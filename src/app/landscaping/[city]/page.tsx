@@ -26,9 +26,9 @@ const CITY_YARD_VIDEOS = [
   { mp4: "/videos/yard-clip5-v1.mp4", webm: "/videos/yard-clip5-v1.webm", poster: "/images/yard-clip5-v1-poster.jpg" },
   { mp4: "/videos/yard-clip6-v1.mp4", webm: "/videos/yard-clip6-v1.webm", poster: "/images/yard-clip6-v1-poster.jpg" },
   { mp4: "/videos/yard-clip7-v1.mp4", webm: "/videos/yard-clip7-v1.webm", poster: "/images/yard-clip7-v1-poster.jpg" },
-  { mp4: "/videos/yard-clip8-v1.mp4", webm: "/videos/yard-clip8-v1.webm", poster: "/images/yard-clip8-v1-poster.jpg" },
-  { mp4: "/videos/yard-clip9-v1.mp4", webm: "/videos/yard-clip9-v1.webm", poster: "/images/yard-clip9-v1-poster.jpg" },
-  { mp4: "/videos/yard-clip10-v1.mp4", webm: "/videos/yard-clip10-v1.webm", poster: "/images/yard-clip10-v1-poster.jpg" },
+  { mp4: "/videos/yard-clip8-v2.mp4", webm: "/videos/yard-clip8-v2.webm", poster: "/images/yard-clip8-v2-poster.jpg" },
+  { mp4: "/videos/yard-clip9-v2.mp4", webm: "/videos/yard-clip9-v2.webm", poster: "/images/yard-clip9-v2-poster.jpg" },
+  { mp4: "/videos/yard-clip10-v2.mp4", webm: "/videos/yard-clip10-v2.webm", poster: "/images/yard-clip10-v2-poster.jpg" },
 ] as const;
 
 function yardVideoForCity(slug: string) {

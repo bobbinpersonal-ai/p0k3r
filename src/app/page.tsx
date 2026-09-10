@@ -69,9 +69,9 @@ export default function HomePage({
               degrades to the poster frame rather than to nothing. */}
           <div className="absolute inset-0">
             <AutoplayVideo
-              mp4="/videos/hero-yard-v3.mp4"
-              webm="/videos/hero-yard-v3.webm"
-              poster="/images/hero-yard-v3-poster.jpg"
+              mp4="/videos/hero-yard-v4.mp4"
+              webm="/videos/hero-yard-v4.webm"
+              poster="/images/hero-yard-v4-poster.jpg"
               className="absolute inset-0"
               videoClassName="absolute inset-0 h-full w-full object-cover object-center"
             />
@@ -363,9 +363,9 @@ export default function HomePage({
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             <div className="relative aspect-video overflow-hidden rounded-3xl border border-black/10 glow">
               <AutoplayVideo
-                mp4="/videos/yard-clip8-v1.mp4"
-                webm="/videos/yard-clip8-v1.webm"
-                poster="/images/yard-clip8-v1-poster.jpg"
+                mp4="/videos/yard-clip8-v2.mp4"
+                webm="/videos/yard-clip8-v2.webm"
+                poster="/images/yard-clip8-v2-poster.jpg"
                 alt="A LoveMeAfter crew working on a yard"
                 className="absolute inset-0"
                 videoClassName="absolute inset-0 h-full w-full object-cover object-center"
@@ -373,9 +373,9 @@ export default function HomePage({
             </div>
             <div className="relative aspect-video overflow-hidden rounded-3xl border border-black/10 glow">
               <AutoplayVideo
-                mp4="/videos/yard-clip9-v1.mp4"
-                webm="/videos/yard-clip9-v1.webm"
-                poster="/images/yard-clip9-v1-poster.jpg"
+                mp4="/videos/yard-clip9-v2.mp4"
+                webm="/videos/yard-clip9-v2.webm"
+                poster="/images/yard-clip9-v2-poster.jpg"
                 alt="A LoveMeAfter crew member on a yard job"
                 className="absolute inset-0"
                 videoClassName="absolute inset-0 h-full w-full object-cover object-center"
