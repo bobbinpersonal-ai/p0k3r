@@ -7,7 +7,7 @@ import { getServiceTypeLabel } from "@/lib/serviceTypes";
 import { isLandscaping } from "@/lib/serviceLines";
 import {
   getFrequency,
-  getLandscapingServiceLabel,
+  bookedServiceLabel,
   getYardSizeLabel,
 } from "@/lib/landscaping";
 
@@ -76,7 +76,7 @@ export default async function ConfirmationPage({
             {yard ? (
               <>
                 <Row label="Service">
-                  {getLandscapingServiceLabel(booking.landscapingService)}
+                  {bookedServiceLabel(booking)}
                 </Row>
                 <Row label="Address">{booking.pickupAddress}</Row>
                 <Row label="Yard size">{getYardSizeLabel(booking.yardSize)}</Row>

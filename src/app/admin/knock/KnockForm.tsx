@@ -15,6 +15,7 @@ import {
   YARD_SIZES,
   type FrequencyValue,
   type LandscapingServiceValue,
+  type ServiceCatalogue,
   type YardSizeValue,
 } from "@/lib/landscaping";
 import {
@@ -91,8 +92,8 @@ type Done = {
   method: PaymentMethodValue;
 };
 
-export default function KnockForm() {
-  const services = useMemo(() => bookableServices(), []);
+export default function KnockForm({ catalogue }: { catalogue: ServiceCatalogue }) {
+  const services = useMemo(() => bookableServices(catalogue), [catalogue]);
   const days = useMemo(() => getBookableDays(), []);
 
   const [address, setAddress] = useState<StructuredAddress>(EMPTY_ADDRESS);
@@ -120,8 +121,8 @@ export default function KnockForm() {
 
   const point = useRef<LatLng | null>(null);
 
-  const cadences = frequenciesFor(service);
-  const quote = quoteLandscaping(service, yardSize, frequency);
+  const cadences = frequenciesFor(service, catalogue);
+  const quote = quoteLandscaping(service, yardSize, frequency, catalogue);
   const windows = getAvailableWindows(dayKey);
   const price = quote?.perVisit ?? 0;
   const deposit = depositFor(price);
@@ -161,7 +162,9 @@ export default function KnockForm() {
   function pickService(value: LandscapingServiceValue) {
     setService(value);
     // Cadences differ per service; a one-off-only service can't stay weekly.
-    if (!frequenciesFor(value).some((f) => f.value === frequency)) setFrequency("ONE_TIME");
+    if (!frequenciesFor(value, catalogue).some((f) => f.value === frequency)) {
+      setFrequency("ONE_TIME");
+    }
   }
 
   async function submit(e: React.FormEvent) {
@@ -366,7 +369,7 @@ export default function KnockForm() {
         <h2 className={LABEL}>What they need</h2>
         <div className="mt-2 grid gap-2">
           {services.map((card) => {
-            const priced = quoteLandscaping(card.value, yardSize, frequency);
+            const priced = quoteLandscaping(card.value, yardSize, frequency, catalogue);
             return (
               <Choice
                 key={card.value}
@@ -388,7 +391,7 @@ export default function KnockForm() {
         <h2 className={LABEL}>How often</h2>
         <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
           {cadences.map((cadence) => {
-            const priced = quoteLandscaping(service, yardSize, cadence.value);
+            const priced = quoteLandscaping(service, yardSize, cadence.value, catalogue);
             return (
               <Choice
                 key={cadence.value}

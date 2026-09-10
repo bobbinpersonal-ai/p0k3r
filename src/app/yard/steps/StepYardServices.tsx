@@ -4,12 +4,13 @@ import {
   frequenciesFor,
   getYardSizeLabel,
   quoteLandscaping,
-  LANDSCAPING_SERVICES,
+  bookableServices,
   type FrequencyValue,
   type LandscapingServiceValue,
+  type ServiceCatalogue,
   type YardSizeValue,
 } from "@/lib/landscaping";
-import { YARD_SERVICE_ICONS } from "@/components/YardIcons";
+import { serviceIcon } from "@/components/YardIcons";
 
 // "What does the yard need?" — with every service priced for THIS yard.
 //
@@ -30,7 +31,9 @@ export default function StepYardServices({
   service,
   frequency,
   onChange,
+  catalogue,
 }: {
+  catalogue: ServiceCatalogue;
   yardSize: YardSizeValue;
   service: LandscapingServiceValue | null;
   frequency: FrequencyValue;
@@ -48,15 +51,16 @@ export default function StepYardServices({
       </p>
 
       <div className="mt-8 grid gap-3">
-        {LANDSCAPING_SERVICES.map((option) => {
-          const Icon = YARD_SERVICE_ICONS[option.value];
+        {bookableServices(catalogue).map((option) => {
+          const Icon = serviceIcon(option.value);
           const isSelected = option.value === service;
           const quote = quoteLandscaping(
             option.value,
             yardSize,
             isSelected ? frequency : "ONE_TIME",
+            catalogue,
           );
-          const cadences = frequenciesFor(option.value);
+          const cadences = frequenciesFor(option.value, catalogue);
 
           return (
             <div
@@ -115,6 +119,7 @@ export default function StepYardServices({
                         option.value,
                         yardSize,
                         cadence.value,
+                        catalogue,
                       );
                       const cadenceSelected = cadence.value === frequency;
                       return (

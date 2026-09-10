@@ -13,7 +13,7 @@ import { getServiceTypeLabel } from "@/lib/serviceTypes";
 import { getServiceLineLabel, isLandscaping } from "@/lib/serviceLines";
 import {
   getFrequency,
-  getLandscapingServiceLabel,
+  bookedServiceLabel,
   getYardSizeLabel,
 } from "@/lib/landscaping";
 import { getPayoutMethodLabel } from "@/lib/payoutMethods";
@@ -273,7 +273,7 @@ export default function DispatchBoard({
                     </p>
                     <p>
                       <span className="font-medium text-neutral-200">Job:</span>{" "}
-                      {getLandscapingServiceLabel(booking.landscapingService)} &middot;{" "}
+                      {bookedServiceLabel(booking)} &middot;{" "}
                       {getYardSizeLabel(booking.yardSize)} yard &middot;{" "}
                       <span className="font-mono text-brand-cyan">
                         {priceLabel(booking.estimateLow, booking.estimateHigh)}

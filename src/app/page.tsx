@@ -5,10 +5,11 @@ import SiteFooter from "@/components/SiteFooter";
 import AutoplayVideo from "@/components/AutoplayVideo";
 import HeroBooking from "@/components/HeroBooking";
 import CaliforniaMap from "@/components/CaliforniaMap";
-import { YARD_SERVICE_ICONS, ToolsIcon } from "@/components/YardIcons";
+import { serviceIcon, ToolsIcon } from "@/components/YardIcons";
 import { CITIES, getCity } from "@/lib/cities";
 import { CREW } from "@/lib/crew";
-import { LANDSCAPING_SERVICES, startingPriceFor, EXEMPTION_LIMIT } from "@/lib/landscaping";
+import { bookableServices, startingPriceFor, EXEMPTION_LIMIT } from "@/lib/landscaping";
+import { loadCatalogue } from "@/lib/loadCatalogue";
 import {
   MAJOR_TRADE_PROJECTS,
   MATCH_COUNT,
@@ -44,13 +45,17 @@ const HOW_IT_WORKS = [
 // The homepage has no yard photography — every image this company owns is of a
 // truck. Rather than dress a moving photo up as a lawn, the page leads with the
 // thing that actually differentiates it: the prices, all of them, in public.
-export default function HomePage({
+export default async function HomePage({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
   const cityParam = searchParams.city;
   const targetCity = typeof cityParam === "string" ? getCity(cityParam) : undefined;
+
+  // Whatever we're selling today, not whatever the code shipped with.
+  const catalogue = await loadCatalogue();
+  const services = bookableServices(catalogue);
 
   return (
     <>
@@ -88,6 +93,7 @@ export default function HomePage({
                 HeroBooking. The marketing copy is passed in so this stays a
                 server component; only the step-driven layout is client-side. */}
             <HeroBooking
+              catalogue={catalogue}
               city={targetCity?.slug}
               intro={
                 <>
@@ -166,9 +172,9 @@ export default function HomePage({
             licensed contractors.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            {LANDSCAPING_SERVICES.map((service) => {
-              const Icon = YARD_SERVICE_ICONS[service.value];
-              const from = startingPriceFor(service.value);
+            {services.map((service) => {
+              const Icon = serviceIcon(service.value);
+              const from = startingPriceFor(service.value, catalogue);
               return (
                 <Link
                   key={service.value}
@@ -257,7 +263,7 @@ export default function HomePage({
           </p>
 
           <div className="mt-8 divide-y divide-white/5 rounded-2xl border border-white/10 bg-white/[0.04]">
-            {LANDSCAPING_SERVICES.map((service) => (
+            {services.map((service) => (
               <div
                 key={service.value}
                 className="flex flex-wrap items-baseline justify-between gap-2 px-6 py-5"
@@ -269,7 +275,7 @@ export default function HomePage({
                   )}
                 </div>
                 <p className="font-mono text-xl font-bold text-brand-cyan">
-                  From ${startingPriceFor(service.value)}
+                  From ${startingPriceFor(service.value, catalogue)}
                 </p>
               </div>
             ))}

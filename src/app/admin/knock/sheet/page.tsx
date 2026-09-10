@@ -8,9 +8,11 @@ import {
   quoteLandscaping,
   startingPriceFor,
   YARD_SIZES,
+  type ServiceCatalogue,
 } from "@/lib/landscaping";
 import { MAJOR_TRADE_PROJECTS } from "@/lib/majorTrades";
 import QrCode from "@/components/QrCode";
+import { loadCatalogue } from "@/lib/loadCatalogue";
 
 // Two pages of paper: the grid we quote off, and the cards we leave behind.
 //
@@ -33,7 +35,13 @@ const SITE_ORIGIN = process.env.NEXT_PUBLIC_SITE_URL || "https://lovemeafter.com
 const SITE_URL = SITE_ORIGIN.replace(/^https?:\/\//, "");
 
 /** One leave-behind, four to a page. Kept as a component so the cut sheet is a map. */
-function LeaveBehind({ services }: { services: ReturnType<typeof bookableServices> }) {
+function LeaveBehind({
+  services,
+  catalogue,
+}: {
+  services: ReturnType<typeof bookableServices>;
+  catalogue: ServiceCatalogue;
+}) {
   return (
     <div className="flex break-inside-avoid gap-3 border border-dashed border-neutral-400 p-4">
       <div className="min-w-0 flex-1">
@@ -48,7 +56,7 @@ function LeaveBehind({ services }: { services: ReturnType<typeof bookableService
             <li key={service.value} className="flex justify-between gap-2 text-[11px] text-neutral-700">
               <span>{service.shortLabel}</span>
               <span className="whitespace-nowrap font-bold text-black">
-                from ${startingPriceFor(service.value)}
+                from ${startingPriceFor(service.value, catalogue)}
               </span>
             </li>
           ))}
@@ -119,7 +127,8 @@ const OBJECTIONS = [
   ["How much?", "Give the number. Never defer it — being the one who says the price is the whole pitch."],
   ["Talk to my spouse", "\u201cTotally fair.\u201d Card, go. Come back another day."],
   ["Are you licensed?", "Not a licensed contractor. Minor maintenance under $1,000. Anything bigger goes to licensed CSLB contractors who deal with you direct."],
-  ["Tree / patio / roof?", "Take the details, quote nothing. Submit it through /contractors from the truck."],
+  ["Tree work?", "Shaping and hedges up to 12 ft, from the ground — priced on this sheet. Removals, climbing, or anything near a power line: details only, never a price."],
+  ["Patio / roof / remodel?", "Take the details, quote nothing. Submit it through /contractors from the truck."],
   ["Do I pay now?", "Just the deposit — $55 of the $265, holds the slot. If they won't: tap Not yet and book it anyway."],
   ["Do you come back?", "Weekly, fortnightly or monthly, cheaper per visit. Monthly is NOT discounted — by week four it's a one-off again."],
   ["I already have a guy", "\u201cMost people we sign up did too — they just wanted a price they could see.\u201d"],
@@ -133,12 +142,13 @@ const NEVER_SAY = [
   "A neighbour by name",
 ];
 
-export default function PriceSheetPage() {
+export default async function PriceSheetPage() {
   if (!isValidAdminSessionCookie(cookies().get(ADMIN_COOKIE_NAME)?.value)) {
     redirect("/admin");
   }
 
-  const services = bookableServices();
+  const catalogue = await loadCatalogue();
+  const services = bookableServices(catalogue);
 
   return (
     <main className="bg-white text-black print:bg-white">
@@ -186,7 +196,7 @@ export default function PriceSheetPage() {
                 </td>
                 {YARD_SIZES.map((size) => (
                   <td key={size.value} className="border border-neutral-300 p-2 font-bold">
-                    ${quoteLandscaping(service.value, size.value, "ONE_TIME")?.perVisit}
+                    ${quoteLandscaping(service.value, size.value, "ONE_TIME", catalogue)?.perVisit}
                   </td>
                 ))}
               </tr>
@@ -218,7 +228,7 @@ export default function PriceSheetPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {frequenciesFor(service.value)
+                  {frequenciesFor(service.value, catalogue)
                     .filter((cadence) => cadence.value !== "ONE_TIME")
                     .map((cadence) => (
                       <tr key={cadence.value}>
@@ -227,7 +237,7 @@ export default function PriceSheetPage() {
                         </td>
                         {YARD_SIZES.map((size) => (
                           <td key={size.value} className="border border-neutral-300 p-2">
-                            ${quoteLandscaping(service.value, size.value, cadence.value)?.perVisit}
+                            ${quoteLandscaping(service.value, size.value, cadence.value, catalogue)?.perVisit}
                           </td>
                         ))}
                       </tr>
@@ -319,6 +329,7 @@ export default function PriceSheetPage() {
               <li>· Daylight only. Stop at dusk.</li>
               <li>· Carry the city&apos;s solicitor permit.</li>
               <li>· Never quote a job at or over $1,000 out loud.</li>
+              <li>· Never quote taking a tree down. Ever.</li>
             </ul>
           </div>
         </div>
@@ -331,7 +342,7 @@ export default function PriceSheetPage() {
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           {[0, 1, 2, 3, 4, 5].map((i) => (
-            <LeaveBehind key={i} services={services} />
+            <LeaveBehind key={i} services={services} catalogue={catalogue} />
           ))}
         </div>
       </section>

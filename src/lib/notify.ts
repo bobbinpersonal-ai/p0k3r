@@ -23,7 +23,7 @@ import { getCity } from "./cities";
 import { getServiceTypeLabel } from "./serviceTypes";
 import { getApplicantRoleLabel } from "./applicantRoles";
 import { getServiceLine, isLandscaping } from "./serviceLines";
-import { getFrequency, getLandscapingServiceLabel, getYardSizeLabel } from "./landscaping";
+import { bookedServiceLabel, getFrequency, getYardSizeLabel } from "./landscaping";
 import { getMajorTradeLabel, MATCH_COUNT } from "./majorTrades";
 import { balanceAfter } from "./deposit";
 import { getPaymentMethodLabel, isPaidMethod } from "./payments";
@@ -88,7 +88,7 @@ function jobLines(booking: Booking): string[] {
   if (isLandscaping(booking.serviceLine)) {
     const cadence = booking.frequency ? getFrequency(booking.frequency) : undefined;
     return [
-      `${getLandscapingServiceLabel(booking.landscapingService)} · ${getYardSizeLabel(
+      `${bookedServiceLabel(booking)} · ${getYardSizeLabel(
         booking.yardSize,
       )} yard`,
       `At: ${booking.pickupAddress}`,

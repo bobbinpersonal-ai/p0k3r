@@ -99,6 +99,16 @@ export type LandscapingService = {
   /** The bullets on the service card — what's actually included. */
   includes: readonly string[];
   /**
+   * What this service explicitly does not cover.
+   *
+   * Required, and `[]` where there is genuinely nothing to say, because on
+   * the services where it matters it is the compliance boundary rather than
+   * a marketing caveat: tree work is a licensed trade the moment it stops
+   * being a hedge, and the difference has to be written down somewhere a
+   * customer and a crew both read.
+   */
+  excludes: readonly string[];
+  /**
    * Whether this job makes sense on a schedule.
    *
    * Mowing does: that's the whole business. Clearing a yard that's been left
@@ -129,6 +139,7 @@ export const LANDSCAPING_SERVICES = [
       "Exterior window & screen wash",
       "Gutter cleaning & leaf clearing",
     ],
+    excludes: [],
     allowsRecurring: false,
     materialsNote: null,
   },
@@ -143,6 +154,7 @@ export const LANDSCAPING_SERVICES = [
       "Weeding and garden bed cleanout",
       "Leaf removal & haul-away",
     ],
+    excludes: [],
     allowsRecurring: true,
     materialsNote: null,
   },
@@ -157,8 +169,35 @@ export const LANDSCAPING_SERVICES = [
       "Sprinkler head replacement & line flush",
       "Mulch, soil, or gravel refresh",
     ],
+    excludes: [],
     allowsRecurring: false,
     materialsNote: "Labour only — materials billed at cost",
+  },
+  {
+    value: "TREE_SHRUB_CARE",
+    label: "Tree & Shrub Care",
+    shortLabel: "Tree & shrub care",
+    description: "Small trees, hedges and ornamentals kept in shape — from the ground",
+    includes: [
+      "Shaping and thinning up to 12 ft, worked from the ground",
+      "Hedge, shrub and ornamental pruning",
+      "Sucker, water-sprout and deadwood removal",
+      "Green waste hauled away",
+    ],
+    // Where this service stops, and it stops hard. Tree work becomes a
+    // licensed trade (CSLB D-49) the moment it involves taking a tree down,
+    // and it becomes a safety problem well before that: a ladder, a chainsaw
+    // and a power line is how people die doing this. Removals and anything
+    // needing a climber go to the referral path — see MAJOR_TRADE_CATEGORIES,
+    // which already lists tree removal and major trimming.
+    excludes: [
+      "No tree removals or stump work",
+      "Nothing above 12 ft, no climbing and no bucket work",
+      "Nothing within 10 ft of a power line",
+      "No structural or hazard pruning on mature trees",
+    ],
+    allowsRecurring: false,
+    materialsNote: null,
   },
 ] as const satisfies readonly LandscapingService[];
 
@@ -197,22 +236,72 @@ const RETIRED_SERVICE_LABELS: Record<string, string> = {
   INSTALL: "Mulch, sod & planting",
 };
 
-export type LandscapingServiceValue = (typeof LANDSCAPING_SERVICES)[number]["value"];
+/** The three-or-four services this file ships with. */
+export type BuiltInServiceValue = (typeof LANDSCAPING_SERVICES)[number]["value"];
+
+/**
+ * A service's stable key.
+ *
+ * Widened from the literal union of the built-ins the day the catalogue
+ * became editable: a service someone adds at /admin/services has a value
+ * this file has never heard of, and typing it as a union would have meant
+ * every runtime lookup lying about what it might be handed. The guard is
+ * isLandscapingServiceValue, checked against whichever catalogue is in play,
+ * rather than the compiler.
+ */
+export type LandscapingServiceValue = string;
 
 /** A row of LANDSCAPING_SERVICES with its literal `value` intact. */
-export type LandscapingServiceCard = (typeof LANDSCAPING_SERVICES)[number];
+/**
+ * A service as callers get it back.
+ *
+ * Was the literal type of a row in the const array; now the plain shape,
+ * because a custom service is a real card that simply isn't in the array.
+ */
+export type LandscapingServiceCard = LandscapingService;
 
-export function isLandscapingServiceValue(value: string): value is LandscapingServiceValue {
-  return LANDSCAPING_SERVICES.some((service) => service.value === value);
+export function isLandscapingServiceValue(
+  value: string,
+  catalogue: ServiceCatalogue = BUILT_IN_CATALOGUE,
+): boolean {
+  return catalogue.services.some((service) => service.value === value);
 }
 
-export function getLandscapingService(value: string): LandscapingServiceCard | undefined {
-  return LANDSCAPING_SERVICES.find((service) => service.value === value);
+export function getLandscapingService(
+  value: string,
+  catalogue: ServiceCatalogue = BUILT_IN_CATALOGUE,
+): LandscapingServiceCard | undefined {
+  return catalogue.services.find((service) => service.value === value);
 }
 
-export function getLandscapingServiceLabel(value: string | null | undefined): string {
+export function getLandscapingServiceLabel(
+  value: string | null | undefined,
+  catalogue: ServiceCatalogue = BUILT_IN_CATALOGUE,
+): string {
   if (!value) return "";
-  return getLandscapingService(value)?.label ?? RETIRED_SERVICE_LABELS[value] ?? value;
+  return getLandscapingService(value, catalogue)?.label ?? RETIRED_SERVICE_LABELS[value] ?? value;
+}
+
+/**
+ * What a booking's service was *called when it was sold*.
+ *
+ * Prefers the label stored on the row over looking the value up, because the
+ * catalogue is editable: renaming a service should change what we advertise
+ * tomorrow, not what a customer's signed agreement says they bought last
+ * month. Falls back to the lookup for bookings taken before the label was
+ * recorded, and to the retired-name table for services we no longer sell.
+ */
+export function bookedServiceLabel(
+  booking: {
+    landscapingServiceLabel?: string | null;
+    landscapingService?: string | null;
+  },
+  catalogue: ServiceCatalogue = BUILT_IN_CATALOGUE,
+): string {
+  return (
+    booking.landscapingServiceLabel?.trim() ||
+    getLandscapingServiceLabel(booking.landscapingService, catalogue)
+  );
 }
 
 // --- How often ---------------------------------------------------------------
@@ -289,14 +378,17 @@ export function getFrequencyLabel(value: string | null | undefined): string {
 }
 
 /** The options a given service can actually be booked on. */
-export function frequenciesFor(service: LandscapingServiceValue): readonly FrequencyCard[] {
-  const card = getLandscapingService(service);
+export function frequenciesFor(
+  service: LandscapingServiceValue,
+  catalogue: ServiceCatalogue = BUILT_IN_CATALOGUE,
+): readonly FrequencyCard[] {
+  const card = getLandscapingService(service, catalogue);
   return card?.allowsRecurring ? FREQUENCIES : FREQUENCIES.filter((f) => f.value === "ONE_TIME");
 }
 
 // --- The price table ---------------------------------------------------------
 
-type PriceTable = Record<LandscapingServiceValue, Record<YardSizeValue, number>>;
+type PriceTable = Record<string, Record<YardSizeValue, number>>;
 
 /**
  * What a one-time visit costs, in dollars, before any recurring discount.
@@ -310,6 +402,7 @@ const BASE_PRICE: PriceTable = {
   EXTERIOR_WASH: { SMALL: 199, MEDIUM: 329, LARGE: 499, XL: 749 },
   CLEAN_EDGE: { SMALL: 150, MEDIUM: 265, LARGE: 425, XL: 650 },
   ASSEMBLY_REPAIR: { SMALL: 249, MEDIUM: 399, LARGE: 599, XL: 849 },
+  TREE_SHRUB_CARE: { SMALL: 179, MEDIUM: 289, LARGE: 469, XL: 699 },
 };
 
 // --- What it costs us --------------------------------------------------------
@@ -345,7 +438,7 @@ const PLATFORM_RATE = 0.25;
  */
 export const EXEMPTION_LIMIT = 1000;
 
-type CostRow = {
+export type CostRow = {
   /** Person-hours on site, low and high. The floor check uses `high`. */
   hours: { low: number; high: number };
   /** How many people go. Drives what dispatch schedules, not the price. */
@@ -359,7 +452,7 @@ type CostRow = {
   supplies: number;
 };
 
-type CostTable = Record<LandscapingServiceValue, Record<YardSizeValue, CostRow>>;
+type CostTable = Record<string, Record<YardSizeValue, CostRow>>;
 
 /**
  * What each job actually takes. Used for the wage-floor check, for the "about
@@ -384,6 +477,42 @@ const COST_MODEL: CostTable = {
     LARGE: { hours: { low: 6, high: 8.5 }, crewSize: 2, supplies: 45 },
     XL: { hours: { low: 9, high: 12 }, crewSize: 3, supplies: 60 },
   },
+  // Green waste is the supply cost here — dump fees, not materials.
+  TREE_SHRUB_CARE: {
+    SMALL: { hours: { low: 1.5, high: 2.5 }, crewSize: 2, supplies: 25 },
+    MEDIUM: { hours: { low: 2.5, high: 4 }, crewSize: 2, supplies: 40 },
+    LARGE: { hours: { low: 4, high: 6 }, crewSize: 2, supplies: 60 },
+    XL: { hours: { low: 6, high: 8.5 }, crewSize: 3, supplies: 85 },
+  },
+};
+
+// --- The catalogue -----------------------------------------------------------
+
+/**
+ * Everything the pricing functions need to answer a question, in one object.
+ *
+ * The three tables above are the *defaults* — what this business does when
+ * nobody has edited anything. What it actually sells is those defaults with
+ * whatever the owner has since changed or added at /admin/services layered
+ * over them (see src/lib/serviceCatalogue.ts), and that merged result has to
+ * reach a client component to price a card, so it is a plain serialisable
+ * object rather than a module the client re-imports.
+ *
+ * Every function below takes one as a trailing argument, defaulting to the
+ * built-ins. That default is what keeps this change additive: a caller that
+ * has no catalogue to hand — a test, a script, a page that predates all this —
+ * still gets a correct answer for the shipped services.
+ */
+export type ServiceCatalogue = {
+  services: readonly LandscapingServiceCard[];
+  price: PriceTable;
+  cost: CostTable;
+};
+
+export const BUILT_IN_CATALOGUE: ServiceCatalogue = {
+  services: LANDSCAPING_SERVICES,
+  price: BASE_PRICE,
+  cost: COST_MODEL,
 };
 
 /**
@@ -434,10 +563,18 @@ export function quoteLandscaping(
   service: LandscapingServiceValue,
   yardSize: YardSizeValue,
   frequencyValue: FrequencyValue = DEFAULT_FREQUENCY,
+  catalogue: ServiceCatalogue = BUILT_IN_CATALOGUE,
 ): LandscapingQuote | undefined {
-  const serviceCard = getLandscapingService(service);
+  const serviceCard = getLandscapingService(service, catalogue);
   const sizeCard = getYardSize(yardSize);
   if (!serviceCard || !sizeCard) return undefined;
+
+  // A catalogue is only as good as its tables. A service listed with no price
+  // row is a half-finished edit, and pricing it at NaN would put "$NaN" on a
+  // card; treating it as a service we don't offer is the safe reading.
+  const priceRow = catalogue.price[service];
+  const costRow = catalogue.cost[service];
+  if (!priceRow?.[yardSize] || !costRow?.[yardSize]) return undefined;
 
   // A one-off service asked for on a schedule is priced — and delivered — as
   // the one-off it is, rather than refused. Someone who ticks "every week" on
@@ -448,7 +585,7 @@ export function quoteLandscaping(
       ? requested
       : getFrequency("ONE_TIME")!;
 
-  const oneTimePrice = BASE_PRICE[service][yardSize];
+  const oneTimePrice = priceRow[yardSize];
   // Only a discount gets rounded. Running every price through ceilToFive turned
   // the advertised $199 into $200 and made "from $199" false the moment anyone
   // clicked it — the rounding exists to stop a discount landing below the wage
@@ -457,7 +594,7 @@ export function quoteLandscaping(
     frequency.priceMultiplier === 1
       ? oneTimePrice
       : ceilToFive(oneTimePrice * frequency.priceMultiplier);
-  const cost = COST_MODEL[service][yardSize];
+  const cost = costRow[yardSize];
 
   const crewPayout = Math.ceil(perVisit * (1 - PLATFORM_RATE));
 
@@ -485,8 +622,11 @@ export function quoteLandscaping(
 export function quoteYardSizes(
   service: LandscapingServiceValue,
   frequency: FrequencyValue = DEFAULT_FREQUENCY,
+  catalogue: ServiceCatalogue = BUILT_IN_CATALOGUE,
 ): LandscapingQuote[] {
-  return YARD_SIZES.map((size) => quoteLandscaping(service, size.value, frequency)).filter(
+  return YARD_SIZES.map((size) =>
+    quoteLandscaping(service, size.value, frequency, catalogue),
+  ).filter(
     (quote): quote is LandscapingQuote => quote !== undefined,
   );
 }
@@ -496,8 +636,11 @@ export function quoteYardSizes(
  * cards. Always the one-time small-yard price — never a recurring rate, which
  * would advertise a number most people can't have.
  */
-export function startingPriceFor(service: LandscapingServiceValue): number {
-  return BASE_PRICE[service].SMALL;
+export function startingPriceFor(
+  service: LandscapingServiceValue,
+  catalogue: ServiceCatalogue = BUILT_IN_CATALOGUE,
+): number {
+  return catalogue.price[service]?.SMALL ?? 0;
 }
 
 /**
@@ -508,8 +651,12 @@ export function startingPriceFor(service: LandscapingServiceValue): number {
  * invariant test and any future admin view compute it the same way rather than
  * each re-deriving it and drifting.
  */
-export function crewPerPersonHour(quote: LandscapingQuote): number {
-  const cost = COST_MODEL[quote.service.value][quote.yardSize.value];
+export function crewPerPersonHour(
+  quote: LandscapingQuote,
+  catalogue: ServiceCatalogue = BUILT_IN_CATALOGUE,
+): number {
+  const cost = catalogue.cost[quote.service.value]?.[quote.yardSize.value];
+  if (!cost) return 0;
   return (quote.crewPayout - cost.supplies) / cost.hours.high;
 }
 
@@ -520,10 +667,12 @@ export function crewPerPersonHour(quote: LandscapingQuote): number {
  * pushes a service over the line takes it off the bookable surfaces on its
  * own instead of waiting for someone to notice.
  */
-export function bookableServices(): LandscapingServiceCard[] {
-  return LANDSCAPING_SERVICES.filter((service) =>
+export function bookableServices(
+  catalogue: ServiceCatalogue = BUILT_IN_CATALOGUE,
+): LandscapingServiceCard[] {
+  return catalogue.services.filter((service) =>
     YARD_SIZES.every((size) => {
-      const quote = quoteLandscaping(service.value, size.value, "ONE_TIME");
+      const quote = quoteLandscaping(service.value, size.value, "ONE_TIME", catalogue);
       return quote ? !quote.exceedsExemption : false;
     }),
   );

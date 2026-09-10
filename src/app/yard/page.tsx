@@ -3,6 +3,7 @@ import SiteFooter from "@/components/SiteFooter";
 import LandscapingFlow from "./LandscapingFlow";
 import { getCity } from "@/lib/cities";
 import { isSourceValue } from "@/lib/sources";
+import { loadCatalogue } from "@/lib/loadCatalogue";
 import {
   isFrequencyValue,
   isLandscapingServiceValue,
@@ -15,7 +16,7 @@ export const metadata = {
     "Mowing, cleanups, trimming and planting at a flat price by yard size. Pick the job and the size and see your price before you give us a phone number.",
 };
 
-export default function YardPage({
+export default async function YardPage({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
@@ -62,12 +63,15 @@ export default function YardPage({
   const source =
     typeof sourceParam === "string" && isSourceValue(sourceParam) ? sourceParam : undefined;
 
+  const catalogue = await loadCatalogue();
+
   return (
     <>
       <SiteHeader />
       <main className="relative mx-auto max-w-2xl px-4 py-12 sm:px-6">
         <div className="absolute inset-x-0 top-0 -z-10 h-[300px] bg-grid-fade" />
         <LandscapingFlow
+          catalogue={catalogue}
           initialService={initialService}
           initialYardSize={initialYardSize}
           initialFrequency={initialFrequency}

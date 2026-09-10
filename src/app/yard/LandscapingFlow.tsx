@@ -22,6 +22,7 @@ import {
   quoteLandscaping,
   type FrequencyValue,
   type LandscapingServiceValue,
+  type ServiceCatalogue,
   type YardSizeValue,
 } from "@/lib/landscaping";
 import { firstBookableDay, windowLabel } from "@/lib/arrivalWindows";
@@ -71,7 +72,12 @@ export default function LandscapingFlow({
   source,
   embedded = false,
   onStepChange,
+  // Passed down from the server page rather than imported, because the
+  // catalogue is editable now (see src/lib/serviceCatalogue.ts) and a client
+  // component that imports the defaults would keep showing them.
+  catalogue,
 }: {
+  catalogue: ServiceCatalogue;
   /** Set when they tapped a service on the homepage, so we don't ask again. */
   initialService?: LandscapingServiceValue;
   initialYardSize?: YardSizeValue;
@@ -215,7 +221,8 @@ export default function LandscapingFlow({
     window.history.pushState({ ...window.history.state, yardStep: target }, "");
   }
 
-  const quote = service && yardSize ? quoteLandscaping(service, yardSize, frequency) : undefined;
+  const quote =
+    service && yardSize ? quoteLandscaping(service, yardSize, frequency, catalogue) : undefined;
 
   // Where the job is, so the crew match has something real to measure from.
   // Coordinates once geocoded; the typed city until then.
@@ -462,6 +469,7 @@ export default function LandscapingFlow({
         )}
         {step === SERVICES_STEP && yardSize && (
           <StepYardServices
+            catalogue={catalogue}
             yardSize={yardSize}
             service={service}
             frequency={frequency}

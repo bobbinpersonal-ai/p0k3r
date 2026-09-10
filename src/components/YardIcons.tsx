@@ -150,9 +150,21 @@ export const YARD_SERVICE_ICONS: Record<string, () => JSX.Element> = {
   EXTERIOR_WASH: WashIcon,
   CLEAN_EDGE: MowerIcon,
   ASSEMBLY_REPAIR: ToolsIcon,
+  TREE_SHRUB_CARE: ShearsIcon,
 
   MOW_EDGE_BLOW: MowerIcon,
   CLEANUP: RakeIcon,
   TRIM_HAUL: ShearsIcon,
   INSTALL: PlantIcon,
 };
+
+/**
+ * An icon for any service, including ones invented at /admin/services.
+ *
+ * A custom service has no entry here and never will, so it gets the generic
+ * one rather than a hole in the card — the alternative is a row of services
+ * where the new one is visibly second-class.
+ */
+export function serviceIcon(value: string): () => JSX.Element {
+  return YARD_SERVICE_ICONS[value] ?? PlantIcon;
+}

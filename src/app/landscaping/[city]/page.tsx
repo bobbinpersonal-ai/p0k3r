@@ -5,9 +5,10 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AutoplayVideo from "@/components/AutoplayVideo";
 import HeroBooking from "@/components/HeroBooking";
-import { YARD_SERVICE_ICONS } from "@/components/YardIcons";
+import { serviceIcon } from "@/components/YardIcons";
 import { CITIES, getCity, bareCityName } from "@/lib/cities";
-import { LANDSCAPING_SERVICES, startingPriceFor } from "@/lib/landscaping";
+import { bookableServices, startingPriceFor } from "@/lib/landscaping";
+import { loadCatalogue } from "@/lib/loadCatalogue";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
@@ -57,10 +58,12 @@ export function generateMetadata({ params }: { params: { city: string } }): Meta
   };
 }
 
-export default function LandscapingCityPage({ params }: { params: { city: string } }) {
+export default async function LandscapingCityPage({ params }: { params: { city: string } }) {
   const city = getCity(params.city);
   if (!city) notFound();
   const bare = bareCityName(city);
+  const catalogue = await loadCatalogue();
+  const services = bookableServices(catalogue);
 
   return (
     <>
@@ -72,6 +75,7 @@ export default function LandscapingCityPage({ params }: { params: { city: string
           <div className="relative mx-auto max-w-6xl px-4 py-12 sm:px-6 sm:py-16">
             {/* Same inline booking flow as the homepage — see HeroBooking. */}
             <HeroBooking
+              catalogue={catalogue}
               city={city.slug}
               intro={
                 <>
@@ -128,9 +132,9 @@ export default function LandscapingCityPage({ params }: { params: { city: string
             What we do in {bare}
           </h2>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            {LANDSCAPING_SERVICES.map((service) => {
-              const Icon = YARD_SERVICE_ICONS[service.value];
-              const from = startingPriceFor(service.value);
+            {services.map((service) => {
+              const Icon = serviceIcon(service.value);
+              const from = startingPriceFor(service.value, catalogue);
               return (
                 <Link
                   key={service.value}
@@ -165,14 +169,14 @@ export default function LandscapingCityPage({ params }: { params: { city: string
             Weekly plans are 20% less per visit, every other week 10% less.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {LANDSCAPING_SERVICES.map((service) => (
+            {services.map((service) => (
               <div
                 key={service.value}
                 className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"
               >
                 <p className="font-semibold text-ink">{service.label}</p>
                 <p className="mt-1 font-mono text-2xl font-bold text-brand-cyan">
-                  from ${startingPriceFor(service.value)}
+                  from ${startingPriceFor(service.value, catalogue)}
                 </p>
                 <p className="mt-1 text-sm text-neutral-300">
                   {service.materialsNote ? "Labour only" : "Per visit"}

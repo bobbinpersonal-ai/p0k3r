@@ -601,6 +601,43 @@ driver's phone number is a tap-to-call link), then marks the booking `ASSIGNED` 
 picks that driver from the dropdown. Status moves to `IN_PROGRESS` when the crew is
 on the job and `COMPLETED` when it's done.
 
+## Changing what you sell — `/admin/services`
+
+The catalogue in `src/lib/landscaping.ts` is the *default*: four services with
+a flat price per yard size, a cost model underneath each, and the wage-floor
+invariant test holding both honest. What the business actually sells is those
+defaults with whatever has since been changed at `/admin/services` layered on
+top — stored in `ServiceConfig`, merged by `src/lib/serviceCatalogue.ts`, and
+loaded by every surface through `loadCatalogue()`.
+
+You can change a price, reword a service, switch one off, or add one that was
+never in the code. Saving publishes: the homepage, the city pages, the booking
+flow, the door form and the printed sheet all read the merged catalogue, so
+there is no second place to update and no reprint of the code.
+
+Two rules survive editing, and they are enforced on write rather than trusted:
+
+- **Nothing bookable may reach `EXEMPTION_LIMIT`.** That is not a pricing
+  preference; it is the edge of what an unlicensed business may sell directly.
+- **No price may leave the crew under `CREW_FLOOR_HOURLY`** per person-hour
+  after supplies, at the slow end of the hours estimate — the rate `/drive`
+  advertises. A refusal names the price that *would* work, and the editor
+  shows the crew's hourly rate live next to every box, so the arithmetic is
+  visible before you save rather than after.
+
+Deleting a stored row **reverts** rather than removes: a built-in goes back to
+how it ships, and a service invented here disappears (bookings already taken
+keep their own record). Turning something off without losing its pricing is the
+`active` flag.
+
+Two consequences worth knowing. `LandscapingServiceValue` is a plain string
+rather than a union of the shipped four, because a service added at runtime has
+a value the compiler has never seen — the guard is `isLandscapingServiceValue`
+against a catalogue, not the type system. And every booking stores
+`landscapingServiceLabel`, the service's name *on the day it was sold*, so
+renaming a service changes what you advertise tomorrow rather than what a
+customer's signed agreement says they bought last month.
+
 ## Knocking doors
 
 Selling on the doorstep needs different tools from selling on a website, so it has

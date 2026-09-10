@@ -2,6 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE_NAME, isValidAdminSessionCookie } from "@/lib/auth";
+import { loadCatalogue } from "@/lib/loadCatalogue";
 import KnockForm from "./KnockForm";
 
 export const metadata = {
@@ -9,10 +10,12 @@ export const metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function KnockPage() {
+export default async function KnockPage() {
   if (!isValidAdminSessionCookie(cookies().get(ADMIN_COOKIE_NAME)?.value)) {
     redirect("/admin");
   }
+
+  const catalogue = await loadCatalogue();
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-8">
@@ -31,11 +34,14 @@ export default function KnockPage() {
         <Link href="/admin/knock/sheet" className="text-brand-cyan underline">
           Print the price sheet
         </Link>
+        <Link href="/admin/services" className="text-neutral-300 underline">
+          Services &amp; prices
+        </Link>
         <Link href="/admin/dashboard" className="text-neutral-300 underline">
           Dispatch board
         </Link>
       </div>
-      <KnockForm />
+      <KnockForm catalogue={catalogue} />
     </main>
   );
 }

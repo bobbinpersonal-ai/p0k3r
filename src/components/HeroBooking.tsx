@@ -3,6 +3,7 @@
 import { useCallback, useState } from "react";
 import Link from "next/link";
 import LandscapingFlow from "@/app/yard/LandscapingFlow";
+import type { ServiceCatalogue } from "@/lib/landscaping";
 import { MATCH_COUNT } from "@/lib/majorTrades";
 
 // The booking flow, living in the hero instead of on its own page.
@@ -26,7 +27,9 @@ export default function HeroBooking({
   city,
   source,
   intro,
+  catalogue,
 }: {
+  catalogue: ServiceCatalogue;
   city?: string;
   source?: string;
   /** The headline and pitch, rendered by the host page's server component. */
@@ -77,7 +80,13 @@ export default function HeroBooking({
           data-hero-card
           className="rounded-2xl border border-white/10 bg-paper/80 p-4 shadow-xl ring-1 ring-white/10 supports-[backdrop-filter]:bg-paper/70 supports-[backdrop-filter]:backdrop-blur-md sm:p-6"
         >
-          <LandscapingFlow embedded onStepChange={handleStepChange} city={city} source={source} />
+          <LandscapingFlow
+            embedded
+            catalogue={catalogue}
+            onStepChange={handleStepChange}
+            city={city}
+            source={source}
+          />
         </div>
 
         {/* The way out for work we aren't licensed to do. Kept on step one

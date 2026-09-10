@@ -15,8 +15,12 @@
 // a processor) is a Stripe integration, not a change here.
 
 const VENMO_HANDLE = (process.env.NEXT_PUBLIC_VENMO_HANDLE || "").replace(/^@/, "");
+// Deliberately not the support number. Apple Cash lands in a personal
+// Messages thread, which is a different inbox from the one customers call,
+// and pointing both at one number means a payment arrives in the middle of
+// a booking conversation and gets missed.
 const APPLE_CASH_PHONE =
-  process.env.NEXT_PUBLIC_APPLE_CASH_PHONE || process.env.NEXT_PUBLIC_SUPPORT_PHONE || "";
+  process.env.NEXT_PUBLIC_APPLE_CASH_PHONE || "(786) 400-7012";
 
 /**
  * A phone number as a dialable target.

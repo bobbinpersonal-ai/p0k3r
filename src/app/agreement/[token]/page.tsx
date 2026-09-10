@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { isLandscaping } from "@/lib/serviceLines";
 import {
   getFrequency,
-  getLandscapingServiceLabel,
+  bookedServiceLabel,
   getYardSizeLabel,
 } from "@/lib/landscaping";
 import { getServiceTypeLabel } from "@/lib/serviceTypes";
@@ -109,7 +109,7 @@ export default async function AgreementPage({ params }: { params: { token: strin
   const deadline = cancellationDeadline(transaction);
 
   const service = yard
-    ? getLandscapingServiceLabel(booking.landscapingService)
+    ? bookedServiceLabel(booking)
     : getServiceTypeLabel(booking.serviceType ?? "");
 
   return (

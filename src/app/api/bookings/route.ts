@@ -19,7 +19,9 @@ import {
   isLandscapingServiceValue,
   isYardSizeValue,
   quoteLandscaping,
+  type ServiceCatalogue,
 } from "@/lib/landscaping";
+import { loadCatalogue } from "@/lib/loadCatalogue";
 import type { Prisma } from "@prisma/client";
 
 /**
@@ -153,10 +155,16 @@ function buildMoveBooking(body: Record<string, unknown>): BuildResult {
 
 // --- Landscaping: one flat price per (service x yard size) -------------------
 
-function buildLandscapingBooking(body: Record<string, unknown>): BuildResult {
+function buildLandscapingBooking(
+  body: Record<string, unknown>,
+  catalogue: ServiceCatalogue,
+): BuildResult {
   const { landscapingService, yardSize, frequency, pickupAddress } = body;
 
-  if (!isFilled(landscapingService) || !isLandscapingServiceValue(landscapingService)) {
+  // Checked against the catalogue in force right now, not the one in the
+  // source: a service added at /admin/services this morning has to be
+  // bookable this afternoon, and one switched off has to stop being.
+  if (!isFilled(landscapingService) || !isLandscapingServiceValue(landscapingService, catalogue)) {
     return { ok: false, error: "Please pick which yard service you need." };
   }
   if (!isFilled(yardSize) || !isYardSizeValue(yardSize)) {
@@ -168,7 +176,7 @@ function buildLandscapingBooking(body: Record<string, unknown>): BuildResult {
   const requested =
     isFilled(frequency) && isFrequencyValue(frequency) ? frequency : DEFAULT_FREQUENCY;
 
-  const quote = quoteLandscaping(landscapingService, yardSize, requested);
+  const quote = quoteLandscaping(landscapingService, yardSize, requested, catalogue);
   if (!quote) return { ok: false, error: "We don't offer that combination yet." };
 
   return {
@@ -182,6 +190,8 @@ function buildLandscapingBooking(body: Record<string, unknown>): BuildResult {
       dropoffAddress: null,
       dropoffMode: null,
       landscapingService,
+      // Frozen at the point of sale — the catalogue can be renamed later.
+      landscapingServiceLabel: quote.service.label,
       yardSize,
       // What the quote actually settled on, not what was asked for — a
       // one-time-only service asked for weekly comes back as ONE_TIME.
@@ -269,7 +279,9 @@ export async function POST(req: NextRequest) {
       : DEFAULT_SERVICE_LINE;
 
   const built =
-    line === "LANDSCAPING" ? buildLandscapingBooking(body) : buildMoveBooking(body);
+    line === "LANDSCAPING"
+      ? buildLandscapingBooking(body, await loadCatalogue())
+      : buildMoveBooking(body);
   if (!built.ok) {
     return NextResponse.json({ error: built.error }, { status: 400 });
   }

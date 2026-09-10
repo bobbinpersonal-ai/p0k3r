@@ -8,7 +8,8 @@ say, and the two pages that do the paperwork.
 | What | Where | Notes |
 | --- | --- | --- |
 | Intake form | `/admin/knock` | One screen. Fill it in on their step; price updates as you tap. |
-| Price sheet + leave-behinds | `/admin/knock/sheet` | Print at 100%, portrait. Page 1 quotes, page 2 cuts into four cards. |
+| Price sheet + leave-behinds | `/admin/knock/sheet` | Print at 100%, portrait. Page 1 quotes, page 2 is the script, page 3 cuts into six cards. |
+| Services & prices | `/admin/services` | Change a price, reword a service, add one of your own. Saving publishes. |
 | QR codes | `public/qr/*.svg` | Regenerate with `node scripts/gen-qr.mjs` if a link changes. |
 
 Both pages sit behind the dispatch login, so sign in once on the phone you'll
@@ -175,9 +176,16 @@ hand to licensed, bonded and insured CSLB contractors, two or three of them,
 who contract with the customer directly. We don't price that work and we don't
 take money for it.
 
-**"Can you do my tree / my patio / my roof?"** — Same answer. Take the details
-and submit it through `/contractors` when you're back in the truck. Never quote
-it at the door.
+**"Can you do my trees?"** — Some of it, and the line matters. Shaping,
+thinning and hedge work **up to 12 feet, worked from the ground**, is on the
+price sheet and you can quote it now. Taking a tree down, anything needing a
+climber or a bucket, anything within ten feet of a power line — that is a
+licensed tree service (CSLB D-49) and a way to get someone killed. Take the
+details, quote nothing, submit it through `/contractors`.
+
+**"Can you do my patio / my roof?"** — Same as a removal. Take the details and
+submit it through `/contractors` when you're back in the truck. Never quote it
+at the door.
 
 **"Do you come back?"** — Clean edge runs weekly, every two weeks, or monthly,
 and the per-visit price drops on a schedule. Monthly is *not* discounted — by
@@ -197,6 +205,9 @@ show."
 - **Say we're unlicensed if the subject comes up, and never imply otherwise.**
   It's on every card (California B&P 7027.2 requires it on advertising done
   under the minor-work exemption). Don't hand out a card with that line cut off.
+- **Never quote taking a tree down**, or any tree work off the ground. The
+  service we sell stops at 12 feet and stops at pruning; past that it is a
+  licensed trade and a genuine safety risk.
 - **Never quote a job at or over $1,000.** The booking form can't produce one —
   it only offers services priced under the cap — but a verbal "I could do that
   for..." is still advertising unlicensed contracting. Route it to the

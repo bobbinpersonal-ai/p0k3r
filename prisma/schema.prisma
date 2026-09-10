@@ -140,6 +140,11 @@ model Booking {
   // price. frequency is what the customer signed up for — a recurring plan is
   // one Booking row for the first visit, with dispatch repeating it.
   landscapingService String?
+  /// The service's name as it read on the day, kept because the catalogue is
+  /// editable: renaming a service must not rewrite what a past customer
+  /// agreed to on their signed agreement. Null on bookings taken before this
+  /// existed, where readers fall back to looking the value up.
+  landscapingServiceLabel String?
   yardSize        String?
   frequency       String?
 
@@ -193,4 +198,36 @@ model Booking {
 
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+}
+
+/// An edit to the service catalogue, made at /admin/services.
+///
+/// The catalogue lives in code (src/lib/landscaping.ts) and this table layers
+/// over it: a row whose `value` matches a shipped service replaces it, and a
+/// row with a new value adds one. Deleting a row therefore *reverts* a
+/// built-in to its shipped definition rather than removing the service, which
+/// is why deactivating is a flag rather than a delete.
+///
+/// prices and cost are JSON keyed by yard size. They are validated on write
+/// (see src/lib/serviceCatalogue.ts) against the same two rules the shipped
+/// prices are held to: nothing may reach the CSLB exemption limit, and every
+/// size has to clear the crew wage floor /drive advertises.
+model ServiceConfig {
+  id              String   @id @default(cuid())
+  value           String   @unique
+  label           String
+  shortLabel      String
+  description     String
+  includes        String[]
+  excludes        String[]
+  allowsRecurring Boolean  @default(false)
+  materialsNote   String?
+  /// Off takes it out of the catalogue everywhere without losing the pricing.
+  active          Boolean  @default(true)
+  sortOrder       Int      @default(100)
+  prices          Json
+  cost            Json
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

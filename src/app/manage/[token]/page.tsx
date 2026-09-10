@@ -6,7 +6,7 @@ import { getServiceTypeLabel } from "@/lib/serviceTypes";
 import { getServiceLine, isLandscaping } from "@/lib/serviceLines";
 import {
   getFrequency,
-  getLandscapingServiceLabel,
+  bookedServiceLabel,
   getYardSizeLabel,
 } from "@/lib/landscaping";
 import { balanceAfter } from "@/lib/deposit";
@@ -72,7 +72,7 @@ export default async function ManageBookingPage({
                 <div className="flex justify-between gap-4">
                   <dt className="text-neutral-400">Service</dt>
                   <dd className="text-right font-medium text-ink">
-                    {getLandscapingServiceLabel(booking.landscapingService)} ·{" "}
+                    {bookedServiceLabel(booking)} ·{" "}
                     {getYardSizeLabel(booking.yardSize)} yard
                   </dd>
                 </div>
