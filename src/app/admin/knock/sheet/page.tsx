@@ -10,9 +10,8 @@ import {
   YARD_SIZES,
   type ServiceCatalogue,
 } from "@/lib/landscaping";
-import { MAJOR_TRADE_PROJECTS } from "@/lib/majorTrades";
 import QrCode from "@/components/QrCode";
-import { loadCatalogue } from "@/lib/loadCatalogue";
+import { loadEverything } from "@/lib/loadCatalogue";
 
 // Two pages of paper: the grid we quote off, and the cards we leave behind.
 //
@@ -147,7 +146,7 @@ export default async function PriceSheetPage() {
     redirect("/admin");
   }
 
-  const catalogue = await loadCatalogue();
+  const { catalogue, referrals } = await loadEverything();
   const services = bookableServices(catalogue);
 
   return (
@@ -265,7 +264,7 @@ export default async function PriceSheetPage() {
             Don&apos;t quote these — take the details and we match them
           </h3>
           <p className="mt-1 text-[11px] text-neutral-700">
-            {MAJOR_TRADE_PROJECTS.filter((project) => project.value !== "OTHER")
+            {referrals.filter((project) => project.value !== "OTHER")
               .map((project) => project.label)
               .join(" · ")}
             . Two or three licensed, bonded and insured CSLB contractors come back to them

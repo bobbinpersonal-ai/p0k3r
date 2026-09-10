@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { CITIES } from "@/lib/cities";
 import {
-  MAJOR_TRADE_PROJECTS,
+  type MajorTradeProject,
   MATCH_COUNT,
   REFERRAL_PROMISE,
   type MajorTradeProjectValue,
@@ -21,9 +21,12 @@ const inputClass =
 // the contractor is independent and the contract is with them.
 
 export default function ContractorLeadForm({
+  projects,
   initialProject,
   source,
 }: {
+  /** The trades we pass on, merged from the shipped list and any edits. */
+  projects: readonly MajorTradeProject[];
   initialProject?: MajorTradeProjectValue;
   source?: string;
 }) {
@@ -97,7 +100,7 @@ export default function ContractorLeadForm({
       <fieldset>
         <legend className="text-sm font-semibold text-ink">What&apos;s the project?</legend>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
-          {MAJOR_TRADE_PROJECTS.map((option) => (
+          {projects.map((option) => (
             <label
               key={option.value}
               className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${

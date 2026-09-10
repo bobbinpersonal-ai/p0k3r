@@ -8,7 +8,11 @@ import {
   type CostRow,
   type YardSizeValue,
 } from "@/lib/landscaping";
-import { minimumPriceFor, type ServiceConfigInput } from "@/lib/serviceCatalogue";
+import {
+  minimumPriceFor,
+  type ServiceConfigInput,
+  type ServiceMode,
+} from "@/lib/serviceCatalogue";
 
 // The screen where prices change.
 //
@@ -44,6 +48,7 @@ function blankService(): Editable {
   });
   return {
     value: "",
+    mode: "PRICED",
     label: "",
     shortLabel: "",
     description: "",
@@ -177,18 +182,52 @@ export default function ServicesEditor({ initial }: { initial: Editable[] }) {
                         {service.builtIn ? "Edited" : "Custom"}
                       </span>
                     )}
+                    {service.mode === "REFERRAL" && (
+                      <span className="ml-2 rounded-full border border-white/15 px-2 py-0.5 font-mono text-[10px] uppercase text-neutral-400">
+                        Subbed out
+                      </span>
+                    )}
                   </span>
                   <span className="block truncate text-xs text-neutral-400">
                     {service.description}
                   </span>
                 </span>
-                <span className="font-mono text-sm text-brand-cyan">
-                  {YARD_SIZES.map((size) => `$${service.prices[size.value]}`).join(" · ")}
+                <span className="whitespace-nowrap font-mono text-sm text-brand-cyan">
+                  {service.mode === "REFERRAL"
+                    ? "We sub this out"
+                    : YARD_SIZES.map((size) => `$${service.prices[size.value]}`).join(" · ")}
                 </span>
               </button>
 
               {isOpen && draft && (
                 <div className="border-t border-white/10 px-4 py-4">
+                  {/* The first decision, because everything below it depends
+                      on the answer: work we do carries a price and can be
+                      booked here, work we pass on carries none and cannot. */}
+                  <div className="mb-4 grid gap-2 sm:grid-cols-2">
+                    {(
+                      [
+                        ["PRICED", "We do it", "Flat price by property size, bookable online."],
+                        ["REFERRAL", "We sub it out", "No price. Goes to licensed contractors."],
+                      ] as [ServiceMode, string, string][]
+                    ).map(([value, title, blurb]) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => patch({ mode: value })}
+                        aria-pressed={draft.mode === value}
+                        className={`rounded-xl border px-3 py-2 text-left transition ${
+                          draft.mode === value
+                            ? "border-brand bg-brand/15 text-ink"
+                            : "border-white/10 bg-white/5 text-neutral-200 hover:border-white/25"
+                        }`}
+                      >
+                        <span className="block text-sm font-semibold">{title}</span>
+                        <span className="block text-xs text-neutral-400">{blurb}</span>
+                      </button>
+                    ))}
+                  </div>
+
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
                       <label className={LABEL} htmlFor="svc-label">
@@ -226,6 +265,15 @@ export default function ServicesEditor({ initial }: { initial: Editable[] }) {
                     />
                   </div>
 
+                  {draft.mode === "REFERRAL" && (
+                    <p className="mt-3 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-neutral-300">
+                      No price, no booking, no deposit. This appears on the
+                      licensed-contractor page and in the quote-request form, and a request
+                      goes out to independent CSLB contractors who deal with the customer
+                      directly — we never quote it and never take money for it.
+                    </p>
+                  )}
+
                   <div className="mt-3 grid gap-3 sm:grid-cols-2">
                     <div>
                       <label className={LABEL} htmlFor="svc-inc">
@@ -254,7 +302,7 @@ export default function ServicesEditor({ initial }: { initial: Editable[] }) {
                   </div>
 
                   {/* Prices, with the wage arithmetic shown next to each one. */}
-                  <div className="mt-4 overflow-x-auto">
+                  <div className={`mt-4 overflow-x-auto ${draft.mode === "REFERRAL" ? "hidden" : ""}`}>
                     <table className="w-full min-w-[560px] border-separate border-spacing-y-1 text-sm">
                       <thead>
                         <tr className="text-left font-mono text-[10px] uppercase tracking-wider text-neutral-400">
@@ -362,7 +410,11 @@ export default function ServicesEditor({ initial }: { initial: Editable[] }) {
                   </div>
 
                   <div className="mt-4 flex flex-wrap items-center gap-4">
-                    <label className="flex items-center gap-2 text-sm text-neutral-200">
+                    <label
+                      className={`flex items-center gap-2 text-sm text-neutral-200 ${
+                        draft.mode === "REFERRAL" ? "hidden" : ""
+                      }`}
+                    >
                       <input
                         type="checkbox"
                         checked={draft.allowsRecurring}
@@ -444,9 +496,33 @@ export default function ServicesEditor({ initial }: { initial: Editable[] }) {
         <div className="mt-4 rounded-2xl border border-brand/40 bg-brand/5 p-4">
           <p className="font-semibold text-ink">New service</p>
           <p className="mt-1 text-xs text-neutral-300">
-            Name it, price it, and it appears on the homepage, the booking flow, the door form
-            and the printed sheet. Give it a name you&apos;d say out loud on a doorstep.
+            Give it a name you&apos;d say out loud on a doorstep. Work you do appears on the
+            homepage, the booking flow, the door form and the printed sheet; work you sub out
+            appears on the licensed-contractor page instead, with no price on it.
           </p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {(
+              [
+                ["PRICED", "We do it", "Flat price by property size, bookable online."],
+                ["REFERRAL", "We sub it out", "No price. Goes to licensed contractors."],
+              ] as [ServiceMode, string, string][]
+            ).map(([value, title, blurb]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => patch({ mode: value })}
+                aria-pressed={draft.mode === value}
+                className={`rounded-xl border px-3 py-2 text-left transition ${
+                  draft.mode === value
+                    ? "border-brand bg-brand/15 text-ink"
+                    : "border-white/10 bg-white/5 text-neutral-200 hover:border-white/25"
+                }`}
+              >
+                <span className="block text-sm font-semibold">{title}</span>
+                <span className="block text-xs text-neutral-400">{blurb}</span>
+              </button>
+            ))}
+          </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             <input
               value={draft.label}
@@ -463,7 +539,7 @@ export default function ServicesEditor({ initial }: { initial: Editable[] }) {
               className={FIELD}
             />
           </div>
-          <table className="mt-3 w-full text-sm">
+          <table className={`mt-3 w-full text-sm ${draft.mode === "REFERRAL" ? "hidden" : ""}`}>
             <tbody>
               {YARD_SIZES.map((size) => {
                 const cost = draft.cost[size.value];

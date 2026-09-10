@@ -83,6 +83,9 @@ model ContractorLead {
   email         String?
   zip           String
   projectType   String
+  /// The trade's name as it read when they asked, for the same reason
+  /// Booking.landscapingServiceLabel exists: the list is editable now.
+  projectLabel  String?
   preferredStart String?
   details       String?
 
@@ -215,6 +218,13 @@ model Booking {
 model ServiceConfig {
   id              String   @id @default(cuid())
   value           String   @unique
+  /// PRICED — we do it, at a flat price per property size.
+  /// REFERRAL — we don't; it goes to licensed contractors and carries no
+  /// price at all. Painting, roofing, anything past the exemption. The two
+  /// live in one table because to the person adding a service they are one
+  /// decision ("do we do this, or do we pass it on?"), and splitting them
+  /// would mean two screens that have to agree about what a service is.
+  mode            String   @default("PRICED")
   label           String
   shortLabel      String
   description     String

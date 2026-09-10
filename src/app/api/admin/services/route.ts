@@ -2,14 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminRequest } from "@/lib/auth";
 import {
-  builtInAsConfig,
   isBuiltInService,
   mergeCatalogue,
+  mergeReferrals,
   validateServiceConfig,
-  type ServiceConfigInput,
   type ServiceConfigRow,
 } from "@/lib/serviceCatalogue";
-import { BUILT_IN_CATALOGUE } from "@/lib/landscaping";
+import { loadEditableServices } from "@/lib/loadCatalogue";
 
 // Editing what the business sells.
 //
@@ -32,24 +31,7 @@ function unauthorized() {
 export async function GET(req: NextRequest) {
   if (!isAdminRequest(req)) return unauthorized();
 
-  const rows = (await prisma.serviceConfig.findMany({
-    orderBy: { sortOrder: "asc" },
-  })) as unknown as ServiceConfigRow[];
-
-  const stored = new Map(rows.map((row) => [row.value, row]));
-  const services: (ServiceConfigInput & { edited: boolean; builtIn: boolean })[] = [];
-
-  for (const card of BUILT_IN_CATALOGUE.services) {
-    const row = stored.get(card.value);
-    stored.delete(card.value);
-    const config = row
-      ? (row as unknown as ServiceConfigInput)
-      : builtInAsConfig(card.value);
-    if (config) services.push({ ...config, edited: Boolean(row), builtIn: true });
-  }
-  for (const row of stored.values()) {
-    services.push({ ...(row as unknown as ServiceConfigInput), edited: true, builtIn: false });
-  }
+  const services = await loadEditableServices();
 
   return NextResponse.json({ services });
 }
@@ -65,6 +47,7 @@ export async function POST(req: NextRequest) {
 
   const config = checked.value;
   const data = {
+    mode: config.mode,
     label: config.label,
     shortLabel: config.shortLabel,
     description: config.description,
@@ -107,5 +90,5 @@ export async function DELETE(req: NextRequest) {
 export async function PATCH(req: NextRequest) {
   if (!isAdminRequest(req)) return unauthorized();
   const rows = (await prisma.serviceConfig.findMany()) as unknown as ServiceConfigRow[];
-  return NextResponse.json({ catalogue: mergeCatalogue(rows) });
+  return NextResponse.json({ catalogue: mergeCatalogue(rows), referrals: mergeReferrals(rows) });
 }

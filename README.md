@@ -610,10 +610,28 @@ defaults with whatever has since been changed at `/admin/services` layered on
 top — stored in `ServiceConfig`, merged by `src/lib/serviceCatalogue.ts`, and
 loaded by every surface through `loadCatalogue()`.
 
-You can change a price, reword a service, switch one off, or add one that was
-never in the code. Saving publishes: the homepage, the city pages, the booking
-flow, the door form and the printed sheet all read the merged catalogue, so
-there is no second place to update and no reprint of the code.
+Every service carries a **mode**, and it is the first question the editor asks
+because everything else follows from it:
+
+- **We do it** (`PRICED`) — a flat price per property size, bookable and
+  payable here, held to the two rules below.
+- **We sub it out** (`REFERRAL`) — no price at all. It appears on the
+  licensed-contractor page and in the quote-request form, and a request goes
+  out to independent CSLB contractors who deal with the customer directly.
+  Painting a whole house is this. Painting a fence panel, under the exemption
+  limit, could be the first kind.
+
+The two live in one table and one screen because to the person adding painting
+it is one decision, not two places to go — and because a service switched from
+one to the other has to *move*, not get copied. `mergeCatalogue()` returns only
+priced work; `mergeReferrals()` returns only subbed-out work, with "Something
+else" pinned last.
+
+You can change a price, reword a service, switch one off, add one that was
+never in the code, or hand one over to contractors. Saving publishes: the
+homepage, the city pages, the booking flow, the door form, the printed sheet
+and the contractor page all read the merged lists, so there is no second place
+to update and no reprint of the code.
 
 Two rules survive editing, and they are enforced on write rather than trusted:
 
@@ -630,13 +648,17 @@ how it ships, and a service invented here disappears (bookings already taken
 keep their own record). Turning something off without losing its pricing is the
 `active` flag.
 
+Both lists are reachable from the dispatch board, which is where signing in
+lands you — an editor nobody can find is an editor that does not exist.
+
 Two consequences worth knowing. `LandscapingServiceValue` is a plain string
 rather than a union of the shipped four, because a service added at runtime has
 a value the compiler has never seen — the guard is `isLandscapingServiceValue`
 against a catalogue, not the type system. And every booking stores
 `landscapingServiceLabel`, the service's name *on the day it was sold*, so
 renaming a service changes what you advertise tomorrow rather than what a
-customer's signed agreement says they bought last month.
+customer's signed agreement says they bought last month. `ContractorLead`
+stores `projectLabel` for the same reason.
 
 ## Knocking doors
 

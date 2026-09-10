@@ -71,7 +71,7 @@ export default function HeroBooking({
             the role for the rest of the flow. Visually hidden because the
             step heading inside the form is already saying the same thing on
             screen; this is for the outline a screen reader builds. */}
-        {started && <h1 className="sr-only">Book your yard service</h1>}
+        {started && <h1 className="sr-only">Book your home service</h1>}
         {/* Translucent so the hero footage reads through it. The blur sits
             behind a `supports-` guard because backdrop-filter is unreliable on
             older Safari/iPadOS and this site has been bitten by that before —

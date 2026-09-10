@@ -24,7 +24,7 @@ import { getServiceTypeLabel } from "./serviceTypes";
 import { getApplicantRoleLabel } from "./applicantRoles";
 import { getServiceLine, isLandscaping } from "./serviceLines";
 import { bookedServiceLabel, getFrequency, getYardSizeLabel } from "./landscaping";
-import { getMajorTradeLabel, MATCH_COUNT } from "./majorTrades";
+import { MATCH_COUNT, requestedTradeLabel } from "./majorTrades";
 import { balanceAfter } from "./deposit";
 import { getPaymentMethodLabel, isPaidMethod } from "./payments";
 
@@ -235,11 +235,11 @@ export async function notifyNewApplication(application: DriverApplication): Prom
  */
 export async function notifyNewContractorLead(lead: ContractorLead): Promise<void> {
   await notifyOwner({
-    subject: `Contractor referral — ${getMajorTradeLabel(lead.projectType)} — ${lead.zip}`,
+    subject: `Contractor referral — ${requestedTradeLabel(lead)} — ${lead.zip}`,
     lines: [
       `${lead.name} — ${lead.phone}`,
       lead.email ? lead.email : null,
-      `Project: ${getMajorTradeLabel(lead.projectType)}`,
+      `Project: ${requestedTradeLabel(lead)}`,
       `ZIP: ${lead.zip}`,
       lead.preferredStart ? `Wants to start: ${lead.preferredStart}` : null,
       lead.details ? `Notes: ${lead.details}` : null,

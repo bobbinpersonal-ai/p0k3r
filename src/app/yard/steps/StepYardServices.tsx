@@ -12,7 +12,7 @@ import {
 } from "@/lib/landscaping";
 import { serviceIcon } from "@/components/YardIcons";
 
-// "What does the yard need?" — with every service priced for THIS yard.
+// "What needs doing?" — with every service priced for THIS property.
 //
 // This is the payoff of asking for the address and the size first, and the
 // reason the price isn't quoted anywhere earlier: by the time someone reads
@@ -44,10 +44,10 @@ export default function StepYardServices({
 }) {
   return (
     <div>
-      <h2 className="text-2xl font-bold text-ink sm:text-3xl">What does the yard need?</h2>
+      <h2 className="text-2xl font-bold text-ink sm:text-3xl">What needs doing?</h2>
       <p className="mt-2 text-neutral-300">
-        Every price below is for your {getYardSizeLabel(yardSize).toLowerCase()} yard — not a
-        starting point, and not an average.
+        Every price below is for your {getYardSizeLabel(yardSize).toLowerCase()} property —
+        not a starting point, and not an average.
       </p>
 
       <div className="mt-8 grid gap-3">

@@ -60,7 +60,7 @@ const SIZE_STEP = 2;
 const SERVICES_STEP = 3;
 const SCHEDULE_STEP = 4;
 
-const STEP_LABELS = ["Address", "Your yard", "What you need", "Arrival time", "Your info"];
+const STEP_LABELS = ["Address", "Your place", "What you need", "Arrival time", "Your info"];
 
 export default function LandscapingFlow({
   initialService,
@@ -371,16 +371,16 @@ export default function LandscapingFlow({
       {/* The host page owns the h1 when embedded, so this drops to an h2
           there rather than giving the document two. */}
       {embedded ? (
-        <h2 className="sr-only">Get your {cityName ? `${cityName} ` : ""}yard priced</h2>
+        <h2 className="sr-only">{cityName ? `${cityName} home services` : "Home services"}, priced up front</h2>
       ) : (
         <h1 className={step === 1 ? "text-3xl font-extrabold tracking-tight text-ink" : "sr-only"}>
-          Get your {cityName ? `${cityName} ` : ""}yard priced
+          {cityName ? `${cityName} home services` : "Home services"}, priced up front
         </h1>
       )}
       {step === 1 && !embedded && (
         <>
           <p className="mt-2 text-neutral-300">
-            Tell us where the yard is and roughly how big it is, and we&apos;ll show you
+            Tell us where the place is and roughly how big it is, and we&apos;ll show you
             every service priced for it — flat, not a &ldquo;starting at.&rdquo; Takes about
             a minute, and nothing is charged here.
           </p>

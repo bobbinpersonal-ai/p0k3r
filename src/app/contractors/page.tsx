@@ -4,6 +4,7 @@ import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import ContractorLeadForm from "./ContractorLeadForm";
 import { isSourceValue } from "@/lib/sources";
+import { loadReferrals } from "@/lib/loadCatalogue";
 import {
   MAJOR_TRADE_PROJECTS,
   MATCH_COUNT,
@@ -43,14 +44,16 @@ const HOW_IT_WORKS = [
   },
 ];
 
-export default function ContractorsPage({
+export default async function ContractorsPage({
   searchParams,
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  const referrals = await loadReferrals();
+
   const projectParam = searchParams.project;
   const initialProject =
-    typeof projectParam === "string" && isMajorTradeProject(projectParam)
+    typeof projectParam === "string" && isMajorTradeProject(projectParam, referrals)
       ? projectParam
       : undefined;
 
@@ -119,7 +122,7 @@ export default function ContractorsPage({
             What we refer out
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            {MAJOR_TRADE_PROJECTS.filter((p) => p.value !== "OTHER").map((project) => (
+            {referrals.filter((p) => p.value !== "OTHER").map((project) => (
               <span
                 key={project.value}
                 className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-ink"
@@ -139,7 +142,11 @@ export default function ContractorsPage({
             Takes about a minute. No account, nothing charged, and no obligation to hire
             anyone.
           </p>
-          <ContractorLeadForm initialProject={initialProject} source={source} />
+          <ContractorLeadForm
+            projects={referrals}
+            initialProject={initialProject}
+            source={source}
+          />
         </section>
 
         <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">

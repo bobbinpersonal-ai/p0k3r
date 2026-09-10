@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminRequest } from "@/lib/auth";
 import { isSourceValue } from "@/lib/sources";
-import { isMajorTradeProject } from "@/lib/majorTrades";
+import { getMajorTradeLabel, isMajorTradeProject } from "@/lib/majorTrades";
+import { loadReferrals } from "@/lib/loadCatalogue";
 import { notifyNewContractorLead } from "@/lib/notify";
 
 // Requests to be introduced to a licensed contractor.
@@ -35,7 +36,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Enter a 5-digit ZIP code." }, { status: 400 });
   }
 
-  if (!isMajorTradeProject(String(projectType))) {
+  // Against the list as it stands right now, not the one in the source: a
+  // trade added at /admin/services this morning has to be requestable this
+  // afternoon.
+  const referrals = await loadReferrals();
+  if (!isMajorTradeProject(String(projectType), referrals)) {
     return NextResponse.json({ error: "Pick the kind of project." }, { status: 400 });
   }
 
@@ -46,6 +51,8 @@ export async function POST(req: NextRequest) {
       email: isFilled(email) ? email.trim() : null,
       zip: String(zip).trim(),
       projectType: String(projectType),
+      // Frozen at the point of asking — the list is editable.
+      projectLabel: getMajorTradeLabel(String(projectType), referrals),
       preferredStart: isFilled(preferredStart) ? preferredStart.trim() : null,
       details: isFilled(details) ? details.trim() : null,
       source: typeof source === "string" && isSourceValue(source) ? source : null,

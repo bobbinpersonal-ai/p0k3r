@@ -187,6 +187,12 @@ export default function DispatchBoard({
           >
             Door knock
           </a>
+          <a
+            href="/admin/services"
+            className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-neutral-200 hover:border-brand hover:text-brand-cyan"
+          >
+            Services &amp; prices
+          </a>
           <button
             onClick={logout}
             className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-neutral-200 hover:border-brand hover:text-brand-cyan"

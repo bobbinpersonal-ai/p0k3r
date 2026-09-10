@@ -86,7 +86,7 @@ export default async function LandscapingCityPage({ params }: { params: { city: 
                   <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
                     {/* Solid color, not gradient bg-clip-text — see the homepage
                         headline for why. */}
-                    Lawn care in {city.name},{" "}
+                    Home services in {city.name},{" "}
                     <span className="text-brand-cyan">priced up front.</span>
                   </h1>
                   <p className="mt-4 text-lg text-neutral-200">{city.yardBlurb}</p>

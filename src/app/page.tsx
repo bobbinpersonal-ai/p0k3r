@@ -9,9 +9,8 @@ import { serviceIcon, ToolsIcon } from "@/components/YardIcons";
 import { CITIES, getCity } from "@/lib/cities";
 import { CREW } from "@/lib/crew";
 import { bookableServices, startingPriceFor, EXEMPTION_LIMIT } from "@/lib/landscaping";
-import { loadCatalogue } from "@/lib/loadCatalogue";
+import { loadEverything } from "@/lib/loadCatalogue";
 import {
-  MAJOR_TRADE_PROJECTS,
   MATCH_COUNT,
   REFERRAL_PROMISE,
 } from "@/lib/majorTrades";
@@ -24,13 +23,13 @@ const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 export const metadata = {
   title: "Home services, priced up front | LoveMeAfter",
   description:
-    "Pressure washing, yard care and minor repairs across Sacramento, Roseville, Elk Grove and Northern California. Flat prices by property size. Bigger projects matched with licensed CSLB contractors.",
+    "Pressure washing, yard care, tree and shrub work and minor repairs across Sacramento, Roseville, Elk Grove and Northern California. Flat prices by property size. Bigger projects matched with licensed CSLB contractors.",
 };
 
 const HOW_IT_WORKS = [
   {
     title: "See the price first",
-    body: "Pick the job and roughly how big your yard is. The number on the screen is the number we charge — no site visit, no callback, no account.",
+    body: "Pick the job and roughly how big your property is. The number on the screen is the number we charge — no site visit, no callback, no account.",
   },
   {
     title: "Pick your day and hour",
@@ -54,7 +53,7 @@ export default async function HomePage({
   const targetCity = typeof cityParam === "string" ? getCity(cityParam) : undefined;
 
   // Whatever we're selling today, not whatever the code shipped with.
-  const catalogue = await loadCatalogue();
+  const { catalogue, referrals } = await loadEverything();
   const services = bookableServices(catalogue);
 
   return (
@@ -112,14 +111,14 @@ export default async function HomePage({
                         text is genuinely fragile on older Safari/iPadOS — the gradient
                         mask and the glyphs fall out of sync and part of the word renders
                         invisible. See the same note on the moving page. */}
-                    Your yard, handled.{" "}
+                    Your home, handled.{" "}
                     <span className="text-brand-cyan">Price up front.</span>
                   </h1>
                   <p className="mt-4 text-lg text-neutral-200">
-                    Pressure washing, yard care and the small repairs nobody gets round to —
-                    Sacramento, Roseville, Elk Grove and across Northern California. Put in
-                    your address and see every service priced for your property. Bigger job?
-                    We&apos;ll match you with licensed contractors.
+                    Pressure washing, yard care, tree and shrub work, and the small repairs
+                    nobody gets round to — Sacramento, Roseville, Elk Grove and across
+                    Northern California. Put in your address and see every service priced for
+                    your property. Bigger job? We&apos;ll match you with licensed contractors.
                   </p>
                   <div className="mt-6 hidden rounded-xl bg-paper px-3 py-2 lg:block">
                     <a
@@ -228,7 +227,7 @@ export default async function HomePage({
                 Connected directly with vetted, licensed &amp; insured CA contractors.
               </p>
               <ul className="mt-4 grid gap-1">
-                {MAJOR_TRADE_PROJECTS.filter((p) => p.value !== "OTHER").map((project) => (
+                {referrals.filter((p) => p.value !== "OTHER").map((project) => (
                   <li
                     key={project.value}
                     className="flex items-start gap-2 text-sm text-neutral-300"
@@ -482,7 +481,7 @@ export default async function HomePage({
             <div className="glow-blob absolute left-1/2 top-1/2 h-[300px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full" />
             <div className="relative">
               <h2 className="text-2xl font-bold text-ink sm:text-3xl">
-                Get your yard off the to-do list
+                Get your home off the to-do list
               </h2>
               <p className="mx-auto mt-2 max-w-xl text-neutral-300">
                 About a minute, no account, nothing charged. Worst case you know the number.

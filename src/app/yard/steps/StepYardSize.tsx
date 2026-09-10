@@ -3,7 +3,7 @@
 import { YARD_SIZES, type YardSizeValue } from "@/lib/landscaping";
 import type { YardEstimate } from "@/lib/parcel";
 
-// "How big is the yard?" — asked after the address, so we can take a guess at
+// "How big is the property?" — asked after the address, so we can take a guess at
 // the answer before asking it.
 //
 // No prices on this step. Size is one of two things that decide the price and
@@ -29,7 +29,7 @@ export default function StepYardSize({
 }) {
   return (
     <div>
-      <h2 className="text-2xl font-bold text-ink sm:text-3xl">How big is the yard?</h2>
+      <h2 className="text-2xl font-bold text-ink sm:text-3xl">How big is the property?</h2>
       <p className="mt-2 text-neutral-300">
         Rough is fine — pick whichever sounds closest to the area that actually needs
         working on.

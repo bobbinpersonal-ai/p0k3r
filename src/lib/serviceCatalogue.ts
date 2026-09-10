@@ -22,6 +22,10 @@
 // someone guess.
 
 import {
+  BUILT_IN_MAJOR_TRADES,
+  type MajorTradeProject,
+} from "@/lib/majorTrades";
+import {
   BUILT_IN_CATALOGUE,
   EXEMPTION_LIMIT,
   LANDSCAPING_CONSTANTS,
@@ -34,9 +38,26 @@ import {
 
 const { CREW_FLOOR_HOURLY, PLATFORM_RATE } = LANDSCAPING_CONSTANTS;
 
+/**
+ * Whether we do the work or pass it on.
+ *
+ * The distinction is the whole compliance model, so it is a field rather than
+ * an inference: a PRICED service carries a flat price and can be booked and
+ * paid for here; a REFERRAL one carries no price at all, cannot be booked,
+ * and goes out to licensed contractors who contract with the customer
+ * directly. Painting a whole house is the second kind. Painting a fence
+ * panel, under the exemption limit, could be the first.
+ */
+export type ServiceMode = "PRICED" | "REFERRAL";
+
+export function isServiceMode(value: unknown): value is ServiceMode {
+  return value === "PRICED" || value === "REFERRAL";
+}
+
 /** One stored edit, in the shape the admin form posts and the table holds. */
 export type ServiceConfigInput = {
   value: string;
+  mode: ServiceMode;
   label: string;
   shortLabel: string;
   description: string;
@@ -51,7 +72,8 @@ export type ServiceConfigInput = {
 };
 
 /** A row as it comes back from Prisma, with the JSON columns still loose. */
-export type ServiceConfigRow = Omit<ServiceConfigInput, "prices" | "cost"> & {
+export type ServiceConfigRow = Omit<ServiceConfigInput, "prices" | "cost" | "mode"> & {
+  mode?: string | null;
   prices: unknown;
   cost: unknown;
 };
@@ -136,12 +158,17 @@ export function validateServiceConfig(raw: unknown): Validation {
           .filter(Boolean)
       : [];
 
+  const mode: ServiceMode = isServiceMode(input.mode) ? input.mode : "PRICED";
+
   const prices = {} as Record<YardSizeValue, number>;
   const cost = {} as Record<YardSizeValue, CostRow>;
   const rawPrices = (input.prices ?? {}) as Record<string, unknown>;
   const rawCost = (input.cost ?? {}) as Record<string, unknown>;
 
-  for (const size of SIZES) {
+  // Nothing below applies to work we don't do. A referral has no price to
+  // check against the exemption limit and no crew to underpay — checking it
+  // anyway would mean inventing an hours estimate for a job we never quote.
+  for (const size of mode === "REFERRAL" ? [] : SIZES) {
     const sizeLabel = YARD_SIZES.find((s) => s.value === size)?.label ?? size;
     const price = rawPrices[size];
     if (!isFiniteNumber(price) || price < 1 || !Number.isInteger(price)) {
@@ -187,12 +214,20 @@ export function validateServiceConfig(raw: unknown): Validation {
     cost[size] = costRow;
   }
 
+  if (mode === "REFERRAL") {
+    for (const size of SIZES) {
+      prices[size] = 0;
+      cost[size] = { hours: { low: 0, high: 0 }, crewSize: 0, supplies: 0 };
+    }
+  }
+
   if (errors.length > 0) return { ok: false, errors };
 
   return {
     ok: true,
     value: {
       value,
+      mode,
       label,
       shortLabel,
       description,
@@ -212,6 +247,10 @@ export function validateServiceConfig(raw: unknown): Validation {
 }
 
 /** A stored row, back in the shape the rest of the app understands. */
+function rowMode(row: ServiceConfigRow): ServiceMode {
+  return isServiceMode(row.mode) ? row.mode : "PRICED";
+}
+
 function rowToConfig(row: ServiceConfigRow): ServiceConfigInput | null {
   const prices = {} as Record<YardSizeValue, number>;
   const cost = {} as Record<YardSizeValue, CostRow>;
@@ -227,7 +266,7 @@ function rowToConfig(row: ServiceConfigRow): ServiceConfigInput | null {
     prices[size] = price;
     cost[size] = costRow;
   }
-  return { ...row, prices, cost };
+  return { ...row, mode: rowMode(row), prices, cost };
 }
 
 /**
@@ -244,6 +283,13 @@ export function mergeCatalogue(rows: readonly ServiceConfigRow[]): ServiceCatalo
 
   const edits = new Map<string, ServiceConfigInput>();
   for (const row of rows) {
+    // Work we sub out has no price and belongs on the referral list, not
+    // here. A shipped service switched to REFERRAL therefore disappears from
+    // the catalogue, which is exactly what switching it means.
+    if (rowMode(row) === "REFERRAL") {
+      edits.set(row.value, { ...(row as unknown as ServiceConfigInput), active: false });
+      continue;
+    }
     const config = rowToConfig(row);
     if (config) edits.set(config.value, config);
   }
@@ -273,6 +319,41 @@ export function mergeCatalogue(rows: readonly ServiceConfigRow[]): ServiceCatalo
   return { services, price, cost };
 }
 
+/**
+ * The trades we pass on: the shipped list with stored edits laid over it.
+ *
+ * "Something else" is pinned last however the list is reordered — it is the
+ * catch-all, and a catch-all in the middle of a list reads as an option
+ * someone forgot to name.
+ */
+export function mergeReferrals(rows: readonly ServiceConfigRow[]): MajorTradeProject[] {
+  const edits = new Map<string, ServiceConfigRow>();
+  for (const row of rows) {
+    if (rowMode(row) === "REFERRAL") edits.set(row.value, row);
+  }
+
+  const list: MajorTradeProject[] = [];
+  for (const trade of BUILT_IN_MAJOR_TRADES) {
+    const edit = edits.get(trade.value);
+    if (!edit) {
+      list.push(trade);
+      continue;
+    }
+    edits.delete(trade.value);
+    if (!edit.active) continue;
+    list.push({ value: edit.value, label: edit.label, description: edit.description });
+  }
+
+  const added = [...edits.values()]
+    .filter((row) => row.active)
+    .sort((a, b) => a.sortOrder - b.sortOrder || a.label.localeCompare(b.label))
+    .map((row) => ({ value: row.value, label: row.label, description: row.description }));
+
+  const all = [...list, ...added];
+  const other = all.filter((trade) => trade.value === "OTHER");
+  return [...all.filter((trade) => trade.value !== "OTHER"), ...other];
+}
+
 function configToCard(config: ServiceConfigInput): LandscapingServiceCard {
   return {
     value: config.value,
@@ -296,6 +377,7 @@ export function builtInAsConfig(value: string): ServiceConfigInput | null {
   if (!card) return null;
   return {
     value: card.value,
+    mode: "PRICED",
     label: card.label,
     shortLabel: card.shortLabel,
     description: card.description,
@@ -310,7 +392,37 @@ export function builtInAsConfig(value: string): ServiceConfigInput | null {
   };
 }
 
+/** A shipped referral trade, in editable form. */
+export function builtInTradeAsConfig(value: string): ServiceConfigInput | null {
+  const trade = BUILT_IN_MAJOR_TRADES.find((t) => t.value === value);
+  if (!trade) return null;
+  const prices = {} as Record<YardSizeValue, number>;
+  const cost = {} as Record<YardSizeValue, CostRow>;
+  for (const size of SIZES) {
+    prices[size] = 0;
+    cost[size] = { hours: { low: 0, high: 0 }, crewSize: 0, supplies: 0 };
+  }
+  return {
+    value: trade.value,
+    mode: "REFERRAL",
+    label: trade.label,
+    shortLabel: trade.label,
+    description: trade.description,
+    includes: [],
+    excludes: [],
+    allowsRecurring: false,
+    materialsNote: null,
+    active: true,
+    sortOrder: 100,
+    prices,
+    cost,
+  };
+}
+
 /** Which shipped services exist, so the editor can offer to revert one. */
 export function isBuiltInService(value: string): boolean {
-  return BUILT_IN_CATALOGUE.services.some((service) => service.value === value);
+  return (
+    BUILT_IN_CATALOGUE.services.some((service) => service.value === value) ||
+    BUILT_IN_MAJOR_TRADES.some((trade) => trade.value === value)
+  );
 }

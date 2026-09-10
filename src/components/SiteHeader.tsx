@@ -8,7 +8,7 @@ const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
 
 export default function SiteHeader({
-  ctaLabel = "Get a yard price",
+  ctaLabel = "Get my price",
   ctaHref = "/yard",
   phoneHours,
   transparent = false,

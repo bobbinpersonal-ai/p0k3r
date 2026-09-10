@@ -262,7 +262,7 @@ export default function JunkRemovalPage() {
                 Clearing a yard usually means hauling what came out of it. Flat prices by
                 yard size.
               </p>
-              <p className="mt-3 text-sm font-semibold text-brand-cyan">See yard prices →</p>
+              <p className="mt-3 text-sm font-semibold text-brand-cyan">See home service prices →</p>
             </Link>
             <Link
               href="/moving"

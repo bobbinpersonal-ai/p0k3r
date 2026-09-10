@@ -2,9 +2,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { ADMIN_COOKIE_NAME, isValidAdminSessionCookie } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { BUILT_IN_CATALOGUE } from "@/lib/landscaping";
-import { builtInAsConfig, type ServiceConfigInput, type ServiceConfigRow } from "@/lib/serviceCatalogue";
+import { loadEditableServices } from "@/lib/loadCatalogue";
 import ServicesEditor from "./ServicesEditor";
 
 export const metadata = {
@@ -17,24 +15,7 @@ export default async function ServicesPage() {
     redirect("/admin");
   }
 
-  // Shipped services first, in the order the code lists them, then anything
-  // added here — the same order the customer sees, so the page reads like the
-  // site rather than like the table behind it.
-  const rows = (await prisma.serviceConfig.findMany({
-    orderBy: { sortOrder: "asc" },
-  })) as unknown as ServiceConfigRow[];
-  const stored = new Map(rows.map((row) => [row.value, row]));
-  const services: (ServiceConfigInput & { edited: boolean; builtIn: boolean })[] = [];
-
-  for (const card of BUILT_IN_CATALOGUE.services) {
-    const row = stored.get(card.value);
-    stored.delete(card.value);
-    const config = row ? (row as unknown as ServiceConfigInput) : builtInAsConfig(card.value);
-    if (config) services.push({ ...config, edited: Boolean(row), builtIn: true });
-  }
-  for (const row of stored.values()) {
-    services.push({ ...(row as unknown as ServiceConfigInput), edited: true, builtIn: false });
-  }
+  const services = await loadEditableServices();
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
@@ -43,8 +24,10 @@ export default async function ServicesPage() {
       </p>
       <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-ink">Services &amp; prices</h1>
       <p className="mt-2 max-w-2xl text-sm text-neutral-300">
-        What this changes: the homepage, the city pages, the booking flow, the door form and the
-        printed price sheet, all at once. Saving is publishing — there is no draft.
+        Everything this business offers, in one list. Work you <em>do</em> carries a flat
+        price and shows up on the homepage, the booking flow, the door form and the printed
+        sheet. Work you <em>sub out</em> carries no price and shows up on the
+        licensed-contractor page instead. Saving is publishing — there is no draft.
       </p>
       <div className="mt-4 flex flex-wrap gap-4 font-mono text-xs uppercase tracking-widest">
         <Link href="/admin/knock" className="text-brand-cyan underline">
