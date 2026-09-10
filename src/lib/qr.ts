@@ -1,10 +1,11 @@
-// A tiny QR encoder — byte mode, error-correction level L, versions 1-4.
+// A tiny QR encoder — byte mode, error-correction level L, versions 1-5.
 //
 // Written rather than installed. The alternative is a dependency to draw one
 // glyph, and the narrow scope is what keeps it small enough to be worth it: at
-// level L, versions 1 through 4 are all single-block, so there is no
-// Reed-Solomon interleaving to get wrong, and 78 characters is more URL than
-// any of our links need.
+// level L, versions 1 through 5 are all single-block, so there is no
+// Reed-Solomon interleaving to get wrong. Version 6 is where the blocks split,
+// which is where this would stop being small — so 106 characters is the
+// ceiling, and payments.ts trims a link to fit rather than overflow it.
 //
 // It renders at request time rather than into a committed file because the
 // codes are no longer fixed: a Venmo link carries the deposit amount for the
@@ -15,11 +16,17 @@
 // the published table, and checks the free-module count per version against
 // the spec's data capacity.
 
-type Version = 1 | 2 | 3 | 4;
+type Version = 1 | 2 | 3 | 4 | 5;
 
-const EC_CODEWORDS: Record<Version, number> = { 1: 7, 2: 10, 3: 15, 4: 20 };
-const DATA_CODEWORDS: Record<Version, number> = { 1: 19, 2: 34, 3: 55, 4: 80 };
-const ALIGNMENT: Record<Version, number[]> = { 1: [], 2: [6, 18], 3: [6, 22], 4: [6, 26] };
+const EC_CODEWORDS: Record<Version, number> = { 1: 7, 2: 10, 3: 15, 4: 20, 5: 26 };
+const DATA_CODEWORDS: Record<Version, number> = { 1: 19, 2: 34, 3: 55, 4: 80, 5: 108 };
+const ALIGNMENT: Record<Version, number[]> = {
+  1: [],
+  2: [6, 18],
+  3: [6, 22],
+  4: [6, 26],
+  5: [6, 30],
+};
 
 // --- GF(256) ----------------------------------------------------------------
 
@@ -107,10 +114,10 @@ function encodeData(text: string, version: Version): number[] {
   return codewords.concat(reedSolomon(codewords, EC_CODEWORDS[version]));
 }
 
-/** The smallest version that fits, or null when the text is too long for v4. */
+/** The smallest version that fits, or null when the text is too long for v5. */
 export function pickVersion(text: string): Version | null {
   const needed = new TextEncoder().encode(text).length + 2; // mode + length header
-  for (const version of [1, 2, 3, 4] as const) {
+  for (const version of [1, 2, 3, 4, 5] as const) {
     if (needed <= DATA_CODEWORDS[version]) return version;
   }
   return null;
@@ -290,7 +297,7 @@ export type EncodedQr = {
 /** The finished module matrix: true is a dark module. */
 export function encode(text: string): EncodedQr {
   const version = pickVersion(text);
-  if (!version) throw new Error(`Too long for a version 4 code: ${text.length} chars`);
+  if (!version) throw new Error(`Too long for a version 5 code: ${text.length} chars`);
 
   const { size, modules: laid, reserved } = functionPatterns(version);
   const codewords = encodeData(text, version);

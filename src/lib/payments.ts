@@ -14,7 +14,11 @@
 // receipt. Moving to real card payments (and merchant Apple Pay, which needs
 // a processor) is a Stripe integration, not a change here.
 
-const VENMO_HANDLE = (process.env.NEXT_PUBLIC_VENMO_HANDLE || "").replace(/^@/, "");
+import { pickVersion } from "@/lib/qr";
+
+const VENMO_HANDLE = (
+  process.env.NEXT_PUBLIC_VENMO_HANDLE || "LOVEMEAFTER-Improvements"
+).replace(/^@/, "");
 // Deliberately not the support number. Apple Cash lands in a personal
 // Messages thread, which is a different inbox from the one customers call,
 // and pointing both at one number means a payment arrives in the middle of
@@ -100,15 +104,36 @@ export function isPaidMethod(value: string | null | undefined): boolean {
 /**
  * Deliberately terse.
  *
- * The whole link has to fit in a version-4 QR — 78 bytes — and the customer
- * is going to read the recipient and the amount on their own screen a second
- * later anyway. A longer note buys nothing and costs the code its legibility.
+ * The customer reads the recipient and the amount off their own screen a
+ * second later anyway, so a long note buys nothing — and it costs, because
+ * the whole link has to fit inside a QR code.
  */
 const note = (amount: number) => `Deposit%20%24${amount}`;
 
+/**
+ * A Venmo link that is guaranteed to be scannable.
+ *
+ * The ceiling is real and it bites: our encoder tops out at 106 bytes
+ * (src/lib/qr.ts), and a handle like "LOVEMEAFTER-Improvements" plus a
+ * spelled-out note came to 81 — fine today, but a business renaming its
+ * Venmo account is not a thing that should quietly remove the QR from the
+ * doorstep screen without anybody noticing.
+ *
+ * So the link is built richest-first and degrades: full note, then a bare
+ * "Deposit", then just the amount, then the profile on its own. The amount
+ * is the last thing to go because it is the thing that stops the customer
+ * typing the wrong number.
+ */
 export function venmoLink(amount: number): string | null {
   if (!VENMO_HANDLE) return null;
-  return `https://venmo.com/${VENMO_HANDLE}?txn=pay&amount=${amount}&note=${note(amount)}`;
+  const profile = `https://venmo.com/${VENMO_HANDLE}`;
+  const candidates = [
+    `${profile}?txn=pay&amount=${amount}&note=${note(amount)}`,
+    `${profile}?txn=pay&amount=${amount}&note=Deposit`,
+    `${profile}?txn=pay&amount=${amount}`,
+    profile,
+  ];
+  return candidates.find((url) => pickVersion(url) !== null) ?? null;
 }
 
 /**
