@@ -59,17 +59,19 @@ export default function HomePage({
       <SiteHeader transparent />
       <main>
         <section className="relative overflow-hidden">
-          {/* Real footage — seven clips of the crew working, concatenated into
-              one file and played in order as a single looping background,
-              about 42 seconds before it repeats. See AutoplayVideo for why this
-              degrades to the poster frame rather than to nothing when it can't
-              play. Filenames carry their own version so replacing the reel
-              busts every browser and CDN cache without query strings. */}
+          {/* Four clips of the crew working, concatenated into one file and
+              played in order as a single looping background — about a minute
+              before it repeats. The reel is replaced rather than extended each
+              time so the homepage doesn't quietly grow to 30MB; the clips it
+              drops stay in use individually on the pages below. Filenames carry
+              their own version so a replacement busts every browser and CDN
+              cache without query strings. See AutoplayVideo for why this
+              degrades to the poster frame rather than to nothing. */}
           <div className="absolute inset-0">
             <AutoplayVideo
-              mp4="/videos/hero-yard-v2.mp4"
-              webm="/videos/hero-yard-v2.webm"
-              poster="/images/hero-yard-v2-poster.jpg"
+              mp4="/videos/hero-yard-v3.mp4"
+              webm="/videos/hero-yard-v3.webm"
+              poster="/images/hero-yard-v3-poster.jpg"
               className="absolute inset-0"
               videoClassName="absolute inset-0 h-full w-full object-cover object-center"
             />
@@ -365,9 +367,9 @@ export default function HomePage({
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             <div className="relative aspect-video overflow-hidden rounded-3xl border border-black/10 glow">
               <AutoplayVideo
-                mp4="/videos/yard-clip6-v1.mp4"
-                webm="/videos/yard-clip6-v1.webm"
-                poster="/images/yard-clip6-v1-poster.jpg"
+                mp4="/videos/yard-clip8-v1.mp4"
+                webm="/videos/yard-clip8-v1.webm"
+                poster="/images/yard-clip8-v1-poster.jpg"
                 alt="A LoveMeAfter crew working on a yard"
                 className="absolute inset-0"
                 videoClassName="absolute inset-0 h-full w-full object-cover object-center"
@@ -375,9 +377,9 @@ export default function HomePage({
             </div>
             <div className="relative aspect-video overflow-hidden rounded-3xl border border-black/10 glow">
               <AutoplayVideo
-                mp4="/videos/yard-clip7-v1.mp4"
-                webm="/videos/yard-clip7-v1.webm"
-                poster="/images/yard-clip7-v1-poster.jpg"
+                mp4="/videos/yard-clip9-v1.mp4"
+                webm="/videos/yard-clip9-v1.webm"
+                poster="/images/yard-clip9-v1-poster.jpg"
                 alt="A LoveMeAfter crew member on a yard job"
                 className="absolute inset-0"
                 videoClassName="absolute inset-0 h-full w-full object-cover object-center"

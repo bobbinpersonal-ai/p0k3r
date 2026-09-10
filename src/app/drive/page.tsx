@@ -192,9 +192,9 @@ export default function DrivePage({
             <div className="grid grid-cols-2 gap-4">
               <div className="relative aspect-square overflow-hidden rounded-3xl border border-black/10 glow">
                 <AutoplayVideo
-                  mp4="/videos/yard-clip5-v1.mp4"
-                  webm="/videos/yard-clip5-v1.webm"
-                  poster="/images/yard-clip5-v1-poster.jpg"
+                  mp4="/videos/yard-clip10-v1.mp4"
+                  webm="/videos/yard-clip10-v1.webm"
+                  poster="/images/yard-clip10-v1-poster.jpg"
                   alt="A LoveMeAfter crew member working a yard job"
                   className="absolute inset-0"
                   videoClassName="absolute inset-0 h-full w-full object-cover object-center"

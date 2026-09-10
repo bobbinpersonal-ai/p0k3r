@@ -158,9 +158,9 @@ export default function MovingPage({
               of the autoplaying video. */}
           <div className="absolute inset-0">
             <AutoplayVideo
-              mp4="/videos/hero-home-v1.mp4"
-              webm="/videos/hero-home-v1.webm"
-              poster="/images/hero-home-v1-poster.jpg"
+              mp4="/videos/yard-clip11-v1.mp4"
+              webm="/videos/yard-clip11-v1.webm"
+              poster="/images/yard-clip11-v1-poster.jpg"
               className="absolute inset-0"
               videoClassName="absolute inset-0 h-full w-full object-cover object-center"
             />

@@ -89,10 +89,10 @@ export default function JunkRemovalPage() {
         <section className="relative overflow-hidden">
           <div className="absolute inset-0">
             <AutoplayVideo
-              mp4="/videos/pickup-b-v1.mp4"
-              webm="/videos/pickup-b-v1.webm"
-              poster="/images/pickup-b-v1-poster.jpg"
-              alt="A pickup truck out on a haul-away run"
+              mp4="/videos/yard-clip11-v1.mp4"
+              webm="/videos/yard-clip11-v1.webm"
+              poster="/images/yard-clip11-v1-poster.jpg"
+              alt="A LoveMeAfter truck loaded up on a haul-away run"
               className="absolute inset-0"
               videoClassName="absolute inset-0 h-full w-full object-cover object-center"
             />
