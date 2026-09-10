@@ -1,4 +1,4 @@
-import crypto from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import type { NextRequest } from "next/server";
 
 export const ADMIN_COOKIE_NAME = "p0k3r_admin_session";
@@ -12,7 +12,7 @@ function getSecret() {
 }
 
 function sign(value: string) {
-  return crypto.createHmac("sha256", getSecret()).update(value).digest("hex");
+  return createHmac("sha256", getSecret()).update(value).digest("hex");
 }
 
 const SESSION_PAYLOAD = "admin-ok";
@@ -29,7 +29,7 @@ export function isValidAdminSessionCookie(cookieValue: string | undefined) {
   const a = Buffer.from(signature);
   const b = Buffer.from(expected);
   if (a.length !== b.length) return false;
-  return crypto.timingSafeEqual(a, b);
+  return timingSafeEqual(a, b);
 }
 
 export function isAdminRequest(req: NextRequest) {
@@ -42,5 +42,5 @@ export function checkAdminPassword(password: string) {
   const a = Buffer.from(password);
   const b = Buffer.from(expected);
   if (a.length !== b.length) return false;
-  return crypto.timingSafeEqual(a, b);
+  return timingSafeEqual(a, b);
 }

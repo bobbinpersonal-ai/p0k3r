@@ -10,6 +10,8 @@ import { getCity } from "@/lib/cities";
 import { notifyCustomerBookingConfirmed, notifyNewBooking } from "@/lib/notify";
 import { generateManageToken } from "@/lib/manageToken";
 import { isSourceValue } from "@/lib/sources";
+import { depositFor } from "@/lib/deposit";
+import { isPaidMethod, isPaymentMethodValue } from "@/lib/payments";
 import { DEFAULT_SERVICE_LINE, isServiceLineValue } from "@/lib/serviceLines";
 import {
   DEFAULT_FREQUENCY,
@@ -47,7 +49,10 @@ type SharedColumn =
   | "source"
   | "pickupLat"
   | "pickupLng"
-  | "manageToken";
+  | "manageToken"
+  | "depositAmount"
+  | "depositMethod"
+  | "depositPaidAt";
 
 /** Either the line-specific columns to write, or the error to send back. */
 type BuildResult =
@@ -189,6 +194,27 @@ function buildLandscapingBooking(body: Record<string, unknown>): BuildResult {
   };
 }
 
+/**
+ * The deposit fields, taken from a trusted request.
+ *
+ * The amount is not believed as sent: it's recomputed from the price this
+ * booking was just quoted, so a typo — or a stale form left open through a
+ * price change — can't write a figure the confirmation would then present to
+ * the customer as their receipt. What the caller actually decides is whether
+ * money moved and how.
+ */
+function readDeposit(body: Record<string, unknown>, price: number) {
+  const method = body.depositMethod;
+  if (typeof method !== "string" || !isPaymentMethodValue(method) || !isPaidMethod(method)) {
+    return null;
+  }
+  return {
+    depositAmount: depositFor(price),
+    depositMethod: method,
+    depositPaidAt: new Date(),
+  };
+}
+
 export async function POST(req: NextRequest) {
   const body = await req.json().catch(() => null);
   if (!body) {
@@ -248,6 +274,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: built.error }, { status: 400 });
   }
 
+  // A deposit is only ever recorded by someone signed in — the door-knock form
+  // (see /admin/knock), which is the only place money changes hands before the
+  // booking exists. Taking this from a public payload would let anyone book a
+  // job marked paid for, so an unauthenticated request that sends it is not
+  // rejected, just ignored: the booking is still real, it simply has no
+  // deposit on it.
+  const deposit = isAdminRequest(req) ? readDeposit(body, built.data.estimateHigh) : null;
+
   const booking = await prisma.booking.create({
     data: {
       customerName,
@@ -261,6 +295,7 @@ export async function POST(req: NextRequest) {
       pickupLat: num(pickupLat),
       pickupLng: num(pickupLng),
       manageToken: generateManageToken(),
+      ...deposit,
       ...built.data,
     },
   });

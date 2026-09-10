@@ -6,6 +6,8 @@ import type { Booking, Driver, DriverApplication } from "@prisma/client";
 import { MOVE_SIZE_OPTIONS } from "@/lib/moveSizes";
 import { getCity } from "@/lib/cities";
 import { getSourceLabel } from "@/lib/sources";
+import { balanceAfter } from "@/lib/deposit";
+import { getPaymentMethodLabel, isPaidMethod } from "@/lib/payments";
 import { getApplicantRoleLabel } from "@/lib/applicantRoles";
 import { getServiceTypeLabel } from "@/lib/serviceTypes";
 import { getServiceLineLabel, isLandscaping } from "@/lib/serviceLines";
@@ -232,6 +234,16 @@ export default function DispatchBoard({
                   {booking.source && (
                     <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-xs text-neutral-300">
                       {getSourceLabel(booking.source)}
+                    </span>
+                  )}
+                  {/* Whether there is still money to chase, at a glance —
+                      dispatch calls a paid booking to confirm the crew, and
+                      an unpaid one to collect. */}
+                  {isPaidMethod(booking.depositMethod) && (
+                    <span className="rounded-full border border-emerald-400/40 bg-emerald-400/10 px-2 py-0.5 font-mono text-xs text-emerald-300">
+                      ${booking.depositAmount} paid ·{" "}
+                      {getPaymentMethodLabel(booking.depositMethod)} · $
+                      {balanceAfter(booking.estimateHigh, booking.depositAmount)} due
                     </span>
                   )}
                   {booking.city && (

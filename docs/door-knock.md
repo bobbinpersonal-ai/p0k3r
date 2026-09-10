@@ -34,13 +34,49 @@ Then get the size in front of them, not a discussion:
 > price."
 
 If they're interested, you fill the form in on the step. You need four things:
-**address, size, service, phone.** Everything else is optional. Tell them what
-happens next, in these words:
+**address, size, service, phone.** Everything else is optional.
 
-> "A dispatcher calls you inside 30 minutes to confirm the window and take a
-> deposit. Nothing is charged here."
+Then take the deposit before you press **Book it** — see below.
 
 If they're not ready, hand them a card and go. Don't work the door twice.
+
+## Taking the deposit
+
+The form works out the deposit itself: **20% of the first visit**, rounded to
+$5, never under $25 or over $150. It shows the split above the payment buttons
+— *"$55 now · $210 on the day"* — so say it exactly that way:
+
+> "It's $265. Fifty-five to book it, the rest when the work's done."
+
+Pick **Venmo** or **Apple Pay** and a QR appears with the amount already in it.
+Turn your phone round; they scan it with their own camera. Venmo opens with the
+payment filled in. Apple Pay opens Messages to us, and they send it with the
+Apple Pay button — that's Apple Cash, and it lands instantly.
+
+If the camera won't take the code, the handle and the number are on screen
+underneath it. Same payment, typed by hand.
+
+**Cash** is a button too. Take the notes, tap Cash, and their confirmation is
+the receipt.
+
+**Not yet** is also a button, and it's better than a lie. The job still books;
+a dispatcher calls within 30 minutes to collect. Never tap a payment method for
+money you haven't actually watched arrive — the amount goes into their
+confirmation as a receipt, and into dispatch as money we already have.
+
+Two things worth knowing about how this works:
+
+- **These are person-to-person transfers, not card payments.** No processor
+  sits in the middle. That means no chargeback protection and no automatic
+  receipt — the confirmation we send is the receipt, which is why it states the
+  amount, the method, and the balance. Real card payments and merchant Apple
+  Pay need a processor (Stripe); that's a build, not a setting.
+- **Check the money actually landed before you tap.** A QR that opened the app
+  is not a payment. Watch for the notification.
+
+Set `NEXT_PUBLIC_VENMO_HANDLE` and `NEXT_PUBLIC_APPLE_CASH_PHONE` before the
+first street — an unset one shows no code, which is a bad thing to discover on
+a doorstep.
 
 ## Objections
 
@@ -68,6 +104,10 @@ it at the door.
 and the per-visit price drops on a schedule. Monthly is *not* discounted — by
 week four the grass is as long as a one-off, so it costs what a one-off costs.
 That's on the sheet.
+
+**"Do I have to pay now?"** — "Just the deposit — $55 of the $265, and that
+holds the slot. The rest when it's done." If they won't, tap **Not yet** and
+book it anyway; a booked job with no deposit still beats a card left in a door.
 
 **"I already have a guy."** — "Good — most people we sign up did too, they
 just wanted a price they could see. Keep the card, we're here if he doesn't
@@ -98,8 +138,11 @@ QR on the leave-behind carries, so a card scanned three days later still counts
 toward the street you walked. Filter the dispatch board by source to see what an
 afternoon actually produced.
 
-Track the ratio you care about: **doors knocked → prices given → booked.** The
-middle number is the one this kit exists to move.
+Track the ratio you care about: **doors knocked → prices given → booked → paid.**
+The middle two are the ones this kit exists to move.
+
+Paid bookings carry a green chip on the dispatch board showing what was taken,
+how, and what's still owed, so the crew going out knows what to collect.
 
 ## Open legal questions
 

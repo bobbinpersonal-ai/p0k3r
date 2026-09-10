@@ -24,6 +24,16 @@ import {
   windowLabel,
 } from "@/lib/arrivalWindows";
 import { findCityByName } from "@/lib/cities";
+import { balanceAfter, depositFor } from "@/lib/deposit";
+import {
+  getPaymentMethod,
+  isPaidMethod,
+  PAYMENT_METHODS,
+  paymentLink,
+  paymentTarget,
+  type PaymentMethodValue,
+} from "@/lib/payments";
+import QrCode from "@/components/QrCode";
 import type { LatLng } from "@/lib/geo";
 import type { YardEstimate } from "@/lib/parcel";
 
@@ -71,7 +81,14 @@ function Choice({
   );
 }
 
-type Done = { id: string; manageUrl: string; price: number; name: string };
+type Done = {
+  id: string;
+  manageUrl: string;
+  price: number;
+  name: string;
+  deposit: number;
+  method: PaymentMethodValue;
+};
 
 export default function KnockForm() {
   const services = useMemo(() => bookableServices(), []);
@@ -90,6 +107,10 @@ export default function KnockForm() {
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [details, setDetails] = useState("");
+  // Starts at "not yet" on purpose: a booking claiming money we never took is
+  // worse than one that admits we didn't, and a default of Venmo would make
+  // that the tap you forget rather than the tap you make.
+  const [method, setMethod] = useState<PaymentMethodValue>("NONE");
 
   const [estimate, setEstimate] = useState<YardEstimate | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -101,6 +122,11 @@ export default function KnockForm() {
   const cadences = frequenciesFor(service);
   const quote = quoteLandscaping(service, yardSize, frequency);
   const windows = getAvailableWindows(dayKey);
+  const price = quote?.perVisit ?? 0;
+  const deposit = depositFor(price);
+  const chosen = getPaymentMethod(method);
+  const link = paymentLink(method, deposit);
+  const target = paymentTarget(method);
 
   function set(patch: Partial<StructuredAddress>) {
     setAddress((prev) => ({ ...prev, ...patch }));
@@ -173,6 +199,7 @@ export default function KnockForm() {
           pickupLat: point.current?.lat,
           pickupLng: point.current?.lng,
           source: "door-knock",
+          depositMethod: method,
         }),
       });
       const body = await res.json().catch(() => null);
@@ -182,6 +209,11 @@ export default function KnockForm() {
         manageUrl: `/manage/${body.manageToken}`,
         price: body.estimateHigh,
         name: customerName.trim(),
+        // Read back from the row rather than from the form: the server decides
+        // the amount, and the number the rep reads out has to be the number
+        // the customer's confirmation will say.
+        deposit: body.depositAmount ?? 0,
+        method: body.depositMethod ?? "NONE",
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Booking failed. Try again.");
@@ -202,19 +234,46 @@ export default function KnockForm() {
     setCustomerEmail("");
     setDetails("");
     setHour(null);
+    setMethod("NONE");
     window.scrollTo({ top: 0 });
   }
 
   if (done) {
+    const paid = isPaidMethod(done.method);
+    const owing = balanceAfter(done.price, done.deposit);
     return (
       <div className="mt-8 rounded-2xl border border-brand/40 bg-brand/10 p-5">
-        <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Booked</p>
+        <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+          {paid ? "Booked & paid" : "Booked"}
+        </p>
         <h2 className="mt-2 text-2xl font-extrabold text-ink">
           {done.name} — ${done.price}
         </h2>
-        <p className="mt-2 text-sm text-neutral-200">
-          Confirmation is on its way to their phone. Tell them a dispatcher calls within 30
-          minutes to confirm and take the deposit.
+        {/* Read this back to them before you walk away. It's the same wording
+            their confirmation carries, so nothing they read later contradicts
+            what they were told on the step. */}
+        {paid ? (
+          <dl className="mt-3 space-y-1 text-sm">
+            <div className="flex justify-between">
+              <dt className="text-neutral-300">
+                Deposit taken ({getPaymentMethod(done.method)?.label})
+              </dt>
+              <dd className="font-mono font-bold text-ink">${done.deposit}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-neutral-300">Due when the work is done</dt>
+              <dd className="font-mono font-bold text-ink">${owing}</dd>
+            </div>
+          </dl>
+        ) : (
+          <p className="mt-2 text-sm text-neutral-200">
+            No deposit taken. A dispatcher calls within 30 minutes to confirm and collect it.
+          </p>
+        )}
+        <p className="mt-3 text-sm text-neutral-200">
+          {paid
+            ? "Their confirmation is on its way — that message is the receipt."
+            : "Confirmation is on its way to their phone."}
         </p>
         <a
           href={done.manageUrl}
@@ -435,6 +494,51 @@ export default function KnockForm() {
         </div>
       </section>
 
+      <section>
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className={LABEL}>Deposit</h2>
+          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+            ${deposit} now · ${balanceAfter(price, deposit)} on the day
+          </p>
+        </div>
+        <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {PAYMENT_METHODS.map((option) => (
+            <Choice
+              key={option.value}
+              active={method === option.value}
+              onClick={() => setMethod(option.value)}
+            >
+              <span className="block font-semibold">{option.label}</span>
+            </Choice>
+          ))}
+        </div>
+        {chosen && (
+          <p className="mt-2 text-xs text-neutral-300">{chosen.instruction}</p>
+        )}
+        {/* The code carries the amount, so it can't be scanned early and it
+            can't be wrong. Turn the phone round — they scan it off your
+            screen with their own camera. */}
+        {link && (
+          <div className="mt-3 flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 p-3">
+            <QrCode
+              value={link}
+              label={`Scan to pay a $${deposit} deposit`}
+              className="h-32 w-32 shrink-0 rounded"
+            />
+            <div className="min-w-0">
+              <p className="text-3xl font-extrabold leading-none text-ink">${deposit}</p>
+              {target && (
+                <p className="mt-1 break-words font-mono text-sm text-brand-cyan">{target}</p>
+              )}
+              <p className="mt-2 text-xs text-neutral-400">
+                If the camera won&apos;t take it, they can send it to that name by hand —
+                it&apos;s the same payment.
+              </p>
+            </div>
+          </div>
+        )}
+      </section>
+
       {error && (
         <p role="alert" className="rounded-xl border border-brand/50 bg-brand/10 px-3 py-3 text-sm text-ink">
           {error}
@@ -450,10 +554,13 @@ export default function KnockForm() {
               Quote them
             </p>
             <p data-quote className="text-2xl font-extrabold leading-tight text-ink">
-              ${quote?.perVisit}
+              ${price}
               <span className="ml-1 text-xs font-normal text-neutral-300">
                 {quote?.frequency.cadence}
               </span>
+            </p>
+            <p className="font-mono text-[11px] text-brand-cyan">
+              {isPaidMethod(method) ? `$${deposit} taken` : `$${deposit} deposit`}
             </p>
           </div>
           <button

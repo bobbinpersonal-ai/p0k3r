@@ -1,18 +1,25 @@
 // A tiny QR encoder — byte mode, error-correction level L, versions 1-4.
 //
-// It exists so the printed door-knock material can carry a scannable code
-// without adding a runtime dependency or calling out to an image service at
-// build time. The narrow scope is the point: at level L, versions 1 through 4
-// are all single-block, so there is no Reed-Solomon interleaving to get wrong,
-// and 78 characters is more URL than any of our links need.
+// Written rather than installed. The alternative is a dependency to draw one
+// glyph, and the narrow scope is what keeps it small enough to be worth it: at
+// level L, versions 1 through 4 are all single-block, so there is no
+// Reed-Solomon interleaving to get wrong, and 78 characters is more URL than
+// any of our links need.
 //
-// Verified by scripts/qr.test.mjs, which decodes the matrix back through the
-// same placement and asserts it round-trips, and cross-checks the computed
-// format bits against the published table.
+// It renders at request time rather than into a committed file because the
+// codes are no longer fixed: a Venmo link carries the deposit amount for the
+// job in front of you, so the code has to be made when the price is known.
+//
+// Verified by qr.test.cjs, which decodes the matrix back through the same
+// placement and asserts it round-trips, cross-checks the format bits against
+// the published table, and checks the free-module count per version against
+// the spec's data capacity.
 
-const EC_CODEWORDS = { 1: 7, 2: 10, 3: 15, 4: 20 };
-const DATA_CODEWORDS = { 1: 19, 2: 34, 3: 55, 4: 80 };
-const ALIGNMENT = { 1: [], 2: [6, 18], 3: [6, 22], 4: [6, 26] };
+type Version = 1 | 2 | 3 | 4;
+
+const EC_CODEWORDS: Record<Version, number> = { 1: 7, 2: 10, 3: 15, 4: 20 };
+const DATA_CODEWORDS: Record<Version, number> = { 1: 19, 2: 34, 3: 55, 4: 80 };
+const ALIGNMENT: Record<Version, number[]> = { 1: [], 2: [6, 18], 3: [6, 22], 4: [6, 26] };
 
 // --- GF(256) ----------------------------------------------------------------
 
@@ -26,11 +33,11 @@ for (let i = 0, x = 1; i < 255; i++) {
 }
 for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255];
 
-const mul = (a, b) => (a === 0 || b === 0 ? 0 : EXP[LOG[a] + LOG[b]]);
+const mul = (a: number, b: number) => (a === 0 || b === 0 ? 0 : EXP[LOG[a] + LOG[b]]);
 
 /** The generator polynomial for `count` error-correction codewords. */
-function generator(count) {
-  let poly = [1];
+function generator(count: number): number[] {
+  let poly: number[] = [1];
   for (let i = 0; i < count; i++) {
     const next = new Array(poly.length + 1).fill(0);
     for (let j = 0; j < poly.length; j++) {
@@ -42,9 +49,9 @@ function generator(count) {
   return poly;
 }
 
-function reedSolomon(data, ecCount) {
+function reedSolomon(data: number[], ecCount: number): number[] {
   const gen = generator(ecCount);
-  const rest = new Array(ecCount).fill(0);
+  const rest: number[] = new Array(ecCount).fill(0);
   for (const byte of data) {
     const factor = byte ^ rest[0];
     rest.shift();
@@ -62,7 +69,7 @@ function reedSolomon(data, ecCount) {
  * BCH(15,5) over the format bits, XOR'd with the spec's fixed mask so an
  * all-zero format can't read as valid.
  */
-export function formatBits(mask) {
+export function formatBits(mask: number): number {
   // 01 is level L in the two-bit EC field.
   const data = (0b01 << 3) | mask;
   let value = data << 10;
@@ -74,11 +81,11 @@ export function formatBits(mask) {
 
 // --- Bit stream -------------------------------------------------------------
 
-function encodeData(text, version) {
+function encodeData(text: string, version: Version): number[] {
   const bytes = new TextEncoder().encode(text);
   const capacity = DATA_CODEWORDS[version];
-  const bits = [];
-  const push = (value, length) => {
+  const bits: number[] = [];
+  const push = (value: number, length: number) => {
     for (let i = length - 1; i >= 0; i--) bits.push((value >> i) & 1);
   };
 
@@ -91,7 +98,7 @@ function encodeData(text, version) {
   for (let i = 0; i < 4 && bits.length < limit; i++) bits.push(0);
   while (bits.length % 8 !== 0) bits.push(0);
 
-  const codewords = [];
+  const codewords: number[] = [];
   for (let i = 0; i < bits.length; i += 8) {
     codewords.push(bits.slice(i, i + 8).reduce((acc, bit) => (acc << 1) | bit, 0));
   }
@@ -101,9 +108,9 @@ function encodeData(text, version) {
 }
 
 /** The smallest version that fits, or null when the text is too long for v4. */
-export function pickVersion(text) {
+export function pickVersion(text: string): Version | null {
   const needed = new TextEncoder().encode(text).length + 2; // mode + length header
-  for (const version of [1, 2, 3, 4]) {
+  for (const version of [1, 2, 3, 4] as const) {
     if (needed <= DATA_CODEWORDS[version]) return version;
   }
   return null;
@@ -112,12 +119,16 @@ export function pickVersion(text) {
 // --- Function patterns ------------------------------------------------------
 
 /** The modules the data can't be written into: finders, timing, format, etc. */
-export function functionPatterns(version) {
+export function functionPatterns(version: Version) {
   const size = version * 4 + 17;
-  const modules = Array.from({ length: size }, () => new Array(size).fill(null));
-  const reserved = Array.from({ length: size }, () => new Array(size).fill(false));
+  const modules: (boolean | null)[][] = Array.from({ length: size }, () =>
+    new Array(size).fill(null),
+  );
+  const reserved: boolean[][] = Array.from({ length: size }, () =>
+    new Array(size).fill(false),
+  );
 
-  const set = (row, col, dark) => {
+  const set = (row: number, col: number, dark: boolean) => {
     modules[row][col] = dark;
     reserved[row][col] = true;
   };
@@ -173,8 +184,8 @@ export function functionPatterns(version) {
 }
 
 /** Every free module, in the order the spec writes data into them. */
-export function placementOrder(size, reserved) {
-  const cells = [];
+export function placementOrder(size: number, reserved: boolean[][]): [number, number][] {
+  const cells: [number, number][] = [];
   let upward = true;
   for (let right = size - 1; right >= 0; right -= 2) {
     const pair = right === 6 ? 5 : right; // column 6 is timing — skip past it
@@ -191,7 +202,8 @@ export function placementOrder(size, reserved) {
   return cells;
 }
 
-const MASKS = [
+/** The eight mask patterns, exported so the test can undo the chosen one. */
+export const MASKS: ((r: number, c: number) => boolean)[] = [
   (r, c) => (r + c) % 2 === 0,
   (r) => r % 2 === 0,
   (r, c) => c % 3 === 0,
@@ -202,9 +214,9 @@ const MASKS = [
   (r, c) => (((r + c) % 2) + ((r * c) % 3)) % 2 === 0,
 ];
 
-function writeFormat(modules, size, mask) {
+function writeFormat(modules: boolean[][], size: number, mask: number) {
   const bits = formatBits(mask);
-  const bit = (i) => ((bits >> i) & 1) === 1;
+  const bit = (i: number) => ((bits >> i) & 1) === 1;
   for (let i = 0; i <= 5; i++) modules[8][i] = bit(i);
   modules[8][7] = bit(6);
   modules[8][8] = bit(7);
@@ -219,9 +231,9 @@ function writeFormat(modules, size, mask) {
 }
 
 /** The spec's four penalty rules; the lowest-scoring mask is the one we use. */
-function penalty(modules, size) {
+function penalty(modules: boolean[][], size: number): number {
   let score = 0;
-  const runs = (get) => {
+  const runs = (get: (a: number, b: number) => boolean) => {
     for (let a = 0; a < size; a++) {
       let run = 1;
       for (let b = 1; b < size; b++) {
@@ -249,7 +261,7 @@ function penalty(modules, size) {
 
   const finder = [true, false, true, true, true, false, true, false, false, false, false];
   const reversed = [...finder].reverse();
-  const matches = (line, at, pattern) =>
+  const matches = (line: boolean[], at: number, pattern: boolean[]) =>
     pattern.every((want, i) => line[at + i] === want);
   for (let a = 0; a < size; a++) {
     const row = modules[a];
@@ -267,21 +279,34 @@ function penalty(modules, size) {
   return score;
 }
 
+export type EncodedQr = {
+  version: Version;
+  size: number;
+  mask: number;
+  /** Row-major; true is a dark module. */
+  modules: boolean[][];
+};
+
 /** The finished module matrix: true is a dark module. */
-export function encode(text) {
+export function encode(text: string): EncodedQr {
   const version = pickVersion(text);
   if (!version) throw new Error(`Too long for a version 4 code: ${text.length} chars`);
 
-  const { size, modules, reserved } = functionPatterns(version);
+  const { size, modules: laid, reserved } = functionPatterns(version);
   const codewords = encodeData(text, version);
   const cells = placementOrder(size, reserved);
 
   cells.forEach(([row, col], i) => {
     const byte = codewords[i >> 3];
-    modules[row][col] = byte !== undefined && ((byte >> (7 - (i % 8))) & 1) === 1;
+    // The last few cells of some versions are remainder bits with no codeword
+    // behind them; the spec leaves those light.
+    laid[row][col] = byte !== undefined && ((byte >> (7 - (i % 8))) & 1) === 1;
   });
+  // Every cell is written by now — the function patterns on the way in, the
+  // data on the way through — so there are no nulls left to carry around.
+  const modules = laid as boolean[][];
 
-  let best = null;
+  let best: { score: number; mask: number; modules: boolean[][] } | null = null;
   for (let mask = 0; mask < 8; mask++) {
     const candidate = modules.map((line) => [...line]);
     for (const [row, col] of cells) {
@@ -292,14 +317,16 @@ export function encode(text) {
     if (!best || score < best.score) best = { score, mask, modules: candidate };
   }
 
-  return { version, size, mask: best.mask, modules: best.modules };
+  // Eight masks were scored, so this is never null.
+  const chosen = best as { mask: number; modules: boolean[][] };
+  return { version, size, mask: chosen.mask, modules: chosen.modules };
 }
 
 /** A quiet-zone-padded SVG, sized in module units so CSS can scale it freely. */
-export function toSvg(text, { quiet = 4 } = {}) {
+export function toSvg(text: string, { quiet = 4 }: { quiet?: number } = {}): string {
   const { size, modules } = encode(text);
   const total = size + quiet * 2;
-  const path = [];
+  const path: string[] = [];
   for (let row = 0; row < size; row++) {
     for (let col = 0; col < size; col++) {
       if (modules[row][col]) path.push(`M${col + quiet} ${row + quiet}h1v1h-1z`);

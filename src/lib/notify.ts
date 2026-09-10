@@ -25,6 +25,8 @@ import { getApplicantRoleLabel } from "./applicantRoles";
 import { getServiceLine, isLandscaping } from "./serviceLines";
 import { getFrequency, getLandscapingServiceLabel, getYardSizeLabel } from "./landscaping";
 import { getMajorTradeLabel, MATCH_COUNT } from "./majorTrades";
+import { balanceAfter } from "./deposit";
+import { getPaymentMethodLabel, isPaidMethod } from "./payments";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "";
@@ -56,6 +58,26 @@ function priceLine(booking: Pick<Booking, "estimateLow" | "estimateHigh">): stri
   return booking.estimateLow === booking.estimateHigh
     ? `$${booking.estimateLow}`
     : `$${booking.estimateLow}–$${booking.estimateHigh}`;
+}
+
+/**
+ * The money, once a deposit has been taken.
+ *
+ * This is the receipt. A doorstep deposit moves person-to-person — no
+ * processor sends anything afterwards — so the confirmation we send is the
+ * only written record the customer gets that they paid us, and it has to say
+ * the amount, how it was paid, and what is left. Null when nothing was
+ * collected, which is every booking made through the website.
+ */
+function depositLines(booking: Booking): string[] {
+  if (!isPaidMethod(booking.depositMethod) || !booking.depositAmount) return [];
+  const balance = balanceAfter(booking.estimateHigh, booking.depositAmount);
+  return [
+    `Deposit received: $${booking.depositAmount} by ${getPaymentMethodLabel(booking.depositMethod)}.`,
+    balance > 0
+      ? `Balance due when the work is done: $${balance}.`
+      : `Nothing further to pay.`,
+  ];
 }
 
 /**
@@ -163,9 +185,11 @@ export async function notifyNewBooking(booking: Booking): Promise<void> {
       `${priceLine(booking)} · ${formatDate(booking.moveDate)}, ${booking.timeWindow}`,
       ...jobLines(booking),
       city ? `City: ${city}` : null,
+      ...depositLines(booking),
       // The yard flow promises a call inside 30 minutes and a deposit. Repeat
-      // it here so the person who has to keep that promise sees it.
-      isLandscaping(booking.serviceLine)
+      // it here so the person who has to keep that promise sees it — unless
+      // the deposit is already in, in which case there is nothing to chase.
+      isLandscaping(booking.serviceLine) && !isPaidMethod(booking.depositMethod)
         ? "→ Call within 30 min to confirm and take the deposit."
         : null,
     ].filter((line): line is string => Boolean(line)),
@@ -255,15 +279,26 @@ export async function notifyCustomerBookingConfirmed(
 ): Promise<void> {
   const firstName = booking.customerName.split(" ")[0];
   const yard = isLandscaping(booking.serviceLine);
+  const paid = isPaidMethod(booking.depositMethod);
   await notifyCustomer(booking, {
-    subject: `${SITE_NAME}: your ${yard ? "yard visit" : "quote"} — ${priceLine(booking)}`,
+    subject: paid
+      ? `${SITE_NAME}: booked and confirmed — ${priceLine(booking)}`
+      : `${SITE_NAME}: your ${yard ? "yard visit" : "quote"} — ${priceLine(booking)}`,
     lines: [
-      `Thanks, ${firstName} — we've got your request.`,
+      paid
+        ? `Thanks, ${firstName} — you're booked.`
+        : `Thanks, ${firstName} — we've got your request.`,
       `${priceLine(booking)}${yard ? " per visit" : ""} · ${formatDate(booking.moveDate)}, ${booking.timeWindow}`,
       ...jobLines(booking),
-      yard
-        ? `We'll call you within 30 minutes to confirm and take a deposit to get you on the schedule. Nothing has been charged yet, and the price above is the price.`
-        : `A dispatcher will call or text to confirm your crew and lock in the final price — nothing's charged yet.`,
+      ...depositLines(booking),
+      // Three different promises, and sending the wrong one is worse than
+      // sending none: telling someone who just paid on their doorstep that
+      // we'll be calling for a deposit reads as though we lost it.
+      paid
+        ? `You're on the schedule. A dispatcher calls before the visit to confirm the crew.`
+        : yard
+          ? `We'll call you within 30 minutes to confirm and take a deposit to get you on the schedule. Nothing has been charged yet, and the price above is the price.`
+          : `A dispatcher will call or text to confirm your crew and lock in the final price — nothing's charged yet.`,
       `Need to reschedule or cancel? ${manageUrl}`,
     ].filter((line): line is string => Boolean(line)),
   });

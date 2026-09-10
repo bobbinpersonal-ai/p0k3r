@@ -617,12 +617,28 @@ its own two pages behind the dispatch login:
   phone number, and the licensing disclaimer. Both render from `src/lib/landscaping.ts`,
   so reprinting *is* the update process.
 
-The QR codes in `public/qr/` come from `scripts/qr.mjs`, a ~200-line byte-mode
-encoder written rather than installed: a dependency that renders one static image at
-build time isn't worth a supply-chain surface, and the printed codes never change at
-runtime. `scripts/qr.test.mjs` decodes its own output back through the same placement
-and cross-checks the format bits against the published table. Regenerate with
-`node scripts/gen-qr.mjs`.
+The QR codes are drawn by `src/lib/qr.ts`, a ~200-line byte-mode encoder written
+rather than installed — a dependency to draw one glyph isn't worth the supply-chain
+surface. It renders to inline SVG at request time (`src/components/QrCode.tsx`),
+which it has to: a deposit code carries the amount for the job in front of you, so
+it can't be a file committed in advance.
+
+Deposits are taken on the step, before the booking is submitted.
+`src/lib/deposit.ts` sizes them — 20% of the first visit, rounded to $5,
+floored at $25 and capped at $150 — and `src/lib/payments.ts` builds the link
+the customer scans: a Venmo deep link with the amount in it, or an `sms:` link
+that opens Messages to us so they can send Apple Cash with the Apple Pay
+button. Set `NEXT_PUBLIC_VENMO_HANDLE` and `NEXT_PUBLIC_APPLE_CASH_PHONE`, or
+those methods show no code.
+
+Only a signed-in request may record a deposit. The bookings route ignores the
+field on a public payload rather than rejecting the booking, and recomputes the
+amount from the price it just quoted, so neither a stranger nor a stale form
+can write a figure the customer's confirmation would then present as a receipt.
+Which it is: these are person-to-person transfers with no processor behind
+them, so the confirmation message, the `/manage/<token>` page and the dispatch
+chip are the only records that the money moved. Taking real cards (and merchant
+Apple Pay) means adding Stripe.
 
 The script, the objection answers, and the permit/disclaimer rules are in
 [`docs/door-knock.md`](docs/door-knock.md).

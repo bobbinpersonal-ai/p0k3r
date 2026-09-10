@@ -10,6 +10,7 @@ import {
   YARD_SIZES,
 } from "@/lib/landscaping";
 import { MAJOR_TRADE_PROJECTS } from "@/lib/majorTrades";
+import QrCode from "@/components/QrCode";
 
 // Two pages of paper: the grid we quote off, and the cards we leave behind.
 //
@@ -27,10 +28,9 @@ export const metadata = {
 };
 
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
-const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://lovemeafter.com").replace(
-  /^https?:\/\//,
-  "",
-);
+const SITE_ORIGIN = process.env.NEXT_PUBLIC_SITE_URL || "https://lovemeafter.com";
+/** The same thing without the scheme — what goes on a card someone reads. */
+const SITE_URL = SITE_ORIGIN.replace(/^https?:\/\//, "");
 
 /** One leave-behind, four to a page. Kept as a component so the cut sheet is a map. */
 function LeaveBehind({ services }: { services: ReturnType<typeof bookableServices> }) {
@@ -60,14 +60,10 @@ function LeaveBehind({ services }: { services: ReturnType<typeof bookableService
           {LICENSING_DISCLAIMER_SHORT}
         </p>
       </div>
-      {/* eslint-disable-next-line @next/next/no-img-element -- a static SVG with
-          no layout shift to prevent; next/image would only add a request. */}
-      <img
-        src="/qr/yard-door-knock.svg"
-        alt={`QR code to ${SITE_URL}/yard`}
-        width={96}
-        height={96}
-        className="h-24 w-24 self-start"
+      <QrCode
+        value={`${SITE_ORIGIN}/yard?source=door-knock`}
+        label={`QR code to ${SITE_URL}/yard`}
+        className="h-24 w-24 shrink-0 self-start"
       />
     </div>
   );

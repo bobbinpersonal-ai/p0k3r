@@ -9,6 +9,8 @@ import {
   getLandscapingServiceLabel,
   getYardSizeLabel,
 } from "@/lib/landscaping";
+import { balanceAfter } from "@/lib/deposit";
+import { getPaymentMethodLabel, isPaidMethod } from "@/lib/payments";
 import ManageActions from "./ManageActions";
 
 // The link every booking-confirmation message includes. Looked up by the
@@ -115,6 +117,28 @@ export default async function ManageBookingPage({
                 {recurring ? " per visit" : ""}
               </dd>
             </div>
+            {/* A doorstep deposit moves person-to-person, so no processor
+                emails anyone a receipt. This page and the confirmation
+                message are the receipt, which is why the amount is stated
+                rather than implied by a smaller balance. */}
+            {isPaidMethod(booking.depositMethod) && booking.depositAmount !== null && (
+              <>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-neutral-400">
+                    Deposit paid ({getPaymentMethodLabel(booking.depositMethod)})
+                  </dt>
+                  <dd className="font-mono font-medium text-ink">
+                    −${booking.depositAmount}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-neutral-400">Due on the day</dt>
+                  <dd className="font-mono font-medium text-brand-cyan">
+                    ${balanceAfter(booking.estimateHigh, booking.depositAmount)}
+                  </dd>
+                </div>
+              </>
+            )}
           </dl>
         </div>
 
