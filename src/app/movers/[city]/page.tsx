@@ -146,7 +146,7 @@ export default function CityLandingPage({ params }: { params: { city: string } }
                 </h2>
                 <p className="mt-4 text-neutral-500">{city.community.body}</p>
                 <Link
-                  href={{ pathname: "/drive", query: { city: city.slug } }}
+                  href={{ pathname: "/drive/moving", query: { city: city.slug } }}
                   className="mt-6 inline-flex items-center gap-2 rounded-full border border-black/15 px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand/40 hover:bg-black/5"
                 >
                   Drive for us in {city.name} →

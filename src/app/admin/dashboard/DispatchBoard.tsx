@@ -377,6 +377,15 @@ export default function DispatchBoard({
                   <p className="font-medium text-ink">{application.name}</p>
                   <div className="flex flex-wrap justify-end gap-1">
                     <StaleBadge createdAt={application.createdAt} now={now} />
+                    {application.line && (
+                      <span
+                        className={`rounded-full border px-2 py-0.5 font-mono text-xs font-semibold ${
+                          SERVICE_LINE_STYLES[application.line] ?? SERVICE_LINE_STYLES.MOVING
+                        }`}
+                      >
+                        {application.line === "LANDSCAPING" ? "Yard" : "Moving"}
+                      </span>
+                    )}
                     {application.role && (
                       <span
                         className={`rounded-full border px-2 py-0.5 font-mono text-xs ${

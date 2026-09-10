@@ -54,6 +54,13 @@ model DriverApplication {
   notes        String?
   source       String?
 
+  // Which recruiting page they came through — LANDSCAPING or MOVING (see
+  // src/lib/serviceLines.ts; junk runs on the same trucks and the same people
+  // as moving, so it isn't a separate pool to recruit for). Nullable because
+  // every applicant before the two pages were split came through one combined
+  // page and genuinely didn't say.
+  line         String?
+
   createdAt    DateTime @default(now())
 }
 

@@ -172,10 +172,23 @@ export async function notifyNewApplication(application: DriverApplication): Prom
   // allows null because a handful of pre-role-selector applicants predate it.
   const role = application.role ? getApplicantRoleLabel(application.role) : "Applicant";
 
+  // Which crew they applied to join, so the subject line answers "do I need
+  // this person this week?" without opening anything. Null on applicants from
+  // before the two recruiting pages were split — they came through one
+  // combined page and genuinely didn't say, so this says nothing rather than
+  // picking one and being wrong half the time.
+  const crew =
+    application.line === "LANDSCAPING"
+      ? { short: "yard", long: "Yard" }
+      : application.line === "MOVING"
+        ? { short: "moving", long: "Moving & hauling" }
+        : null;
+
   await notifyOwner({
-    subject: `New ${role.toLowerCase()} application — ${application.name}`,
+    subject: `New ${crew ? `${crew.short} ` : ""}${role.toLowerCase()} application — ${application.name}`,
     lines: [
       `${application.name} — ${application.phone}`,
+      crew ? `Crew: ${crew.long}` : null,
       `Applying as: ${role}${application.vehicle ? ` (${application.vehicle})` : ""}`,
       city ? `City: ${city}` : null,
     ].filter((line): line is string => Boolean(line)),

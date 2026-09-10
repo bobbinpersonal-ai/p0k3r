@@ -4,6 +4,7 @@ import { isAdminRequest } from "@/lib/auth";
 import { getCity } from "@/lib/cities";
 import { isSourceValue } from "@/lib/sources";
 import { isApplicantRole } from "@/lib/applicantRoles";
+import { isServiceLineValue } from "@/lib/serviceLines";
 import { isPayoutMethodValue } from "@/lib/payoutMethods";
 import { notifyNewApplication } from "@/lib/notify";
 
@@ -19,6 +20,7 @@ export async function POST(req: NextRequest) {
     email,
     city,
     role,
+    line,
     vehicle,
     payoutMethod,
     payoutHandle,
@@ -66,6 +68,12 @@ export async function POST(req: NextRequest) {
       email: typeof email === "string" && email ? email : null,
       city: typeof city === "string" && getCity(city) ? city : null,
       role,
+      // Which recruiting page they came through. JUNK is deliberately not
+      // accepted: junk runs on the same trucks and the same people as moving,
+      // so it isn't a separate pool and an applicant tagged that way would sit
+      // in a bucket the dispatcher never looks at.
+      line:
+        typeof line === "string" && isServiceLineValue(line) && line !== "JUNK" ? line : null,
       // Helpers don't drive, so a helper's vehicle is always null regardless
       // of what's in the request body.
       vehicle: role === "DRIVER" && typeof vehicle === "string" && vehicle ? vehicle : null,

@@ -45,9 +45,24 @@ Stack: Next.js 14 (App Router) + TypeScript + Tailwind CSS + Prisma + Postgres.
 - **`/book/confirmation`** — confirmation screen after a booking is submitted
 - **`/manage/[token]`** — the link every booking confirmation/reminder includes; lets a
   customer cancel or request a reschedule without calling in (see "Notifications" below)
-- **`/drive`** — recruiting page for prospective crew (flexible-schedule,
-  bring-your-own-vehicle pitch, now leading with yard work and recurring routes)
-  with an application form; accepts `?city=`
+- **`/drive`** — recruiting for the **yard crew**: weekly routes, tools
+  provided, no vehicle needed. Keeps the `/drive` URL because it's on the
+  printed QR cards, `/apply` redirects here, and yard work is the main
+  business. Accepts `?city=`, `?role=`, `?source=`.
+- **`/drive/moving`** — recruiting for the **moving and hauling crew**:
+  bring-your-own-truck at $25–$32/hour, plus the helper path. Junk recruits
+  here too — same trucks, same people, same day rate as moving, so a third
+  pool would be a distinction the dispatcher never makes.
+
+  The two are separate pages because the pitch genuinely differs. One page
+  doing both led with a truck to people who don't own one, and buried the
+  thing that actually sells yard work: a recurring route is the same yards on
+  the same day every week, which no other gig in this market offers. Each
+  application records which page it came through (`DriverApplication.line`),
+  so the dispatch board and the lead alerts can tell the two pools apart.
+  Shared sections (mission, perks, what-to-expect) live in
+  `src/app/drive/RecruitingSections.tsx` so the two can't drift into
+  describing different employers.
 - **`/admin`** — password-protected sign-in for dispatch
 - **`/admin/dashboard`** — dispatch board: see incoming bookings (tagged by service
   line and by city when known — a yard job shows its service, size and cadence; a

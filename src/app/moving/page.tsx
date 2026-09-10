@@ -384,7 +384,7 @@ export default function MovingPage({
               </h2>
             </div>
             <Link
-              href="/drive"
+              href="/drive/moving"
               className="text-sm font-semibold text-brand-cyan hover:text-ink"
             >
               Own one? Drive for us →

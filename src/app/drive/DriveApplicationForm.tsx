@@ -10,14 +10,25 @@ const inputClass =
   "mt-1 w-full rounded-lg border border-black/10 bg-black/5 px-3 py-2 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 
 export default function DriveApplicationForm({
+  line,
   initialCity,
   initialRole,
   source,
 }: {
+  /**
+   * Which recruiting page this form is on — LANDSCAPING or MOVING.
+   *
+   * Stored on the application so dispatch can tell the two pools apart, and
+   * used here to word the role question: a yard applicant is choosing whether
+   * they can drive the truck to the job, a moving applicant is choosing
+   * whether the job is theirs to drive at all.
+   */
+  line: "LANDSCAPING" | "MOVING";
   initialCity?: string;
   initialRole?: ApplicantRole;
   source?: string;
 }) {
+  const yard = line === "LANDSCAPING";
   const [role, setRole] = useState<ApplicantRole | null>(initialRole ?? null);
   const [payoutMethod, setPayoutMethod] = useState<PayoutMethodValue | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -30,7 +41,11 @@ export default function DriveApplicationForm({
     setError(null);
 
     if (!role) {
-      setError("Let us know whether you're applying as a driver or a helper.");
+      setError(
+        yard
+          ? "Let us know whether you can drive to jobs or you'd be riding along."
+          : "Let us know whether you're applying as a driver or a helper.",
+      );
       return;
     }
 
@@ -55,6 +70,7 @@ export default function DriveApplicationForm({
       email: String(form.get("email") || "") || undefined,
       city: String(form.get("city") || "") || undefined,
       role,
+      line,
       vehicle: String(form.get("vehicle") || "") || undefined,
       payoutMethod,
       payoutHandle,
@@ -101,7 +117,7 @@ export default function DriveApplicationForm({
     <form onSubmit={handleSubmit} className="mt-8 space-y-6">
       <fieldset>
         <legend className="text-sm font-semibold text-ink">
-          I want to apply as a...
+          {yard ? "Can you get yourself to jobs?" : "I want to apply as a..."}
         </legend>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           {APPLICANT_ROLES.map((option) => (
@@ -124,8 +140,20 @@ export default function DriveApplicationForm({
                 }}
                 className="sr-only"
               />
-              <span className="font-semibold text-ink">{option.label}</span>
-              <span className="mt-1 text-sm text-neutral-500">{option.description}</span>
+              <span className="font-semibold text-ink">
+                {yard
+                  ? option.value === "DRIVER"
+                    ? "I have a truck or van"
+                    : "I'd ride along"
+                  : option.label}
+              </span>
+              <span className="mt-1 text-sm text-neutral-500">
+                {yard
+                  ? option.value === "DRIVER"
+                    ? "You can haul the gear and green waste — pays more"
+                    : "No vehicle needed, you're paired with someone who has one"
+                  : option.description}
+              </span>
             </label>
           ))}
         </div>
@@ -184,7 +212,11 @@ export default function DriveApplicationForm({
             id="vehicle"
             name="vehicle"
             required
-            placeholder="e.g. 2019 F-150 with a hitch, or a 16ft box truck"
+            placeholder={
+              yard
+                ? "e.g. 2005 Tacoma, or a van with the seats out"
+                : "e.g. 2019 F-150 with a hitch, or a 16ft box truck"
+            }
             className={inputClass}
           />
         </div>
@@ -249,7 +281,11 @@ export default function DriveApplicationForm({
           id="notes"
           name="notes"
           rows={3}
-          placeholder="Moving experience, whether you're a UC Davis student, etc."
+          placeholder={
+            yard
+              ? "Any landscaping or outdoor work you've done, days you can't work, etc."
+              : "Moving experience, whether you're a UC Davis student, etc."
+          }
           className={inputClass}
         />
       </div>

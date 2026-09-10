@@ -23,7 +23,10 @@ export default function SiteFooter() {
             Junk removal
           </Link>
           <Link href="/drive" className="font-medium text-brand-cyan">
-            Work with us
+            Yard crew jobs
+          </Link>
+          <Link href="/drive/moving" className="font-medium text-brand-cyan">
+            Moving crew jobs
           </Link>
         </p>
         <p className="mt-1">
