@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { EXEMPTION_LIMIT } from "@/lib/landscaping";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
@@ -22,6 +23,9 @@ export default function SiteFooter() {
           <Link href="/junk-removal" className="font-medium text-brand-cyan">
             Junk removal
           </Link>
+          <Link href="/contractors" className="font-medium text-brand-cyan">
+            Licensed contractors
+          </Link>
           <Link href="/drive" className="font-medium text-brand-cyan">
             Yard crew jobs
           </Link>
@@ -39,6 +43,21 @@ export default function SiteFooter() {
             {SUPPORT_EMAIL}
           </a>
           .
+        </p>
+
+        {/* Required, not decorative. California B&P 7027.2 means advertising
+            work under the minor-work exemption has to say the advertiser is
+            unlicensed, and 7048 is the exemption itself. Muted rather than
+            hidden: it should read as a plain statement of what this company is,
+            legible on every page, without competing with the content above it. */}
+        <p className="mt-6 max-w-4xl border-t border-black/5 pt-6 text-xs leading-relaxed text-neutral-400">
+          <span className="font-semibold text-neutral-500">Disclaimer:</span> {SITE_NAME}{" "}
+          provides minor home maintenance, yard care, and cosmetic assembly services under
+          the ${EXEMPTION_LIMIT.toLocaleString()} threshold permitted by California law.{" "}
+          {SITE_NAME} is not a licensed general contractor. Any project exceeding $
+          {EXEMPTION_LIMIT.toLocaleString()} or requiring building permits, electrical,
+          plumbing, or structural work is referred directly to fully independent, licensed,
+          bonded, and insured California state contractors (CSLB).
         </p>
       </div>
     </footer>

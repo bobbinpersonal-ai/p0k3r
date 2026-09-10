@@ -22,9 +22,13 @@ Stack: Next.js 14 (App Router) + TypeScript + Tailwind CSS + Prisma + Postgres.
 
 ## What's here
 
-- **`/`** — the landscaping home page: an address box above the fold, the four
-  services and what each includes, and **"from" prices only**. No exact price is
-  quoted anywhere outside the flow — see below for why.
+- **`/`** — the home-services page: an address box above the fold, four
+  categories, and **"from" prices only**. No exact price is quoted anywhere
+  outside the flow — see below for why. Three of the four categories are work
+  this company performs; the fourth is a referral (see below).
+- **`/contractors`** — the referral path for work requiring a licensed
+  contractor. No price, no schedule, no checkout: a request becomes a
+  `ContractorLead` and goes out to independent CSLB-licensed contractors.
 - **`/yard`** — the landscaping booking flow, in this order:
 
   1. **Address** — first, so the parcel lookup can take a run at the yard size
@@ -338,6 +342,43 @@ address and yard size are known. The homepage used to publish the whole
 size x service grid, which meant the customer picked their own size from a dropdown
 and we honoured whatever they guessed — a quote we might have to correct on the
 doorstep, which is the one thing a flat-price promise exists to prevent.
+
+### California licensing — what may and may not be sold here
+
+California licenses construction work. Under **B&P 7048** an unlicensed person
+may take on minor work below a dollar threshold; past it — and for anything
+needing a building permit, or touching electrical, plumbing or structure — the
+job belongs to a licensed contractor. **This company is not one.** **B&P 7027.2**
+additionally requires that advertising for exempt work say so, which is why the
+disclaimer is in the footer of every page and repeated next to the prices.
+
+That boundary is encoded, not just written down:
+
+- `EXEMPTION_LIMIT` in `src/lib/landscaping.ts` is the ceiling. `quoteLandscaping`
+  marks any quote reaching it `exceedsExemption`, `bookableServices()` filters on
+  that, and the invariant test fails the build if any service × size × cadence
+  reaches it. A future price rise therefore takes a service *off* the bookable
+  surfaces by itself rather than waiting for someone to notice.
+- Referrals live in their own table (`ContractorLead`), not as a flagged
+  `Booking`. A Booking is work we perform and take money for; a lead is an
+  introduction with no price, crew, schedule or payment. Sharing a table would
+  mean every "our jobs" query had to remember to exclude them, and the first one
+  that forgot would put unlicensed work on the dispatch board.
+
+**Two things to confirm with a California construction attorney or the CSLB
+before relying on the $1,000 figure**, both of which are business facts this
+codebase can't check:
+
+1. The $1,000 minor-work exemption (raised from $500 by AB 2622) applies only
+   where the work **requires no building permit** *and* the person doing it
+   **employs no workers on that project**. This company pays a crew hourly, so
+   the employment condition is the one to get advice on — it may put the
+   applicable threshold back at $500, which would mean re-pricing.
+2. Whether pressure washing, fence/gate repair and sprinkler work as described
+   fall inside the exemption in your county, and which of them trigger permits.
+
+Change `EXEMPTION_LIMIT` and the invariant test re-checks every price against
+the new number.
 
 ### Guessing the yard size — `src/lib/parcel.ts`
 

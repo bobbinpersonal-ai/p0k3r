@@ -64,6 +64,35 @@ model DriverApplication {
   createdAt    DateTime @default(now())
 }
 
+// A request to be introduced to licensed contractors — NOT a job we do.
+//
+// Deliberately its own table rather than a Booking with a flag. A Booking is
+// work this company performs and takes money for; one of these is a referral
+// out to an independent licensed contractor, with no price, no crew, no
+// schedule and no payment. Sharing a table would mean every query about "our
+// jobs" had to remember to exclude them, and the first one that forgot would
+// put unlicensed work on the dispatch board.
+//
+// status: NEW | CONTACTED | MATCHED | CLOSED
+model ContractorLead {
+  id            String   @id @default(cuid())
+  status        String   @default("NEW")
+
+  name          String
+  phone         String
+  email         String?
+  zip           String
+  projectType   String
+  preferredStart String?
+  details       String?
+
+  // Which marketing channel sent them, same as everywhere else.
+  source        String?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
 model Booking {
   id              String    @id @default(cuid())
   status          String    @default("PENDING")

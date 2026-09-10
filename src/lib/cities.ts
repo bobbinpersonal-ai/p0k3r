@@ -141,6 +141,20 @@ export const CITIES: City[] = [
     },
   },
   {
+    slug: "roseville",
+    name: "Roseville",
+    region: "Placer County",
+    blurb:
+      "Local movers for Roseville homes and apartments — Fiddyment Farm, Sun City, and everywhere between.",
+    yardBlurb:
+      "Newer Placer County subdivisions with front lawns to keep and HOA standards to meet, plus older Roseville lots with hedges and fence lines that need cutting back.",
+    neighborhoods: ["Downtown Roseville", "Fiddyment Farm", "Sun City", "Woodcreek", "Diamond Oaks"],
+    community: {
+      heading: "Staffed by Placer County, for Placer County",
+      body: "Our Roseville crews live up here — they know the subdivisions, the HOA expectations, and how fast a Placer County lawn grows once the heat arrives.",
+    },
+  },
+  {
     slug: "elk-grove",
     name: "Elk Grove",
     region: "Sacramento County",

@@ -112,58 +112,80 @@ export type LandscapingService = {
 
 export const LANDSCAPING_SERVICES = [
   {
-    value: "MOW_EDGE_BLOW",
-    label: "Mow, edge & blow",
-    description: "The regular cut that keeps a yard looking looked-after",
+    value: "EXTERIOR_WASH",
+    label: "Exterior & Driveway Refresh",
+    description: "Drives, walls and windows back to the colour they started",
     includes: [
-      "Mow front and back",
-      "Edge along walks, beds and driveway",
-      "Blow down hard surfaces",
-      "Clippings bagged and taken",
+      "High-pressure drive & walkway washing",
+      "Oil stain & surface treatment",
+      "Exterior window & screen wash",
+      "Gutter cleaning & leaf clearing",
+    ],
+    allowsRecurring: false,
+    materialsNote: null,
+  },
+  {
+    value: "CLEAN_EDGE",
+    label: "Clean Edge & Yard Overgrowth",
+    description: "The cut, the edges, and whatever has got away from you",
+    includes: [
+      "Precision edge, mow, and blow",
+      "Bush, vine, and hedge trimming",
+      "Weeding and garden bed cleanout",
+      "Leaf removal & haul-away",
     ],
     allowsRecurring: true,
     materialsNote: null,
   },
   {
-    value: "CLEANUP",
-    label: "Cleanup & overgrowth",
-    description: "A yard that got away from you, brought back to zero",
+    value: "ASSEMBLY_REPAIR",
+    label: "Yard Assembly & Minor Repairs",
+    description: "Flat-pack builds and the small fixes nobody gets round to",
     includes: [
-      "Cut down overgrowth and weeds",
-      "Clear beds, fence lines and side yards",
-      "Rake out leaves and debris",
-      "Everything hauled away",
+      "Pre-fab pergola, shed, or kit assembly",
+      "Fence picket replacement & gate tune-up",
+      "Sprinkler head replacement & line flush",
+      "Mulch, soil, or gravel refresh",
     ],
     allowsRecurring: false,
-    materialsNote: null,
-  },
-  {
-    value: "TRIM_HAUL",
-    label: "Trimming & green-waste hauling",
-    description: "Hedges, shrubs and branches cut back and taken off the property",
-    includes: [
-      "Shape hedges and shrubs",
-      "Cut back low branches",
-      "Load and haul the green waste",
-      "Dump fees included",
-    ],
-    allowsRecurring: false,
-    materialsNote: null,
-  },
-  {
-    value: "INSTALL",
-    label: "Mulch, sod & planting",
-    description: "Putting something new in — turf, bark, plants, or all three",
-    includes: [
-      "Prep and grade the area",
-      "Lay sod or spread mulch",
-      "Set plants and water in",
-      "Clean up after",
-    ],
-    allowsRecurring: false,
-    materialsNote: "Labour only — sod, mulch and plants are billed at cost",
+    materialsNote: "Labour only — materials billed at cost",
   },
 ] as const satisfies readonly LandscapingService[];
+
+/**
+ * Work we don't do ourselves, and why the list above stops where it does.
+ *
+ * California licenses this. Under B&P 7048 an unlicensed person may take on
+ * minor work below a dollar threshold; everything past it — and anything
+ * needing a building permit, or touching electrical, plumbing or structure —
+ * is a licensed contractor's job. We aren't one. So these are not services
+ * with a hidden price: they route to a request form and out to independent
+ * CSLB-licensed contractors, and no money changes hands here for them.
+ *
+ * Kept as data next to the real services because the homepage shows them
+ * side by side, and the difference between "book this" and "we'll introduce
+ * you" has to be impossible to miss.
+ */
+export const MAJOR_TRADE_CATEGORIES = [
+  "Kitchen & Bath Remodeling",
+  "Tree Removal & Major Trimming",
+  "Hardscape, Patios & Concrete",
+  "Roofing & Exterior Siding",
+] as const;
+
+/**
+ * Labels for services we no longer sell.
+ *
+ * Bookings taken before the catalogue changed still carry these values, and
+ * dispatch, the manage link and the customer's own receipt all read them back.
+ * Without this they'd render as raw enum names to a real customer.
+ */
+const RETIRED_SERVICE_LABELS: Record<string, string> = {
+  MOW_EDGE_BLOW: "Mow, edge & blow",
+  CLEANUP: "Cleanup & overgrowth",
+  TRIM_HAUL: "Trimming & green-waste hauling",
+  INSTALL: "Mulch, sod & planting",
+};
 
 export type LandscapingServiceValue = (typeof LANDSCAPING_SERVICES)[number]["value"];
 
@@ -179,7 +201,8 @@ export function getLandscapingService(value: string): LandscapingServiceCard | u
 }
 
 export function getLandscapingServiceLabel(value: string | null | undefined): string {
-  return (value ? getLandscapingService(value)?.label : undefined) ?? value ?? "";
+  if (!value) return "";
+  return getLandscapingService(value)?.label ?? RETIRED_SERVICE_LABELS[value] ?? value;
 }
 
 // --- How often ---------------------------------------------------------------
@@ -274,10 +297,9 @@ type PriceTable = Record<LandscapingServiceValue, Record<YardSizeValue, number>>
  * test) so a price can't quietly drop below what the crew has to be paid.
  */
 const BASE_PRICE: PriceTable = {
-  MOW_EDGE_BLOW: { SMALL: 55, MEDIUM: 75, LARGE: 110, XL: 165 },
-  CLEANUP: { SMALL: 180, MEDIUM: 320, LARGE: 520, XL: 780 },
-  TRIM_HAUL: { SMALL: 145, MEDIUM: 265, LARGE: 420, XL: 620 },
-  INSTALL: { SMALL: 225, MEDIUM: 395, LARGE: 640, XL: 950 },
+  EXTERIOR_WASH: { SMALL: 199, MEDIUM: 329, LARGE: 499, XL: 749 },
+  CLEAN_EDGE: { SMALL: 150, MEDIUM: 265, LARGE: 425, XL: 650 },
+  ASSEMBLY_REPAIR: { SMALL: 249, MEDIUM: 399, LARGE: 599, XL: 849 },
 };
 
 // --- What it costs us --------------------------------------------------------
@@ -293,6 +315,25 @@ const CREW_FLOOR_HOURLY = 19;
 
 /** LoveMeAfter's cut, same as the moving side. See pricing.ts. */
 const PLATFORM_RATE = 0.25;
+
+/**
+ * The ceiling on anything a customer can book here directly.
+ *
+ * California's minor work exemption (B&P 7048) lets an unlicensed person take
+ * on a project below a dollar threshold. Past it, the work belongs to a
+ * licensed contractor — and we are not one. So this is not a pricing
+ * preference, it is the edge of what this business is allowed to sell, and
+ * quoteLandscaping refuses to return a bookable price at or above it rather
+ * than trusting every future edit of BASE_PRICE to remember.
+ *
+ * A combination that would exceed it is not an error and not a lost customer:
+ * it is a job for the licensed-partner referral path (MAJOR_TRADE_CATEGORIES),
+ * which is why quotes carry `exceedsExemption` instead of just disappearing.
+ *
+ * The threshold and its conditions are set by statute and have moved before —
+ * see the note in the README before changing this number.
+ */
+export const EXEMPTION_LIMIT = 1000;
 
 type CostRow = {
   /** Person-hours on site, low and high. The floor check uses `high`. */
@@ -315,29 +356,23 @@ type CostTable = Record<LandscapingServiceValue, Record<YardSizeValue, CostRow>>
  * 2 hours" line on the quote, and for telling dispatch how many people to send.
  */
 const COST_MODEL: CostTable = {
-  MOW_EDGE_BLOW: {
-    SMALL: { hours: { low: 0.4, high: 0.75 }, crewSize: 1, supplies: 8 },
-    MEDIUM: { hours: { low: 0.75, high: 1.25 }, crewSize: 1, supplies: 10 },
-    LARGE: { hours: { low: 1.25, high: 2 }, crewSize: 1, supplies: 14 },
-    XL: { hours: { low: 2, high: 3 }, crewSize: 2, supplies: 20 },
+  EXTERIOR_WASH: {
+    SMALL: { hours: { low: 2, high: 3 }, crewSize: 2, supplies: 25 },
+    MEDIUM: { hours: { low: 3.5, high: 5 }, crewSize: 2, supplies: 35 },
+    LARGE: { hours: { low: 5.5, high: 7.5 }, crewSize: 2, supplies: 50 },
+    XL: { hours: { low: 8, high: 11 }, crewSize: 3, supplies: 70 },
   },
-  CLEANUP: {
-    SMALL: { hours: { low: 2, high: 3 }, crewSize: 2, supplies: 45 },
-    MEDIUM: { hours: { low: 3.5, high: 5.5 }, crewSize: 2, supplies: 65 },
-    LARGE: { hours: { low: 6, high: 9 }, crewSize: 3, supplies: 95 },
-    XL: { hours: { low: 9, high: 13 }, crewSize: 3, supplies: 130 },
+  CLEAN_EDGE: {
+    SMALL: { hours: { low: 1.5, high: 2.5 }, crewSize: 2, supplies: 30 },
+    MEDIUM: { hours: { low: 2.5, high: 4 }, crewSize: 2, supplies: 45 },
+    LARGE: { hours: { low: 4.5, high: 6.5 }, crewSize: 2, supplies: 65 },
+    XL: { hours: { low: 7, high: 10 }, crewSize: 3, supplies: 95 },
   },
-  TRIM_HAUL: {
-    SMALL: { hours: { low: 1.5, high: 2.5 }, crewSize: 2, supplies: 35 },
-    MEDIUM: { hours: { low: 2.5, high: 4 }, crewSize: 2, supplies: 50 },
-    LARGE: { hours: { low: 4, high: 6.5 }, crewSize: 2, supplies: 75 },
-    XL: { hours: { low: 6, high: 9.5 }, crewSize: 3, supplies: 105 },
-  },
-  INSTALL: {
-    SMALL: { hours: { low: 2, high: 3.5 }, crewSize: 2, supplies: 20 },
-    MEDIUM: { hours: { low: 3.5, high: 6 }, crewSize: 2, supplies: 30 },
-    LARGE: { hours: { low: 6, high: 10 }, crewSize: 3, supplies: 45 },
-    XL: { hours: { low: 9, high: 15 }, crewSize: 3, supplies: 65 },
+  ASSEMBLY_REPAIR: {
+    SMALL: { hours: { low: 2.5, high: 3.5 }, crewSize: 2, supplies: 20 },
+    MEDIUM: { hours: { low: 4, high: 5.5 }, crewSize: 2, supplies: 30 },
+    LARGE: { hours: { low: 6, high: 8.5 }, crewSize: 2, supplies: 45 },
+    XL: { hours: { low: 9, high: 12 }, crewSize: 3, supplies: 60 },
   },
 };
 
@@ -369,6 +404,13 @@ export type LandscapingQuote = {
   /** The crew's share of what the customer pays, before tips. */
   crewPayout: number;
   platformFee: number;
+  /**
+   * True when this job has priced itself out of what we may sell directly.
+   *
+   * Callers must not offer checkout on one of these — it belongs on the
+   * licensed-contractor referral path. See EXEMPTION_LIMIT.
+   */
+  exceedsExemption: boolean;
 };
 
 /**
@@ -397,12 +439,20 @@ export function quoteLandscaping(
       : getFrequency("ONE_TIME")!;
 
   const oneTimePrice = BASE_PRICE[service][yardSize];
-  const perVisit = ceilToFive(oneTimePrice * frequency.priceMultiplier);
+  // Only a discount gets rounded. Running every price through ceilToFive turned
+  // the advertised $199 into $200 and made "from $199" false the moment anyone
+  // clicked it — the rounding exists to stop a discount landing below the wage
+  // it was derived from, and an undiscounted price has nothing to protect.
+  const perVisit =
+    frequency.priceMultiplier === 1
+      ? oneTimePrice
+      : ceilToFive(oneTimePrice * frequency.priceMultiplier);
   const cost = COST_MODEL[service][yardSize];
 
   const crewPayout = Math.ceil(perVisit * (1 - PLATFORM_RATE));
 
   return {
+    exceedsExemption: perVisit >= EXEMPTION_LIMIT,
     service: serviceCard,
     yardSize: sizeCard,
     frequency,
@@ -453,10 +503,27 @@ export function crewPerPersonHour(quote: LandscapingQuote): number {
   return (quote.crewPayout - cost.supplies) / cost.hours.high;
 }
 
+/**
+ * Every service the customer may book and pay for here.
+ *
+ * Filtered on the exemption rather than hand-listed, so a price edit that
+ * pushes a service over the line takes it off the bookable surfaces on its
+ * own instead of waiting for someone to notice.
+ */
+export function bookableServices(): LandscapingServiceCard[] {
+  return LANDSCAPING_SERVICES.filter((service) =>
+    YARD_SIZES.every((size) => {
+      const quote = quoteLandscaping(service.value, size.value, "ONE_TIME");
+      return quote ? !quote.exceedsExemption : false;
+    }),
+  );
+}
+
 /** Exposed for the pricing invariant check and any future admin view. */
 export const LANDSCAPING_CONSTANTS = {
   BASE_PRICE,
   COST_MODEL,
   PLATFORM_RATE,
   CREW_FLOOR_HOURLY,
+  EXEMPTION_LIMIT,
 };

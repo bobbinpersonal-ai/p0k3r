@@ -5,19 +5,25 @@ import SiteFooter from "@/components/SiteFooter";
 import AutoplayVideo from "@/components/AutoplayVideo";
 import YardQuoteStarter from "@/components/YardQuoteStarter";
 import CaliforniaMap from "@/components/CaliforniaMap";
-import { YARD_SERVICE_ICONS } from "@/components/YardIcons";
+import { YARD_SERVICE_ICONS, ToolsIcon } from "@/components/YardIcons";
 import { CITIES, getCity } from "@/lib/cities";
 import { CREW } from "@/lib/crew";
-import { LANDSCAPING_SERVICES, startingPriceFor } from "@/lib/landscaping";
+import { LANDSCAPING_SERVICES, startingPriceFor, EXEMPTION_LIMIT } from "@/lib/landscaping";
+import {
+  MAJOR_TRADE_PROJECTS,
+  MATCH_COUNT,
+  REFERRAL_PROMISE,
+} from "@/lib/majorTrades";
 
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
 const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
 const BOOKING_CITIES_BADGE = CITIES.map((c) => c.name).join(" · ");
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 
 export const metadata = {
-  title: "Landscaping & lawn care, priced up front | LoveMeAfter",
+  title: "Home services, priced up front | LoveMeAfter",
   description:
-    "Mowing, cleanups, trimming and planting across the Bay Area, Sacramento and the Central Valley. Flat prices by yard size — see the number before anyone comes out.",
+    "Pressure washing, yard care and minor repairs across Sacramento, Roseville, Elk Grove and Northern California. Flat prices by property size. Bigger projects matched with licensed CSLB contractors.",
 };
 
 const HOW_IT_WORKS = [
@@ -103,9 +109,10 @@ export default function HomePage({
                   <span className="text-brand-cyan">Price up front.</span>
                 </h1>
                 <p className="mt-4 text-lg text-neutral-600">
-                  Mowing, cleanups, trimming and planting across the Bay Area, Sacramento
-                  and the Valley. Put in your address and see every service priced for your
-                  yard — no site visit, no waiting on a callback to find out.
+                  Pressure washing, yard care and the small repairs nobody gets round to —
+                  Sacramento, Roseville, Elk Grove and across Northern California. Put in
+                  your address and see every service priced for your property. Bigger job?
+                  We&apos;ll match you with licensed contractors.
                 </p>
                 <div className="mt-6 hidden rounded-xl bg-paper px-3 py-2 lg:block">
                   <a
@@ -153,11 +160,12 @@ export default function HomePage({
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Services</p>
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            Four jobs, and what each one actually includes
+            Your jobs, and what each service includes
           </h2>
           <p className="mt-2 max-w-2xl text-neutral-500">
-            Written out so nobody books a mow for a yard that needs clearing, then gets a
-            different number at the gate.
+            Written out so nobody books a wash for a job that needs clearing, then gets a
+            different number at the gate. The first three are ours; the fourth goes to
+            licensed contractors.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {LANDSCAPING_SERVICES.map((service) => {
@@ -171,7 +179,7 @@ export default function HomePage({
                 >
                   <div className="flex items-start justify-between gap-3">
                     {Icon && <Icon />}
-                    <p className="font-mono text-sm text-brand-cyan">from ${from}</p>
+                    <p className="font-mono text-sm text-brand-cyan">Starting ~${from}</p>
                   </div>
                   <h3 className="mt-3 text-lg font-semibold text-ink">{service.label}</h3>
                   <p className="mt-1 text-neutral-500">{service.description}</p>
@@ -196,41 +204,90 @@ export default function HomePage({
                 </Link>
               );
             })}
+
+            {/* The fourth card is a different kind of thing, and looks like it.
+                Dashed border, no price, and a CTA that says "quotes" rather
+                than "book" — because this is work we are not licensed to do
+                and the customer's contract will be with someone else. */}
+            <Link
+              href="/contractors"
+              className="rounded-2xl border border-dashed border-black/20 bg-black/[0.02] p-6 transition hover:border-brand/40 hover:bg-black/[0.05]"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <ToolsIcon />
+                <p className="font-mono text-sm text-brand-cyan">Free quotes</p>
+              </div>
+              <h3 className="mt-3 text-lg font-semibold text-ink">
+                Major Trades & Remodeling
+              </h3>
+              <p className="mt-1 text-neutral-500">
+                Connected directly with vetted, licensed &amp; insured CA contractors.
+              </p>
+              <ul className="mt-4 grid gap-1">
+                {MAJOR_TRADE_PROJECTS.filter((p) => p.value !== "OTHER").map((project) => (
+                  <li
+                    key={project.value}
+                    className="flex items-start gap-2 text-sm text-neutral-500"
+                  >
+                    <span aria-hidden className="mt-0.5 text-brand-cyan">
+                      ✓
+                    </span>
+                    {project.label}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 inline-block rounded-full bg-gradient-to-r from-brand to-brand-cyan px-5 py-2.5 text-sm font-semibold text-white shadow-sm">
+                Request Licensed Contractor Quotes
+              </p>
+              <p className="mt-3 text-xs text-neutral-400">{REFERRAL_PROMISE}</p>
+            </Link>
           </div>
         </section>
 
-        {/* "From" prices only. The exact number depends on the yard, and the
-            flow quotes it once the address tells us how big that is — quoting
-            a grid of sizes out here meant the customer picking their own
-            bucket from a dropdown and us honouring whatever they guessed. */}
+        {/* Starting prices only. The exact number depends on the property, and
+            the flow quotes it once the address tells us how big that is.
+            Everything bookable here sits under California's minor work
+            exemption by construction — see EXEMPTION_LIMIT in
+            src/lib/landscaping.ts, which the pricing tests enforce. */}
         <section id="pricing" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Pricing</p>
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">What it costs</h2>
           <p className="mt-2 max-w-2xl text-neutral-500">
-            One flat price per visit, set by the service and the size of your yard. Put your
-            address in and we&apos;ll look up your lot and show you all four, priced for you —
-            no site visit, and the number you see is the number we charge.
+            One flat price per visit, set by the service and the size of the property. Put
+            your address in and we&apos;ll show you all three priced for you — no site
+            visit, and the number you see is the number we charge.
           </p>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {LANDSCAPING_SERVICES.map((service) => {
-              const Icon = YARD_SERVICE_ICONS[service.value];
-              return (
-                <div
-                  key={service.value}
-                  className="rounded-2xl border border-black/10 bg-black/[0.03] p-5"
-                >
-                  {Icon && <Icon />}
-                  <p className="mt-3 font-semibold text-ink">{service.label}</p>
-                  <p className="mt-1 font-mono text-2xl font-bold text-brand-cyan">
-                    from ${startingPriceFor(service.value)}
-                  </p>
-                  <p className="mt-1 text-sm text-neutral-500">
-                    {service.materialsNote ? "Labour only" : "Per visit"}
-                  </p>
+          <div className="mt-8 divide-y divide-black/5 rounded-2xl border border-black/10 bg-black/[0.03]">
+            {LANDSCAPING_SERVICES.map((service) => (
+              <div
+                key={service.value}
+                className="flex flex-wrap items-baseline justify-between gap-2 px-6 py-5"
+              >
+                <div>
+                  <p className="font-semibold text-ink">{service.label}</p>
+                  {service.materialsNote && (
+                    <p className="text-xs text-neutral-400">{service.materialsNote}</p>
+                  )}
                 </div>
-              );
-            })}
+                <p className="font-mono text-xl font-bold text-brand-cyan">
+                  From ${startingPriceFor(service.value)}
+                </p>
+              </div>
+            ))}
+            <div className="flex flex-wrap items-baseline justify-between gap-2 px-6 py-5">
+              <div>
+                <p className="font-semibold text-ink">
+                  Major Trades (Kitchen, Bath, Trees)
+                </p>
+                <p className="text-xs text-neutral-400">
+                  Referred to licensed CA contractors — we don&apos;t quote this work
+                </p>
+              </div>
+              <p className="font-mono text-xl font-bold text-brand-cyan">
+                Free Custom Quotes
+              </p>
+            </div>
           </div>
 
           <div className="mt-8 rounded-2xl border border-black/10 bg-black/[0.03] p-6">
@@ -242,12 +299,34 @@ export default function HomePage({
             </p>
           </div>
 
-          <Link
-            href="/yard"
-            className="mt-8 inline-block rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
-          >
-            See my prices
-          </Link>
+          {/* B&P 7027.2: advertising work under the exemption has to say we're
+              unlicensed. It belongs next to the prices, where the claim is
+              being made, not only in the footer. */}
+          <p className="mt-6 max-w-3xl text-sm text-neutral-500">
+            {SITE_NAME} is not a licensed general contractor. The services above are minor
+            maintenance and yard care performed under California&apos;s{" "}
+            ${EXEMPTION_LIMIT.toLocaleString()} minor work exemption. Anything above that,
+            or needing a permit, is referred to{" "}
+            <Link href="/contractors" className="font-semibold text-brand-cyan hover:text-ink">
+              licensed contractors
+            </Link>
+            .
+          </p>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href="/yard"
+              className="inline-block rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
+            >
+              See my prices
+            </Link>
+            <Link
+              href="/contractors"
+              className="inline-block rounded-full border border-black/15 px-6 py-3 text-base font-semibold text-ink transition hover:bg-black/5"
+            >
+              Get {MATCH_COUNT} contractor quotes
+            </Link>
+          </div>
         </section>
 
         <section className="relative overflow-hidden">

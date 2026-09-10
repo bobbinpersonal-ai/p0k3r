@@ -7,7 +7,8 @@ import {
   startingPriceFor,
   type LandscapingServiceValue,
 } from "@/lib/landscaping";
-import { YARD_SERVICE_ICONS } from "@/components/YardIcons";
+import { MATCH_COUNT } from "@/lib/majorTrades";
+import { YARD_SERVICE_ICONS, ToolsIcon } from "@/components/YardIcons";
 import UseMyLocationButton from "@/components/UseMyLocationButton";
 import { EMPTY_ADDRESS, formatAddress } from "@/lib/address";
 
@@ -27,13 +28,24 @@ import { EMPTY_ADDRESS, formatAddress } from "@/lib/address";
 export default function YardQuoteStarter({ city }: { city?: string }) {
   const router = useRouter();
   const [address, setAddress] = useState("");
-  const [service, setService] = useState<LandscapingServiceValue | null>(null);
+  // `null` is "haven't said", MAJOR is "this isn't ours to price". Kept in the
+  // same piece of state as the real services because to the customer it's one
+  // row of four choices — but it routes somewhere completely different.
+  const [service, setService] = useState<LandscapingServiceValue | "MAJOR" | null>(null);
   // Held from "use my location" so the flow can price off the real fix rather
   // than re-geocoding the text we just wrote into the box.
   const [point, setPoint] = useState<{ lat: number; lng: number } | null>(null);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
+
+    // Major projects never enter the booking flow. There's no price to show
+    // and nothing to check out — it goes to the referral form instead.
+    if (service === "MAJOR") {
+      router.push("/contractors");
+      return;
+    }
+
     const params = new URLSearchParams();
     if (address.trim()) params.set("address", address.trim());
     if (service) params.set("service", service);
@@ -45,6 +57,8 @@ export default function YardQuoteStarter({ city }: { city?: string }) {
     router.push(`/yard?${params.toString()}`);
   }
 
+  const majorSelected = service === "MAJOR";
+
   return (
     <form
       onSubmit={submit}
@@ -55,7 +69,9 @@ export default function YardQuoteStarter({ city }: { city?: string }) {
       // panel — still shows the video, still legible, no compositor risk.
       className="mt-8 rounded-2xl border border-white/40 bg-paper/85 p-4 shadow-xl ring-1 ring-black/5 supports-[backdrop-filter]:bg-paper/65 supports-[backdrop-filter]:backdrop-blur-md sm:p-5"
     >
-      <p className="text-sm font-semibold text-ink">Where&apos;s the yard?</p>
+      <p className="text-sm font-semibold text-ink">
+        {majorSelected ? "Major projects go to our licensed partners" : "Where's the yard?"}
+      </p>
       <label className="mt-3 flex items-center gap-3 rounded-xl border border-black/10 bg-paper/80 px-4 py-3">
         <span className="shrink-0 text-neutral-400">
           <PinIcon />
@@ -111,20 +127,42 @@ export default function YardQuoteStarter({ city }: { city?: string }) {
             </button>
           );
         })}
+
+        {/* The fourth option, and deliberately the odd one out. It carries no
+            price because there isn't one to carry: this is work we're not
+            licensed to do, so the button leaves for the referral form rather
+            than entering the booking flow. */}
+        <button
+          type="button"
+          onClick={() => setService(majorSelected ? null : "MAJOR")}
+          aria-pressed={majorSelected}
+          className={`flex flex-col items-center gap-1 rounded-xl border border-dashed px-2 py-3 text-center transition ${
+            majorSelected
+              ? "border-brand bg-brand/10"
+              : "border-black/20 bg-paper/60 hover:border-brand/40"
+          }`}
+        >
+          <ToolsIcon />
+          <span className="text-xs font-semibold leading-tight text-ink">
+            Major Projects
+          </span>
+          <span className="font-mono text-[11px] text-neutral-400">licensed partners</span>
+        </button>
       </div>
 
       <button
         type="submit"
         className="mt-4 w-full rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
       >
-        See my prices
+        {majorSelected ? "Request contractor quotes" : "See my prices"}
       </button>
       <p className="mt-3 text-xs text-neutral-500">
         {/* The "from" prices above are the small-yard rate. The real number
             depends on the yard, which is what the address is for — so promise
             the exact price rather than implying these are it. */}
-        We&apos;ll look up your lot and show you every service priced for your yard — no
-        site visit, no account, nothing charged.
+        {majorSelected
+          ? `We'll pass your project to ${MATCH_COUNT} licensed, bonded and insured California contractors. They quote you directly — we don't price or perform this work.`
+          : "We'll look up your lot and show you every service priced for your yard — no site visit, no account, nothing charged."}
       </p>
     </form>
   );

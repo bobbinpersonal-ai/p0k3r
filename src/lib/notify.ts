@@ -18,12 +18,13 @@
 // it's the channel that actually works out of the box for anyone who isn't
 // the account owner.
 
-import type { Booking, Driver, DriverApplication } from "@prisma/client";
+import type { Booking, ContractorLead, Driver, DriverApplication } from "@prisma/client";
 import { getCity } from "./cities";
 import { getServiceTypeLabel } from "./serviceTypes";
 import { getApplicantRoleLabel } from "./applicantRoles";
 import { getServiceLine, isLandscaping } from "./serviceLines";
 import { getFrequency, getLandscapingServiceLabel, getYardSizeLabel } from "./landscaping";
+import { getMajorTradeLabel, MATCH_COUNT } from "./majorTrades";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "";
@@ -196,6 +197,29 @@ export async function notifyNewApplication(application: DriverApplication): Prom
       crew ? `Crew: ${crew.long}` : null,
       `Applying as: ${role}${application.vehicle ? ` (${application.vehicle})` : ""}`,
       city ? `City: ${city}` : null,
+    ].filter((line): line is string => Boolean(line)),
+  });
+}
+
+/**
+ * A request to be introduced to licensed contractors.
+ *
+ * Deliberately worded as a referral, not a lead to sell to: the subject says
+ * "contractor referral" so it can't be mistaken in a list for a job of ours,
+ * and the body carries the ZIP up front because that's what decides which
+ * contractors it goes to.
+ */
+export async function notifyNewContractorLead(lead: ContractorLead): Promise<void> {
+  await notifyOwner({
+    subject: `Contractor referral — ${getMajorTradeLabel(lead.projectType)} — ${lead.zip}`,
+    lines: [
+      `${lead.name} — ${lead.phone}`,
+      lead.email ? lead.email : null,
+      `Project: ${getMajorTradeLabel(lead.projectType)}`,
+      `ZIP: ${lead.zip}`,
+      lead.preferredStart ? `Wants to start: ${lead.preferredStart}` : null,
+      lead.details ? `Notes: ${lead.details}` : null,
+      `→ Pass to ${MATCH_COUNT} licensed CSLB contractors covering ${lead.zip}. We do not quote or perform this work.`,
     ].filter((line): line is string => Boolean(line)),
   });
 }

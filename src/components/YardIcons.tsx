@@ -96,8 +96,61 @@ export function PlantIcon() {
   );
 }
 
-/** Looked up by service value, so a new service can't silently lose its icon. */
+/** Exterior & driveway refresh — a pressure washer fanning onto paving. */
+export function WashIcon() {
+  return (
+    <svg viewBox="0 0 64 64" className="h-10 w-10" aria-hidden="true">
+      <rect x="4" y="46" width="56" height="12" rx="3" fill="#B9C0C8" />
+      <path d="M30 46c0-8 8-14 22-16v16Z" fill="url(#yardSpray)" opacity="0.85" />
+      <rect x="10" y="24" width="18" height="10" rx="3" fill="url(#yardWasher)" />
+      <path d="M28 29h8" stroke={STEEL} strokeWidth="4" strokeLinecap="round" />
+      <path d="M14 34v10" stroke={STEEL} strokeWidth="4" strokeLinecap="round" />
+      <defs>
+        <linearGradient id="yardWasher" x1="10" y1="24" x2="28" y2="34">
+          <stop offset="0" stopColor="#FF8A93" />
+          <stop offset="1" stopColor="#F0455A" />
+        </linearGradient>
+        <linearGradient id="yardSpray" x1="30" y1="30" x2="52" y2="46">
+          <stop offset="0" stopColor="#7dd3fc" />
+          <stop offset="1" stopColor="#38bdf8" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+/** Yard assembly & minor repairs — a wrench over a screwdriver. */
+export function ToolsIcon() {
+  return (
+    <svg viewBox="0 0 64 64" className="h-10 w-10" aria-hidden="true">
+      <path d="M44 10l10 10-22 22-10-10Z" fill={STEEL} opacity="0.85" />
+      <circle cx="49" cy="15" r="3.5" fill={SOIL} />
+      <path
+        d="M20 10a11 11 0 0 0 13 14l17 17-6 6-17-17A11 11 0 0 1 13 17l7 7 6-6-6-8Z"
+        fill="url(#yardWrench)"
+      />
+      <defs>
+        <linearGradient id="yardWrench" x1="13" y1="10" x2="50" y2="47">
+          <stop offset="0" stopColor="#FF8A93" />
+          <stop offset="1" stopColor="#C2760C" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
+
+/**
+ * Looked up by service value, so a new service can't silently lose its icon.
+ *
+ * The retired values are kept alongside the current ones: bookings taken before
+ * the catalogue changed still carry them, and a historical job rendered
+ * anywhere should get its icon rather than a gap.
+ */
 export const YARD_SERVICE_ICONS: Record<string, () => JSX.Element> = {
+  EXTERIOR_WASH: WashIcon,
+  CLEAN_EDGE: MowerIcon,
+  ASSEMBLY_REPAIR: ToolsIcon,
+
   MOW_EDGE_BLOW: MowerIcon,
   CLEANUP: RakeIcon,
   TRIM_HAUL: ShearsIcon,
