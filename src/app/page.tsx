@@ -53,16 +53,17 @@ export default function HomePage({
       <SiteHeader transparent />
       <main>
         <section className="relative overflow-hidden">
-          {/* Real footage now — four clips shot back to back (mowing, a
-              cleanup, trimming, a planting job) concatenated into one file
-              and played in that order as a single looping background. See
-              AutoplayVideo for why this degrades to the poster frame rather
-              than to nothing when it can't play. */}
+          {/* Real footage — seven clips of the crew working, concatenated into
+              one file and played in order as a single looping background,
+              about 42 seconds before it repeats. See AutoplayVideo for why this
+              degrades to the poster frame rather than to nothing when it can't
+              play. Filenames carry their own version so replacing the reel
+              busts every browser and CDN cache without query strings. */}
           <div className="absolute inset-0">
             <AutoplayVideo
-              mp4="/videos/hero-yard-v1.mp4"
-              webm="/videos/hero-yard-v1.webm"
-              poster="/images/hero-yard-v1-poster.jpg"
+              mp4="/videos/hero-yard-v2.mp4"
+              webm="/videos/hero-yard-v2.webm"
+              poster="/images/hero-yard-v2-poster.jpg"
               className="absolute inset-0"
               videoClassName="absolute inset-0 h-full w-full object-cover object-center"
             />
@@ -282,7 +283,30 @@ export default function HomePage({
             yards, the moves and the hauls, which is why a Tuesday mow and a Saturday move
             are the same phone number.
           </p>
-          <div className="mt-8 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            <div className="relative aspect-video overflow-hidden rounded-3xl border border-black/10 glow">
+              <AutoplayVideo
+                mp4="/videos/yard-clip6-v1.mp4"
+                webm="/videos/yard-clip6-v1.webm"
+                poster="/images/yard-clip6-v1-poster.jpg"
+                alt="A LoveMeAfter crew working on a yard"
+                className="absolute inset-0"
+                videoClassName="absolute inset-0 h-full w-full object-cover object-center"
+              />
+            </div>
+            <div className="relative aspect-video overflow-hidden rounded-3xl border border-black/10 glow">
+              <AutoplayVideo
+                mp4="/videos/yard-clip7-v1.mp4"
+                webm="/videos/yard-clip7-v1.webm"
+                poster="/images/yard-clip7-v1-poster.jpg"
+                alt="A LoveMeAfter crew member on a yard job"
+                className="absolute inset-0"
+                videoClassName="absolute inset-0 h-full w-full object-cover object-center"
+              />
+            </div>
+          </div>
+
+          <div className="mt-4 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
             {CREW.map((member) => (
               <div
                 key={member.id}

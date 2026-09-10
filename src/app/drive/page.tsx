@@ -192,6 +192,16 @@ export default function DrivePage({
             <div className="grid grid-cols-2 gap-4">
               <div className="relative aspect-square overflow-hidden rounded-3xl border border-black/10 glow">
                 <AutoplayVideo
+                  mp4="/videos/yard-clip5-v1.mp4"
+                  webm="/videos/yard-clip5-v1.webm"
+                  poster="/images/yard-clip5-v1-poster.jpg"
+                  alt="A LoveMeAfter crew member working a yard job"
+                  className="absolute inset-0"
+                  videoClassName="absolute inset-0 h-full w-full object-cover object-center"
+                />
+              </div>
+              <div className="relative aspect-square overflow-hidden rounded-3xl border border-black/10 glow">
+                <AutoplayVideo
                   mp4="/videos/yard-clip1-v1.mp4"
                   webm="/videos/yard-clip1-v1.webm"
                   poster="/images/yard-clip1-v1-poster.jpg"
@@ -200,7 +210,7 @@ export default function DrivePage({
                   videoClassName="absolute inset-0 h-full w-full object-cover object-center"
                 />
               </div>
-              <div className="relative aspect-square overflow-hidden rounded-3xl border border-black/10 glow">
+              <div className="relative col-span-2 aspect-video overflow-hidden rounded-3xl border border-black/10 glow">
                 <AutoplayVideo
                   mp4="/videos/yard-clip4-v1.mp4"
                   webm="/videos/yard-clip4-v1.webm"
