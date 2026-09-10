@@ -87,7 +87,7 @@ export default function DriveMovingPage({
           <div className="glow-blob absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full" />
           <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-2 lg:items-center">
             <div className="min-w-0 max-w-2xl">
-              <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
+              <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
                 Now recruiting{city ? ` in ${city.name}` : ` · ${RECRUITING_CITIES_BADGE}`}
               </p>
@@ -97,7 +97,7 @@ export default function DriveMovingPage({
                 Put your truck to work.{" "}
                 <span className="text-brand-cyan">$25–$32 an hour.</span>
               </h1>
-              <p className="mt-6 text-lg text-neutral-500">
+              <p className="mt-6 text-lg text-neutral-300">
                 Moves, Marketplace pickups, dump runs and cleanouts across{" "}
                 {city ? city.name : "the Bay Area, Sacramento and the Valley"}. Drive your
                 own pickup, van or box truck and get paid for the vehicle you already own —
@@ -132,13 +132,13 @@ export default function DriveMovingPage({
                 </a>
                 <a
                   href={`tel:${SUPPORT_PHONE_DIGITS}`}
-                  className="font-mono text-sm text-neutral-500 hover:text-brand-cyan"
+                  className="font-mono text-sm text-neutral-300 hover:text-brand-cyan"
                 >
                   or call now — {SUPPORT_PHONE} · {RECRUITING_HOURS}
                 </a>
               </div>
             </div>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 glow">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 glow">
               <AutoplayVideo
                 mp4="/videos/pickup-b-v1.mp4"
                 webm="/videos/pickup-b-v1.webm"
@@ -164,13 +164,13 @@ export default function DriveMovingPage({
               <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
                 Bring your own vehicle
               </h2>
-              <p className="mt-2 max-w-2xl text-neutral-500">
+              <p className="mt-2 max-w-2xl text-neutral-300">
                 Own any of these and know how to drive it safely and legally? You&apos;re a fit —
                 we&apos;ll match you with jobs that suit your vehicle. Since every job runs with a
                 helper riding along, you&apos;ll need to be comfortable having someone else in the
                 truck with you.
               </p>
-              <p className="mt-2 max-w-2xl text-neutral-500">
+              <p className="mt-2 max-w-2xl text-neutral-300">
                 It doesn&apos;t need to be new. We keep the bar at{" "}
                 <span className="font-semibold text-ink">1998 or newer</span> — running well
                 and road-legal matters a lot more to us than the model year. We want this work
@@ -181,7 +181,7 @@ export default function DriveMovingPage({
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="relative aspect-square overflow-hidden rounded-3xl border border-black/10 glow">
+              <div className="relative aspect-square overflow-hidden rounded-3xl border border-white/10 glow">
                 <AutoplayVideo
                   mp4="/videos/pickup-tacoma-v1.mp4"
                   webm="/videos/pickup-tacoma-v1.webm"
@@ -191,7 +191,7 @@ export default function DriveMovingPage({
                   videoClassName="absolute inset-0 h-full w-full object-cover object-center"
                 />
               </div>
-              <div className="relative aspect-square overflow-hidden rounded-3xl border border-black/10 glow">
+              <div className="relative aspect-square overflow-hidden rounded-3xl border border-white/10 glow">
                 <Image
                   src="/images/cargo-van-v1.jpg"
                   alt="A cargo van, another vehicle type that qualifies"
@@ -205,14 +205,14 @@ export default function DriveMovingPage({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <div className="rounded-3xl border border-black/10 bg-black/[0.03] p-8 sm:p-10">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 sm:p-10">
             <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
               No truck? No problem
             </p>
             <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
               Be a helper. Ride shotgun.
             </h2>
-            <p className="mt-4 max-w-2xl text-neutral-500">
+            <p className="mt-4 max-w-2xl text-neutral-300">
               Every move needs muscle as much as it needs a truck. No vehicle required — just
               show up ready to work.
             </p>
@@ -223,13 +223,13 @@ export default function DriveMovingPage({
                 "Pick a meetup spot with your driver each morning and head out together",
                 "Split the job, split the pay",
               ].map((item) => (
-                <li key={item} className="flex gap-2.5 text-neutral-500">
+                <li key={item} className="flex gap-2.5 text-neutral-300">
                   <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-cyan" />
                   <span>{item}</span>
                 </li>
               ))}
             </ul>
-            <p className="mt-4 max-w-2xl text-neutral-500">
+            <p className="mt-4 max-w-2xl text-neutral-300">
               It&apos;s also a path, not just a starting point. Plenty of helpers move up to
               driving once they&apos;re ready — you start earning right away as a helper, and
               driving pays more once you get there.
@@ -241,7 +241,7 @@ export default function DriveMovingPage({
                   ...(source ? { source } : {}),
                   role: "helper",
                 }).toString()}#apply`}
-                className="inline-flex items-center gap-2 rounded-full border border-black/15 px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand/40 hover:bg-black/5"
+                className="inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand/40 hover:bg-white/5"
               >
                 Apply as a helper →
               </a>
@@ -252,7 +252,7 @@ export default function DriveMovingPage({
         <section id="apply" className="mx-auto max-w-2xl px-4 py-14 sm:px-6">
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Apply</p>
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">Tell us about you</h2>
-          <p className="mt-2 text-neutral-500">
+          <p className="mt-2 text-neutral-300">
             We take everyone who wants to work — no stressful screening. A dispatcher gets
             back to you and gets you onboarded, usually within 2 hours, {RECRUITING_HOURS}.
           </p>
@@ -286,7 +286,7 @@ export default function DriveMovingPage({
         />
 
         <section className="mx-auto max-w-6xl px-4 pb-14 sm:px-6">
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-neutral-300">
             Looking to book a move rather than work one?{" "}
             <Link href="/moving" className="font-semibold text-brand-cyan hover:text-ink">
               Get a quote here

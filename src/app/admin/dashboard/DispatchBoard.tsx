@@ -25,11 +25,11 @@ const STATUS_STYLES: Record<string, string> = {
   ASSIGNED: "bg-blue-500/15 text-blue-700",
   IN_PROGRESS: "bg-violet-500/15 text-violet-700",
   COMPLETED: "bg-emerald-500/15 text-emerald-700",
-  CANCELED: "bg-black/10 text-neutral-500",
+  CANCELED: "bg-white/10 text-neutral-300",
 };
 
 const selectClass =
-  "mt-1 w-full rounded-lg border border-black/10 bg-black/5 px-2 py-1.5 text-ink [color-scheme:light]";
+  "mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-ink [color-scheme:dark]";
 
 function moveSizeLabel(value: string | null) {
   if (!value) return "—";
@@ -47,7 +47,7 @@ function priceLabel(low: number, high: number) {
 /** Which line a job belongs to, so a yard visit can't be read as a move. */
 const SERVICE_LINE_STYLES: Record<string, string> = {
   LANDSCAPING: "border-green-600/30 bg-green-600/10 text-green-800",
-  MOVING: "border-black/10 bg-black/5 text-neutral-600",
+  MOVING: "border-white/10 bg-white/5 text-neutral-200",
   JUNK: "border-amber-600/30 bg-amber-600/10 text-amber-800",
 };
 
@@ -180,7 +180,7 @@ export default function DispatchBoard({
         </div>
         <button
           onClick={logout}
-          className="rounded-full border border-black/15 px-4 py-2 text-sm font-semibold text-neutral-600 hover:border-brand hover:text-brand-cyan"
+          className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-neutral-200 hover:border-brand hover:text-brand-cyan"
         >
           Sign out
         </button>
@@ -193,7 +193,7 @@ export default function DispatchBoard({
           </h2>
 
           {bookings.length === 0 && (
-            <p className="rounded-2xl border border-dashed border-black/15 p-6 text-center text-neutral-400">
+            <p className="rounded-2xl border border-dashed border-white/15 p-6 text-center text-neutral-400">
               No bookings yet.
             </p>
           )}
@@ -201,7 +201,7 @@ export default function DispatchBoard({
           {bookings.map((booking) => (
             <div
               key={booking.id}
-              className="rounded-2xl border border-black/10 bg-black/[0.03] p-4"
+              className="rounded-2xl border border-white/10 bg-white/[0.04] p-4"
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
@@ -222,7 +222,7 @@ export default function DispatchBoard({
                     {getServiceLineLabel(booking.serviceLine)}
                   </span>
                   {booking.source && (
-                    <span className="rounded-full border border-black/10 bg-black/5 px-2 py-0.5 font-mono text-xs text-neutral-500">
+                    <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-xs text-neutral-300">
                       {getSourceLabel(booking.source)}
                     </span>
                   )}
@@ -239,20 +239,20 @@ export default function DispatchBoard({
                 </div>
               </div>
 
-              <div className="mt-3 grid gap-1 text-sm text-neutral-500">
+              <div className="mt-3 grid gap-1 text-sm text-neutral-300">
                 {isLandscaping(booking.serviceLine) ? (
                   <>
                     <p>
-                      <span className="font-medium text-neutral-600">At:</span>{" "}
+                      <span className="font-medium text-neutral-200">At:</span>{" "}
                       {booking.pickupAddress}
                     </p>
                     <p>
-                      <span className="font-medium text-neutral-600">When:</span>{" "}
+                      <span className="font-medium text-neutral-200">When:</span>{" "}
                       {new Date(booking.moveDate).toLocaleDateString()} &middot;{" "}
                       {booking.timeWindow}
                     </p>
                     <p>
-                      <span className="font-medium text-neutral-600">Job:</span>{" "}
+                      <span className="font-medium text-neutral-200">Job:</span>{" "}
                       {getLandscapingServiceLabel(booking.landscapingService)} &middot;{" "}
                       {getYardSizeLabel(booking.yardSize)} yard &middot;{" "}
                       <span className="font-mono text-brand-cyan">
@@ -263,7 +263,7 @@ export default function DispatchBoard({
                       {/* The one field on a yard job dispatch has to act on
                           beyond the first visit: a weekly plan is a standing
                           slot, not a one-off that happens to have booked. */}
-                      <span className="font-medium text-neutral-600">Repeats:</span>{" "}
+                      <span className="font-medium text-neutral-200">Repeats:</span>{" "}
                       {booking.frequency
                         ? (getFrequency(booking.frequency)?.label ?? booking.frequency)
                         : "Just this once"}
@@ -272,32 +272,32 @@ export default function DispatchBoard({
                 ) : (
                   <>
                     <p>
-                      <span className="font-medium text-neutral-600">From:</span>{" "}
+                      <span className="font-medium text-neutral-200">From:</span>{" "}
                       {booking.pickupAddress}
                     </p>
                     <p>
-                      <span className="font-medium text-neutral-600">To:</span>{" "}
+                      <span className="font-medium text-neutral-200">To:</span>{" "}
                       {booking.dropoffAddress ?? "— no drop-off (on-site job)"}
                     </p>
                     <p>
-                      <span className="font-medium text-neutral-600">When:</span>{" "}
+                      <span className="font-medium text-neutral-200">When:</span>{" "}
                       {new Date(booking.moveDate).toLocaleDateString()} &middot;{" "}
                       {booking.timeWindow}
                     </p>
                     <p>
-                      <span className="font-medium text-neutral-600">Size:</span>{" "}
+                      <span className="font-medium text-neutral-200">Size:</span>{" "}
                       {moveSizeLabel(booking.moveSize)} &middot;{" "}
                       <span className="font-mono text-brand-cyan">
                         {priceLabel(booking.estimateLow, booking.estimateHigh)}
                       </span>
                     </p>
                     <p>
-                      <span className="font-medium text-neutral-600">Crew:</span>{" "}
+                      <span className="font-medium text-neutral-200">Crew:</span>{" "}
                       {booking.needsHelper ? "Driver + helper" : "Driver only"}
                     </p>
                     {booking.serviceType && (
                       <p>
-                        <span className="font-medium text-neutral-600">Service:</span>{" "}
+                        <span className="font-medium text-neutral-200">Service:</span>{" "}
                         {getServiceTypeLabel(booking.serviceType)}
                         {booking.serviceTypeOther ? ` — ${booking.serviceTypeOther}` : ""}
                       </p>
@@ -306,14 +306,14 @@ export default function DispatchBoard({
                 )}
                 {booking.details && (
                   <p>
-                    <span className="font-medium text-neutral-600">Notes:</span> {booking.details}
+                    <span className="font-medium text-neutral-200">Notes:</span> {booking.details}
                   </p>
                 )}
               </div>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <label className="text-sm">
-                  <span className="block font-medium text-neutral-600">Status</span>
+                  <span className="block font-medium text-neutral-200">Status</span>
                   <select
                     value={booking.status}
                     disabled={savingId === booking.id}
@@ -328,7 +328,7 @@ export default function DispatchBoard({
                   </select>
                 </label>
                 <label className="text-sm">
-                  <span className="block font-medium text-neutral-600">Driver</span>
+                  <span className="block font-medium text-neutral-200">Driver</span>
                   <select
                     value={booking.driverId ?? ""}
                     disabled={savingId === booking.id}
@@ -364,14 +364,14 @@ export default function DispatchBoard({
           </div>
           <div className="mt-3 space-y-2">
             {pendingApplications.length === 0 && (
-              <p className="rounded-2xl border border-dashed border-black/15 p-4 text-center text-sm text-neutral-400">
+              <p className="rounded-2xl border border-dashed border-white/15 p-4 text-center text-sm text-neutral-400">
                 No pending applicants.
               </p>
             )}
             {pendingApplications.map((application) => (
               <div
                 key={application.id}
-                className="rounded-2xl border border-black/10 bg-black/[0.03] p-4 text-sm"
+                className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm"
               >
                 <div className="flex items-start justify-between gap-2">
                   <p className="font-medium text-ink">{application.name}</p>
@@ -398,7 +398,7 @@ export default function DispatchBoard({
                       </span>
                     )}
                     {application.source && (
-                      <span className="rounded-full border border-black/10 bg-black/5 px-2 py-0.5 font-mono text-xs text-neutral-500">
+                      <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 font-mono text-xs text-neutral-300">
                         {getSourceLabel(application.source)}
                       </span>
                     )}
@@ -412,15 +412,15 @@ export default function DispatchBoard({
                 <a href={`tel:${application.phone}`} className="text-brand-cyan">
                   {application.phone}
                 </a>
-                <p className="mt-1 text-neutral-500">
+                <p className="mt-1 text-neutral-300">
                   {application.vehicle ||
                     (application.role === "HELPER"
                       ? "No vehicle — applying as a helper"
                       : "No vehicle listed")}
                 </p>
                 {application.payoutMethod && (
-                  <p className="mt-1 text-neutral-500">
-                    <span className="font-medium text-neutral-600">Pay:</span>{" "}
+                  <p className="mt-1 text-neutral-300">
+                    <span className="font-medium text-neutral-200">Pay:</span>{" "}
                     {getPayoutMethodLabel(application.payoutMethod)}
                     {application.payoutHandle ? ` — ${application.payoutHandle}` : ""}
                   </p>
@@ -442,7 +442,7 @@ export default function DispatchBoard({
                   <button
                     onClick={() => decideApplication(application.id, "REJECTED")}
                     disabled={applicationSavingId === application.id}
-                    className="rounded-full bg-black/10 px-3 py-1.5 text-xs font-semibold text-neutral-500 hover:bg-black/15 disabled:opacity-60"
+                    className="rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-neutral-300 hover:bg-white/15 disabled:opacity-60"
                   >
                     Reject
                   </button>
@@ -456,27 +456,27 @@ export default function DispatchBoard({
           <h2 className="text-lg font-bold text-ink">Drivers</h2>
           <form
             onSubmit={addDriver}
-            className="mt-3 space-y-2 rounded-2xl border border-black/10 bg-black/[0.03] p-4"
+            className="mt-3 space-y-2 rounded-2xl border border-white/10 bg-white/[0.04] p-4"
           >
             <input
               placeholder="Name"
               value={driverForm.name}
               onChange={(e) => setDriverForm((f) => ({ ...f, name: e.target.value }))}
-              className="w-full rounded-lg border border-black/10 bg-black/5 px-2 py-1.5 text-sm text-ink placeholder:text-neutral-400"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-sm text-ink placeholder:text-neutral-400"
               required
             />
             <input
               placeholder="Phone"
               value={driverForm.phone}
               onChange={(e) => setDriverForm((f) => ({ ...f, phone: e.target.value }))}
-              className="w-full rounded-lg border border-black/10 bg-black/5 px-2 py-1.5 text-sm text-ink placeholder:text-neutral-400"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-sm text-ink placeholder:text-neutral-400"
               required
             />
             <input
               placeholder="Vehicle (optional)"
               value={driverForm.vehicle}
               onChange={(e) => setDriverForm((f) => ({ ...f, vehicle: e.target.value }))}
-              className="w-full rounded-lg border border-black/10 bg-black/5 px-2 py-1.5 text-sm text-ink placeholder:text-neutral-400"
+              className="w-full rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-sm text-ink placeholder:text-neutral-400"
             />
             <button
               type="submit"
@@ -491,7 +491,7 @@ export default function DispatchBoard({
             {drivers.map((driver) => (
               <li
                 key={driver.id}
-                className="flex items-center justify-between rounded-lg border border-black/10 bg-black/[0.03] px-3 py-2 text-sm"
+                className="flex items-center justify-between rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2 text-sm"
               >
                 <div>
                   <p className="font-medium text-ink">{driver.name}</p>
@@ -511,7 +511,7 @@ export default function DispatchBoard({
                   className={`rounded-full px-3 py-1 text-xs font-semibold ${
                     driver.active
                       ? "bg-emerald-500/15 text-emerald-700"
-                      : "bg-black/10 text-neutral-500"
+                      : "bg-white/10 text-neutral-300"
                   }`}
                 >
                   {driver.active ? "Active" : "Inactive"}

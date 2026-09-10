@@ -10,7 +10,7 @@ import {
 } from "@/lib/majorTrades";
 
 const inputClass =
-  "mt-1 w-full rounded-xl border border-black/10 bg-black/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
+  "mt-1 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 
 // The request form for work we don't do.
 //
@@ -84,7 +84,7 @@ export default function ContractorLeadForm({
           ✓
         </div>
         <h3 className="mt-4 text-lg font-semibold text-ink">Request received</h3>
-        <p className="mt-2 text-neutral-500">
+        <p className="mt-2 text-neutral-300">
           {REFERRAL_PROMISE} They&apos;ll contact you directly, and any work and payment is
           arranged between you and them — we don&apos;t take a deposit or quote this work.
         </p>
@@ -103,7 +103,7 @@ export default function ContractorLeadForm({
               className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
                 project === option.value
                   ? "border-brand bg-brand/10 ring-1 ring-brand"
-                  : "border-black/10 bg-black/[0.02] hover:border-black/20"
+                  : "border-white/10 bg-white/[0.03] hover:border-white/20"
               }`}
             >
               <input
@@ -115,7 +115,7 @@ export default function ContractorLeadForm({
                 className="sr-only"
               />
               <span className="font-semibold text-ink">{option.label}</span>
-              <span className="mt-1 text-sm text-neutral-500">{option.description}</span>
+              <span className="mt-1 text-sm text-neutral-300">{option.description}</span>
             </label>
           ))}
         </div>
@@ -139,7 +139,7 @@ export default function ContractorLeadForm({
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="email" className="block text-sm font-semibold text-ink">
-            Email <span className="font-normal text-neutral-500">(optional)</span>
+            Email <span className="font-normal text-neutral-300">(optional)</span>
           </label>
           <input id="email" name="email" type="email" className={inputClass} />
         </div>
@@ -156,7 +156,7 @@ export default function ContractorLeadForm({
             placeholder="95814"
             className={inputClass}
           />
-          <p className="mt-1.5 text-sm text-neutral-500">
+          <p className="mt-1.5 text-sm text-neutral-300">
             Decides which contractors see it — we cover{" "}
             {CITIES.slice(0, 3)
               .map((c) => c.name)
@@ -169,7 +169,7 @@ export default function ContractorLeadForm({
       <div>
         <label htmlFor="preferredStart" className="block text-sm font-semibold text-ink">
           Preferred start date{" "}
-          <span className="font-normal text-neutral-500">(optional)</span>
+          <span className="font-normal text-neutral-300">(optional)</span>
         </label>
         <input
           id="preferredStart"
@@ -181,7 +181,7 @@ export default function ContractorLeadForm({
 
       <div>
         <label htmlFor="details" className="block text-sm font-semibold text-ink">
-          Anything else? <span className="font-normal text-neutral-500">(optional)</span>
+          Anything else? <span className="font-normal text-neutral-300">(optional)</span>
         </label>
         <textarea
           id="details"
@@ -209,7 +209,7 @@ export default function ContractorLeadForm({
         {submitting ? "Sending…" : "Request licensed contractor quotes"}
       </button>
 
-      <p className="text-sm text-neutral-500">
+      <p className="text-sm text-neutral-300">
         {REFERRAL_PROMISE} They are independent, licensed, bonded and insured — you contract
         with them directly, not with us. Nothing is charged here.
       </p>

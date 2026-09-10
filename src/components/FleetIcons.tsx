@@ -91,12 +91,12 @@ export default function FleetIcons({ showRates = false }: { showRates?: boolean 
       {FLEET.map(({ Icon, label, rate }, i) => (
         <div
           key={label}
-          className="flex flex-col items-center gap-2 rounded-2xl border border-black/10 bg-black/[0.03] py-6"
+          className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] py-6"
         >
           <div className="animate-float" style={{ animationDelay: `${i * 0.4}s` }}>
             <Icon />
           </div>
-          <p className="font-mono text-xs text-neutral-500">{label}</p>
+          <p className="font-mono text-xs text-neutral-300">{label}</p>
           {showRates && <p className="font-mono text-sm font-bold text-brand-cyan">{rate}</p>}
         </div>
       ))}

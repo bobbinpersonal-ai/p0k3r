@@ -124,5 +124,5 @@ export default function RouteMap({ pickup, dropoff, geometry }: Props) {
     };
   }, []);
 
-  return <div ref={containerRef} className="h-full w-full bg-black/[0.04]" aria-label="Route map" />;
+  return <div ref={containerRef} className="h-full w-full bg-white/[0.05]" aria-label="Route map" />;
 }

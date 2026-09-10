@@ -48,7 +48,7 @@ export default function ManageActions({
 
   if (done === "canceled") {
     return (
-      <p className="mt-6 rounded-2xl border border-black/10 bg-black/[0.03] p-4 text-sm text-neutral-500">
+      <p className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-neutral-300">
         This booking is canceled. Need a new one?{" "}
         <a href="/book" className="font-semibold text-brand-cyan">
           Book again
@@ -59,7 +59,7 @@ export default function ManageActions({
   }
   if (done === "requested") {
     return (
-      <p className="mt-6 rounded-2xl border border-black/10 bg-black/[0.03] p-4 text-sm text-neutral-500">
+      <p className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-neutral-300">
         Got it — a dispatcher will confirm the new time with you.
       </p>
     );
@@ -72,14 +72,14 @@ export default function ManageActions({
           <button
             type="button"
             onClick={() => setMode("reschedule")}
-            className="rounded-full border border-black/15 px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-black/5"
+            className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold text-ink transition hover:bg-white/5"
           >
             Request a different day/time
           </button>
           <button
             type="button"
             onClick={() => setMode("canceling")}
-            className="rounded-full border border-black/15 px-5 py-2.5 text-sm font-semibold text-neutral-500 transition hover:border-red-300 hover:text-red-600"
+            className="rounded-full border border-white/15 px-5 py-2.5 text-sm font-semibold text-neutral-300 transition hover:border-red-300 hover:text-red-600"
           >
             Cancel this {noun}
           </button>
@@ -87,7 +87,7 @@ export default function ManageActions({
       )}
 
       {mode === "reschedule" && (
-        <div className="rounded-2xl border border-black/10 p-4">
+        <div className="rounded-2xl border border-white/10 p-4">
           <label htmlFor="reschedule-note" className="block text-sm font-semibold text-ink">
             What day/time works better?
           </label>
@@ -97,7 +97,7 @@ export default function ManageActions({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="e.g. Saturday afternoon instead of Friday morning"
-            className="mt-2 w-full rounded-xl border border-black/10 bg-black/5 px-3 py-2.5 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
           <div className="mt-3 flex items-center gap-4">
             <button
@@ -111,7 +111,7 @@ export default function ManageActions({
             <button
               type="button"
               onClick={() => setMode("idle")}
-              className="text-sm font-semibold text-neutral-500 hover:text-ink"
+              className="text-sm font-semibold text-neutral-300 hover:text-ink"
             >
               Never mind
             </button>
@@ -136,7 +136,7 @@ export default function ManageActions({
             <button
               type="button"
               onClick={() => setMode("idle")}
-              className="text-sm font-semibold text-neutral-500 hover:text-ink"
+              className="text-sm font-semibold text-neutral-300 hover:text-ink"
             >
               Keep my booking
             </button>

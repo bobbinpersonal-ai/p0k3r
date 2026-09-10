@@ -55,12 +55,12 @@ export default function AddressFields({
   }
 
   const fieldClass =
-    "w-full rounded-xl border border-black/10 bg-black/[0.03] px-3 py-2.5 text-base text-ink " +
+    "w-full rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2.5 text-base text-ink " +
     "placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 
   return (
     <fieldset className="px-4 py-4">
-      <legend className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-neutral-500">
+      <legend className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-neutral-300">
         <span className="text-neutral-400">{icon}</span>
         {legend}
       </legend>

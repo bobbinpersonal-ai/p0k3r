@@ -39,7 +39,7 @@ export default function StepJob({
   return (
     <div>
       <h2 className="text-2xl font-bold text-ink sm:text-3xl">What do you need?</h2>
-      <p className="mt-2 text-neutral-500">
+      <p className="mt-2 text-neutral-300">
         Pick the closest one — you can add details in a moment.
       </p>
 
@@ -55,11 +55,11 @@ export default function StepJob({
               className={`rounded-2xl border p-4 text-left transition ${
                 isSelected
                   ? "border-brand bg-brand/5"
-                  : "border-black/10 bg-black/[0.02] hover:border-brand/40"
+                  : "border-white/10 bg-white/[0.03] hover:border-brand/40"
               }`}
             >
               <span className="block font-semibold text-ink">{option.label}</span>
-              <span className="mt-0.5 block text-sm text-neutral-500">
+              <span className="mt-0.5 block text-sm text-neutral-300">
                 {option.description}
               </span>
             </button>
@@ -88,7 +88,7 @@ export default function StepJob({
             autoFocus
             onChange={(e) => onChange({ serviceType: "OTHER", otherText: e.target.value })}
             placeholder="e.g. help emptying a shed"
-            className="mt-2 w-full rounded-xl border border-black/10 bg-black/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+            className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
           />
         </div>
       )}

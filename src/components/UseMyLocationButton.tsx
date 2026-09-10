@@ -158,12 +158,12 @@ export default function UseMyLocationButton({
         onClick={locate}
         aria-label={ariaLabel}
         disabled={status === "locating"}
-        className="inline-flex items-center gap-1.5 rounded-full border border-black/10 bg-paper px-3 py-1.5 text-xs font-semibold text-ink transition enabled:hover:border-brand/40 disabled:opacity-60"
+        className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-paper px-3 py-1.5 text-xs font-semibold text-ink transition enabled:hover:border-brand/40 disabled:opacity-60"
       >
         {status === "locating" ? (
           <span
             aria-hidden
-            className="h-3 w-3 animate-spin rounded-full border-2 border-black/10 border-t-brand"
+            className="h-3 w-3 animate-spin rounded-full border-2 border-white/10 border-t-brand"
           />
         ) : (
           <CrosshairIcon />
@@ -175,7 +175,7 @@ export default function UseMyLocationButton({
           // Announced politely: it reports the outcome of something they asked
           // for, and shouldn't interrupt what they're typing.
           role="status"
-          className={`mt-1.5 text-xs ${status === "error" ? "text-neutral-500" : "text-brand-cyan"}`}
+          className={`mt-1.5 text-xs ${status === "error" ? "text-neutral-300" : "text-brand-cyan"}`}
         >
           {message}
         </p>

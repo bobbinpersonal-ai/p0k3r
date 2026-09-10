@@ -21,11 +21,11 @@ export default function StepYardAddress({
   return (
     <div>
       <h2 className="text-2xl font-bold text-ink sm:text-3xl">Where is it?</h2>
-      <p className="mt-2 text-neutral-500">
+      <p className="mt-2 text-neutral-300">
         The property address. Gate codes and parking notes go in the box on the last step.
       </p>
 
-      <div className="mt-8 rounded-2xl border border-black/10 bg-black/[0.03]">
+      <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04]">
         <AddressFields
           legend="Property address"
           section="pickup"

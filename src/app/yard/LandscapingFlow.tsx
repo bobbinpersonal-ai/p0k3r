@@ -372,7 +372,7 @@ export default function LandscapingFlow({
       )}
       {step === 1 && !embedded && (
         <>
-          <p className="mt-2 text-neutral-500">
+          <p className="mt-2 text-neutral-300">
             Tell us where the yard is and roughly how big it is, and we&apos;ll show you
             every service priced for it — flat, not a &ldquo;starting at.&rdquo; Takes about
             a minute, and nothing is charged here.
@@ -416,7 +416,7 @@ export default function LandscapingFlow({
             >
               <span
                 className={`block h-1.5 rounded-full transition ${
-                  stepNumber <= step ? "bg-brand" : "bg-black/10"
+                  stepNumber <= step ? "bg-brand" : "bg-white/10"
                 } ${done ? "group-hover:bg-brand-cyan" : ""}`}
               />
             </button>
@@ -496,7 +496,7 @@ export default function LandscapingFlow({
                 <p className="text-sm font-semibold text-ink">
                   Don&apos;t forget your house number
                 </p>
-                <p className="mt-1 text-sm text-neutral-500">
+                <p className="mt-1 text-sm text-neutral-300">
                   We&apos;ve got{" "}
                   <span className="font-medium text-ink">
                     {[address.city.trim(), address.zip.trim()].filter(Boolean).join(" ") ||
@@ -510,7 +510,7 @@ export default function LandscapingFlow({
                     autoComplete="address-line1"
                     placeholder="House number and street"
                     onChange={(e) => setAddress({ ...address, street: e.target.value })}
-                    className="w-full rounded-xl border border-black/10 bg-black/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                   <input
                     value={address.zip}
@@ -524,7 +524,7 @@ export default function LandscapingFlow({
                         zip: e.target.value.replace(/\D/g, "").slice(0, 5),
                       })
                     }
-                    className="w-full rounded-xl border border-black/10 bg-black/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                   />
                 </div>
                 <input
@@ -532,7 +532,7 @@ export default function LandscapingFlow({
                   autoComplete="address-line2"
                   placeholder="Apt / unit / gate code (optional)"
                   onChange={(e) => setAddress({ ...address, unit: e.target.value })}
-                  className="mt-2 w-full rounded-xl border border-black/10 bg-black/5 px-3 py-2.5 text-sm text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
                 />
               </div>
             )}
@@ -540,7 +540,7 @@ export default function LandscapingFlow({
             <div className="mt-5">
               <label htmlFor="yardDetails" className="block text-sm font-semibold text-ink">
                 Anything we should know?{" "}
-                <span className="font-normal text-neutral-500">(optional)</span>
+                <span className="font-normal text-neutral-300">(optional)</span>
               </label>
               <textarea
                 id="yardDetails"
@@ -548,7 +548,7 @@ export default function LandscapingFlow({
                 value={details}
                 onChange={(e) => setDetails(e.target.value)}
                 placeholder="Gate code, dog in the yard, where to park, sprinklers to avoid…"
-                className="mt-2 w-full rounded-xl border border-black/10 bg-black/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+                className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
               />
             </div>
           </>
@@ -559,7 +559,7 @@ export default function LandscapingFlow({
           the number they're agreeing to. It hasn't moved since step 2 — that's
           the point of pricing flat — so this is a reminder, not a reveal. */}
       {step === TOTAL_STEPS && quote && (
-        <p className="mt-8 rounded-2xl border border-black/10 bg-black/[0.03] px-4 py-3 text-sm text-neutral-500">
+        <p className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-neutral-300">
           <span className="font-semibold text-ink">${quote.perVisit}</span>
           {quote.frequency.visitsPerMonth === null
             ? " · one visit"
@@ -579,7 +579,7 @@ export default function LandscapingFlow({
           <button
             type="button"
             onClick={() => goBackTo(step - 1)}
-            className="flex h-14 shrink-0 items-center gap-1.5 rounded-2xl border border-black/15 px-4 font-semibold text-ink transition hover:border-brand/40"
+            className="flex h-14 shrink-0 items-center gap-1.5 rounded-2xl border border-white/15 px-4 font-semibold text-ink transition hover:border-brand/40"
           >
             <svg
               viewBox="0 0 24 24"
@@ -609,7 +609,7 @@ export default function LandscapingFlow({
       </div>
 
       {step === TOTAL_STEPS && (
-        <p className="mt-4 text-sm text-neutral-500">
+        <p className="mt-4 text-sm text-neutral-300">
           Nothing is charged here. We&apos;ll call you{" "}
           <span className="font-semibold text-ink">within 30 minutes</span> to confirm the
           job and take a deposit to get you on the schedule — the rest is due when the work

@@ -75,7 +75,7 @@ export default function LandscapingCityPage({ params }: { params: { city: string
               city={city.slug}
               intro={
                 <>
-                  <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                  <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                     <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
                     Now booking in {city.name}
                   </p>
@@ -85,11 +85,11 @@ export default function LandscapingCityPage({ params }: { params: { city: string
                     Lawn care in {city.name},{" "}
                     <span className="text-brand-cyan">priced up front.</span>
                   </h1>
-                  <p className="mt-4 text-lg text-neutral-600">{city.yardBlurb}</p>
+                  <p className="mt-4 text-lg text-neutral-200">{city.yardBlurb}</p>
                   <p className="mt-4">
                     <a
                       href={`tel:${SUPPORT_PHONE_DIGITS}`}
-                      className="font-mono text-sm text-neutral-500 hover:text-brand-cyan"
+                      className="font-mono text-sm text-neutral-300 hover:text-brand-cyan"
                     >
                       or call to book — {SUPPORT_PHONE}
                     </a>
@@ -102,24 +102,24 @@ export default function LandscapingCityPage({ params }: { params: { city: string
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
           <div className="grid gap-6 sm:grid-cols-3">
-            <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-6">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
               <p className="font-mono text-2xl font-bold text-brand-cyan">Flat</p>
-              <p className="mt-1 text-neutral-500">prices by yard size, not by the hour</p>
+              <p className="mt-1 text-neutral-300">prices by yard size, not by the hour</p>
             </div>
-            <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-6">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
               <p className="font-mono text-2xl font-bold text-brand-cyan">Local</p>
-              <p className="mt-1 text-neutral-500">crews who know {city.region}</p>
+              <p className="mt-1 text-neutral-300">crews who know {city.region}</p>
             </div>
-            <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-6">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
               <p className="font-mono text-2xl font-bold text-brand-cyan">No contract</p>
-              <p className="mt-1 text-neutral-500">weekly, fortnightly, monthly, or once</p>
+              <p className="mt-1 text-neutral-300">weekly, fortnightly, monthly, or once</p>
             </div>
           </div>
 
           <p className="mt-10 font-mono text-xs uppercase tracking-wide text-neutral-400">
             Serving {city.name} and nearby
           </p>
-          <p className="mt-2 text-neutral-500">{city.neighborhoods.join(" · ")}</p>
+          <p className="mt-2 text-neutral-300">{city.neighborhoods.join(" · ")}</p>
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
@@ -138,14 +138,14 @@ export default function LandscapingCityPage({ params }: { params: { city: string
                     pathname: "/yard",
                     query: { service: service.value, city: city.slug },
                   }}
-                  className="rounded-2xl border border-black/10 bg-black/[0.03] p-6 transition hover:border-brand/40 hover:bg-black/[0.06]"
+                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-brand/40 hover:bg-white/[0.08]"
                 >
                   <div className="flex items-start justify-between gap-3">
                     {Icon && <Icon />}
                     <p className="font-mono text-sm text-brand-cyan">from ${from}</p>
                   </div>
                   <h3 className="mt-3 text-lg font-semibold text-ink">{service.label}</h3>
-                  <p className="mt-1 text-neutral-500">{service.description}</p>
+                  <p className="mt-1 text-neutral-300">{service.description}</p>
                 </Link>
               );
             })}
@@ -159,7 +159,7 @@ export default function LandscapingCityPage({ params }: { params: { city: string
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             {bare} prices
           </h2>
-          <p className="mt-2 max-w-2xl text-neutral-500">
+          <p className="mt-2 max-w-2xl text-neutral-300">
             One flat price per visit, set by the service and how big your yard is. Put your
             address in above and we&apos;ll show you all four priced for your property.
             Weekly plans are 20% less per visit, every other week 10% less.
@@ -168,13 +168,13 @@ export default function LandscapingCityPage({ params }: { params: { city: string
             {LANDSCAPING_SERVICES.map((service) => (
               <div
                 key={service.value}
-                className="rounded-2xl border border-black/10 bg-black/[0.03] p-5"
+                className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"
               >
                 <p className="font-semibold text-ink">{service.label}</p>
                 <p className="mt-1 font-mono text-2xl font-bold text-brand-cyan">
                   from ${startingPriceFor(service.value)}
                 </p>
-                <p className="mt-1 text-sm text-neutral-500">
+                <p className="mt-1 text-sm text-neutral-300">
                   {service.materialsNote ? "Labour only" : "Per visit"}
                 </p>
               </div>
@@ -184,7 +184,7 @@ export default function LandscapingCityPage({ params }: { params: { city: string
 
         {city.community && (
           <section className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
-            <div className="grid gap-8 rounded-3xl border border-black/10 bg-black/[0.03] p-8 sm:p-10 lg:grid-cols-2 lg:items-center">
+            <div className="grid gap-8 rounded-3xl border border-white/10 bg-white/[0.04] p-8 sm:p-10 lg:grid-cols-2 lg:items-center">
               <div>
                 <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
                   Community
@@ -192,15 +192,15 @@ export default function LandscapingCityPage({ params }: { params: { city: string
                 <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
                   {city.community.heading}
                 </h2>
-                <p className="mt-4 text-neutral-500">{city.community.body}</p>
+                <p className="mt-4 text-neutral-300">{city.community.body}</p>
                 <Link
                   href={{ pathname: "/drive", query: { city: city.slug } }}
-                  className="mt-6 inline-flex items-center gap-2 rounded-full border border-black/15 px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand/40 hover:bg-black/5"
+                  className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand/40 hover:bg-white/5"
                 >
                   Work with us in {city.name} →
                 </Link>
               </div>
-              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-black/10">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/10">
                 <AutoplayVideo
                   mp4={yardVideoForCity(city.slug).mp4}
                   webm={yardVideoForCity(city.slug).webm}
@@ -215,13 +215,13 @@ export default function LandscapingCityPage({ params }: { params: { city: string
         )}
 
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="relative overflow-hidden rounded-3xl border border-black/10 bg-black/[0.03] px-6 py-14 text-center sm:px-12">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] px-6 py-14 text-center sm:px-12">
             <div className="glow-blob absolute left-1/2 top-1/2 h-[300px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full" />
             <div className="relative">
               <h2 className="text-2xl font-bold text-ink sm:text-3xl">
                 Ready to get the {bare} yard sorted?
               </h2>
-              <p className="mx-auto mt-2 max-w-xl text-neutral-500">
+              <p className="mx-auto mt-2 max-w-xl text-neutral-300">
                 It takes about a minute. No account, no contract — just a real price and a
                 real crew.
               </p>
@@ -231,7 +231,7 @@ export default function LandscapingCityPage({ params }: { params: { city: string
               >
                 Book a visit
               </Link>
-              <p className="mt-4 text-sm text-neutral-500">
+              <p className="mt-4 text-sm text-neutral-300">
                 Also moving?{" "}
                 <Link
                   href={`/movers/${city.slug}`}

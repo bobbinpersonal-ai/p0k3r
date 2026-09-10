@@ -7,7 +7,7 @@ import { PAYOUT_METHODS, getPayoutMethodPlaceholder, type PayoutMethodValue } fr
 import { scrollToNext } from "@/lib/scrollToNext";
 
 const inputClass =
-  "mt-1 w-full rounded-lg border border-black/10 bg-black/5 px-3 py-2 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
+  "mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 
 export default function DriveApplicationForm({
   line,
@@ -105,7 +105,7 @@ export default function DriveApplicationForm({
           ✓
         </div>
         <h3 className="mt-4 text-lg font-semibold text-ink">Application received</h3>
-        <p className="mt-2 text-neutral-500">
+        <p className="mt-2 text-neutral-300">
           We&apos;ll get to your application and get you onboarded — usually within 2 hours,
           9am–9pm. Thanks for wanting to work with us.
         </p>
@@ -126,7 +126,7 @@ export default function DriveApplicationForm({
               className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
                 role === option.value
                   ? "border-brand bg-brand/10 ring-1 ring-brand"
-                  : "border-black/10 bg-black/[0.02] hover:border-black/20"
+                  : "border-white/10 bg-white/[0.03] hover:border-white/20"
               }`}
             >
               <input
@@ -147,7 +147,7 @@ export default function DriveApplicationForm({
                     : "I'd ride along"
                   : option.label}
               </span>
-              <span className="mt-1 text-sm text-neutral-500">
+              <span className="mt-1 text-sm text-neutral-300">
                 {yard
                   ? option.value === "DRIVER"
                     ? "You can haul the gear and green waste — pays more"
@@ -189,7 +189,7 @@ export default function DriveApplicationForm({
             id="city"
             name="city"
             defaultValue={initialCity ?? ""}
-            className={`${inputClass} [color-scheme:light]`}
+            className={`${inputClass} [color-scheme:dark]`}
           >
             <option value="" className="bg-paper">
               Not sure yet
@@ -226,7 +226,7 @@ export default function DriveApplicationForm({
         <legend className="text-sm font-semibold text-ink">
           How do you want to get paid?
         </legend>
-        <p className="mt-1 text-sm text-neutral-500">
+        <p className="mt-1 text-sm text-neutral-300">
           You&apos;re paid out by 5pm (or sooner) every day you work.
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-3">
@@ -236,7 +236,7 @@ export default function DriveApplicationForm({
               className={`flex cursor-pointer flex-col rounded-xl border p-4 transition ${
                 payoutMethod === option.value
                   ? "border-brand bg-brand/10 ring-1 ring-brand"
-                  : "border-black/10 bg-black/[0.02] hover:border-black/20"
+                  : "border-white/10 bg-white/[0.03] hover:border-white/20"
               }`}
             >
               <input

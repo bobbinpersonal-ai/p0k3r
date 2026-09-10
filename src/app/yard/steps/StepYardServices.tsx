@@ -42,7 +42,7 @@ export default function StepYardServices({
   return (
     <div>
       <h2 className="text-2xl font-bold text-ink sm:text-3xl">What does the yard need?</h2>
-      <p className="mt-2 text-neutral-500">
+      <p className="mt-2 text-neutral-300">
         Every price below is for your {getYardSizeLabel(yardSize).toLowerCase()} yard — not a
         starting point, and not an average.
       </p>
@@ -62,7 +62,7 @@ export default function StepYardServices({
             <div
               key={option.value}
               className={`rounded-2xl border transition ${
-                isSelected ? "border-brand bg-brand/5" : "border-black/10"
+                isSelected ? "border-brand bg-brand/5" : "border-white/10"
               }`}
             >
               <button
@@ -80,7 +80,7 @@ export default function StepYardServices({
                     )}
                     <div className="min-w-0">
                       <p className="font-semibold text-ink">{option.label}</p>
-                      <p className="mt-1 text-sm text-neutral-500">{option.description}</p>
+                      <p className="mt-1 text-sm text-neutral-300">{option.description}</p>
                     </div>
                   </div>
                   <p className="shrink-0 font-mono text-xl font-bold text-brand-cyan">
@@ -92,7 +92,7 @@ export default function StepYardServices({
                   {option.includes.map((item) => (
                     <li
                       key={item}
-                      className="flex items-start gap-1.5 text-sm text-neutral-500"
+                      className="flex items-start gap-1.5 text-sm text-neutral-300"
                     >
                       <span aria-hidden className="mt-0.5 text-brand-cyan">
                         ✓
@@ -128,7 +128,7 @@ export default function StepYardServices({
                           className={`flex items-baseline justify-between gap-3 rounded-xl border px-4 py-3 text-left transition ${
                             cadenceSelected
                               ? "border-brand bg-brand/10"
-                              : "border-black/10 hover:border-brand/40"
+                              : "border-white/10 hover:border-brand/40"
                           }`}
                         >
                           <span className="text-sm text-ink">{cadence.label}</span>
@@ -142,7 +142,7 @@ export default function StepYardServices({
                       );
                     })}
                   </div>
-                  <p className="mt-3 text-sm text-neutral-500">
+                  <p className="mt-3 text-sm text-neutral-300">
                     Weekly and every-other-week cost less per visit — the yard never gets
                     away from us. Monthly is the same as a one-off, since by then it&apos;s
                     grown back. No contract either way.

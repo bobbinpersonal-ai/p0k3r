@@ -37,13 +37,13 @@ export default function StepItems({
   return (
     <div>
       <h2 className="text-2xl font-bold text-ink sm:text-3xl">Anything we should know?</h2>
-      <p className="mt-2 text-neutral-500">
+      <p className="mt-2 text-neutral-300">
         The more we know up front, the closer your final price lands to the estimate.
       </p>
 
       <div className="mt-6">
         <label htmlFor="details" className="block text-sm font-semibold text-ink">
-          Item description <span className="font-normal text-neutral-500">(optional)</span>
+          Item description <span className="font-normal text-neutral-300">(optional)</span>
         </label>
         <textarea
           id="details"
@@ -51,9 +51,9 @@ export default function StepItems({
           value={value.details}
           onChange={(e) => set({ details: e.target.value })}
           placeholder={"Sofa and cabinet\nOrder #12345\n3rd floor walk-up, no elevator"}
-          className="mt-2 w-full rounded-xl border border-black/10 bg-black/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+          className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         />
-        <p className="mt-1.5 text-sm text-neutral-500">
+        <p className="mt-1.5 text-sm text-neutral-300">
           Stairs, elevators, tight parking, anything heavy or fragile — it all helps the crew
           show up ready.
         </p>
@@ -61,7 +61,7 @@ export default function StepItems({
 
       <fieldset className="mt-6">
         <legend className="text-sm font-semibold text-ink">Need an extra helper?</legend>
-        <p className="mt-1.5 text-sm text-neutral-500">
+        <p className="mt-1.5 text-sm text-neutral-300">
           A second person on the job, start to finish. Flat rate, whatever the move.
         </p>
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -100,7 +100,7 @@ export default function StepItems({
                 className={`rounded-2xl border p-4 text-left transition ${
                   isSelected
                     ? "border-brand bg-brand/5"
-                    : "border-black/10 hover:border-brand/40"
+                    : "border-white/10 hover:border-brand/40"
                 }`}
               >
                 <span className="flex items-center gap-3">
@@ -115,7 +115,7 @@ export default function StepItems({
                   )}
                   <span className="min-w-0">
                     <span className="block font-semibold text-ink">{option.label}</span>
-                    <span className="mt-0.5 block text-sm text-neutral-500">
+                    <span className="mt-0.5 block text-sm text-neutral-300">
                       {option.value && helper
                         ? `${helper.name} or someone else nearby rides along`
                         : option.body}
@@ -125,7 +125,7 @@ export default function StepItems({
                 {option.price && (
                   <span
                     className={`mt-2 block font-mono text-sm ${
-                      option.value ? "font-bold text-ink" : "text-neutral-500"
+                      option.value ? "font-bold text-ink" : "text-neutral-300"
                     }`}
                   >
                     {option.price}

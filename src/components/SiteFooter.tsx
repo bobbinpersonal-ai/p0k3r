@@ -7,8 +7,8 @@ const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "hello@lovemeafte
 
 export default function SiteFooter() {
   return (
-    <footer className="border-t border-black/10 bg-surface">
-      <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-neutral-500 sm:px-6">
+    <footer className="border-t border-white/10 bg-surface">
+      <div className="mx-auto max-w-6xl px-4 py-8 text-sm text-neutral-300 sm:px-6">
         <p>
           &copy; {new Date().getFullYear()} {SITE_NAME}. Landscaping, moving and hauling —
           Bay Area to Sacramento.
@@ -50,8 +50,8 @@ export default function SiteFooter() {
             unlicensed, and 7048 is the exemption itself. Muted rather than
             hidden: it should read as a plain statement of what this company is,
             legible on every page, without competing with the content above it. */}
-        <p className="mt-6 max-w-4xl border-t border-black/5 pt-6 text-xs leading-relaxed text-neutral-400">
-          <span className="font-semibold text-neutral-500">Disclaimer:</span> {SITE_NAME}{" "}
+        <p className="mt-6 max-w-4xl border-t border-white/5 pt-6 text-xs leading-relaxed text-neutral-400">
+          <span className="font-semibold text-neutral-300">Disclaimer:</span> {SITE_NAME}{" "}
           provides minor home maintenance, yard care, and cosmetic assembly services under
           the ${EXEMPTION_LIMIT.toLocaleString()} threshold permitted by California law.{" "}
           {SITE_NAME} is not a licensed general contractor. Any project exceeding $

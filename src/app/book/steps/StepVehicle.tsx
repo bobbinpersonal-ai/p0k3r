@@ -17,7 +17,7 @@ import type { LatLng } from "@/lib/geo";
 
 const RouteMap = dynamic(() => import("@/components/RouteMap"), {
   ssr: false,
-  loading: () => <div className="h-full w-full animate-pulse bg-black/[0.04]" />,
+  loading: () => <div className="h-full w-full animate-pulse bg-white/[0.05]" />,
 });
 
 export type RouteState = {
@@ -72,13 +72,13 @@ export default function StepVehicle({
   return (
     <div>
       <h2 className="text-2xl font-bold text-ink sm:text-3xl">Pick your truck</h2>
-      <p className="mt-2 text-neutral-500">
+      <p className="mt-2 text-neutral-300">
         Every price below covers the crew&apos;s time, their drive, and fuel — no hourly
         surprises. A dispatcher confirms the exact number by phone.
       </p>
 
       {(pickupPoint || dropoffPoint) && (
-        <div className="mt-6 h-56 overflow-hidden rounded-3xl border border-black/10 sm:h-72">
+        <div className="mt-6 h-56 overflow-hidden rounded-3xl border border-white/10 sm:h-72">
           <RouteMap
             pickup={pickupPoint}
             dropoff={dropoffPoint}
@@ -87,7 +87,7 @@ export default function StepVehicle({
         </div>
       )}
 
-      <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-widest text-neutral-500">
+      <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs uppercase tracking-widest text-neutral-300">
         {loadingRoute && (
           <span>{needsDropoff ? "Measuring the route to price it…" : "Finding you…"}</span>
         )}
@@ -136,7 +136,7 @@ export default function StepVehicle({
           id="quoteMoveSize"
           value={moveSize}
           onChange={(e) => onMoveSizeChange(e.target.value as MoveSizeValue)}
-          className="mt-2 w-full rounded-xl border border-black/10 bg-black/5 px-3 py-3 text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+          className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         >
           {MOVE_SIZE_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -160,7 +160,7 @@ export default function StepVehicle({
               className={`block w-full rounded-2xl border p-5 text-left transition disabled:cursor-wait ${
                 isSelected
                   ? "border-brand bg-brand/5"
-                  : "border-black/10 bg-black/[0.02] enabled:hover:border-brand/40"
+                  : "border-white/10 bg-white/[0.03] enabled:hover:border-brand/40"
               }`}
             >
               <div className="flex items-start justify-between gap-4">
@@ -171,12 +171,12 @@ export default function StepVehicle({
                       {tier.crew}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-neutral-500">{tier.fits}</p>
+                  <p className="mt-1 text-sm text-neutral-300">{tier.fits}</p>
                   {priceUnknown ? (
                     <p className="mt-3 flex items-center gap-2 text-2xl font-bold text-neutral-300">
                       <span
                         aria-hidden
-                        className="inline-block h-6 w-24 animate-pulse rounded bg-black/10"
+                        className="inline-block h-6 w-24 animate-pulse rounded bg-white/10"
                       />
                       <span className="sr-only">Working out the price</span>
                     </p>
@@ -185,7 +185,7 @@ export default function StepVehicle({
                       ${low}–${high}
                     </p>
                   )}
-                  <p className="font-mono text-xs text-neutral-500">
+                  <p className="font-mono text-xs text-neutral-300">
                     {tier.dimensions}
                     {!priceUnknown &&
                       route &&

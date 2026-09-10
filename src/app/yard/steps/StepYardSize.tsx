@@ -30,13 +30,13 @@ export default function StepYardSize({
   return (
     <div>
       <h2 className="text-2xl font-bold text-ink sm:text-3xl">How big is the yard?</h2>
-      <p className="mt-2 text-neutral-500">
+      <p className="mt-2 text-neutral-300">
         Rough is fine — pick whichever sounds closest to the area that actually needs
         working on.
       </p>
 
       {estimating && (
-        <p className="mt-6 rounded-2xl border border-black/10 bg-black/[0.03] px-4 py-3 text-sm text-neutral-500">
+        <p className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-neutral-300">
           Checking your property records…
         </p>
       )}
@@ -53,7 +53,7 @@ export default function StepYardSize({
             </span>{" "}
             of yard — a {estimate.yardSize.toLowerCase()} one.
           </p>
-          <p className="mt-1 text-sm text-neutral-500">
+          <p className="mt-1 text-sm text-neutral-300">
             {/* Said plainly rather than buried: this is a records lookup, not a
                 measurement, and the customer is the one who can actually see
                 the yard. Better they correct it now than the crew find out. */}
@@ -76,7 +76,7 @@ export default function StepYardSize({
               className={`rounded-2xl border p-5 text-left transition ${
                 isSelected
                   ? "border-brand bg-brand/5"
-                  : "border-black/10 hover:border-brand/40 hover:bg-black/[0.02]"
+                  : "border-white/10 hover:border-brand/40 hover:bg-white/[0.03]"
               }`}
             >
               <div className="flex items-baseline justify-between gap-3">
@@ -87,7 +87,7 @@ export default function StepYardSize({
                   </span>
                 )}
               </div>
-              <p className="mt-1 text-sm text-neutral-500">{size.description}</p>
+              <p className="mt-1 text-sm text-neutral-300">{size.description}</p>
               <p className="mt-2 font-mono text-xs text-neutral-400">{size.areaHint}</p>
             </button>
           );

@@ -66,7 +66,7 @@ export default function ContractorsPage({
           <div className="absolute inset-0 bg-grid-fade" />
           <div className="glow-blob absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full" />
           <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6">
-            <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
+            <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
               <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
               Licensed partner network
             </p>
@@ -75,7 +75,7 @@ export default function ContractorsPage({
               Bigger job?{" "}
               <span className="text-brand-cyan">We&apos;ll find you the right licence.</span>
             </h1>
-            <p className="mt-4 max-w-2xl text-lg text-neutral-600">
+            <p className="mt-4 max-w-2xl text-lg text-neutral-200">
               Remodels, tree removal, concrete, roofing — work that needs a licensed
               contractor. Tell us what you need and we&apos;ll put it in front of{" "}
               {MATCH_COUNT} licensed, bonded and insured California contractors who cover
@@ -86,7 +86,7 @@ export default function ContractorsPage({
                 seconds of landing here that the quotes come from other
                 companies — that's the product, and burying it would make the
                 page read like a bid from us. */}
-            <p className="mt-6 max-w-2xl rounded-2xl border border-black/10 bg-black/[0.03] p-4 text-sm text-neutral-600">
+            <p className="mt-6 max-w-2xl rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-neutral-200">
               <span className="font-semibold text-ink">To be clear about who does what:</span>{" "}
               {SITE_NAME} is not a licensed general contractor. We handle minor maintenance
               and yard work under California&apos;s ${EXEMPTION_LIMIT.toLocaleString()} minor
@@ -102,13 +102,13 @@ export default function ContractorsPage({
             {HOW_IT_WORKS.map((step, i) => (
               <div
                 key={step.title}
-                className="rounded-2xl border border-black/10 bg-black/[0.03] p-6"
+                className="rounded-2xl border border-white/10 bg-white/[0.04] p-6"
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 font-mono text-sm font-bold text-brand-cyan">
                   {String(i + 1).padStart(2, "0")}
                 </div>
                 <h2 className="mt-4 text-lg font-semibold text-ink">{step.title}</h2>
-                <p className="mt-2 text-neutral-500">{step.body}</p>
+                <p className="mt-2 text-neutral-300">{step.body}</p>
               </div>
             ))}
           </div>
@@ -122,7 +122,7 @@ export default function ContractorsPage({
             {MAJOR_TRADE_PROJECTS.filter((p) => p.value !== "OTHER").map((project) => (
               <span
                 key={project.value}
-                className="rounded-full border border-black/10 bg-black/[0.03] px-4 py-2 text-sm text-ink"
+                className="rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-sm text-ink"
               >
                 {project.label}
               </span>
@@ -135,7 +135,7 @@ export default function ContractorsPage({
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             Get {MATCH_COUNT} quotes
           </h2>
-          <p className="mt-2 text-neutral-500">
+          <p className="mt-2 text-neutral-300">
             Takes about a minute. No account, nothing charged, and no obligation to hire
             anyone.
           </p>
@@ -143,7 +143,7 @@ export default function ContractorsPage({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-neutral-300">
             Just need a mow, a wash or a small repair?{" "}
             <Link href="/" className="font-semibold text-brand-cyan hover:text-ink">
               We do that ourselves — see the prices

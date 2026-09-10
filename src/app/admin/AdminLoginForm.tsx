@@ -43,7 +43,7 @@ export default function AdminLoginForm() {
           autoFocus
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 w-full rounded-lg border border-black/10 bg-black/5 px-3 py-2 text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+          className="mt-1 w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-ink focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
         />
       </div>
       {error && (

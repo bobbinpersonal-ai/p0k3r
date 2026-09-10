@@ -20,6 +20,20 @@ which is what they were.
 
 Stack: Next.js 14 (App Router) + TypeScript + Tailwind CSS + Prisma + Postgres.
 
+**The site is night mode throughout** — customer pages, recruiting, booking and
+admin. The page colour is a warm near-black (`paper: #14120F`), deliberately
+*not* `#000`: a non-OLED phone can't switch pixels off, so pure black renders
+as backlight grey and the page looks washed out, and white-on-pure-black also
+haloes. Text runs the ramp the other way from a light theme — `ink` brightest,
+then `neutral-300` for body, `neutral-400` for muted — and every surface tint
+is a white overlay (`bg-white/[0.04]`) rather than the black one a light page
+uses. `brand.cyan` was lifted from `#C2760C` to `#E9A83F`; the old amber was
+mixed against a near-white page and only managed ~5:1 here, which is thin for
+the small mono prices it carries.
+
+Contrast is checked rather than eyeballed — see the note in "Testing" about
+compositing translucent layers before measuring.
+
 ## What's here
 
 - **`/`** — the home-services page: an address box above the fold, four

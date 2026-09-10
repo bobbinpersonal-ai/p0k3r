@@ -44,7 +44,7 @@ export default function StepSchedule({
   return (
     <div>
       <h2 className="text-2xl font-bold text-ink sm:text-3xl">Arrival time</h2>
-      <p className="mt-2 text-neutral-500">
+      <p className="mt-2 text-neutral-300">
         Choose a time you&apos;d like us to arrive at your pickup address.
       </p>
 
@@ -64,8 +64,8 @@ export default function StepSchedule({
                 isSelected
                   ? "border-brand bg-brand text-white"
                   : soldOut
-                    ? "cursor-not-allowed border-black/10 text-neutral-300"
-                    : "border-black/10 text-ink hover:border-brand/40"
+                    ? "cursor-not-allowed border-white/10 text-neutral-300"
+                    : "border-white/10 text-ink hover:border-brand/40"
               }`}
             >
               <span className="block text-sm">{day.isToday ? "Today" : day.weekday}</span>
@@ -77,7 +77,7 @@ export default function StepSchedule({
           <button
             type="button"
             onClick={() => setExpanded(true)}
-            className="w-[72px] rounded-2xl border border-black/10 px-3 py-3 text-center text-sm text-neutral-500 transition hover:border-brand/40 hover:text-ink"
+            className="w-[72px] rounded-2xl border border-white/10 px-3 py-3 text-center text-sm text-neutral-300 transition hover:border-brand/40 hover:text-ink"
           >
             More
             <span aria-hidden className="mt-1 block text-xs">
@@ -89,7 +89,7 @@ export default function StepSchedule({
 
       <p className="mt-8 text-sm font-semibold text-ink">Select time</p>
       {windows.length === 0 ? (
-        <p className="mt-3 text-neutral-500">
+        <p className="mt-3 text-neutral-300">
           No arrival windows left today — pick another day above.
         </p>
       ) : (
@@ -105,7 +105,7 @@ export default function StepSchedule({
                 className={`rounded-full border px-4 py-3 text-center transition ${
                   isSelected
                     ? "border-brand bg-brand font-semibold text-white"
-                    : "border-black/10 text-ink hover:border-brand/40"
+                    : "border-white/10 text-ink hover:border-brand/40"
                 }`}
               >
                 {window.label}

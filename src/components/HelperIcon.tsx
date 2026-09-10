@@ -29,11 +29,11 @@ function HelperFigure() {
 
 export default function HelperIcon() {
   return (
-    <div className="flex flex-col items-center gap-2 rounded-2xl border border-black/10 bg-black/[0.03] py-6 px-8">
+    <div className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] py-6 px-8">
       <div className="animate-float">
         <HelperFigure />
       </div>
-      <p className="font-mono text-xs text-neutral-500">Helper</p>
+      <p className="font-mono text-xs text-neutral-300">Helper</p>
       <p className="font-mono text-sm font-bold text-brand-cyan">$19/hr</p>
     </div>
   );

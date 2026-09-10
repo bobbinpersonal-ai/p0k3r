@@ -37,7 +37,7 @@ export default async function ManageBookingPage({
         <h1 className="text-3xl font-extrabold tracking-tight text-ink">
           Your {noun}
         </h1>
-        <p className="mt-2 text-neutral-500">
+        <p className="mt-2 text-neutral-300">
           {booking.status === "CANCELED"
             ? "This booking has been canceled."
             : booking.status === "COMPLETED"
@@ -45,7 +45,7 @@ export default async function ManageBookingPage({
               : "Need to change something? You can ask for a different time or cancel below."}
         </p>
 
-        <div className="mt-8 rounded-2xl border border-black/10 bg-black/[0.03] p-6">
+        <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
           <dl className="space-y-3 text-sm">
             <div className="flex justify-between gap-4">
               <dt className="text-neutral-400">{recurring ? "Next visit" : "Date"}</dt>

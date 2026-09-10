@@ -25,7 +25,7 @@ export default function StepYardService({
   return (
     <div>
       <h2 className="text-2xl font-bold text-ink sm:text-3xl">What does the yard need?</h2>
-      <p className="mt-2 text-neutral-500">
+      <p className="mt-2 text-neutral-300">
         Pick the closest one — you can add anything else in the notes at the end.
       </p>
 
@@ -41,7 +41,7 @@ export default function StepYardService({
               className={`rounded-2xl border p-5 text-left transition ${
                 isSelected
                   ? "border-brand bg-brand/5"
-                  : "border-black/10 hover:border-brand/40 hover:bg-black/[0.02]"
+                  : "border-white/10 hover:border-brand/40 hover:bg-white/[0.03]"
               }`}
             >
               <div className="flex items-baseline justify-between gap-3">
@@ -50,10 +50,10 @@ export default function StepYardService({
                   from ${startingPriceFor(service.value)}
                 </p>
               </div>
-              <p className="mt-1 text-sm text-neutral-500">{service.description}</p>
+              <p className="mt-1 text-sm text-neutral-300">{service.description}</p>
               <ul className="mt-3 grid gap-1 sm:grid-cols-2">
                 {service.includes.map((item) => (
-                  <li key={item} className="flex items-start gap-1.5 text-sm text-neutral-500">
+                  <li key={item} className="flex items-start gap-1.5 text-sm text-neutral-300">
                     <span aria-hidden className="mt-0.5 text-brand-cyan">
                       ✓
                     </span>

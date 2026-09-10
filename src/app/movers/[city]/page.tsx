@@ -75,7 +75,7 @@ export default function CityLandingPage({ params }: { params: { city: string } }
           <div className="glow-blob absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full" />
           <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
             <div className="max-w-2xl">
-              <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
+              <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
                 Now booking in {city.name}
               </p>
@@ -85,7 +85,7 @@ export default function CityLandingPage({ params }: { params: { city: string } }
                 Movers in {city.name},{" "}
                 <span className="text-brand-cyan">booked in minutes.</span>
               </h1>
-              <p className="mt-6 text-lg text-neutral-500">{city.blurb}</p>
+              <p className="mt-6 text-lg text-neutral-300">{city.blurb}</p>
               <div className="mt-10 flex flex-wrap gap-4">
                 <Link
                   href={{ pathname: "/book", query: { city: city.slug } }}
@@ -95,7 +95,7 @@ export default function CityLandingPage({ params }: { params: { city: string } }
                 </Link>
                 <a
                   href="#pricing"
-                  className="rounded-full border border-black/15 px-6 py-3 text-base font-semibold text-ink transition hover:bg-black/5"
+                  className="rounded-full border border-white/15 px-6 py-3 text-base font-semibold text-ink transition hover:bg-white/5"
                 >
                   See move sizes
                 </a>
@@ -103,7 +103,7 @@ export default function CityLandingPage({ params }: { params: { city: string } }
               <p className="mt-4">
                 <a
                   href={`tel:${SUPPORT_PHONE_DIGITS}`}
-                  className="font-mono text-sm text-neutral-500 hover:text-brand-cyan"
+                  className="font-mono text-sm text-neutral-300 hover:text-brand-cyan"
                 >
                   or call to book — {SUPPORT_PHONE}
                 </a>
@@ -114,29 +114,29 @@ export default function CityLandingPage({ params }: { params: { city: string } }
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
           <div className="grid gap-6 sm:grid-cols-3">
-            <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-6">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
               <p className="font-mono text-2xl font-bold text-brand-cyan">Same-day</p>
-              <p className="mt-1 text-neutral-500">availability in {city.name} most days</p>
+              <p className="mt-1 text-neutral-300">availability in {city.name} most days</p>
             </div>
-            <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-6">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
               <p className="font-mono text-2xl font-bold text-brand-cyan">Local</p>
-              <p className="mt-1 text-neutral-500">crews who know {city.region}</p>
+              <p className="mt-1 text-neutral-300">crews who know {city.region}</p>
             </div>
-            <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-6">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
               <p className="font-mono text-2xl font-bold text-brand-cyan">Fast</p>
-              <p className="mt-1 text-neutral-500">price confirmed after you submit</p>
+              <p className="mt-1 text-neutral-300">price confirmed after you submit</p>
             </div>
           </div>
 
           <p className="mt-10 font-mono text-xs uppercase tracking-wide text-neutral-400">
             Serving {city.name} and nearby
           </p>
-          <p className="mt-2 text-neutral-500">{city.neighborhoods.join(" · ")}</p>
+          <p className="mt-2 text-neutral-300">{city.neighborhoods.join(" · ")}</p>
         </section>
 
         {city.community && (
           <section className="mx-auto max-w-6xl px-4 py-4 sm:px-6">
-            <div className="grid gap-10 rounded-3xl border border-black/10 bg-black/[0.03] p-8 sm:p-10 lg:grid-cols-2 lg:items-center">
+            <div className="grid gap-10 rounded-3xl border border-white/10 bg-white/[0.04] p-8 sm:p-10 lg:grid-cols-2 lg:items-center">
               <div>
                 <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
                   Community
@@ -144,15 +144,15 @@ export default function CityLandingPage({ params }: { params: { city: string } }
                 <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
                   {city.community.heading}
                 </h2>
-                <p className="mt-4 text-neutral-500">{city.community.body}</p>
+                <p className="mt-4 text-neutral-300">{city.community.body}</p>
                 <Link
                   href={{ pathname: "/drive/moving", query: { city: city.slug } }}
-                  className="mt-6 inline-flex items-center gap-2 rounded-full border border-black/15 px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand/40 hover:bg-black/5"
+                  className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand/40 hover:bg-white/5"
                 >
                   Drive for us in {city.name} →
                 </Link>
               </div>
-              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-black/10">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border border-white/10">
                 <AutoplayVideo
                   mp4={heroVideo.mp4}
                   webm={heroVideo.webm}
@@ -173,7 +173,7 @@ export default function CityLandingPage({ params }: { params: { city: string } }
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             {bareCityName(city)} move sizes
           </h2>
-          <p className="mt-2 text-neutral-500">
+          <p className="mt-2 text-neutral-300">
             Pick your size below — it takes about 60 seconds. A dispatcher confirms your
             final price by phone shortly after.
           </p>
@@ -182,7 +182,7 @@ export default function CityLandingPage({ params }: { params: { city: string } }
               <Link
                 key={option.value}
                 href={{ pathname: "/book", query: { city: city.slug, size: option.value } }}
-                className="rounded-2xl border border-black/10 bg-black/[0.03] p-5 transition hover:border-brand/40 hover:bg-black/[0.06]"
+                className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:border-brand/40 hover:bg-white/[0.08]"
               >
                 <p className="font-semibold text-ink">{option.label}</p>
                 <p className="mt-1 text-sm text-neutral-400">{option.description}</p>
@@ -192,13 +192,13 @@ export default function CityLandingPage({ params }: { params: { city: string } }
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="relative overflow-hidden rounded-3xl border border-black/10 bg-black/[0.03] px-6 py-14 text-center sm:px-12">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] px-6 py-14 text-center sm:px-12">
             <div className="glow-blob absolute left-1/2 top-1/2 h-[300px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full" />
             <div className="relative">
               <h2 className="text-2xl font-bold text-ink sm:text-3xl">
                 Ready to book your {bareCityName(city)} move?
               </h2>
-              <p className="mx-auto mt-2 max-w-xl text-neutral-500">
+              <p className="mx-auto mt-2 max-w-xl text-neutral-300">
                 It takes about a minute. No account, no commitment — just a real price and a real
                 crew.
               </p>

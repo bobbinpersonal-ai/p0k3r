@@ -50,7 +50,7 @@ export default function SiteHeader({
         <Link
           href="/moving"
           className={`hidden text-sm font-medium lg:block ${
-            isLight ? "text-white/90 hover:text-white" : "text-neutral-500 hover:text-brand-cyan"
+            isLight ? "text-white/90 hover:text-white" : "text-neutral-300 hover:text-brand-cyan"
           }`}
         >
           Moving
@@ -58,7 +58,7 @@ export default function SiteHeader({
         <Link
           href="/junk-removal"
           className={`hidden text-sm font-medium lg:block ${
-            isLight ? "text-white/90 hover:text-white" : "text-neutral-500 hover:text-brand-cyan"
+            isLight ? "text-white/90 hover:text-white" : "text-neutral-300 hover:text-brand-cyan"
           }`}
         >
           Junk removal
@@ -66,7 +66,7 @@ export default function SiteHeader({
         <Link
           href="/drive"
           className={`hidden text-sm font-medium sm:block ${
-            isLight ? "text-white/90 hover:text-white" : "text-neutral-500 hover:text-brand-cyan"
+            isLight ? "text-white/90 hover:text-white" : "text-neutral-300 hover:text-brand-cyan"
           }`}
         >
           Work with us
@@ -74,7 +74,7 @@ export default function SiteHeader({
         <a
           href={`tel:${SUPPORT_PHONE.replace(/[^\d+]/g, "")}`}
           className={`hidden font-mono text-sm sm:block ${
-            isLight ? "text-white/90 hover:text-white" : "text-neutral-500 hover:text-brand-cyan"
+            isLight ? "text-white/90 hover:text-white" : "text-neutral-300 hover:text-brand-cyan"
           }`}
         >
           {SUPPORT_PHONE}
@@ -119,7 +119,7 @@ export default function SiteHeader({
               // well-documented WebKit compositor bug (see globals.css) —
               // worth staying away from the trigger entirely, not just the
               // scroll-behavior half of it, on older/weaker GPUs.
-              "fixed inset-x-0 top-0 z-50 border-b border-black/10 bg-paper"
+              "fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-paper"
         }
       >
         {content}

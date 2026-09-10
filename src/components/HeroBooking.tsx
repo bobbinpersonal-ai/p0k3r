@@ -75,7 +75,7 @@ export default function HeroBooking({
             browsers without it get a more opaque panel instead. */}
         <div
           data-hero-card
-          className="rounded-2xl border border-white/40 bg-paper/85 p-4 shadow-xl ring-1 ring-black/5 supports-[backdrop-filter]:bg-paper/70 supports-[backdrop-filter]:backdrop-blur-md sm:p-6"
+          className="rounded-2xl border border-white/10 bg-paper/80 p-4 shadow-xl ring-1 ring-white/10 supports-[backdrop-filter]:bg-paper/70 supports-[backdrop-filter]:backdrop-blur-md sm:p-6"
         >
           <LandscapingFlow embedded onStepChange={handleStepChange} city={city} source={source} />
         </div>
@@ -84,7 +84,7 @@ export default function HeroBooking({
             only: someone mid-quote doesn't need a second front door, but
             someone who has just arrived with a remodel in mind does. */}
         {!started && (
-          <p className="mt-3 text-center text-xs text-neutral-500 lg:text-left">
+          <p className="mt-3 text-center text-xs text-neutral-300 lg:text-left">
             Kitchen, bath, roofing, tree removal or concrete?{" "}
             <Link href="/contractors" className="font-semibold text-brand-cyan hover:text-ink">
               Get {MATCH_COUNT} licensed contractor quotes

@@ -171,7 +171,7 @@ export default function MovingPage({
 
           <div className="relative mx-auto max-w-6xl px-4 pt-28 pb-56 sm:px-6 lg:pb-40 lg:pt-[15.5rem]">
             <div className="max-w-2xl">
-              <div className="w-full overflow-hidden rounded-full border border-black/10 bg-black/5 py-1.5">
+              <div className="w-full overflow-hidden rounded-full border border-white/10 bg-white/5 py-1.5">
                 <div className="flex w-max animate-marquee gap-10 whitespace-nowrap px-3 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                   {[0, 1].map((i) => (
                     <span key={i} className="flex shrink-0 items-center gap-2">
@@ -195,7 +195,7 @@ export default function MovingPage({
                   other, but certainty — you see the number, you pick the hour,
                   you know who's coming — is what both are actually missing from
                   every mover they've used. The brand name is the logo's job. */}
-              <p className="mt-4 text-lg text-neutral-600">
+              <p className="mt-4 text-lg text-neutral-200">
                 See your price before you book, pick your arrival window, and know who&apos;s
                 coming. One couch or a whole house — Bay Area to Sacramento.
               </p>
@@ -203,7 +203,7 @@ export default function MovingPage({
                   moving customers have a yard. Said plainly and once, up here
                   rather than buried at the bottom, because someone moving into
                   a new place is exactly when a first mow gets booked. */}
-              <p className="mt-2 text-sm text-neutral-500">
+              <p className="mt-2 text-sm text-neutral-300">
                 We also do{" "}
                 <Link href="/" className="font-semibold text-brand-cyan hover:text-ink">
                   yard work
@@ -225,7 +225,7 @@ export default function MovingPage({
                 >
                   How it works
                 </a>
-                <p className="mt-1 text-sm text-neutral-600">
+                <p className="mt-1 text-sm text-neutral-200">
                   Rather talk it through? Call us —{" "}
                   <a
                     href={`tel:${SUPPORT_PHONE_DIGITS}`}
@@ -250,13 +250,13 @@ export default function MovingPage({
               {HOW_IT_WORKS.map((step, i) => (
                 <div
                   key={step.title}
-                  className="rounded-2xl border border-black/10 bg-black/[0.03] p-6 transition hover:border-brand/40"
+                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-brand/40"
                 >
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 font-mono text-sm font-bold text-brand-cyan">
                     {String(i + 1).padStart(2, "0")}
                   </div>
                   <h3 className="mt-4 text-lg font-semibold text-ink">{step.title}</h3>
-                  <p className="mt-2 text-neutral-500">{step.body}</p>
+                  <p className="mt-2 text-neutral-300">{step.body}</p>
                 </div>
               ))}
             </div>
@@ -269,7 +269,7 @@ export default function MovingPage({
               {CREW_PHOTOS.map((photo) => (
                 <div
                   key={photo.src}
-                  className={`relative ${photo.aspect} overflow-hidden rounded-3xl border border-black/10 glow`}
+                  className={`relative ${photo.aspect} overflow-hidden rounded-3xl border border-white/10 glow`}
                 >
                   <Image
                     src={photo.src}
@@ -288,7 +288,7 @@ export default function MovingPage({
               <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
                 You&apos;ll know who&apos;s coming before they knock
               </h2>
-              <p className="mt-4 text-neutral-500">
+              <p className="mt-4 text-neutral-300">
                 Named movers from your own area, shown to you while you&apos;re still booking —
                 not a stranger assigned by a call center an hour before. A dispatcher confirms
                 the crew by phone.
@@ -302,7 +302,7 @@ export default function MovingPage({
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
                 Coming soon
               </p>
-              <p className="mt-3 text-neutral-500">
+              <p className="mt-3 text-neutral-300">
                 Message your crew straight from the booking and track the truck on its way, so
                 you always know exactly where your move is without picking up the phone.
               </p>
@@ -321,7 +321,7 @@ export default function MovingPage({
               {CREW.map((member) => (
                 <div
                   key={member.id}
-                  className="w-44 shrink-0 snap-start overflow-hidden rounded-2xl border border-black/10 bg-black/[0.02]"
+                  className="w-44 shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]"
                 >
                   <div className="relative aspect-[4/5]">
                     <Image
@@ -342,7 +342,7 @@ export default function MovingPage({
                   </div>
                   <div className="p-3">
                     <p className="font-semibold text-ink">{member.name}</p>
-                    <p className="mt-0.5 text-xs text-neutral-500">{member.note}</p>
+                    <p className="mt-0.5 text-xs text-neutral-300">{member.note}</p>
                   </div>
                 </div>
               ))}
@@ -355,7 +355,7 @@ export default function MovingPage({
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             Start with roughly how much there is
           </h2>
-          <p className="mt-2 text-neutral-500">
+          <p className="mt-2 text-neutral-300">
             Pick the closest one — you can change it once we&apos;ve measured the drive. Nothing
             is charged until a dispatcher confirms the job with you.
           </p>
@@ -364,7 +364,7 @@ export default function MovingPage({
               <Link
                 key={option.value}
                 href={{ pathname: "/book", query: { size: option.value } }}
-                className="rounded-2xl border border-black/10 bg-black/[0.03] p-5 transition hover:border-brand/40 hover:bg-black/[0.06]"
+                className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:border-brand/40 hover:bg-white/[0.08]"
               >
                 <p className="font-semibold text-ink">{option.label}</p>
                 <p className="mt-1 text-sm text-neutral-400">{option.description}</p>
@@ -400,11 +400,11 @@ export default function MovingPage({
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             Bay Area to Sacramento, and down the 99
           </h2>
-          <p className="mt-2 max-w-2xl text-neutral-500">
+          <p className="mt-2 max-w-2xl text-neutral-300">
             San Francisco, Oakland, Davis, Sacramento, Stockton, Modesto and the towns between.
             Tap one to book.
           </p>
-          <div className="relative mx-auto mt-8 max-w-md overflow-hidden rounded-3xl border border-black/10 bg-black/[0.03] p-6">
+          <div className="relative mx-auto mt-8 max-w-md overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-6">
             <div className="absolute inset-0 bg-grid-fade" />
             <div className="relative">
               <CaliforniaMap />
@@ -417,7 +417,7 @@ export default function MovingPage({
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             Most of it isn&apos;t a house move
           </h2>
-          <p className="mt-2 max-w-2xl text-neutral-500">
+          <p className="mt-2 max-w-2xl text-neutral-300">
             A couch off Marketplace, a dorm room in June, a garage cleared out. If it&apos;s
             awkward to move on your own, it&apos;s probably a job.
           </p>
@@ -425,24 +425,24 @@ export default function MovingPage({
             {USE_CASES.map((useCase) => (
               <div
                 key={useCase.title}
-                className="w-64 shrink-0 snap-start rounded-2xl border border-black/10 bg-black/[0.03] p-5"
+                className="w-64 shrink-0 snap-start rounded-2xl border border-white/10 bg-white/[0.04] p-5"
               >
                 <useCase.Icon />
                 <p className="mt-3 font-semibold text-ink">{useCase.title}</p>
-                <p className="mt-1 text-sm text-neutral-500">{useCase.body}</p>
+                <p className="mt-1 text-sm text-neutral-300">{useCase.body}</p>
               </div>
             ))}
           </div>
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="relative overflow-hidden rounded-3xl border border-black/10 bg-black/[0.03] px-6 py-14 text-center sm:px-12">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] px-6 py-14 text-center sm:px-12">
             <div className="glow-blob absolute left-1/2 top-1/2 h-[300px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full" />
             <div className="relative">
               <h2 className="text-2xl font-bold text-ink sm:text-3xl">
                 Find out what it costs
               </h2>
-              <p className="mx-auto mt-2 max-w-xl text-neutral-500">
+              <p className="mx-auto mt-2 max-w-xl text-neutral-300">
                 About a minute, no account, nothing charged. Worst case you know the number.
               </p>
               <Link

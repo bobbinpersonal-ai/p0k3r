@@ -36,7 +36,7 @@ export default function StepAddresses({
   return (
     <div>
       <h2 className="text-2xl font-bold text-ink sm:text-3xl">Where are we going?</h2>
-      <p className="mt-2 text-neutral-500">
+      <p className="mt-2 text-neutral-300">
         Street, city and ZIP for the pickup — that&apos;s what lets us map the exact route
         and price the drive properly instead of guessing.
       </p>
@@ -51,13 +51,13 @@ export default function StepAddresses({
           section="pickup"
         />
 
-        <div className="relative mx-4 border-t border-black/10">
+        <div className="relative mx-4 border-t border-white/10">
           {canSwap && (
             <button
               type="button"
               onClick={() => onChange({ pickup: dropoff, dropoff: pickup, dropoffMode })}
               aria-label="Swap pickup and drop-off"
-              className="absolute right-0 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl border border-black/10 bg-paper text-neutral-500 shadow-sm transition hover:text-ink"
+              className="absolute right-0 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-xl border border-white/10 bg-paper text-neutral-300 shadow-sm transition hover:text-ink"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -74,7 +74,7 @@ export default function StepAddresses({
         </div>
 
         <fieldset className="px-4 py-4">
-          <legend className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-neutral-500">
+          <legend className="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-neutral-300">
             <span className="text-neutral-400">
               <ArrowIcon direction="down" />
             </span>
@@ -92,11 +92,11 @@ export default function StepAddresses({
                   className={`rounded-xl border p-3 text-left transition ${
                     isSelected
                       ? "border-brand bg-brand/5"
-                      : "border-black/10 hover:border-brand/40"
+                      : "border-white/10 hover:border-brand/40"
                   }`}
                 >
                   <span className="block text-sm font-semibold text-ink">{mode.label}</span>
-                  <span className="mt-0.5 block text-xs text-neutral-500">
+                  <span className="mt-0.5 block text-xs text-neutral-300">
                     {mode.description}
                   </span>
                 </button>
@@ -107,7 +107,7 @@ export default function StepAddresses({
 
         {needsDropoff && (
           <>
-            <div className="mx-4 border-t border-black/10" />
+            <div className="mx-4 border-t border-white/10" />
             <AddressFields
               legend="Drop off at"
               icon={<ArrowIcon direction="down" />}
@@ -122,7 +122,7 @@ export default function StepAddresses({
         )}
       </div>
 
-      <p className="mt-3 text-xs text-neutral-500">
+      <p className="mt-3 text-xs text-neutral-300">
         {dropoffMode === "WE_CHOOSE"
           ? "We price a typical local run to the nearest donation center or transfer station. Dump or donation fees aren't included — a dispatcher confirms those with you."
           : "Nothing is charged until a dispatcher confirms the job with you."}

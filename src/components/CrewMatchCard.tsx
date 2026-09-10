@@ -85,7 +85,7 @@ export default function CrewMatchCard({
       : `A dispatcher will confirm who's covering your ${jobNoun} before anything's booked.`;
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-4">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4">
       <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">{eyebrow}</p>
       <div className="mt-3 flex items-center gap-4">
         {/* Rounded square rather than a circle: a circular mask crops the
@@ -100,8 +100,8 @@ export default function CrewMatchCard({
         />
         <div className="min-w-0">
           <p className="text-lg font-bold text-ink">{member.name}</p>
-          <p className="text-sm text-neutral-500">{noteText}</p>
-          <p className="mt-1 font-mono text-xs text-neutral-500">
+          <p className="text-sm text-neutral-300">{noteText}</p>
+          <p className="mt-1 font-mono text-xs text-neutral-300">
             {[detail, revealDistance ? `based in ${member.homeBase}` : null]
               .filter(Boolean)
               .join(" · ")}
@@ -110,7 +110,7 @@ export default function CrewMatchCard({
           </p>
         </div>
       </div>
-      <p className="mt-3 text-sm text-neutral-500">{closingLine}</p>
+      <p className="mt-3 text-sm text-neutral-300">{closingLine}</p>
     </div>
   );
 }

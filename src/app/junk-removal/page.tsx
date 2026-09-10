@@ -103,7 +103,7 @@ export default function JunkRemovalPage() {
 
           <div className="relative mx-auto max-w-6xl px-4 pb-32 pt-16 sm:px-6 lg:pb-40 lg:pt-32">
             <div className="max-w-2xl">
-              <div className="w-full overflow-hidden rounded-full border border-black/10 bg-black/5 py-1.5">
+              <div className="w-full overflow-hidden rounded-full border border-white/10 bg-white/5 py-1.5">
                 <div className="flex w-max animate-marquee gap-10 whitespace-nowrap px-3 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                   {[0, 1].map((i) => (
                     <span key={i} className="flex shrink-0 items-center gap-2">
@@ -119,7 +119,7 @@ export default function JunkRemovalPage() {
                 Point at it.{" "}
                 <span className="text-brand-cyan">We&apos;ll take it away.</span>
               </h1>
-              <p className="mt-4 text-lg text-neutral-600">
+              <p className="mt-4 text-lg text-neutral-200">
                 Garage cleanouts, single items the curb won&apos;t take, and dump runs —
                 loaded, hauled and disposed of properly. You see the price before you book.
               </p>
@@ -132,12 +132,12 @@ export default function JunkRemovalPage() {
                 </Link>
                 <a
                   href="#loads"
-                  className="rounded-full border border-black/15 bg-paper px-6 py-3 text-base font-semibold text-ink transition hover:bg-black/5"
+                  className="rounded-full border border-white/15 bg-paper px-6 py-3 text-base font-semibold text-ink transition hover:bg-white/5"
                 >
                   What a load costs
                 </a>
               </div>
-              <p className="mt-4 rounded-xl bg-paper px-3 py-2 text-sm text-neutral-600">
+              <p className="mt-4 rounded-xl bg-paper px-3 py-2 text-sm text-neutral-200">
                 Rather talk it through? Call us —{" "}
                 <a
                   href={`tel:${SUPPORT_PHONE_DIGITS}`}
@@ -156,7 +156,7 @@ export default function JunkRemovalPage() {
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             Roughly how much is there?
           </h2>
-          <p className="mt-2 max-w-2xl text-neutral-500">
+          <p className="mt-2 max-w-2xl text-neutral-300">
             Ranges rather than one flat number: a haul is a crew, a truck and a drive to the
             transfer station, and the drive is the part that varies. The booking flow prices
             your actual address before you commit to anything.
@@ -171,7 +171,7 @@ export default function JunkRemovalPage() {
                     pathname: "/book",
                     query: { job: "JUNK_REMOVAL", size: load.size },
                   }}
-                  className="rounded-2xl border border-black/10 bg-black/[0.03] p-6 transition hover:border-brand/40 hover:bg-black/[0.06]"
+                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-brand/40 hover:bg-white/[0.08]"
                 >
                   <div className="flex items-start justify-between gap-3">
                     <load.Icon />
@@ -180,12 +180,12 @@ export default function JunkRemovalPage() {
                     </p>
                   </div>
                   <h3 className="mt-3 text-lg font-semibold text-ink">{load.label}</h3>
-                  <p className="mt-1 text-neutral-500">{load.body}</p>
+                  <p className="mt-1 text-neutral-300">{load.body}</p>
                 </Link>
               );
             })}
           </div>
-          <p className="mt-4 text-sm text-neutral-500">
+          <p className="mt-4 text-sm text-neutral-300">
             Prices shown for a typical local run in a pickup. A bigger truck or a longer
             drive costs more, and the flow shows you which before you book.
           </p>
@@ -202,7 +202,7 @@ export default function JunkRemovalPage() {
               </h2>
               <ul className="mt-6 grid gap-2">
                 {WHAT_WE_TAKE.map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-neutral-500">
+                  <li key={item} className="flex items-start gap-2 text-neutral-300">
                     <span aria-hidden className="mt-0.5 text-brand-cyan">
                       ✓
                     </span>
@@ -210,18 +210,18 @@ export default function JunkRemovalPage() {
                   </li>
                 ))}
               </ul>
-              <p className="mt-6 text-neutral-500">
+              <p className="mt-6 text-neutral-300">
                 Anything still usable goes to a donation centre rather than the transfer
                 station — it costs us the same and it&apos;s the better answer.
               </p>
             </div>
-            <div className="rounded-2xl border border-black/10 bg-black/[0.03] p-6">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
               <p className="font-mono text-xs uppercase tracking-widest text-neutral-400">
                 What we can&apos;t
               </p>
               <ul className="mt-4 grid gap-2">
                 {WHAT_WE_CANT.map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-neutral-500">
+                  <li key={item} className="flex items-start gap-2 text-neutral-300">
                     <span aria-hidden className="mt-0.5 text-neutral-400">
                       ✕
                     </span>
@@ -229,7 +229,7 @@ export default function JunkRemovalPage() {
                   </li>
                 ))}
               </ul>
-              <p className="mt-4 text-sm text-neutral-500">
+              <p className="mt-4 text-sm text-neutral-300">
                 Said up front rather than at your gate — the transfer stations won&apos;t
                 take these from us either, and finding that out on the day wastes
                 everyone&apos;s.
@@ -243,7 +243,7 @@ export default function JunkRemovalPage() {
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             Bay Area to Sacramento, and down the 99
           </h2>
-          <div className="relative mx-auto mt-8 max-w-md overflow-hidden rounded-3xl border border-black/10 bg-black/[0.03] p-6">
+          <div className="relative mx-auto mt-8 max-w-md overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-6">
             <div className="absolute inset-0 bg-grid-fade" />
             <div className="relative">
               <CaliforniaMap />
@@ -255,10 +255,10 @@ export default function JunkRemovalPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <Link
               href="/"
-              className="rounded-2xl border border-black/10 bg-black/[0.03] p-6 transition hover:border-brand/40 hover:bg-black/[0.06]"
+              className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-brand/40 hover:bg-white/[0.08]"
             >
               <h3 className="text-lg font-semibold text-ink">Landscaping</h3>
-              <p className="mt-1 text-neutral-500">
+              <p className="mt-1 text-neutral-300">
                 Clearing a yard usually means hauling what came out of it. Flat prices by
                 yard size.
               </p>
@@ -266,10 +266,10 @@ export default function JunkRemovalPage() {
             </Link>
             <Link
               href="/moving"
-              className="rounded-2xl border border-black/10 bg-black/[0.03] p-6 transition hover:border-brand/40 hover:bg-black/[0.06]"
+              className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-brand/40 hover:bg-white/[0.08]"
             >
               <h3 className="text-lg font-semibold text-ink">Moving</h3>
-              <p className="mt-1 text-neutral-500">
+              <p className="mt-1 text-neutral-300">
                 Same truck, same crew. A couch off Marketplace or a whole house.
               </p>
               <p className="mt-3 text-sm font-semibold text-brand-cyan">
@@ -280,11 +280,11 @@ export default function JunkRemovalPage() {
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="relative overflow-hidden rounded-3xl border border-black/10 bg-black/[0.03] px-6 py-14 text-center sm:px-12">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] px-6 py-14 text-center sm:px-12">
             <div className="glow-blob absolute left-1/2 top-1/2 h-[300px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full" />
             <div className="relative">
               <h2 className="text-2xl font-bold text-ink sm:text-3xl">Get it gone</h2>
-              <p className="mx-auto mt-2 max-w-xl text-neutral-500">
+              <p className="mx-auto mt-2 max-w-xl text-neutral-300">
                 About a minute, no account, nothing charged. Worst case you know the number.
               </p>
               <Link

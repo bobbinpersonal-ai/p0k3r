@@ -409,7 +409,7 @@ export default function BookingFlow({
       </h1>
       {step === 1 && (
         <>
-          <p className="mt-2 text-neutral-500">
+          <p className="mt-2 text-neutral-300">
             Tell us where it&apos;s coming from — and where it&apos;s going, if anywhere —
             then pick your truck. A dispatcher confirms your crew and final price, usually
             within 30 minutes.
@@ -460,7 +460,7 @@ export default function BookingFlow({
             >
               <span
                 className={`block h-1.5 rounded-full transition ${
-                  stepNumber <= step ? "bg-brand" : "bg-black/10"
+                  stepNumber <= step ? "bg-brand" : "bg-white/10"
                 } ${done ? "group-hover:bg-brand-cyan" : ""}`}
               />
             </button>
@@ -572,7 +572,7 @@ export default function BookingFlow({
           rule StepVehicle uses — an on-site job never measured a route, so it
           has nothing honest to put after the price. */}
       {step === TOTAL_STEPS && estimate && (
-        <p className="mt-8 rounded-2xl border border-black/10 bg-black/[0.03] px-4 py-3 text-sm text-neutral-500">
+        <p className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-neutral-300">
           <span className="font-semibold text-ink">
             ${estimate.low}–${estimate.high}
           </span>
@@ -595,7 +595,7 @@ export default function BookingFlow({
           <button
             type="button"
             onClick={() => goBackTo(step - 1)}
-            className="flex h-14 shrink-0 items-center gap-1.5 rounded-2xl border border-black/15 px-4 font-semibold text-ink transition hover:border-brand/40"
+            className="flex h-14 shrink-0 items-center gap-1.5 rounded-2xl border border-white/15 px-4 font-semibold text-ink transition hover:border-brand/40"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
               <path d="M15 5l-7 7 7 7" />
@@ -614,7 +614,7 @@ export default function BookingFlow({
       </div>
 
       {step === TOTAL_STEPS && (
-        <p className="mt-4 text-sm text-neutral-500">
+        <p className="mt-4 text-sm text-neutral-300">
           No charge now — a dispatcher confirms your crew and final price first.
         </p>
       )}

@@ -38,7 +38,7 @@ export default function HeroQuoteForm({ city }: { city?: string }) {
       // backdrop-filter is one of the more inconsistently-supported effects
       // on older Safari/GPU combinations, and this card needs to read
       // clearly regardless of what's playing behind it anyway.
-      className="mt-8 rounded-2xl border border-black/10 bg-paper p-3 shadow-lg sm:p-4"
+      className="mt-8 rounded-2xl border border-white/10 bg-paper p-3 shadow-lg sm:p-4"
     >
       {/* The jobs we do, before we ask anyone for an address. Most paid traffic
           lands here from a Marketplace ad, and the first thing that has to
@@ -49,7 +49,7 @@ export default function HeroQuoteForm({ city }: { city?: string }) {
           <Link
             key={job.value}
             href={`/book?job=${job.value}${city ? `&city=${city}` : ""}`}
-            className="rounded-full border border-black/10 bg-paper px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-brand/50 hover:text-brand"
+            className="rounded-full border border-white/10 bg-paper px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-brand/50 hover:text-brand"
           >
             {job.label}
           </Link>
@@ -97,14 +97,14 @@ export default function HeroQuoteForm({ city }: { city?: string }) {
           }
         />
       </div>
-      <p className="mt-2 text-xs text-neutral-500">
+      <p className="mt-2 text-xs text-neutral-300">
         Junk haul, donation, or just loading help? Skip the second address.
       </p>
       <select
         value={size}
         onChange={(e) => setSize(e.target.value as MoveSizeValue)}
         aria-label="How much are we moving?"
-        className="mt-2 w-full rounded-xl border border-black/10 bg-black/5 px-3 py-2.5 text-sm text-ink [color-scheme:light] focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
+        className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-ink [color-scheme:dark] focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand"
       >
         {MOVE_SIZE_OPTIONS.map((option) => (
           <option key={option.value} value={option.value} className="bg-paper">
@@ -137,10 +137,10 @@ function HeroAddressInput({
   onChange: (value: string) => void;
 }) {
   return (
-    <label className="flex items-center gap-3 rounded-xl border border-black/10 bg-black/5 px-4 py-3">
+    <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3">
       <span className="shrink-0 text-neutral-400">{icon}</span>
       <span className="min-w-0 flex-1">
-        <span className="block text-xs text-neutral-500">{label}</span>
+        <span className="block text-xs text-neutral-300">{label}</span>
         <input
           value={value}
           autoComplete="off"

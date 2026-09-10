@@ -15,14 +15,14 @@ const RECRUITING_HOURS = "9am–9pm";
 export function MissionSection({ citiesSentence }: { citiesSentence: string }) {
   return (
     <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-      <div className="rounded-3xl border border-black/10 bg-black/[0.03] p-8 sm:p-10">
+      <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 sm:p-10">
         <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
           Our mission
         </p>
         <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
           If you want to work, there&apos;s a place for you here.
         </h2>
-        <p className="mt-4 max-w-2xl text-neutral-500">
+        <p className="mt-4 max-w-2xl text-neutral-300">
           We&apos;re not just filling jobs — we want to be a fast, honest way for people in{" "}
           {citiesSentence} to find real work the moment they need it. No stressful
           screening, no long hiring pipeline. We take everyone who wants to work — a
@@ -38,17 +38,17 @@ export function CommunitySection({ city }: { city: City }) {
   if (!city.community) return null;
   return (
     <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-      <div className="rounded-3xl border border-black/10 bg-black/[0.03] p-8 sm:p-10">
+      <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 sm:p-10">
         <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
           Community
         </p>
         <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
           {city.community.heading}
         </h2>
-        <p className="mt-4 max-w-2xl text-neutral-500">{city.community.body}</p>
+        <p className="mt-4 max-w-2xl text-neutral-300">{city.community.body}</p>
         <a
           href="#apply"
-          className="mt-6 inline-flex items-center gap-2 rounded-full border border-black/15 px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand/40 hover:bg-black/5"
+          className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand/40 hover:bg-white/5"
         >
           Apply now ↓
         </a>
@@ -77,7 +77,7 @@ function CardRow({
         {cards.map((card, i) => (
           <div
             key={card.title}
-            className="w-64 shrink-0 snap-start rounded-2xl border border-black/10 bg-black/[0.03] p-5"
+            className="w-64 shrink-0 snap-start rounded-2xl border border-white/10 bg-white/[0.04] p-5"
           >
             {numbered && (
               <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 font-mono text-sm font-bold text-brand-cyan">
@@ -85,7 +85,7 @@ function CardRow({
               </div>
             )}
             <p className={`font-semibold text-ink ${numbered ? "mt-3" : ""}`}>{card.title}</p>
-            <p className="mt-1 text-sm text-neutral-500">{card.body}</p>
+            <p className="mt-1 text-sm text-neutral-300">{card.body}</p>
           </div>
         ))}
       </div>
@@ -174,13 +174,13 @@ export function OtherTradeSection({
 }) {
   return (
     <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-      <div className="rounded-3xl border border-black/10 bg-black/[0.03] p-8 sm:p-10">
+      <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 sm:p-10">
         <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">{eyebrow}</p>
         <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">{heading}</h2>
-        <p className="mt-4 max-w-2xl text-neutral-500">{body}</p>
+        <p className="mt-4 max-w-2xl text-neutral-300">{body}</p>
         <Link
           href={href}
-          className="mt-6 inline-flex items-center gap-2 rounded-full border border-black/15 px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand/40 hover:bg-black/5"
+          className="mt-6 inline-flex items-center gap-2 rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-ink transition hover:border-brand/40 hover:bg-white/5"
         >
           {cta} →
         </Link>

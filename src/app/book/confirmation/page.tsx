@@ -52,7 +52,7 @@ export default async function ConfirmationPage({
           {yard ? "Request received" : "We've got it"}
         </h1>
         {yard ? (
-          <p className="mt-2 text-neutral-500">
+          <p className="mt-2 text-neutral-300">
             We&apos;ll call you at{" "}
             <span className="font-semibold text-ink">{booking.customerPhone}</span>{" "}
             <span className="font-semibold text-ink">within 30 minutes</span> to confirm the
@@ -60,14 +60,14 @@ export default async function ConfirmationPage({
             the rest is due when the work is done.
           </p>
         ) : (
-          <p className="mt-2 text-neutral-500">
+          <p className="mt-2 text-neutral-300">
             We&apos;re lining up a crew for your move. You&apos;ll get a call or text at{" "}
             <span className="font-semibold text-ink">{booking.customerPhone}</span> to
             confirm your final price and pickup window — usually within 30 minutes.
           </p>
         )}
 
-        <div className="mt-8 rounded-2xl border border-black/10 bg-black/[0.03] p-6 text-left">
+        <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6 text-left">
           <dl className="space-y-3 text-sm">
             <Row label="Confirmation #">
               <span className="font-mono">{booking.id}</span>
@@ -124,7 +124,7 @@ export default async function ConfirmationPage({
 
         <Link
           href="/"
-          className="mt-8 inline-block rounded-full border border-black/15 px-6 py-3 text-sm font-semibold text-ink transition hover:bg-black/5"
+          className="mt-8 inline-block rounded-full border border-white/15 px-6 py-3 text-sm font-semibold text-ink transition hover:bg-white/5"
         >
           Back to home
         </Link>

@@ -96,7 +96,7 @@ export default function DrivePage({
           <div className="glow-blob absolute left-1/2 top-0 h-[500px] w-[900px] -translate-x-1/2 rounded-full" />
           <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-2 lg:items-center">
             <div className="min-w-0 max-w-2xl">
-              <p className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-black/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
+              <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
                 Now recruiting{city ? ` in ${city.name}` : ` · ${RECRUITING_CITIES_BADGE}`}
               </p>
@@ -106,7 +106,7 @@ export default function DrivePage({
                 Yard work, every week.{" "}
                 <span className="text-brand-cyan">$19–$32 an hour.</span>
               </h1>
-              <p className="mt-6 text-lg text-neutral-500">
+              <p className="mt-6 text-lg text-neutral-300">
                 Mowing, cleanups, trimming and hauling across{" "}
                 {city ? city.name : "the Bay Area, Sacramento and the Valley"}. We bring the
                 mower, the trimmer and the truck — you bring the work ethic. Tips on top.
@@ -114,7 +114,7 @@ export default function DrivePage({
               {/* The reason to pick this over the other gig apps, said before
                   anything else: those pay you for whatever came in today. A
                   route is the same yards, the same day, every week. */}
-              <p className="mt-3 text-neutral-500">
+              <p className="mt-3 text-neutral-300">
                 Most of it is <span className="font-semibold text-ink">recurring routes</span> —
                 the same yards on the same day each week. Steady hours you can plan your week
                 around, not whatever happened to come in today.
@@ -139,13 +139,13 @@ export default function DrivePage({
                 </a>
                 <a
                   href={`tel:${SUPPORT_PHONE_DIGITS}`}
-                  className="font-mono text-sm text-neutral-500 hover:text-brand-cyan"
+                  className="font-mono text-sm text-neutral-300 hover:text-brand-cyan"
                 >
                   or call now — {SUPPORT_PHONE} · {RECRUITING_HOURS}
                 </a>
               </div>
             </div>
-            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-black/10 glow">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border border-white/10 glow">
               <AutoplayVideo
                 mp4="/videos/yard-clip2-v1.mp4"
                 webm="/videos/yard-clip2-v1.webm"
@@ -171,26 +171,26 @@ export default function DrivePage({
               <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
                 What a yard day looks like
               </h2>
-              <p className="mt-4 max-w-2xl text-neutral-500">
+              <p className="mt-4 max-w-2xl text-neutral-300">
                 Four kinds of job, and the weekly cut is most of them. You don&apos;t need to
                 have done this before — if you can work steadily in the sun and you show up
                 when you said you would, we&apos;ll teach you the rest on the job.
               </p>
               <ul className="mt-4 max-w-2xl space-y-2.5">
                 {THE_WORK.map((item) => (
-                  <li key={item} className="flex gap-2.5 text-neutral-500">
+                  <li key={item} className="flex gap-2.5 text-neutral-300">
                     <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-cyan" />
                     <span>{item}</span>
                   </li>
                 ))}
               </ul>
-              <p className="mt-4 max-w-2xl text-neutral-500">
+              <p className="mt-4 max-w-2xl text-neutral-300">
                 The mower, trimmer, blower and truck are ours. Bring boots, gloves and water
                 — everything else shows up with the crew.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="relative aspect-square overflow-hidden rounded-3xl border border-black/10 glow">
+              <div className="relative aspect-square overflow-hidden rounded-3xl border border-white/10 glow">
                 <AutoplayVideo
                   mp4="/videos/yard-clip10-v2.mp4"
                   webm="/videos/yard-clip10-v2.webm"
@@ -200,7 +200,7 @@ export default function DrivePage({
                   videoClassName="absolute inset-0 h-full w-full object-cover object-center"
                 />
               </div>
-              <div className="relative aspect-square overflow-hidden rounded-3xl border border-black/10 glow">
+              <div className="relative aspect-square overflow-hidden rounded-3xl border border-white/10 glow">
                 <AutoplayVideo
                   mp4="/videos/yard-clip1-v1.mp4"
                   webm="/videos/yard-clip1-v1.webm"
@@ -210,7 +210,7 @@ export default function DrivePage({
                   videoClassName="absolute inset-0 h-full w-full object-cover object-center"
                 />
               </div>
-              <div className="relative col-span-2 aspect-video overflow-hidden rounded-3xl border border-black/10 glow">
+              <div className="relative col-span-2 aspect-video overflow-hidden rounded-3xl border border-white/10 glow">
                 <AutoplayVideo
                   mp4="/videos/yard-clip4-v1.mp4"
                   webm="/videos/yard-clip4-v1.webm"
@@ -225,14 +225,14 @@ export default function DrivePage({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-          <div className="rounded-3xl border border-black/10 bg-black/[0.03] p-8 sm:p-10">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-8 sm:p-10">
             <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
               Routes
             </p>
             <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
               A route is hours you can count on
             </h2>
-            <p className="mt-4 max-w-2xl text-neutral-500">
+            <p className="mt-4 max-w-2xl text-neutral-300">
               Most of our yard customers are on weekly or every-other-week plans, and they
               keep the same crew. Once you&apos;ve got a route, you know what next Tuesday
               looks like — the same yards, the same hours, the same pay — instead of opening
@@ -245,7 +245,7 @@ export default function DrivePage({
                 "Pick up one-off cleanups and hauls around the route when you want more hours",
                 "Still yours to turn down — a route is steady work, not a shift you're locked into",
               ].map((item) => (
-                <li key={item} className="flex gap-2.5 text-neutral-500">
+                <li key={item} className="flex gap-2.5 text-neutral-300">
                   <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-cyan" />
                   <span>{item}</span>
                 </li>
@@ -259,7 +259,7 @@ export default function DrivePage({
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             Join the yard crew
           </h2>
-          <p className="mt-2 text-neutral-500">
+          <p className="mt-2 text-neutral-300">
             We take everyone who wants to work — no stressful screening. A dispatcher gets
             back to you and gets you onboarded, usually within 2 hours, {RECRUITING_HOURS}.
           </p>
@@ -293,7 +293,7 @@ export default function DrivePage({
         />
 
         <section className="mx-auto max-w-6xl px-4 pb-14 sm:px-6">
-          <p className="text-sm text-neutral-500">
+          <p className="text-sm text-neutral-300">
             Looking to book yard work rather than do it?{" "}
             <Link href="/" className="font-semibold text-brand-cyan hover:text-ink">
               Get a price here

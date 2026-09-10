@@ -14,7 +14,7 @@ export type ContactValue = {
 };
 
 const fieldClass =
-  "mt-2 w-full rounded-xl border border-black/10 bg-black/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
+  "mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-ink placeholder:text-neutral-400 focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand";
 
 export default function StepContact({
   value,
@@ -28,7 +28,7 @@ export default function StepContact({
   return (
     <div>
       <h2 className="text-2xl font-bold text-ink sm:text-3xl">Personal info</h2>
-      <p className="mt-2 text-neutral-500">
+      <p className="mt-2 text-neutral-300">
         We&apos;ll use this to confirm your crew and final price before anyone drives out.
       </p>
 
@@ -65,14 +65,14 @@ export default function StepContact({
             placeholder="(555) 555-0123"
             className={fieldClass}
           />
-          <p className="mt-1.5 text-sm text-neutral-500">
+          <p className="mt-1.5 text-sm text-neutral-300">
             A dispatcher calls or texts this number to lock in your move.
           </p>
         </div>
 
         <div>
           <label htmlFor="customerEmail" className="block text-sm font-semibold text-ink">
-            Email <span className="font-normal text-neutral-500">(optional)</span>
+            Email <span className="font-normal text-neutral-300">(optional)</span>
           </label>
           <input
             id="customerEmail"

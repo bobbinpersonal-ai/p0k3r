@@ -91,7 +91,7 @@ export default function HomePage({
               city={targetCity?.slug}
               intro={
                 <>
-                  <div className="w-full overflow-hidden rounded-full border border-black/10 bg-black/5 py-1.5">
+                  <div className="w-full overflow-hidden rounded-full border border-white/10 bg-white/5 py-1.5">
                     <div className="flex w-max animate-marquee gap-10 whitespace-nowrap px-3 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                       {[0, 1].map((i) => (
                         <span key={i} className="flex shrink-0 items-center gap-2">
@@ -109,7 +109,7 @@ export default function HomePage({
                     Your yard, handled.{" "}
                     <span className="text-brand-cyan">Price up front.</span>
                   </h1>
-                  <p className="mt-4 text-lg text-neutral-600">
+                  <p className="mt-4 text-lg text-neutral-200">
                     Pressure washing, yard care and the small repairs nobody gets round to —
                     Sacramento, Roseville, Elk Grove and across Northern California. Put in
                     your address and see every service priced for your property. Bigger job?
@@ -122,7 +122,7 @@ export default function HomePage({
                     >
                       See every price
                     </a>
-                    <p className="mt-1 text-sm text-neutral-600">
+                    <p className="mt-1 text-sm text-neutral-200">
                       Rather talk it through? Call us —{" "}
                       <a
                         href={`tel:${SUPPORT_PHONE_DIGITS}`}
@@ -141,7 +141,7 @@ export default function HomePage({
               <a href="#pricing" className="text-sm font-semibold text-ink hover:text-brand-cyan">
                 See every price
               </a>
-              <p className="mt-1 text-sm text-neutral-600">
+              <p className="mt-1 text-sm text-neutral-200">
                 Rather talk it through? Call us —{" "}
                 <a
                   href={`tel:${SUPPORT_PHONE_DIGITS}`}
@@ -160,7 +160,7 @@ export default function HomePage({
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             Your jobs, and what each service includes
           </h2>
-          <p className="mt-2 max-w-2xl text-neutral-500">
+          <p className="mt-2 max-w-2xl text-neutral-300">
             Written out so nobody books a wash for a job that needs clearing, then gets a
             different number at the gate. The first three are ours; the fourth goes to
             licensed contractors.
@@ -173,17 +173,17 @@ export default function HomePage({
                 <Link
                   key={service.value}
                   href={{ pathname: "/yard", query: { service: service.value } }}
-                  className="rounded-2xl border border-black/10 bg-black/[0.03] p-6 transition hover:border-brand/40 hover:bg-black/[0.06]"
+                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-brand/40 hover:bg-white/[0.08]"
                 >
                   <div className="flex items-start justify-between gap-3">
                     {Icon && <Icon />}
                     <p className="font-mono text-sm text-brand-cyan">Starting ~${from}</p>
                   </div>
                   <h3 className="mt-3 text-lg font-semibold text-ink">{service.label}</h3>
-                  <p className="mt-1 text-neutral-500">{service.description}</p>
+                  <p className="mt-1 text-neutral-300">{service.description}</p>
                   <ul className="mt-4 grid gap-1">
                     {service.includes.map((item) => (
-                      <li key={item} className="flex items-start gap-2 text-sm text-neutral-500">
+                      <li key={item} className="flex items-start gap-2 text-sm text-neutral-300">
                         <span aria-hidden className="mt-0.5 text-brand-cyan">
                           ✓
                         </span>
@@ -209,7 +209,7 @@ export default function HomePage({
                 and the customer's contract will be with someone else. */}
             <Link
               href="/contractors"
-              className="rounded-2xl border border-dashed border-black/20 bg-black/[0.02] p-6 transition hover:border-brand/40 hover:bg-black/[0.05]"
+              className="rounded-2xl border border-dashed border-white/20 bg-white/[0.03] p-6 transition hover:border-brand/40 hover:bg-white/[0.06]"
             >
               <div className="flex items-start justify-between gap-3">
                 <ToolsIcon />
@@ -218,14 +218,14 @@ export default function HomePage({
               <h3 className="mt-3 text-lg font-semibold text-ink">
                 Major Trades & Remodeling
               </h3>
-              <p className="mt-1 text-neutral-500">
+              <p className="mt-1 text-neutral-300">
                 Connected directly with vetted, licensed &amp; insured CA contractors.
               </p>
               <ul className="mt-4 grid gap-1">
                 {MAJOR_TRADE_PROJECTS.filter((p) => p.value !== "OTHER").map((project) => (
                   <li
                     key={project.value}
-                    className="flex items-start gap-2 text-sm text-neutral-500"
+                    className="flex items-start gap-2 text-sm text-neutral-300"
                   >
                     <span aria-hidden className="mt-0.5 text-brand-cyan">
                       ✓
@@ -250,13 +250,13 @@ export default function HomePage({
         <section id="pricing" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Pricing</p>
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">What it costs</h2>
-          <p className="mt-2 max-w-2xl text-neutral-500">
+          <p className="mt-2 max-w-2xl text-neutral-300">
             One flat price per visit, set by the service and the size of the property. Put
             your address in and we&apos;ll show you all three priced for you — no site
             visit, and the number you see is the number we charge.
           </p>
 
-          <div className="mt-8 divide-y divide-black/5 rounded-2xl border border-black/10 bg-black/[0.03]">
+          <div className="mt-8 divide-y divide-white/5 rounded-2xl border border-white/10 bg-white/[0.04]">
             {LANDSCAPING_SERVICES.map((service) => (
               <div
                 key={service.value}
@@ -288,9 +288,9 @@ export default function HomePage({
             </div>
           </div>
 
-          <div className="mt-8 rounded-2xl border border-black/10 bg-black/[0.03] p-6">
+          <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
             <p className="font-semibold text-ink">Weekly and every-other-week cost less</p>
-            <p className="mt-1 text-neutral-500">
+            <p className="mt-1 text-neutral-300">
               A yard that never gets away from us is quicker to cut, so a weekly plan is 20%
               less per visit and every other week is 10% less. Monthly is the same as a
               one-off — by then it&apos;s grown back. No contract on any of them.
@@ -300,7 +300,7 @@ export default function HomePage({
           {/* B&P 7027.2: advertising work under the exemption has to say we're
               unlicensed. It belongs next to the prices, where the claim is
               being made, not only in the footer. */}
-          <p className="mt-6 max-w-3xl text-sm text-neutral-500">
+          <p className="mt-6 max-w-3xl text-sm text-neutral-300">
             {SITE_NAME} is not a licensed general contractor. The services above are minor
             maintenance and yard care performed under California&apos;s{" "}
             ${EXEMPTION_LIMIT.toLocaleString()} minor work exemption. Anything above that,
@@ -320,7 +320,7 @@ export default function HomePage({
             </Link>
             <Link
               href="/contractors"
-              className="inline-block rounded-full border border-black/15 px-6 py-3 text-base font-semibold text-ink transition hover:bg-black/5"
+              className="inline-block rounded-full border border-white/15 px-6 py-3 text-base font-semibold text-ink transition hover:bg-white/5"
             >
               Get {MATCH_COUNT} contractor quotes
             </Link>
@@ -336,13 +336,13 @@ export default function HomePage({
               {HOW_IT_WORKS.map((step, i) => (
                 <div
                   key={step.title}
-                  className="rounded-2xl border border-black/10 bg-black/[0.03] p-6 transition hover:border-brand/40"
+                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-brand/40"
                 >
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 font-mono text-sm font-bold text-brand-cyan">
                     {String(i + 1).padStart(2, "0")}
                   </div>
                   <h3 className="mt-4 text-lg font-semibold text-ink">{step.title}</h3>
-                  <p className="mt-2 text-neutral-500">{step.body}</p>
+                  <p className="mt-2 text-neutral-300">{step.body}</p>
                 </div>
               ))}
             </div>
@@ -354,14 +354,14 @@ export default function HomePage({
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             You&apos;ll know who&apos;s coming before they knock
           </h2>
-          <p className="mt-2 max-w-2xl text-neutral-500">
+          <p className="mt-2 max-w-2xl text-neutral-300">
             Named people from your own area, shown to you while you&apos;re still booking —
             not a stranger assigned by a call center the morning of. The same six do the
             yards, the moves and the hauls, which is why a Tuesday mow and a Saturday move
             are the same phone number.
           </p>
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <div className="relative aspect-video overflow-hidden rounded-3xl border border-black/10 glow">
+            <div className="relative aspect-video overflow-hidden rounded-3xl border border-white/10 glow">
               <AutoplayVideo
                 mp4="/videos/yard-clip8-v2.mp4"
                 webm="/videos/yard-clip8-v2.webm"
@@ -371,7 +371,7 @@ export default function HomePage({
                 videoClassName="absolute inset-0 h-full w-full object-cover object-center"
               />
             </div>
-            <div className="relative aspect-video overflow-hidden rounded-3xl border border-black/10 glow">
+            <div className="relative aspect-video overflow-hidden rounded-3xl border border-white/10 glow">
               <AutoplayVideo
                 mp4="/videos/yard-clip9-v2.mp4"
                 webm="/videos/yard-clip9-v2.webm"
@@ -387,7 +387,7 @@ export default function HomePage({
             {CREW.map((member) => (
               <div
                 key={member.id}
-                className="w-44 shrink-0 snap-start overflow-hidden rounded-2xl border border-black/10 bg-black/[0.02]"
+                className="w-44 shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]"
               >
                 <div className="relative aspect-[4/5]">
                   <Image
@@ -404,7 +404,7 @@ export default function HomePage({
                 </div>
                 <div className="p-3">
                   <p className="font-semibold text-ink">{member.name}</p>
-                  <p className="mt-0.5 text-xs text-neutral-500">
+                  <p className="mt-0.5 text-xs text-neutral-300">
                     {member.yardNote ?? member.note}
                   </p>
                 </div>
@@ -418,11 +418,11 @@ export default function HomePage({
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
             Bay Area to Sacramento, and down the 99
           </h2>
-          <p className="mt-2 max-w-2xl text-neutral-500">
+          <p className="mt-2 max-w-2xl text-neutral-300">
             San Francisco, Oakland, Davis, Sacramento, Stockton, Modesto and the towns
             between. Tap one to book.
           </p>
-          <div className="relative mx-auto mt-8 max-w-md overflow-hidden rounded-3xl border border-black/10 bg-black/[0.03] p-6">
+          <div className="relative mx-auto mt-8 max-w-md overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-6">
             <div className="absolute inset-0 bg-grid-fade" />
             <div className="relative">
               <CaliforniaMap />
@@ -444,10 +444,10 @@ export default function HomePage({
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             <Link
               href="/moving"
-              className="rounded-2xl border border-black/10 bg-black/[0.03] p-6 transition hover:border-brand/40 hover:bg-black/[0.06]"
+              className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-brand/40 hover:bg-white/[0.08]"
             >
               <h3 className="text-lg font-semibold text-ink">Moving</h3>
-              <p className="mt-1 text-neutral-500">
+              <p className="mt-1 text-neutral-300">
                 A couch off Marketplace, a dorm room in June, or a whole house. See the price
                 before you book.
               </p>
@@ -457,10 +457,10 @@ export default function HomePage({
             </Link>
             <Link
               href="/junk-removal"
-              className="rounded-2xl border border-black/10 bg-black/[0.03] p-6 transition hover:border-brand/40 hover:bg-black/[0.06]"
+              className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-brand/40 hover:bg-white/[0.08]"
             >
               <h3 className="text-lg font-semibold text-ink">Junk removal</h3>
-              <p className="mt-1 text-neutral-500">
+              <p className="mt-1 text-neutral-300">
                 Garage, shed, or a whole cleanout. We load it, haul it, and find the right
                 place for it.
               </p>
@@ -472,13 +472,13 @@ export default function HomePage({
         </section>
 
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="relative overflow-hidden rounded-3xl border border-black/10 bg-black/[0.03] px-6 py-14 text-center sm:px-12">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] px-6 py-14 text-center sm:px-12">
             <div className="glow-blob absolute left-1/2 top-1/2 h-[300px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full" />
             <div className="relative">
               <h2 className="text-2xl font-bold text-ink sm:text-3xl">
                 Get your yard off the to-do list
               </h2>
-              <p className="mx-auto mt-2 max-w-xl text-neutral-500">
+              <p className="mx-auto mt-2 max-w-xl text-neutral-300">
                 About a minute, no account, nothing charged. Worst case you know the number.
               </p>
               <Link
