@@ -22,14 +22,27 @@ Stack: Next.js 14 (App Router) + TypeScript + Tailwind CSS + Prisma + Postgres.
 
 ## What's here
 
-- **`/`** — the landscaping home page: a live price finder above the fold, the four
-  services and what each includes, and **the entire price list in public** (every
-  service x every yard size). Publishing the prices is the pitch — every competitor
-  in this market quotes after a site visit.
-- **`/yard`** — the landscaping booking flow (5 steps: service → size + cadence →
-  address → time → contact). Accepts `?service=`, `?size=`, `?frequency=`,
-  `?address=`, `?city=` and `?source=`, so a card or the hero widget can answer the
-  first questions before the customer arrives.
+- **`/`** — the landscaping home page: an address box above the fold, the four
+  services and what each includes, and **"from" prices only**. No exact price is
+  quoted anywhere outside the flow — see below for why.
+- **`/yard`** — the landscaping booking flow, in this order:
+
+  1. **Address** — first, so the parcel lookup can take a run at the yard size
+     and so the first price anyone sees is already theirs
+  2. **Yard size** — pre-selected from the lot lookup when it worked, always
+     correctable, no prices on this step
+  3. **What it needs** — all four services priced *for that yard*, side by side;
+     the recurring one expands to show its cadences and their prices
+  4. **Arrival time**
+  5. **Contact** → *Request this booking*
+
+  Accepts `?service=`, `?size=`, `?frequency=`, `?address=`, `?city=` and
+  `?source=`. A service arriving on the query string is remembered for step 3
+  rather than skipping anything — nothing can be priced before the yard is known.
+
+  The customer is told, before submitting and again on the confirmation page and
+  in their email: **we call within 30 minutes to confirm and take a deposit**, the
+  rest due on completion. So the last step is a request, not a booking.
 - **`/landscaping/[city]`** — one landscaping landing page per market, with that
   city's own yard copy and the full price table.
 - **`/moving`** — the moving landing page (what used to be the home page).
@@ -278,7 +291,7 @@ which kind of job it was, and the client writes a readable label
 
 Two models, on purpose, because the two businesses sell differently.
 
-### Landscaping — flat, and published
+### Landscaping — flat, quoted once we know the yard
 
 `src/lib/landscaping.ts` holds one flat price per (service x yard size). A yard-work
 customer wants **one number before they'll call anyone**, and the job repeats every
@@ -303,6 +316,37 @@ All 64 combinations pass with room to spare — the tightest is a weekly medium 
 about $28/person-hour, against a $19 floor. Change a price and that check tells you
 whether you just priced a job below what it costs to do. The floor is $19 because that
 is the lowest wage `/drive` advertises.
+
+**Where prices are allowed to appear.** Marketing pages say `from $X` and nothing
+more; the exact number only shows inside the flow, on the services step, once the
+address and yard size are known. The homepage used to publish the whole
+size x service grid, which meant the customer picked their own size from a dropdown
+and we honoured whatever they guessed — a quote we might have to correct on the
+doorstep, which is the one thing a flat-price promise exists to prevent.
+
+### Guessing the yard size — `src/lib/parcel.ts`
+
+County assessors publish parcel polygons (including lot area) as free public ArcGIS
+services, so the flow tries to look up the lot behind an address and pre-select a
+size. Three things to know before trusting it:
+
+- **A lot is not a yard.** House, driveway and patio come off the top; the module
+  deducts a hardscape fraction (or the county's building area where published).
+- **It needs the geocode to hit the right building.** Ours often returns
+  city-centroid precision, which matches no parcel or somebody else's.
+- **Apartments and condos** resolve to one parcel for the whole complex.
+
+So it is an *estimate that pre-fills a question*, never a silent input to a price.
+The customer sees the suggestion, sees the lot size it came from, and can change
+it — they are standing in the yard and they win. A null result (uncovered county,
+slow service, bad geocode) leaves the flow exactly as it was. `toYardSize` returns
+null for anything implausible, which is what stops a broken county endpoint from
+producing a confident wrong answer rather than no answer.
+
+Covered counties are listed in `COUNTY_SOURCES`; endpoints are public and do change.
+**This is the one piece that could not be verified from the dev sandbox** (no
+outbound access to the county services), so the failure paths are unit-tested
+exhaustively and the happy path needs a real address in production to confirm.
 
 ### Moving and junk — built up from cost
 

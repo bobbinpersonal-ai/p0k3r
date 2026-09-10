@@ -162,6 +162,11 @@ export async function notifyNewBooking(booking: Booking): Promise<void> {
       `${priceLine(booking)} · ${formatDate(booking.moveDate)}, ${booking.timeWindow}`,
       ...jobLines(booking),
       city ? `City: ${city}` : null,
+      // The yard flow promises a call inside 30 minutes and a deposit. Repeat
+      // it here so the person who has to keep that promise sees it.
+      isLandscaping(booking.serviceLine)
+        ? "→ Call within 30 min to confirm and take the deposit."
+        : null,
     ].filter((line): line is string => Boolean(line)),
   });
 }
@@ -233,7 +238,7 @@ export async function notifyCustomerBookingConfirmed(
       `${priceLine(booking)}${yard ? " per visit" : ""} · ${formatDate(booking.moveDate)}, ${booking.timeWindow}`,
       ...jobLines(booking),
       yard
-        ? `A dispatcher will call or text to confirm your crew — nothing's charged yet, and the price above is the price.`
+        ? `We'll call you within 30 minutes to confirm and take a deposit to get you on the schedule. Nothing has been charged yet, and the price above is the price.`
         : `A dispatcher will call or text to confirm your crew and lock in the final price — nothing's charged yet.`,
       `Need to reschedule or cancel? ${manageUrl}`,
     ].filter((line): line is string => Boolean(line)),

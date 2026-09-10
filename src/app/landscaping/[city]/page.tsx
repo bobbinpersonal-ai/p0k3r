@@ -4,14 +4,10 @@ import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AutoplayVideo from "@/components/AutoplayVideo";
-import YardPriceFinder from "@/components/YardPriceFinder";
+import YardQuoteStarter from "@/components/YardQuoteStarter";
 import { YARD_SERVICE_ICONS } from "@/components/YardIcons";
 import { CITIES, getCity, bareCityName } from "@/lib/cities";
-import {
-  LANDSCAPING_SERVICES,
-  quoteLandscaping,
-  YARD_SIZES,
-} from "@/lib/landscaping";
+import { LANDSCAPING_SERVICES, startingPriceFor } from "@/lib/landscaping";
 
 const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
@@ -93,7 +89,7 @@ export default function LandscapingCityPage({ params }: { params: { city: string
               </div>
 
               <div className="min-w-0">
-                <YardPriceFinder city={city.slug} />
+                <YardQuoteStarter city={city.slug} />
               </div>
             </div>
           </div>
@@ -129,7 +125,7 @@ export default function LandscapingCityPage({ params }: { params: { city: string
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {LANDSCAPING_SERVICES.map((service) => {
               const Icon = YARD_SERVICE_ICONS[service.value];
-              const from = quoteLandscaping(service.value, "SMALL", "ONE_TIME");
+              const from = startingPriceFor(service.value);
               return (
                 <Link
                   key={service.value}
@@ -141,7 +137,7 @@ export default function LandscapingCityPage({ params }: { params: { city: string
                 >
                   <div className="flex items-start justify-between gap-3">
                     {Icon && <Icon />}
-                    <p className="font-mono text-sm text-brand-cyan">from ${from?.perVisit}</p>
+                    <p className="font-mono text-sm text-brand-cyan">from ${from}</p>
                   </div>
                   <h3 className="mt-3 text-lg font-semibold text-ink">{service.label}</h3>
                   <p className="mt-1 text-neutral-500">{service.description}</p>
@@ -151,48 +147,33 @@ export default function LandscapingCityPage({ params }: { params: { city: string
           </div>
         </section>
 
+        {/* "From" prices only — the exact number needs the yard, which is what
+            the address box at the top is for. See the homepage for the reasoning. */}
         <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Pricing</p>
           <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            {bare} prices, in full
+            {bare} prices
           </h2>
           <p className="mt-2 max-w-2xl text-neutral-500">
-            One-time visits. Weekly plans are 20% less per visit, every other week 10% less.
+            One flat price per visit, set by the service and how big your yard is. Put your
+            address in above and we&apos;ll show you all four priced for your property.
+            Weekly plans are 20% less per visit, every other week 10% less.
           </p>
-          <div className="mt-8 -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-            <table className="w-full min-w-[560px] border-collapse text-left">
-              <thead>
-                <tr className="border-b border-black/10">
-                  <th className="py-3 pr-4 text-sm font-semibold text-ink">Service</th>
-                  {YARD_SIZES.map((size) => (
-                    <th key={size.value} className="py-3 pr-4 text-sm font-semibold text-ink">
-                      {size.label}
-                      <span className="block font-mono text-xs font-normal text-neutral-400">
-                        {size.areaHint}
-                      </span>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {LANDSCAPING_SERVICES.map((service) => (
-                  <tr key={service.value} className="border-b border-black/5">
-                    <td className="py-4 pr-4 font-semibold text-ink">{service.label}</td>
-                    {YARD_SIZES.map((size) => {
-                      const quote = quoteLandscaping(service.value, size.value, "ONE_TIME");
-                      return (
-                        <td
-                          key={size.value}
-                          className="py-4 pr-4 font-mono text-lg font-bold text-brand-cyan"
-                        >
-                          ${quote?.perVisit}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {LANDSCAPING_SERVICES.map((service) => (
+              <div
+                key={service.value}
+                className="rounded-2xl border border-black/10 bg-black/[0.03] p-5"
+              >
+                <p className="font-semibold text-ink">{service.label}</p>
+                <p className="mt-1 font-mono text-2xl font-bold text-brand-cyan">
+                  from ${startingPriceFor(service.value)}
+                </p>
+                <p className="mt-1 text-sm text-neutral-500">
+                  {service.materialsNote ? "Labour only" : "Per visit"}
+                </p>
+              </div>
+            ))}
           </div>
         </section>
 

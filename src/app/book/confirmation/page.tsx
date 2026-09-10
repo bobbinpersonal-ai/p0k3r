@@ -49,17 +49,23 @@ export default async function ConfirmationPage({
           ✓
         </div>
         <h1 className="mt-6 text-3xl font-extrabold tracking-tight text-ink">
-          We&apos;ve got it
+          {yard ? "Request received" : "We've got it"}
         </h1>
-        <p className="mt-2 text-neutral-500">
-          {yard
-            ? "We're lining up a crew for your yard. "
-            : "We're lining up a crew for your move. "}
-          You&apos;ll get a call or text at{" "}
-          <span className="font-semibold text-ink">{booking.customerPhone}</span> to confirm{" "}
-          {yard ? "your visit" : "your final price and pickup window"} — usually within 30
-          minutes.
-        </p>
+        {yard ? (
+          <p className="mt-2 text-neutral-500">
+            We&apos;ll call you at{" "}
+            <span className="font-semibold text-ink">{booking.customerPhone}</span>{" "}
+            <span className="font-semibold text-ink">within 30 minutes</span> to confirm the
+            job and take a deposit to get you on the schedule. Nothing has been charged, and
+            the rest is due when the work is done.
+          </p>
+        ) : (
+          <p className="mt-2 text-neutral-500">
+            We&apos;re lining up a crew for your move. You&apos;ll get a call or text at{" "}
+            <span className="font-semibold text-ink">{booking.customerPhone}</span> to
+            confirm your final price and pickup window — usually within 30 minutes.
+          </p>
+        )}
 
         <div className="mt-8 rounded-2xl border border-black/10 bg-black/[0.03] p-6 text-left">
           <dl className="space-y-3 text-sm">

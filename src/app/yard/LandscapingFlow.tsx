@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import StepYardService from "@/app/yard/steps/StepYardService";
-import StepYardSize from "@/app/yard/steps/StepYardSize";
 import StepYardAddress from "@/app/yard/steps/StepYardAddress";
+import StepYardSize from "@/app/yard/steps/StepYardSize";
+import StepYardServices from "@/app/yard/steps/StepYardServices";
 import StepSchedule from "@/app/book/steps/StepSchedule";
 import StepContact, { type ContactValue } from "@/app/book/steps/StepContact";
 import CrewMatchCard from "@/components/CrewMatchCard";
@@ -28,12 +28,19 @@ import { matchCrew } from "@/lib/crew";
 import { trackBookingConversion } from "@/lib/analytics";
 import { getCity } from "@/lib/cities";
 import type { LatLng } from "@/lib/geo";
+import type { YardEstimate } from "@/lib/parcel";
 
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
 const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
 
-// The yard-work booking wizard: what → how big and how often → where → when →
-// who you are.
+// The yard-work booking wizard: where → how big → what it needs → when → who.
+//
+// Address first, on purpose. It lets the parcel lookup take a run at the yard
+// size before we ask for it (see src/lib/parcel.ts), and it means the first
+// price anyone sees is already theirs — priced against their yard, on the
+// services step, rather than a "from $X" they have to mentally adjust. Nothing
+// before that step quotes a number, which is also why the marketing pages only
+// ever say "from".
 //
 // A sibling of BookingFlow rather than a mode inside it. The two share their
 // last two steps and their history handling, and nothing else: this one has no
@@ -45,10 +52,13 @@ const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
 
 const TOTAL_STEPS = 5;
 
-/** Which step collects the address — the one that triggers geocoding. */
-const ADDRESS_STEP = 3;
+/** The address leads, so geocoding and the parcel lookup start immediately. */
+const ADDRESS_STEP = 1;
+const SIZE_STEP = 2;
+const SERVICES_STEP = 3;
+const SCHEDULE_STEP = 4;
 
-const STEP_LABELS = ["What you need", "Your yard", "Address", "Arrival time", "Your info"];
+const STEP_LABELS = ["Address", "Your yard", "What you need", "Arrival time", "Your info"];
 
 export default function LandscapingFlow({
   initialService,
@@ -68,8 +78,10 @@ export default function LandscapingFlow({
   source?: string;
 }) {
   const router = useRouter();
-  // Arriving from a homepage service card means step 1 is already answered.
-  const [step, setStep] = useState(initialService ? 2 : 1);
+  // Always starts at the address now — a service arriving on the query string
+  // (from a "from $X" card) is remembered for the services step rather than
+  // skipping anything, because nothing can be priced until we know the yard.
+  const [step, setStep] = useState(1);
   const cityName = city ? getCity(city)?.name : undefined;
   const stepRef = useRef(step);
   stepRef.current = step;
@@ -83,6 +95,11 @@ export default function LandscapingFlow({
     initialAddress ? parseAddress(initialAddress) : { ...EMPTY_ADDRESS },
   );
   const [point, setPoint] = useState<LatLng | null>(null);
+  const [estimate, setEstimate] = useState<YardEstimate | null>(null);
+  const [estimating, setEstimating] = useState(false);
+  // True once the customer has touched the size themselves, so a late-arriving
+  // estimate can never overwrite an answer they already gave.
+  const sizeTouched = useRef(false);
   // The lookup started when they left the address step. Held so submit can wait
   // on it: it's kicked off two steps early precisely so it's finished by then,
   // but on a slow connection "finished by then" isn't a guarantee, and dispatch
@@ -171,6 +188,7 @@ export default function LandscapingFlow({
         const resolved = { lat: result.lat, lng: result.lng };
         pointRef.current = resolved;
         setPoint(resolved);
+        await guessYardSize(resolved);
       }
     } catch {
       // The price doesn't depend on this — a failed lookup just means dispatch
@@ -178,14 +196,44 @@ export default function LandscapingFlow({
     }
   }
 
+  /**
+   * Ask the county how big the lot is, and pre-select a size from it.
+   *
+   * Never fails loudly and never overrides the customer: a null answer (an
+   * uncovered county, a slow service, a geocode that landed on a town centre)
+   * just leaves the size question exactly as it was, and an answer that arrives
+   * after they've already picked is discarded.
+   */
+  async function guessYardSize(at: LatLng) {
+    setEstimating(true);
+    try {
+      const res = await fetch("/api/estimate-yard", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lat: at.lat, lng: at.lng }),
+      });
+      if (!res.ok) return;
+      const { estimate: found } = (await res.json()) as { estimate: YardEstimate | null };
+      if (!found) return;
+      setEstimate(found);
+      if (!sizeTouched.current) setYardSize(found.yardSize);
+    } catch {
+      // See above — no estimate is a normal outcome, not an error.
+    } finally {
+      setEstimating(false);
+    }
+  }
+
   function canAdvance(): string | null {
-    if (step === 1 && !service) return "Pick what the yard needs.";
-    if (step === 2 && !yardSize) return "Pick roughly how big the yard is.";
     if (step === ADDRESS_STEP) {
       const missing = missingAddressFields(address);
       if (missing.length > 0) return `The address needs a ${missing.join(", ")}.`;
     }
-    if (step === 4 && schedule.arrivalHour === null) return "Choose an arrival window.";
+    if (step === SIZE_STEP && !yardSize) return "Pick roughly how big the yard is.";
+    if (step === SERVICES_STEP && !service) return "Pick what the yard needs.";
+    if (step === SCHEDULE_STEP && schedule.arrivalHour === null) {
+      return "Choose an arrival window.";
+    }
     return null;
   }
 
@@ -253,13 +301,14 @@ export default function LandscapingFlow({
           where nothing else says what this page is. Same reasoning as
           BookingFlow. */}
       <h1 className={step === 1 ? "text-3xl font-extrabold tracking-tight text-ink" : "sr-only"}>
-        Book your {cityName ? `${cityName} ` : ""}yard service
+        Get your {cityName ? `${cityName} ` : ""}yard priced
       </h1>
       {step === 1 && (
         <>
           <p className="mt-2 text-neutral-500">
-            Pick the job and the size of your yard and you&apos;ll see the price right here —
-            flat, not a &ldquo;starting at.&rdquo; Takes about a minute.
+            Tell us where the yard is and roughly how big it is, and we&apos;ll show you
+            every service priced for it — flat, not a &ldquo;starting at.&rdquo; Takes about
+            a minute, and nothing is charged here.
           </p>
           <p className="mt-2">
             <a
@@ -309,53 +358,54 @@ export default function LandscapingFlow({
       </div>
 
       {/* Who'd be doing the work, once there's an address to match against. */}
-      {step > ADDRESS_STEP && matchedCrew && (
+      {step > SIZE_STEP && matchedCrew && (
         <div className="mt-8">
           <CrewMatchCard match={matchedCrew} trade="yard" />
         </div>
       )}
 
       <div className="mt-8">
-        {step === 1 && (
-          <StepYardService
-            value={service}
-            onChange={(value) => {
-              setError(null);
-              setService(value);
-              // A cadence chosen for mowing means nothing on a sod install, and
-              // leaving it set would price the new job against a discount it
-              // can't have.
-              if (!getLandscapingService(value)?.allowsRecurring) setFrequency("ONE_TIME");
-            }}
-          />
-        )}
-        {step === 2 && service && (
-          <StepYardSize
-            service={service}
-            yardSize={yardSize}
-            frequency={frequency}
-            onChange={({ yardSize: size, frequency: cadence }) => {
-              setError(null);
-              setYardSize(size);
-              setFrequency(cadence);
-            }}
-          />
-        )}
         {step === ADDRESS_STEP && (
           <StepYardAddress
             value={address}
             onChange={(next) => {
-              // A changed address invalidates the pin we geocoded from the old
-              // one — better no pin than one pointing at the wrong house.
+              // A changed address invalidates both the pin we geocoded from the
+              // old one and any estimate built on it — better nothing than
+              // either pointing at the wrong house.
               if (formatAddress(next) !== formatAddress(address)) {
                 pointRef.current = null;
                 setPoint(null);
+                setEstimate(null);
               }
               setAddress(next);
             }}
           />
         )}
-        {step === 4 && (
+        {step === SIZE_STEP && (
+          <StepYardSize
+            value={yardSize}
+            estimate={estimate}
+            estimating={estimating}
+            onChange={(size) => {
+              setError(null);
+              sizeTouched.current = true;
+              setYardSize(size);
+            }}
+          />
+        )}
+        {step === SERVICES_STEP && yardSize && (
+          <StepYardServices
+            yardSize={yardSize}
+            service={service}
+            frequency={frequency}
+            onChange={({ service: picked, frequency: cadence }) => {
+              setError(null);
+              setService(picked);
+              setFrequency(cadence);
+            }}
+          />
+        )}
+        {step === SCHEDULE_STEP && (
           <StepSchedule
             dayKey={schedule.dayKey}
             arrivalHour={schedule.arrivalHour}
@@ -431,14 +481,20 @@ export default function LandscapingFlow({
           disabled={submitting}
           className="h-14 flex-1 rounded-2xl bg-gradient-to-r from-brand to-brand-cyan px-6 text-lg font-semibold text-white shadow-md transition enabled:hover:opacity-90 disabled:opacity-50"
         >
-          {step === TOTAL_STEPS ? (submitting ? "Booking…" : "Book my visit") : "Continue"}
+          {step === TOTAL_STEPS
+            ? submitting
+              ? "Sending…"
+              : "Request this booking"
+            : "Continue"}
         </button>
       </div>
 
       {step === TOTAL_STEPS && (
         <p className="mt-4 text-sm text-neutral-500">
-          No charge now — a dispatcher confirms your crew and the time before anyone drives
-          out.
+          Nothing is charged here. We&apos;ll call you{" "}
+          <span className="font-semibold text-ink">within 30 minutes</span> to confirm the
+          job and take a deposit to get you on the schedule — the rest is due when the work
+          is done.
         </p>
       )}
     </div>

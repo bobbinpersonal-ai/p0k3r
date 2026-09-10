@@ -3,16 +3,12 @@ import Link from "next/link";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AutoplayVideo from "@/components/AutoplayVideo";
-import YardPriceFinder from "@/components/YardPriceFinder";
+import YardQuoteStarter from "@/components/YardQuoteStarter";
 import CaliforniaMap from "@/components/CaliforniaMap";
 import { YARD_SERVICE_ICONS } from "@/components/YardIcons";
 import { CITIES, getCity } from "@/lib/cities";
 import { CREW } from "@/lib/crew";
-import {
-  LANDSCAPING_SERVICES,
-  quoteLandscaping,
-  YARD_SIZES,
-} from "@/lib/landscaping";
+import { LANDSCAPING_SERVICES, startingPriceFor } from "@/lib/landscaping";
 
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
 const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
@@ -103,8 +99,8 @@ export default function HomePage({
                 </h1>
                 <p className="mt-4 text-lg text-neutral-600">
                   Mowing, cleanups, trimming and planting across the Bay Area, Sacramento
-                  and the Valley. Pick your yard size and see what it costs — no site
-                  visit, no waiting on a callback to find out.
+                  and the Valley. Put in your address and see every service priced for your
+                  yard — no site visit, no waiting on a callback to find out.
                 </p>
                 <div className="mt-6 hidden rounded-xl bg-paper px-3 py-2 lg:block">
                   <a
@@ -127,7 +123,7 @@ export default function HomePage({
               </div>
 
               <div className="min-w-0">
-                <YardPriceFinder city={targetCity?.slug} />
+                <YardQuoteStarter city={targetCity?.slug} />
               </div>
             </div>
 
@@ -161,7 +157,7 @@ export default function HomePage({
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {LANDSCAPING_SERVICES.map((service) => {
               const Icon = YARD_SERVICE_ICONS[service.value];
-              const from = quoteLandscaping(service.value, "SMALL", "ONE_TIME");
+              const from = startingPriceFor(service.value);
               return (
                 <Link
                   key={service.value}
@@ -170,7 +166,7 @@ export default function HomePage({
                 >
                   <div className="flex items-start justify-between gap-3">
                     {Icon && <Icon />}
-                    <p className="font-mono text-sm text-brand-cyan">from ${from?.perVisit}</p>
+                    <p className="font-mono text-sm text-brand-cyan">from ${from}</p>
                   </div>
                   <h3 className="mt-3 text-lg font-semibold text-ink">{service.label}</h3>
                   <p className="mt-1 text-neutral-500">{service.description}</p>
@@ -198,74 +194,54 @@ export default function HomePage({
           </div>
         </section>
 
-        {/* The whole price list, in public. Nobody else in this market does
-            this, which is exactly the reason to: a customer who can read every
-            number before they call has no reason to phone three companies for
-            quotes first. */}
+        {/* "From" prices only. The exact number depends on the yard, and the
+            flow quotes it once the address tells us how big that is — quoting
+            a grid of sizes out here meant the customer picking their own
+            bucket from a dropdown and us honouring whatever they guessed. */}
         <section id="pricing" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Pricing</p>
-          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">Every price we charge</h2>
+          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">What it costs</h2>
           <p className="mt-2 max-w-2xl text-neutral-500">
-            One-time visits. Weekly plans are 20% less per visit, every other week 10% less —
-            a yard that never gets away from us is quicker to cut, so that saving is real
-            rather than a sign-up bribe.
+            One flat price per visit, set by the service and the size of your yard. Put your
+            address in and we&apos;ll look up your lot and show you all four, priced for you —
+            no site visit, and the number you see is the number we charge.
           </p>
 
-          {/* The one element on the site allowed to be wider than the screen —
-              a four-column price grid can't stack without becoming unreadable,
-              so it scrolls sideways inside its own box instead. */}
-          <div className="mt-8 -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-            <table className="w-full min-w-[560px] border-collapse text-left">
-              <thead>
-                <tr className="border-b border-black/10">
-                  <th className="py-3 pr-4 text-sm font-semibold text-ink">Service</th>
-                  {YARD_SIZES.map((size) => (
-                    <th key={size.value} className="py-3 pr-4 text-sm font-semibold text-ink">
-                      {size.label}
-                      <span className="block font-mono text-xs font-normal text-neutral-400">
-                        {size.areaHint}
-                      </span>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {LANDSCAPING_SERVICES.map((service) => (
-                  <tr key={service.value} className="border-b border-black/5">
-                    <td className="py-4 pr-4">
-                      <span className="font-semibold text-ink">{service.label}</span>
-                      {service.materialsNote && (
-                        <span className="block text-xs text-neutral-400">
-                          labour only — materials at cost
-                        </span>
-                      )}
-                    </td>
-                    {YARD_SIZES.map((size) => {
-                      const quote = quoteLandscaping(service.value, size.value, "ONE_TIME");
-                      return (
-                        <td
-                          key={size.value}
-                          className="py-4 pr-4 font-mono text-lg font-bold text-brand-cyan"
-                        >
-                          ${quote?.perVisit}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {LANDSCAPING_SERVICES.map((service) => {
+              const Icon = YARD_SERVICE_ICONS[service.value];
+              return (
+                <div
+                  key={service.value}
+                  className="rounded-2xl border border-black/10 bg-black/[0.03] p-5"
+                >
+                  {Icon && <Icon />}
+                  <p className="mt-3 font-semibold text-ink">{service.label}</p>
+                  <p className="mt-1 font-mono text-2xl font-bold text-brand-cyan">
+                    from ${startingPriceFor(service.value)}
+                  </p>
+                  <p className="mt-1 text-sm text-neutral-500">
+                    {service.materialsNote ? "Labour only" : "Per visit"}
+                  </p>
+                </div>
+              );
+            })}
           </div>
 
-          <p className="mt-4 text-sm text-neutral-500">
-            Not sure which size? Pick the closest — if we get there and it&apos;s plainly a
-            different job, we tell you the new number before we start, not after.
-          </p>
+          <div className="mt-8 rounded-2xl border border-black/10 bg-black/[0.03] p-6">
+            <p className="font-semibold text-ink">Weekly and every-other-week cost less</p>
+            <p className="mt-1 text-neutral-500">
+              A yard that never gets away from us is quicker to cut, so a weekly plan is 20%
+              less per visit and every other week is 10% less. Monthly is the same as a
+              one-off — by then it&apos;s grown back. No contract on any of them.
+            </p>
+          </div>
+
           <Link
             href="/yard"
-            className="mt-6 inline-block rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
+            className="mt-8 inline-block rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
           >
-            Book a visit
+            See my prices
           </Link>
         </section>
 
