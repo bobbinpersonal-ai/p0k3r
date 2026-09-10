@@ -230,3 +230,18 @@ export const CITIES: City[] = [
 export function getCity(slug: string): City | undefined {
   return CITIES.find((c) => c.slug === slug);
 }
+
+/**
+ * Match a typed or geocoded city name back to a launch market.
+ *
+ * Used where the city arrives as words rather than as a slug — the door-knock
+ * intake form, where the address came off a GPS fix. A miss is normal and
+ * means the booking simply isn't tagged to a market.
+ */
+export function findCityByName(name: string): City | undefined {
+  const wanted = name.trim().toLowerCase();
+  if (!wanted) return undefined;
+  return CITIES.find(
+    (c) => bareCityName(c).toLowerCase() === wanted || c.name.toLowerCase() === wanted,
+  );
+}

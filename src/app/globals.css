@@ -76,3 +76,21 @@ body {
     animation: none;
   }
 }
+
+/* Printing.
+   The site is a night-mode site; a printer given a near-black page either
+   floods the sheet with toner or drops out the text entirely. Nothing on the
+   customer-facing pages is meant to be printed, but the door-knock price sheet
+   is (see /admin/knock/sheet), and it can only lighten itself so far while the
+   page underneath it is dark. */
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+
+  @page {
+    margin: 0.4in;
+  }
+}

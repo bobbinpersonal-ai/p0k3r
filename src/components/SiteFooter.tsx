@@ -1,7 +1,10 @@
 import Link from "next/link";
-import { EXEMPTION_LIMIT } from "@/lib/landscaping";
+import {
+  LICENSING_DISCLAIMER,
+  SITE_NAME as COMPLIANCE_SITE_NAME,
+} from "@/lib/compliance";
 
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
+const SITE_NAME = COMPLIANCE_SITE_NAME;
 const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
 const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "hello@lovemeafter.com";
 
@@ -51,13 +54,8 @@ export default function SiteFooter() {
             hidden: it should read as a plain statement of what this company is,
             legible on every page, without competing with the content above it. */}
         <p className="mt-6 max-w-4xl border-t border-white/5 pt-6 text-xs leading-relaxed text-neutral-400">
-          <span className="font-semibold text-neutral-300">Disclaimer:</span> {SITE_NAME}{" "}
-          provides minor home maintenance, yard care, and cosmetic assembly services under
-          the ${EXEMPTION_LIMIT.toLocaleString()} threshold permitted by California law.{" "}
-          {SITE_NAME} is not a licensed general contractor. Any project exceeding $
-          {EXEMPTION_LIMIT.toLocaleString()} or requiring building permits, electrical,
-          plumbing, or structural work is referred directly to fully independent, licensed,
-          bonded, and insured California state contractors (CSLB).
+          <span className="font-semibold text-neutral-300">Disclaimer:</span>{" "}
+          {LICENSING_DISCLAIMER}
         </p>
       </div>
     </footer>

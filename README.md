@@ -601,6 +601,32 @@ driver's phone number is a tap-to-call link), then marks the booking `ASSIGNED` 
 picks that driver from the dropdown. Status moves to `IN_PROGRESS` when the crew is
 on the job and `COMPLETED` when it's done.
 
+## Knocking doors
+
+Selling on the doorstep needs different tools from selling on a website, so it has
+its own two pages behind the dispatch login:
+
+- **`/admin/knock`** — the intake form we fill in *for* the customer while standing
+  on their step. One screen instead of the customer flow's five, priced live as you
+  tap, with a **Fill from GPS** button that takes the address off the phone's own fix
+  — which also gives the parcel lookup the building itself rather than a geocode of
+  typed words. It writes an ordinary `Booking` through the ordinary endpoint, tagged
+  `source=door-knock`.
+- **`/admin/knock/sheet`** — two printable pages: the price grid to quote from, and
+  four cut-out leave-behind cards carrying a QR to `/yard?source=door-knock`, the
+  phone number, and the licensing disclaimer. Both render from `src/lib/landscaping.ts`,
+  so reprinting *is* the update process.
+
+The QR codes in `public/qr/` come from `scripts/qr.mjs`, a ~200-line byte-mode
+encoder written rather than installed: a dependency that renders one static image at
+build time isn't worth a supply-chain surface, and the printed codes never change at
+runtime. `scripts/qr.test.mjs` decodes its own output back through the same placement
+and cross-checks the format bits against the published table. Regenerate with
+`node scripts/gen-qr.mjs`.
+
+The script, the objection answers, and the permit/disclaimer rules are in
+[`docs/door-knock.md`](docs/door-knock.md).
+
 ## How recruiting works today
 
 `/drive` collects applications (name, phone, vehicle, city, availability, notes) into

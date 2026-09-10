@@ -88,6 +88,13 @@ export function getYardSizeLabel(value: string | null | undefined): string {
 export type LandscapingService = {
   value: string;
   label: string;
+  /**
+   * The same service named in half the width, for a printed card or a table
+   * cell. Not derived from `label` — a truncated name reads as a mistake, and
+   * "Clean Edge & Yard Overg…" on something we hand to a customer is worse
+   * than a shorter name we chose on purpose.
+   */
+  shortLabel: string;
   description: string;
   /** The bullets on the service card — what's actually included. */
   includes: readonly string[];
@@ -114,6 +121,7 @@ export const LANDSCAPING_SERVICES = [
   {
     value: "EXTERIOR_WASH",
     label: "Exterior & Driveway Refresh",
+    shortLabel: "Exterior & driveway wash",
     description: "Drives, walls and windows back to the colour they started",
     includes: [
       "High-pressure drive & walkway washing",
@@ -127,6 +135,7 @@ export const LANDSCAPING_SERVICES = [
   {
     value: "CLEAN_EDGE",
     label: "Clean Edge & Yard Overgrowth",
+    shortLabel: "Mowing, edging & clearing",
     description: "The cut, the edges, and whatever has got away from you",
     includes: [
       "Precision edge, mow, and blow",
@@ -140,6 +149,7 @@ export const LANDSCAPING_SERVICES = [
   {
     value: "ASSEMBLY_REPAIR",
     label: "Yard Assembly & Minor Repairs",
+    shortLabel: "Assembly & small repairs",
     description: "Flat-pack builds and the small fixes nobody gets round to",
     includes: [
       "Pre-fab pergola, shed, or kit assembly",

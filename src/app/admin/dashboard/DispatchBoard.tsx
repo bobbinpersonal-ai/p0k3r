@@ -178,12 +178,20 @@ export default function DispatchBoard({
           <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Internal</p>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-ink">Dispatch</h1>
         </div>
-        <button
-          onClick={logout}
-          className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-neutral-200 hover:border-brand hover:text-brand-cyan"
-        >
-          Sign out
-        </button>
+        <div className="flex items-center gap-3">
+          <a
+            href="/admin/knock"
+            className="rounded-full border border-brand/40 bg-brand/10 px-4 py-2 text-sm font-semibold text-brand-cyan hover:border-brand"
+          >
+            Door knock
+          </a>
+          <button
+            onClick={logout}
+            className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-neutral-200 hover:border-brand hover:text-brand-cyan"
+          >
+            Sign out
+          </button>
+        </div>
       </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[2fr_1fr]">

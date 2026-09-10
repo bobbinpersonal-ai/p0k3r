@@ -7,6 +7,10 @@
 
 export const SOURCES = [
   { value: "qr-card", label: "QR card" },
+  // Knocked doors, whether we filled the form in on the step (/admin/knock) or
+  // they scanned the card we left behind. Same channel either way — what we
+  // want to know is whether walking the street pays for the afternoon.
+  { value: "door-knock", label: "Door knock" },
   { value: "craigslist", label: "Craigslist" },
   { value: "referral", label: "Referral" },
 ] as const;
