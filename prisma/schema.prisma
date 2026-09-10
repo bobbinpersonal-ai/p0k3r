@@ -131,7 +131,19 @@ model Booking {
   // Prisma's cuid() default: a cuid is unique but not built to resist
   // guessing, and this one doubles as the only thing standing between a
   // stranger and someone else's booking.
-  manageToken     String    @unique
+  //
+  // The database-side default is a backfill mechanism, not the normal path —
+  // every booking the app creates passes an explicit randomBytes token (see
+  // src/lib/manageToken.ts). It exists because this column is NOT NULL and
+  // UNIQUE, and adding one of those to a table that already has rows is a
+  // change Postgres cannot make on its own: there's no single value it could
+  // put in every row without breaking the unique index. Prisma's answer was to
+  // refuse the push and offer --force-reset, which drops the database — so
+  // every deploy after this column was introduced failed, and production sat
+  // two days stale on the last schema that didn't need it. gen_random_uuid()
+  // is volatile, so Postgres evaluates it per row and each existing booking
+  // gets its own token instead.
+  manageToken     String    @unique @default(dbgenerated("gen_random_uuid()"))
 
   // Idempotency guards: both are set the moment their notification actually
   // sends, so a retried request or a re-run cron can't double-text someone.
