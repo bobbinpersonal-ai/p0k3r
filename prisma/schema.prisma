@@ -241,3 +241,208 @@ model ServiceConfig {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+// --- Texas: in-home residential construction sales ---------------------------
+//
+// A different business on the same platform. The California side sells small
+// jobs online at a flat price; this one sells roofs at a kitchen table, for
+// five figures, through 1099 reps working leads the owner hands them.
+//
+// The shape follows that: a Lead is assigned to a Rep, the Rep runs an
+// Appointment at the house and builds an Estimate out of measured lines, and
+// what they sell it for above the price book's base is 60% theirs. Crews are
+// paid separately as 1099 workers by Zelle or Apple Cash.
+
+/// A 1099 sales rep. Runs appointments on leads assigned to them.
+model Rep {
+  id            String   @id @default(cuid())
+  name          String
+  phone         String
+  email         String?
+  active        Boolean  @default(true)
+
+  /// 1099 paperwork. No W-9, no payout — see WorkerPayout for the same rule
+  /// on crews. Kept as a flag rather than the form itself: we need to know
+  /// that it exists, not to store a social security number.
+  w9OnFile      Boolean  @default(false)
+
+  /// Per-rep commission terms, overriding the company default when set.
+  /// Null means "whatever src/lib/texas/commission.ts says today", so a
+  /// company-wide change doesn't have to be written to every row.
+  baseCommissionRate Float?
+  overageRate        Float?
+
+  /// How this rep gets paid. Same two rails as the crews.
+  payoutMethod  String?
+  payoutHandle  String?
+
+  leads         Lead[]
+  estimates     Estimate[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+/// Somebody who wants a price. Assigned to a rep by the owner, by hand.
+model Lead {
+  id            String   @id @default(cuid())
+  /// NEW, ASSIGNED, APPOINTMENT_SET, SOLD, NO_SALE, DEAD.
+  status        String   @default("NEW")
+
+  customerName  String
+  customerPhone String
+  customerEmail String?
+  address       String
+  city          String?
+  zip           String?
+
+  /// What they called about, if we know. Null is normal on a cold lead.
+  trade         String?
+  /// RETAIL (homeowner pays) or INSURANCE (carrier pays, homeowner pays the
+  /// deductible). Decides which contract gets generated and which rules apply.
+  jobKind       String   @default("RETAIL")
+
+  source        String?
+  notes         String?
+
+  repId         String?
+  rep           Rep?     @relation(fields: [repId], references: [id])
+  assignedAt    DateTime?
+  appointmentAt DateTime?
+
+  estimate      Estimate?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([repId])
+}
+
+/// What the rep built at the kitchen table, and what the customer signed.
+model Estimate {
+  id            String   @id @default(cuid())
+  /// The customer's unguessable link to their own copy — same reasoning as
+  /// Booking.manageToken on the California side.
+  token         String   @unique @default(dbgenerated("gen_random_uuid()"))
+
+  leadId        String   @unique
+  lead          Lead     @relation(fields: [leadId], references: [id])
+  repId         String?
+  rep           Rep?     @relation(fields: [repId], references: [id])
+
+  /// DRAFT, PRESENTED, SIGNED, CANCELED.
+  status        String   @default("DRAFT")
+  jobKind       String   @default("RETAIL")
+
+  /// Insurance jobs only. carrierScope is the carrier's own number for the
+  /// work; with the deductible it sets the floor an insurance job may be sold
+  /// at, because selling below it absorbs the deductible by arithmetic and
+  /// Bus. & Com. Code § 27.02 makes that a crime.
+  carrier       String?
+  claimNumber   String?
+  carrierScope  Int?
+  deductible    Int?
+
+  /// The money, all of it stored rather than recomputed: the price book is
+  /// editable, and a signed contract must not change when a rate does.
+  costTotal     Int
+  baseTotal     Int
+  soldPrice     Int
+  commission    Int
+
+  /// Taken at the table, the same way the California side does it.
+  depositAmount Int?
+  depositMethod String?
+  depositPaidAt DateTime?
+
+  /// Free text the rep types. Screened for deductible language before it is
+  /// allowed to reach a contract — see src/lib/texas/compliance.ts.
+  scopeNotes    String?
+
+  signedAt      DateTime?
+  signerName    String?
+  canceledAt    DateTime?
+  /// Set when the buyer cancels inside their three business days, so a refund
+  /// that is owed can be seen rather than remembered.
+  refundDueBy   DateTime?
+
+  lines         EstimateLine[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+}
+
+/// One measured line of an estimate, frozen at the rates that priced it.
+model EstimateLine {
+  id            String   @id @default(cuid())
+  estimateId    String
+  estimate      Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+
+  trade         String
+  tradeLabel    String
+  option        String
+  optionLabel   String
+  unit          String
+  quantity      Float
+
+  /// The rates as they read on the day, not as they read now.
+  costPerUnit   Float
+  basePerUnit   Float
+  cost          Int
+  base          Int
+
+  createdAt     DateTime @default(now())
+
+  @@index([estimateId])
+}
+
+/// Somebody on a crew. Paid per job, by Zelle or Apple Cash, on a 1099.
+model Worker {
+  id            String   @id @default(cuid())
+  name          String
+  phone         String?
+  email         String?
+  active        Boolean  @default(true)
+
+  /// The IRS wants a 1099-NEC for anyone paid $600 or more in a calendar
+  /// year, and it wants a W-9 on file to fill it in. The flag gates payouts;
+  /// the identifier itself is not stored here.
+  w9OnFile      Boolean  @default(false)
+
+  /// ZELLE or APPLE_PAY, and the phone or email the money goes to.
+  payoutMethod  String?
+  payoutHandle  String?
+
+  payouts       WorkerPayout[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+/// One payment to one worker. The 1099 total is the sum of these by year.
+model WorkerPayout {
+  id            String   @id @default(cuid())
+  workerId      String
+  worker        Worker   @relation(fields: [workerId], references: [id])
+
+  amount        Int
+  method        String
+  /// Where it actually went, copied at the time of paying: a worker who
+  /// changes their Zelle number later must not rewrite what we already sent.
+  handle        String?
+  memo          String?
+
+  /// Which job it was for. Null for a payment that isn't job-specific.
+  estimateId    String?
+
+  paidAt        DateTime @default(now())
+  /// Denormalised so a year's 1099 totals are one indexed query.
+  taxYear       Int
+
+  createdAt     DateTime @default(now())
+
+  @@index([workerId, taxYear])
+}
