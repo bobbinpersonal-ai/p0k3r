@@ -278,6 +278,7 @@ model Rep {
 
   leads         Lead[]
   estimates     Estimate[]
+  appointments  Appointment[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -309,6 +310,23 @@ model Lead {
   rep           Rep?     @relation(fields: [repId], references: [id])
   assignedAt    DateTime?
   appointmentAt DateTime?
+
+  /// Where this row came from, when it was bought rather than inbound.
+  leadListId    String?
+  leadList      LeadList? @relation(fields: [leadListId], references: [id])
+
+  /// E.164, and unique across the whole table: the same homeowner turning up
+  /// in two purchased lists is one lead with one call history, not two.
+  phoneKey      String?   @unique
+  /// MOBILE, LANDLINE or UNKNOWN. A bought list's guess, and treated as one.
+  lineType      String?
+  /// IANA zone for the property, so the curfew is checked where the phone is.
+  timeZone      String    @default("America/Chicago")
+  /// Copied from the list at scrub time so screening is one query, not two.
+  scrubbedAt    DateTime?
+
+  attempts      CallAttempt[]
+  appointments  Appointment[]
 
   estimate      Estimate?
 
@@ -445,4 +463,106 @@ model WorkerPayout {
   createdAt     DateTime @default(now())
 
   @@index([workerId, taxYear])
+}
+
+// --- Texas: the calling pipeline ---------------------------------------------
+//
+// Purchased lists come in as a LeadList, get scrubbed, and feed a queue of
+// Leads that setters work by hand. Every dial is recorded as a CallAttempt
+// whether it connected or not, because the attempt history is what the
+// screening rules in src/lib/texas/calling.ts run on — and because a
+// complaint two years from now is answered by records or it is not answered.
+
+/// A batch of leads bought from one broker on one day.
+model LeadList {
+  id            String   @id @default(cuid())
+  name          String
+  /// Who sold it to us. Worth keeping: list quality varies enormously and
+  /// this is the only way to find out which broker is worth buying from again.
+  vendor        String?
+  /// What we paid, so cost per booked appointment is computable.
+  costCents     Int?
+
+  /// When it was last run against the national and Texas registries. Null
+  /// means never, and never means nobody may dial it.
+  scrubbedAt    DateTime?
+  /// How many rows the scrub removed — a number worth watching, because a
+  /// list that loses 40% was sold to you knowing that.
+  scrubbedCount Int      @default(0)
+
+  leads         Lead[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+/// One dial. Logged whether or not anybody picked up.
+model CallAttempt {
+  id            String   @id @default(cuid())
+  leadId        String
+  lead          Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  /// Who dialled — a setter or a rep, by name rather than by relation, so the
+  /// record survives them leaving.
+  calledBy      String
+  outcome       String
+  notes         String?
+
+  /// The lead's own local time when we rang, stored rather than derived: the
+  /// curfew defence is "it was 2pm where they were", and that has to be
+  /// answerable years later without re-deriving a time zone.
+  localTime     DateTime
+  /// Only ever true where consent was captured on the recording itself.
+  recorded      Boolean  @default(false)
+
+  createdAt     DateTime @default(now())
+
+  @@index([leadId, createdAt])
+}
+
+/// A number that must not be called, and why.
+///
+/// Separate from Lead on purpose: a do-not-call request attaches to the phone
+/// number, not to the row it happened to arrive on. Buy the same number again
+/// next year from a different broker and it is still blocked.
+model DncEntry {
+  id            String   @id @default(cuid())
+  /// E.164. The unique key, so re-importing a blocked number cannot un-block it.
+  phone         String   @unique
+  /// NATIONAL, TEXAS, INTERNAL, LITIGATOR.
+  list          String
+  /// What they said, where it was a person asking us directly.
+  note          String?
+  /// Internal requests are honoured forever; registry hits are refreshed.
+  addedAt       DateTime @default(now())
+
+  @@index([list])
+}
+
+/// A booked in-home consultation. What the whole calling operation is for.
+model Appointment {
+  id            String   @id @default(cuid())
+  leadId        String
+  lead          Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  repId         String?
+  rep           Rep?     @relation(fields: [repId], references: [id])
+
+  /// Absolute instant, plus the local wall-clock string the customer was
+  /// actually told. Two time zones are involved and only one of them is the
+  /// customer's, so the promise is stored as words as well as a timestamp.
+  startsAt      DateTime
+  localLabel    String
+
+  /// SET, CONFIRMED, SAT, NO_SHOW, CANCELED, RESCHEDULED.
+  status        String   @default("SET")
+  /// Who set it, for setter scoreboards and for sat-rate by setter.
+  setBy         String?
+  notes         String?
+
+  confirmedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([repId, startsAt])
+  @@index([status])
 }
