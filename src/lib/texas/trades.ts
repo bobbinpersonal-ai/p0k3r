@@ -52,6 +52,15 @@ export type TradeOption = {
 export type Trade = {
   value: string;
   label: string;
+  /**
+   * One line about the trade for the public site.
+   *
+   * Separate from the options' descriptions on purpose: an option describes a
+   * product, and borrowing the first one meant the roofing card opened with
+   * "builder-grade, cheapest way to get a dry roof" — leading with the thing
+   * we least want to sell.
+   */
+  blurb: string;
   unit: UnitOfMeasure;
   /** Below this the truck roll costs more than the job earns. */
   minimumUnits: number;
@@ -64,6 +73,7 @@ export const TRADES: readonly Trade[] = [
   {
     value: "ROOFING",
     label: "Roof replacement",
+    blurb: "Tear-off to final nail in a day, most houses.",
     unit: "SQUARE",
     minimumUnits: 8,
     implausibleAbove: 120,
@@ -102,6 +112,7 @@ export const TRADES: readonly Trade[] = [
   {
     value: "SIDING",
     label: "Siding",
+    blurb: "Hardie board that ignores hail and holds paint for fifteen years.",
     unit: "SQUARE",
     minimumUnits: 4,
     implausibleAbove: 90,
@@ -125,6 +136,7 @@ export const TRADES: readonly Trade[] = [
   {
     value: "WINDOWS",
     label: "Windows",
+    blurb: "The reason your August electric bill is what it is.",
     unit: "OPENING",
     minimumUnits: 3,
     implausibleAbove: 60,
@@ -148,6 +160,7 @@ export const TRADES: readonly Trade[] = [
   {
     value: "GUTTERS",
     label: "Gutters",
+    blurb: "Seamless, run on site, colour-matched to the trim.",
     unit: "LINEAR_FOOT",
     minimumUnits: 40,
     implausibleAbove: 600,
@@ -171,6 +184,7 @@ export const TRADES: readonly Trade[] = [
   {
     value: "FENCE",
     label: "Fence",
+    blurb: "Cedar with steel posts. Outlives the house.",
     unit: "LINEAR_FOOT",
     minimumUnits: 30,
     implausibleAbove: 800,
@@ -194,6 +208,7 @@ export const TRADES: readonly Trade[] = [
   {
     value: "PAINT",
     label: "Exterior paint",
+    blurb: "Wash, scrape, caulk, prime, two coats. Not one.",
     unit: "SQUARE",
     minimumUnits: 8,
     implausibleAbove: 80,

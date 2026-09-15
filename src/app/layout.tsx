@@ -14,10 +14,13 @@ const GTAG_ID = GOOGLE_ADS_ID || GA_MEASUREMENT_ID;
 export const metadata: Metadata = {
   // Keyword first, brand last: this is the line in a search result and in a
   // Marketplace ad preview, and "movers" is what anyone is actually scanning for.
-  title: `Movers on demand, Bay Area to Sacramento | ${SITE_NAME}`,
+  // The site is the Texas construction business now; the California pages
+  // that remain (/manage, /agreement, /yard) set their own titles.
+  title: `Roofing, Siding & Windows in Texas | ${SITE_NAME}`,
   description:
-    "See your price before you book, pick your arrival window, and know who's coming. " +
-    "Movers and a truck for one couch or a whole house — Bay Area to Sacramento.",
+    "Free roof inspection, a written price the same day, and a crew that shows up when we " +
+    "say. Roofing, siding, windows, gutters and fence across Dallas–Fort Worth, Houston, " +
+    "Austin and San Antonio.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

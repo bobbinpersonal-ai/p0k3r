@@ -1,502 +1,238 @@
-import Image from "next/image";
-import Link from "next/link";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
-import AutoplayVideo from "@/components/AutoplayVideo";
-import HeroBooking from "@/components/HeroBooking";
-import CaliforniaMap from "@/components/CaliforniaMap";
-import { serviceIcon, ToolsIcon } from "@/components/YardIcons";
-import { CITIES, getCity } from "@/lib/cities";
-import { CREW } from "@/lib/crew";
-import { bookableServices, startingPriceFor, EXEMPTION_LIMIT } from "@/lib/landscaping";
-import { loadEverything } from "@/lib/loadCatalogue";
-import {
-  MATCH_COUNT,
-  REFERRAL_PROMISE,
-} from "@/lib/majorTrades";
+import type { Metadata } from "next";
+import TxHeader from "@/components/tx/TxHeader";
+import TxFooter from "@/components/tx/TxFooter";
+import InspectionForm from "@/components/tx/InspectionForm";
+import { COMPANY, PHONE_DIGITS, PROOF } from "@/lib/texas/brand";
+import { TRADES } from "@/lib/texas/trades";
 
-const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
-const SUPPORT_PHONE_DIGITS = SUPPORT_PHONE.replace(/[^\d+]/g, "");
-const BOOKING_CITIES_BADGE = CITIES.map((c) => c.name).join(" · ");
-const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
+// The Texas landing page.
+//
+// It has one job at the top and one at the bottom. At the top: look like a
+// company that has done this two hundred times, because most of this traffic
+// is a homeowner googling us mid-phone-call to decide whether we're real. At
+// the bottom: capture consent to contact, which is what turns a stranger into
+// someone we may lawfully call and text.
+//
+// What used to be here — the California yard business — is on the
+// lovemeafter-v1 branch. Its customer-facing record links (/manage/<token>
+// and /agreement/<token>) are deliberately still live on this deploy: every
+// California confirmation points at them, and the agreement page carries a
+// statutory cancellation notice that has to stay reachable.
 
-export const metadata = {
-  title: "Home services, priced up front | LoveMeAfter",
+export const metadata: Metadata = {
+  title: `Roofing, Siding & Windows in Texas | ${COMPANY.name}`,
   description:
-    "Pressure washing, yard care, tree and shrub work and minor repairs across Sacramento, Roseville, Elk Grove and Northern California. Flat prices by property size. Bigger projects matched with licensed CSLB contractors.",
+    "Free roof inspection, a written price the same day, and a crew that shows up when we " +
+    "say. Roofing, siding, windows, gutters and fence across Dallas–Fort Worth, Houston, " +
+    "Austin and San Antonio.",
 };
 
-const HOW_IT_WORKS = [
+const STEPS = [
   {
-    title: "See the price first",
-    body: "Pick the job and roughly how big your property is. The number on the screen is the number we charge — no site visit, no callback, no account.",
+    title: "We inspect, free",
+    body: "Forty minutes on the roof and around the house. Photographs of everything we find.",
   },
   {
-    title: "Pick your day and hour",
-    body: "Choose when you want the crew there. A dispatcher confirms by phone, usually within 30 minutes.",
+    title: "You get a number that day",
+    body: "In writing, at your kitchen table. Not a range, not a callback, not a brochure.",
   },
   {
-    title: "We do the work",
-    body: "Mow, edge, blow down the hard surfaces, and take the clippings with us. Recurring? Same crew, same day each time.",
+    title: "We build it",
+    body: "Material on site, crew on time, and the site swept every evening before they leave.",
   },
 ];
 
-// The homepage has no yard photography — every image this company owns is of a
-// truck. Rather than dress a moving photo up as a lawn, the page leads with the
-// thing that actually differentiates it: the prices, all of them, in public.
-export default async function HomePage({
-  searchParams,
-}: {
-  searchParams: { [key: string]: string | string[] | undefined };
-}) {
-  const cityParam = searchParams.city;
-  const targetCity = typeof cityParam === "string" ? getCity(cityParam) : undefined;
+const FAQ = [
+  {
+    q: "Do I need to be home?",
+    a: "For the inspection, no — we can walk the roof and call you. For the appointment where you get the price, yes, and so does anyone else who'd be part of the decision. We'd rather do it once properly than twice.",
+  },
+  {
+    q: "Are you licensed?",
+    a: "Texas doesn't license roofing or general contractors — there is no state licence to hold, and anyone telling you they have one is telling you something odd. What we do carry is general liability insurance, city registration where we pull permits, and references in your neighbourhood. Ask for all three, from us and from anyone else you're talking to.",
+  },
+  {
+    q: "What if my insurance denies the claim?",
+    a: "Then you have a written scope and a photographed inspection, at no cost, and you decide what to do next. We'll quote the work retail if you want it done anyway.",
+  },
+  {
+    q: "How long does a roof take?",
+    a: "Most houses are a single day — tear-off in the morning, dried in by lunch, finished by evening. Bigger or steeper roofs run to two.",
+  },
+  {
+    q: "Do you pull permits?",
+    a: "Yes, where the city requires one, and it's included in the price rather than added afterwards.",
+  },
+  {
+    q: "What happens if something's wrong afterwards?",
+    a: `Call us. Workmanship is warranted for ${PROOF.workmanshipWarrantyYears} years and the shingle manufacturer warrants the material separately. We come back.`,
+  },
+];
 
-  // Whatever we're selling today, not whatever the code shipped with.
-  const { catalogue, referrals } = await loadEverything();
-  const services = bookableServices(catalogue);
-
+export default function HomePage() {
   return (
     <>
-      {/* Transparent: the hero video now runs behind the nav all the way to
-          the top of the page, same treatment as /moving's hero. */}
-      <SiteHeader transparent />
+      <TxHeader />
       <main>
-        <section className="relative overflow-hidden">
-          {/* Four clips of the crew working, concatenated into one file and
-              played in order as a single looping background — about a minute
-              before it repeats. The reel is replaced rather than extended each
-              time so the homepage doesn't quietly grow to 30MB; the clips it
-              drops stay in use individually on the pages below. Filenames carry
-              their own version so a replacement busts every browser and CDN
-              cache without query strings. See AutoplayVideo for why this
-              degrades to the poster frame rather than to nothing. */}
-          <div className="absolute inset-0">
-            <AutoplayVideo
-              mp4="/videos/hero-yard-v4.mp4"
-              webm="/videos/hero-yard-v4.webm"
-              poster="/images/hero-yard-v4-poster.jpg"
-              className="absolute inset-0"
-              videoClassName="absolute inset-0 h-full w-full object-cover object-center"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-paper/90 via-paper/60 to-paper/20 lg:hidden" />
-            {/* Heavy on the left where the headline sits, and nearly clear on
-                the right where the quote form does — the form is translucent
-                now, so scrimming that side would just fog the footage the
-                customer is meant to see through it. */}
-            <div className="absolute inset-0 hidden lg:block bg-gradient-to-r from-paper via-paper/80 to-paper/5" />
-            <div className="absolute inset-0 hidden lg:block bg-gradient-to-t from-paper via-transparent to-paper/25" />
-          </div>
-          <div className="relative mx-auto max-w-6xl px-4 pt-28 pb-12 sm:px-6 sm:pb-16 lg:pt-40">
-            {/* The booking flow lives here rather than on its own page — see
-                HeroBooking. The marketing copy is passed in so this stays a
-                server component; only the step-driven layout is client-side. */}
-            <HeroBooking
-              catalogue={catalogue}
-              city={targetCity?.slug}
-              intro={
-                <>
-                  <div className="w-full overflow-hidden rounded-full border border-white/10 bg-white/5 py-1.5">
-                    <div className="flex w-max animate-marquee gap-10 whitespace-nowrap px-3 font-mono text-xs uppercase tracking-widest text-brand-cyan">
-                      {[0, 1].map((i) => (
-                        <span key={i} className="flex shrink-0 items-center gap-2">
-                          <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-cyan" />
-                          Now booking · {BOOKING_CITIES_BADGE}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                  <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                    {/* Solid color, not a gradient bg-clip-text: -webkit-background-clip:
-                        text is genuinely fragile on older Safari/iPadOS — the gradient
-                        mask and the glyphs fall out of sync and part of the word renders
-                        invisible. See the same note on the moving page. */}
-                    Your home, handled.{" "}
-                    <span className="text-brand-cyan">Price up front.</span>
-                  </h1>
-                  <p className="mt-4 text-lg text-neutral-200">
-                    Pressure washing, yard care, tree and shrub work, and the small repairs
-                    nobody gets round to — Sacramento, Roseville, Elk Grove and across
-                    Northern California. Put in your address and see every service priced for
-                    your property. Bigger job? We&apos;ll match you with licensed contractors.
-                  </p>
-                  <div className="mt-6 hidden rounded-xl bg-paper px-3 py-2 lg:block">
-                    <a
-                      href="#pricing"
-                      className="text-sm font-semibold text-ink hover:text-brand-cyan"
-                    >
-                      See every price
-                    </a>
-                    <p className="mt-1 text-sm text-neutral-200">
-                      Rather talk it through? Call us —{" "}
-                      <a
-                        href={`tel:${SUPPORT_PHONE_DIGITS}`}
-                        className="font-mono font-semibold text-ink hover:text-brand-cyan"
-                      >
-                        {SUPPORT_PHONE}
-                      </a>
-                      .
-                    </p>
-                  </div>
-                </>
-              }
-            />
-
-            <div className="mt-6 rounded-xl bg-paper px-3 py-2 lg:hidden">
-              <a href="#pricing" className="text-sm font-semibold text-ink hover:text-brand-cyan">
-                See every price
-              </a>
-              <p className="mt-1 text-sm text-neutral-200">
-                Rather talk it through? Call us —{" "}
-                <a
-                  href={`tel:${SUPPORT_PHONE_DIGITS}`}
-                  className="font-mono font-semibold text-ink hover:text-brand-cyan"
-                >
-                  {SUPPORT_PHONE}
-                </a>
-                .
+        {/* Hero — form above the fold on a phone, which is where this traffic is. */}
+        <section className="relative overflow-hidden border-b border-white/10">
+          <div className="absolute inset-0 -z-10 bg-grid-fade" />
+          <div className="glow-blob absolute left-1/2 top-0 h-[480px] w-[860px] -translate-x-1/2 rounded-full" />
+          <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_minmax(0,380px)] lg:py-16">
+            <div className="min-w-0">
+              <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
+                Booking inspections across Texas
               </p>
-            </div>
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Services</p>
-          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            Your jobs, and what each service includes
-          </h2>
-          <p className="mt-2 max-w-2xl text-neutral-300">
-            Written out so nobody books a wash for a job that needs clearing, then gets a
-            different number at the gate. The first three are ours; the fourth goes to
-            licensed contractors.
-          </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            {services.map((service) => {
-              const Icon = serviceIcon(service.value);
-              const from = startingPriceFor(service.value, catalogue);
-              return (
-                <Link
-                  key={service.value}
-                  href={{ pathname: "/yard", query: { service: service.value } }}
-                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-brand/40 hover:bg-white/[0.08]"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    {Icon && <Icon />}
-                    <p className="font-mono text-sm text-brand-cyan">Starting ~${from}</p>
-                  </div>
-                  <h3 className="mt-3 text-lg font-semibold text-ink">{service.label}</h3>
-                  <p className="mt-1 text-neutral-300">{service.description}</p>
-                  <ul className="mt-4 grid gap-1">
-                    {service.includes.map((item) => (
-                      <li key={item} className="flex items-start gap-2 text-sm text-neutral-300">
-                        <span aria-hidden className="mt-0.5 text-brand-cyan">
-                          ✓
-                        </span>
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                  {service.materialsNote && (
-                    <p className="mt-3 text-xs text-neutral-400">{service.materialsNote}</p>
-                  )}
-                  {service.allowsRecurring && (
-                    <p className="mt-3 text-sm font-semibold text-brand">
-                      Save 20% per visit on a weekly plan →
-                    </p>
-                  )}
-                </Link>
-              );
-            })}
-
-            {/* The fourth card is a different kind of thing, and looks like it.
-                Dashed border, no price, and a CTA that says "quotes" rather
-                than "book" — because this is work we are not licensed to do
-                and the customer's contract will be with someone else. */}
-            <Link
-              href="/contractors"
-              className="rounded-2xl border border-dashed border-white/20 bg-white/[0.03] p-6 transition hover:border-brand/40 hover:bg-white/[0.06]"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <ToolsIcon />
-                <p className="font-mono text-sm text-brand-cyan">Free quotes</p>
-              </div>
-              <h3 className="mt-3 text-lg font-semibold text-ink">
-                Major Trades & Remodeling
-              </h3>
-              <p className="mt-1 text-neutral-300">
-                Connected directly with vetted, licensed &amp; insured CA contractors.
+              <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
+                Your roof is older than your last three cars.
+              </h1>
+              <p className="mt-4 text-lg text-neutral-200">
+                Free inspection, a written price the same day, and a crew that shows up when we
+                say. Roofing, siding, windows and fence across North Texas.
               </p>
-              <ul className="mt-4 grid gap-1">
-                {referrals.filter((p) => p.value !== "OTHER").map((project) => (
-                  <li
-                    key={project.value}
-                    className="flex items-start gap-2 text-sm text-neutral-300"
-                  >
-                    <span aria-hidden className="mt-0.5 text-brand-cyan">
-                      ✓
-                    </span>
-                    {project.label}
-                  </li>
+
+              <dl className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                {[
+                  ["Family-run", `${PROOF.yearsInBusiness} years`],
+                  ["Roofs completed", PROOF.roofsCompleted],
+                  ["Insurance paperwork", "We handle it"],
+                  ["Workmanship warranty", `${PROOF.workmanshipWarrantyYears} years`],
+                ].map(([label, value]) => (
+                  <div key={label} className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
+                    <dt className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
+                      {label}
+                    </dt>
+                    <dd className="mt-1 text-sm font-bold text-ink">{value}</dd>
+                  </div>
                 ))}
-              </ul>
-              <p className="mt-4 inline-block rounded-full bg-gradient-to-r from-brand to-brand-cyan px-5 py-2.5 text-sm font-semibold text-white shadow-sm">
-                Request Licensed Contractor Quotes
-              </p>
-              <p className="mt-3 text-xs text-neutral-400">{REFERRAL_PROMISE}</p>
-            </Link>
-          </div>
-        </section>
+              </dl>
+            </div>
 
-        {/* Starting prices only. The exact number depends on the property, and
-            the flow quotes it once the address tells us how big that is.
-            Everything bookable here sits under California's minor work
-            exemption by construction — see EXEMPTION_LIMIT in
-            src/lib/landscaping.ts, which the pricing tests enforce. */}
-        <section id="pricing" className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Pricing</p>
-          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">What it costs</h2>
-          <p className="mt-2 max-w-2xl text-neutral-300">
-            One flat price per visit, set by the service and the size of the property. Put
-            your address in and we&apos;ll show you all three priced for you — no site
-            visit, and the number you see is the number we charge.
-          </p>
-
-          <div className="mt-8 divide-y divide-white/5 rounded-2xl border border-white/10 bg-white/[0.04]">
-            {services.map((service) => (
-              <div
-                key={service.value}
-                className="flex flex-wrap items-baseline justify-between gap-2 px-6 py-5"
-              >
-                <div>
-                  <p className="font-semibold text-ink">{service.label}</p>
-                  {service.materialsNote && (
-                    <p className="text-xs text-neutral-400">{service.materialsNote}</p>
-                  )}
-                </div>
-                <p className="font-mono text-xl font-bold text-brand-cyan">
-                  From ${startingPriceFor(service.value, catalogue)}
-                </p>
-              </div>
-            ))}
-            <div className="flex flex-wrap items-baseline justify-between gap-2 px-6 py-5">
-              <div>
-                <p className="font-semibold text-ink">
-                  Major Trades (Kitchen, Bath, Trees)
-                </p>
-                <p className="text-xs text-neutral-400">
-                  Referred to licensed CA contractors — we don&apos;t quote this work
-                </p>
-              </div>
-              <p className="font-mono text-xl font-bold text-brand-cyan">
-                Free Custom Quotes
-              </p>
+            <div className="min-w-0">
+              <InspectionForm />
             </div>
           </div>
-
-          <div className="mt-8 rounded-2xl border border-white/10 bg-white/[0.04] p-6">
-            <p className="font-semibold text-ink">Weekly and every-other-week cost less</p>
-            <p className="mt-1 text-neutral-300">
-              A yard that never gets away from us is quicker to cut, so a weekly plan is 20%
-              less per visit and every other week is 10% less. Monthly is the same as a
-              one-off — by then it&apos;s grown back. No contract on any of them.
-            </p>
-          </div>
-
-          {/* B&P 7027.2: advertising work under the exemption has to say we're
-              unlicensed. It belongs next to the prices, where the claim is
-              being made, not only in the footer. */}
-          <p className="mt-6 max-w-3xl text-sm text-neutral-300">
-            {SITE_NAME} is not a licensed general contractor. The services above are minor
-            maintenance and yard care performed under California&apos;s{" "}
-            ${EXEMPTION_LIMIT.toLocaleString()} minor work exemption. Anything above that,
-            or needing a permit, is referred to{" "}
-            <Link href="/contractors" className="font-semibold text-brand-cyan hover:text-ink">
-              licensed contractors
-            </Link>
-            .
-          </p>
-
-          <div className="mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/yard"
-              className="inline-block rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
-            >
-              See my prices
-            </Link>
-            <Link
-              href="/contractors"
-              className="inline-block rounded-full border border-white/15 px-6 py-3 text-base font-semibold text-ink transition hover:bg-white/5"
-            >
-              Get {MATCH_COUNT} contractor quotes
-            </Link>
-          </div>
         </section>
 
-        <section className="relative overflow-hidden">
-          <div className="absolute inset-0 bg-grid-fade" />
-          <div className="relative mx-auto max-w-6xl px-4 py-16 sm:px-6">
-            <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Process</p>
-            <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">How it works</h2>
-            <div className="mt-8 grid gap-6 sm:grid-cols-3">
-              {HOW_IT_WORKS.map((step, i) => (
+        {/* Trades */}
+        <section id="trades" className="scroll-mt-20 border-b border-white/10">
+          <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+            <h2 className="text-3xl font-extrabold tracking-tight text-ink">What we do</h2>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {TRADES.map((trade) => (
                 <div
-                  key={step.title}
-                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-brand/40"
+                  key={trade.value}
+                  className="rounded-2xl border border-white/10 bg-white/[0.04] p-5"
                 >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-brand/30 bg-brand/10 font-mono text-sm font-bold text-brand-cyan">
-                    {String(i + 1).padStart(2, "0")}
-                  </div>
-                  <h3 className="mt-4 text-lg font-semibold text-ink">{step.title}</h3>
-                  <p className="mt-2 text-neutral-300">{step.body}</p>
+                  <h3 className="text-lg font-bold text-ink">{trade.label}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-neutral-300">
+                    {trade.blurb}
+                  </p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Your crew</p>
-          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            You&apos;ll know who&apos;s coming before they knock
-          </h2>
-          <p className="mt-2 max-w-2xl text-neutral-300">
-            Named people from your own area, shown to you while you&apos;re still booking —
-            not a stranger assigned by a call center the morning of. The same six do the
-            yards, the moves and the hauls, which is why a Tuesday mow and a Saturday move
-            are the same phone number.
-          </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <div className="relative aspect-video overflow-hidden rounded-3xl border border-white/10 glow">
-              <AutoplayVideo
-                mp4="/videos/yard-clip8-v2.mp4"
-                webm="/videos/yard-clip8-v2.webm"
-                poster="/images/yard-clip8-v2-poster.jpg"
-                alt="A LoveMeAfter crew working on a yard"
-                className="absolute inset-0"
-                videoClassName="absolute inset-0 h-full w-full object-cover object-center"
-              />
-            </div>
-            <div className="relative aspect-video overflow-hidden rounded-3xl border border-white/10 glow">
-              <AutoplayVideo
-                mp4="/videos/yard-clip9-v2.mp4"
-                webm="/videos/yard-clip9-v2.webm"
-                poster="/images/yard-clip9-v2-poster.jpg"
-                alt="A LoveMeAfter crew member on a yard job"
-                className="absolute inset-0"
-                videoClassName="absolute inset-0 h-full w-full object-cover object-center"
-              />
+        {/* Storm. The highest-intent segment in Texas, and the only honest
+            version of this pitch — see src/lib/texas/compliance.ts. */}
+        <section id="storm" className="scroll-mt-20 border-b border-white/10 bg-surface">
+          <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6">
+            <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+              Hail &amp; wind
+            </p>
+            <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-ink">
+              Start with the inspection, not the claim.
+            </h2>
+            <div className="mt-5 space-y-4 text-neutral-200">
+              <p>
+                We climb the roof, photograph what we find, and give you a written scope. If
+                there&apos;s a claim worth filing, we&apos;ll meet your adjuster up there and show
+                them the same damage we showed you.
+              </p>
+              <p>
+                You pay your deductible. We bill your carrier for the rest.
+              </p>
+              <p className="rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm leading-relaxed text-neutral-300">
+                We&apos;re roofing contractors, not public insurance adjusters. We can&apos;t
+                negotiate your claim for you — and anyone who offers to cover or waive your
+                deductible is offering you something Texas law makes a crime. If you hear it,
+                walk away, from us included.
+              </p>
             </div>
           </div>
+        </section>
 
-          <div className="mt-4 -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-4 sm:mx-0 sm:px-0">
-            {CREW.map((member) => (
-              <div
-                key={member.id}
-                className="w-44 shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]"
-              >
-                <div className="relative aspect-[4/5]">
-                  <Image
-                    src={member.photo}
-                    alt={member.name}
-                    fill
-                    sizes="176px"
-                    // Eager rather than lazy — see the note on the moving page:
-                    // lazy-load's intersection check has been flakier in a
-                    // horizontally-scrolling row than in a normal page scroll.
-                    loading="eager"
-                    className="object-cover"
-                  />
-                </div>
-                <div className="p-3">
-                  <p className="font-semibold text-ink">{member.name}</p>
-                  <p className="mt-0.5 text-xs text-neutral-300">
-                    {member.yardNote ?? member.note}
+        {/* How it works */}
+        <section id="how" className="scroll-mt-20 border-b border-white/10">
+          <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+            <h2 className="text-3xl font-extrabold tracking-tight text-ink">How it works</h2>
+            <ol className="mt-8 grid gap-6 sm:grid-cols-3">
+              {STEPS.map((step, i) => (
+                <li key={step.title}>
+                  <p className="font-mono text-2xl font-bold text-brand-cyan">
+                    {String(i + 1).padStart(2, "0")}
                   </p>
-                </div>
-              </div>
-            ))}
+                  <h3 className="mt-2 text-lg font-bold text-ink">{step.title}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-neutral-300">{step.body}</p>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Coverage</p>
-          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            Bay Area to Sacramento, and down the 99
-          </h2>
-          <p className="mt-2 max-w-2xl text-neutral-300">
-            San Francisco, Oakland, Davis, Sacramento, Stockton, Modesto and the towns
-            between. Tap one to book.
-          </p>
-          <div className="relative mx-auto mt-8 max-w-md overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-            <div className="absolute inset-0 bg-grid-fade" />
-            <div className="relative">
-              <CaliforniaMap />
+        {/* FAQ */}
+        <section className="border-b border-white/10">
+          <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
+            <h2 className="text-3xl font-extrabold tracking-tight text-ink">
+              Questions people actually ask
+            </h2>
+            <div className="mt-8 space-y-3">
+              {FAQ.map((item) => (
+                <details
+                  key={item.q}
+                  className="group rounded-2xl border border-white/10 bg-white/[0.04] p-5"
+                >
+                  <summary className="cursor-pointer list-none font-semibold text-ink marker:content-none">
+                    {item.q}
+                    <span className="float-right text-neutral-400 group-open:rotate-45">+</span>
+                  </summary>
+                  <p className="mt-3 text-sm leading-relaxed text-neutral-300">{item.a}</p>
+                </details>
+              ))}
             </div>
           </div>
         </section>
 
-        {/* The other two businesses. Kept as a real section rather than a
-            footer link: a landscaping customer moving house is one of the most
-            valuable leads this company can get, and they'll never think to
-            check whether their lawn guy also owns a truck. */}
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
-            Also on the truck
-          </p>
-          <h2 className="mt-2 text-2xl font-bold text-ink sm:text-3xl">
-            Same crew, same phone number
-          </h2>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
-            <Link
-              href="/moving"
-              className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-brand/40 hover:bg-white/[0.08]"
-            >
-              <h3 className="text-lg font-semibold text-ink">Moving</h3>
-              <p className="mt-1 text-neutral-300">
-                A couch off Marketplace, a dorm room in June, or a whole house. See the price
-                before you book.
-              </p>
-              <p className="mt-3 text-sm font-semibold text-brand-cyan">
-                Get a moving quote →
-              </p>
-            </Link>
-            <Link
-              href="/junk-removal"
-              className="rounded-2xl border border-white/10 bg-white/[0.04] p-6 transition hover:border-brand/40 hover:bg-white/[0.08]"
-            >
-              <h3 className="text-lg font-semibold text-ink">Junk removal</h3>
-              <p className="mt-1 text-neutral-300">
-                Garage, shed, or a whole cleanout. We load it, haul it, and find the right
-                place for it.
-              </p>
-              <p className="mt-3 text-sm font-semibold text-brand-cyan">
-                Get a haul-away quote →
-              </p>
-            </Link>
-          </div>
-        </section>
-
-        <section className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] px-6 py-14 text-center sm:px-12">
-            <div className="glow-blob absolute left-1/2 top-1/2 h-[300px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full" />
-            <div className="relative">
-              <h2 className="text-2xl font-bold text-ink sm:text-3xl">
-                Get your home off the to-do list
+        {/* Final CTA */}
+        <section className="relative overflow-hidden">
+          <div className="absolute inset-0 -z-10 bg-grid-fade" />
+          <div className="mx-auto grid max-w-6xl gap-8 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_minmax(0,380px)]">
+            <div className="min-w-0">
+              <h2 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
+                Find out what it actually costs.
               </h2>
-              <p className="mx-auto mt-2 max-w-xl text-neutral-300">
-                About a minute, no account, nothing charged. Worst case you know the number.
+              <p className="mt-3 text-lg text-neutral-200">
+                Free inspection, written scope, and a price the same day. No obligation and
+                nothing charged.
               </p>
-              <Link
-                href="/yard"
-                className="mt-6 inline-block rounded-full bg-gradient-to-r from-brand to-brand-cyan px-6 py-3 text-base font-semibold text-white shadow-lg shadow-brand/20 transition hover:opacity-90"
-              >
-                See my price
-              </Link>
+              <p className="mt-6">
+                <a
+                  href={`tel:${PHONE_DIGITS}`}
+                  className="font-mono text-lg font-bold text-brand-cyan hover:text-ink"
+                >
+                  Or call {COMPANY.phone}
+                </a>
+              </p>
+            </div>
+            <div className="min-w-0">
+              <InspectionForm source="website-footer" id="inspection-footer" />
             </div>
           </div>
         </section>
       </main>
-      <SiteFooter />
+      <TxFooter />
     </>
   );
 }

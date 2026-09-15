@@ -325,6 +325,19 @@ model Lead {
   /// Copied from the list at scrub time so screening is one query, not two.
   scrubbedAt    DateTime?
 
+  /// TCPA consent, captured when a lead fills in a form themselves.
+  ///
+  /// Stored as the words they actually saw rather than a boolean, because the
+  /// defence to a claim is producing that wording, on that date, at that URL —
+  /// and a later edit to the copy must not rewrite what an old lead agreed to.
+  /// Null on a purchased lead, which is exactly the point: bought rows carry
+  /// no consent, so the calling rules treat them differently.
+  consentText   String?
+  consentVersion String?
+  consentAt     DateTime?
+  consentIp     String?
+  consentUrl    String?
+
   attempts      CallAttempt[]
   appointments  Appointment[]
 
