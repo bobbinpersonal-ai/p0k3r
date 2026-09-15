@@ -92,10 +92,13 @@ export default function HomePage() {
                 say. Roofing, siding, windows and fence across North Texas.
               </p>
 
+              {/* Promises about how we work, not claims about how long we have
+                  been working. Anything historical here has to be true and
+                  evidenced before it goes on a page a homeowner reads. */}
               <dl className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
                 {[
-                  ["Family-run", `${PROOF.yearsInBusiness} years`],
-                  ["Roofs completed", PROOF.roofsCompleted],
+                  ["The inspection", "Free, no obligation"],
+                  ["Your price", "In writing, same day"],
                   ["Insurance paperwork", "We handle it"],
                   ["Workmanship warranty", `${PROOF.workmanshipWarrantyYears} years`],
                 ].map(([label, value]) => (

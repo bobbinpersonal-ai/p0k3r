@@ -12,11 +12,16 @@ export const COMPANY = {
   /** The legal entity on the contracts. See docs/texas.md — file this first. */
   legalName: process.env.NEXT_PUBLIC_LEGAL_ENTITY || "LoveMeAfter LLC",
   /**
-   * A local Texas number, not the California one. Caller ID is most of the
-   * answer rate on a cold call, and a 786 area code ringing a Plano landline
-   * gets picked up about as often as a blocked number.
+   * A local Texas number, ideally. Caller ID is most of the answer rate on a
+   * cold call, and an out-of-state area code ringing a Plano landline gets
+   * picked up about as often as a blocked number.
+   *
+   * Falls back to the existing business line rather than to a 555 placeholder:
+   * this number is printed on a live page telling homeowners to ring it, and a
+   * wrong area code costs some credibility where a fake number costs every
+   * single caller. Set NEXT_PUBLIC_TX_PHONE to a real Texas number.
    */
-  phone: process.env.NEXT_PUBLIC_TX_PHONE || "(214) 555-0148",
+  phone: process.env.NEXT_PUBLIC_TX_PHONE || process.env.NEXT_PUBLIC_SUPPORT_PHONE || "",
   email: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "hello@lovemeafter.com",
   /** Where a cancellation notice can be posted. Required on the contract. */
   address: process.env.NEXT_PUBLIC_BUSINESS_ADDRESS || "",
@@ -39,11 +44,22 @@ export const MARKETS = [
 
 export const ALL_CITIES = MARKETS.flatMap((m) => m.cities);
 
-/** Numbers on the trust strip. Replace with real ones before launch. */
+/**
+ * Claims the site makes about the company.
+ *
+ * Deliberately thin. "1,400 roofs completed" and "family-run nine years" were
+ * here as placeholders and have been removed rather than shipped: they are
+ * factual assertions about a business, a homeowner reads them as true, and
+ * inventing them is both a lie and an FTC problem. Put them back when they
+ * are true, as numbers you can evidence.
+ *
+ * What is left is a term the owner controls rather than a history they would
+ * have to have. It is still a promise — a workmanship warranty stated on a
+ * website is one a customer may hold you to — so set it to what you will
+ * actually honour.
+ */
 export const PROOF = {
-  roofsCompleted: "1,400+",
-  workmanshipWarrantyYears: 10,
-  yearsInBusiness: 9,
+  workmanshipWarrantyYears: Number(process.env.NEXT_PUBLIC_TX_WARRANTY_YEARS ?? 10),
 } as const;
 
 /**
