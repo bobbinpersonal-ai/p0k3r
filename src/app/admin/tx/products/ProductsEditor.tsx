@@ -315,6 +315,18 @@ export default function ProductsEditor({ initial }: { initial: Editable[] }) {
               </p>
             </div>
 
+            {/* Where the trade stops. On garage doors this is the licensing
+                line, not a caveat, so whoever prices the work sees it. */}
+            {trade.excludes.length > 0 && (
+              <ul className="mt-2 space-y-0.5 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2">
+                {trade.excludes.map((item) => (
+                  <li key={item} className="text-xs text-neutral-400">
+                    · {item}
+                  </li>
+                ))}
+              </ul>
+            )}
+
             <div className="mt-3 space-y-2">
               {mine.map((product) => {
                 const key = keyOf(product);

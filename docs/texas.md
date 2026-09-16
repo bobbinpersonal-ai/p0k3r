@@ -11,7 +11,7 @@ That is real and it is the reason this business can be built this way. It is
 not the same as "no rules".
 
 **Unlicensed, and what we sell:** roofing, siding, windows, gutters, fence,
-exterior paint. All six are in `src/lib/texas/trades.ts`.
+garage doors, exterior paint. All seven are in `src/lib/texas/trades.ts`.
 
 **State-licensed, and therefore not ours:** electrical (TDLR), plumbing (Texas
 State Board of Plumbing Examiners), HVAC (TDLR), lawn irrigation (TCEQ). A job
@@ -24,6 +24,33 @@ Austin, San Antonio and Fort Worth each require permits for a re-roof or a
 fence over a certain height, and several require the contractor to be
 registered with the city before pulling one. Register in every city you sell
 in, before you sell in it.
+
+### Garage doors have their own line, and it is electrical
+
+Hanging a garage door is unlicensed work in Texas like the rest of what we
+sell. Wiring for it is not.
+
+- **Plugging an opener into an outlet that is already up there: fine.**
+- **Running a new circuit for one: licensed electrical work (TDLR).** It goes
+  to a licensed electrician who contracts with the homeowner directly, exactly
+  like plumbing or HVAC.
+
+That is the whole distinction and it comes up on a real fraction of garage
+door jobs, because plenty of older garages have no outlet on the ceiling. A
+rep who says "we'll run you a plug" has just sold licensed work.
+
+Two more things about this trade specifically:
+
+- **Springs.** Torsion springs under tension are the genuinely dangerous part
+  of this business. Not a licensing question, a training-and-insurance one.
+  Check your GL policy actually covers garage door work before the first job.
+- **Coastal windstorm.** In the Texas seacoast counties — and parts of Harris
+  County — a garage door has to be windstorm-rated and carry a **WPI-8
+  certificate** for the homeowner to stay insurable under TWIA. A garage door
+  is the most common way a house fails in a hurricane, which is why it is
+  regulated this way. If you sell anywhere near the coast out of the Houston
+  market, get the rating right or you can cost a homeowner their coverage.
+  `trades.ts` lists it as an exclusion so nobody sells one by accident.
 
 ## The three laws that bite an in-home roofing sale
 

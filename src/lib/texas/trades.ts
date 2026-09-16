@@ -103,6 +103,16 @@ export type Trade = {
   minimumUnits: number;
   /** A job this size is a typo, not a sale — asked to confirm, not refused. */
   implausibleAbove: number;
+  /**
+   * Where this trade stops.
+   *
+   * Data rather than a note, because on some trades it is the compliance
+   * boundary and not a marketing caveat. Garage doors is the clearest case:
+   * hanging the door is unlicensed work, and running a new circuit for the
+   * opener is licensed electrical. The line has to be somewhere a rep and a
+   * crew both read.
+   */
+  excludes: readonly string[];
   options: readonly TradeOption[];
 };
 
@@ -114,6 +124,7 @@ export const TRADES: readonly Trade[] = [
     unit: "SQUARE",
     minimumUnits: 8,
     implausibleAbove: 120,
+    excludes: [],
     options: [
       {
         value: "OC_OAKRIDGE",
@@ -240,6 +251,7 @@ export const TRADES: readonly Trade[] = [
     unit: "SQUARE",
     minimumUnits: 4,
     implausibleAbove: 90,
+    excludes: [],
     options: [
       {
         value: "ALSIDE_PRODIGY",
@@ -316,6 +328,7 @@ export const TRADES: readonly Trade[] = [
     unit: "OPENING",
     minimumUnits: 3,
     implausibleAbove: 60,
+    excludes: [],
     options: [
       {
         value: "ANLIN_CATALINA",
@@ -392,6 +405,7 @@ export const TRADES: readonly Trade[] = [
     unit: "LINEAR_FOOT",
     minimumUnits: 40,
     implausibleAbove: 600,
+    excludes: [],
     options: [
       {
         value: "K5",
@@ -430,6 +444,7 @@ export const TRADES: readonly Trade[] = [
     unit: "LINEAR_FOOT",
     minimumUnits: 30,
     implausibleAbove: 800,
+    excludes: [],
     options: [
       {
         value: "CEDAR_6",
@@ -462,12 +477,112 @@ export const TRADES: readonly Trade[] = [
     ],
   },
   {
+    value: "GARAGE_DOORS",
+    label: "Garage doors",
+    blurb: "The biggest moving object on the house, and the loudest.",
+    unit: "OPENING",
+    // Priced per door rather than per square foot, and a single and a double
+    // are separate products because a 16-footer is not two 8-footers.
+    minimumUnits: 1,
+    implausibleAbove: 6,
+    // Hanging a door is unlicensed work in Texas. Wiring for it is not.
+    // Plugging an opener into an outlet that already exists is fine; putting
+    // a new circuit in for one is licensed electrical (TDLR) and goes to a
+    // licensed contractor who deals with the homeowner directly.
+    excludes: [
+      "No new electrical circuits — an opener goes into an existing outlet or an electrician does it",
+      "No structural changes to the opening — header work is a different trade",
+      "No coastal windstorm-rated installs without a WPI-8 certificate on the job",
+    ],
+    options: [
+      {
+        value: "CLOPAY_STEEL",
+        label: "Clopay steel, non-insulated",
+        description: "The honest replacement. New door, new springs, new track.",
+        brand: "Clopay",
+        line: "Classic Steel",
+        tier: "GOOD",
+        warranty: null,
+        sellingPoints: [
+          "Everything behind the door is new too — springs, rollers, track",
+          "The rattle and the noise go away with the old one",
+        ],
+        costPerUnit: 650,
+        basePerUnit: 1050,
+      },
+      {
+        value: "CLOPAY_INSULATED",
+        label: "Clopay insulated steel",
+        description: "Two-layer insulated. The one to sell on an attached garage.",
+        brand: "Clopay",
+        line: "Classic Steel Insulated",
+        tier: "BETTER",
+        warranty: null,
+        sellingPoints: [
+          "If there is a room over the garage, this is the one",
+          "Quieter — the insulation kills the boom",
+          "Matters in Texas: an uninsulated garage bakes the wall it shares with the house",
+        ],
+        costPerUnit: 850,
+        basePerUnit: 1375,
+      },
+      {
+        value: "CLOPAY_DOUBLE_INSULATED",
+        label: "Clopay insulated steel, double",
+        description: "16-foot insulated. The common two-car replacement.",
+        brand: "Clopay",
+        line: "Classic Steel Insulated",
+        tier: "BETTER",
+        warranty: null,
+        sellingPoints: [
+          "One door, the whole front of the garage",
+          "Insulated, so the garage stops being an oven in July",
+        ],
+        costPerUnit: 1350,
+        basePerUnit: 2150,
+      },
+      {
+        value: "CARRIAGE_HOUSE",
+        label: "Carriage house, double",
+        description: "Faux-wood carriage style. The one that changes the front of the house.",
+        brand: "Clopay",
+        line: "Coachman",
+        tier: "BEST",
+        warranty: null,
+        sellingPoints: [
+          "The garage door is a third of what you see from the street",
+          "Reads as timber, behaves as steel",
+          "The upgrade people actually notice from the kerb",
+        ],
+        costPerUnit: 2400,
+        basePerUnit: 3800,
+      },
+      {
+        value: "LIFTMASTER_OPENER",
+        label: "LiftMaster opener",
+        description: "Belt drive, phone control. Sold with the door, not after it.",
+        brand: "LiftMaster",
+        line: "Belt drive",
+        tier: "BETTER",
+        warranty: null,
+        sellingPoints: [
+          "Belt, not chain — you stop hearing it through the ceiling",
+          "Opens from the phone, and tells you when it was left open",
+          "Goes into the outlet that is already up there",
+        ],
+        costPerUnit: 380,
+        basePerUnit: 650,
+      },
+    ],
+  },
+  {
     value: "PAINT",
     label: "Exterior paint",
     blurb: "Wash, scrape, caulk, prime, two coats. Not one.",
     unit: "SQUARE",
     minimumUnits: 8,
     implausibleAbove: 80,
+    excludes: [],
     options: [
       {
         value: "TEXCOTE_COOLWALL",
