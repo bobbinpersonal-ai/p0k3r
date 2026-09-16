@@ -261,6 +261,19 @@ model Rep {
   email         String?
   active        Boolean  @default(true)
 
+  /// APPLIED, ACTIVE or INACTIVE.
+  ///
+  /// An applicant is a rep we have not hired yet rather than a different kind
+  /// of thing — same name, same phone, same commission terms once they start —
+  /// so /sell writes an APPLIED row instead of filling a second table that
+  /// would have to be copied across on the day they are taken on.
+  status        String   @default("ACTIVE")
+  /// What they told us on the application. Kept for the phone screen.
+  city          String?
+  experience    String?
+  notes         String?
+  source        String?
+
   /// 1099 paperwork. No W-9, no payout — see WorkerPayout for the same rule
   /// on crews. Kept as a flag rather than the form itself: we need to know
   /// that it exists, not to store a social security number.

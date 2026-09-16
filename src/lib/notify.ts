@@ -373,3 +373,59 @@ export async function notifyDriverAssigned(booking: Booking & { driver: Driver |
     ],
   });
 }
+
+
+// --- Texas -------------------------------------------------------------------
+
+/**
+ * A homeowner filled in the form on the website.
+ *
+ * This exists because the site went live collecting leads that landed in a
+ * table nobody read. A lead nobody is told about is a lead lost, and on a
+ * five-figure job the cost of missing one dwarfs everything else in this file.
+ */
+export async function notifyNewTexasLead(lead: {
+  customerName: string;
+  customerPhone: string;
+  address: string;
+  trade: string | null;
+  jobKind: string;
+  source: string | null;
+  consentAt: Date | null;
+}): Promise<void> {
+  const insurance = lead.jobKind === "INSURANCE";
+  await notifyOwner({
+    subject: `New lead — ${lead.customerName} — ${lead.trade ?? "not sure"}${insurance ? " (insurance)" : ""}`,
+    lines: [
+      `${lead.customerName} — ${lead.customerPhone}`,
+      lead.address,
+      `Wants: ${lead.trade ?? "not sure — wants somebody to look"}`,
+      insurance ? "Insurance job — carrier pays, homeowner pays the deductible." : null,
+      lead.source ? `From: ${lead.source}` : null,
+      // Whether they may lawfully be called and texted, stated where the
+      // person about to ring them will read it.
+      lead.consentAt
+        ? "They ticked the consent box — you may call and text this number."
+        : "NO consent box ticked. Work it, but do not text marketing to this number.",
+      "→ Call them today. Speed to lead is most of the conversion on this.",
+    ].filter((line): line is string => Boolean(line)),
+  });
+}
+
+/** Somebody applied to sell for us. */
+export async function notifyNewRepApplication(rep: {
+  name: string;
+  phone: string;
+  city: string | null;
+  experience: string | null;
+}): Promise<void> {
+  await notifyOwner({
+    subject: `Sales applicant — ${rep.name}${rep.city ? ` — ${rep.city}` : ""}`,
+    lines: [
+      `${rep.name} — ${rep.phone}`,
+      rep.city ? `City: ${rep.city}` : null,
+      rep.experience ? `Experience: ${rep.experience}` : null,
+      "→ Phone screen same day. Ask them to walk you through the last thing they sold in someone's house.",
+    ].filter((line): line is string => Boolean(line)),
+  });
+}

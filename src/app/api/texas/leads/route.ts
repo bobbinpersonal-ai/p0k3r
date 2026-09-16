@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { CONSENT_VERSION, CONTACT_CONSENT_TEXT } from "@/lib/texas/brand";
 import { getTrade } from "@/lib/texas/trades";
+import { notifyNewTexasLead } from "@/lib/notify";
 
 // Inbound leads from the website — somebody who came to us rather than
 // somebody we bought.
@@ -51,6 +52,8 @@ export async function POST(req: NextRequest) {
   // number we may dial, so we record the absence rather than inventing one.
   const consented = body.consent === true;
 
+  // "Not sure" is a real answer and not a trade. It stores as null — the rep
+  // finds out on the inspection, which is what they are going out to do.
   const trade = typeof body.trade === "string" && getTrade(body.trade) ? body.trade : null;
   const jobKind = body.jobKind === "INSURANCE" ? "INSURANCE" : "RETAIL";
 
@@ -99,6 +102,12 @@ export async function POST(req: NextRequest) {
       ...consentFields,
     },
   });
+
+  // Awaited rather than fired and forgotten: a serverless function that
+  // returns first may be frozen before the send completes, and a lead nobody
+  // hears about is the whole problem this solves. A failed notification never
+  // fails the lead — see notify.ts.
+  await notifyNewTexasLead(lead);
 
   return NextResponse.json({ ok: true, id: lead.id }, { status: 201 });
 }

@@ -84,7 +84,21 @@ export default function InspectionForm({
       className="scroll-mt-20 rounded-2xl border border-white/10 bg-paper/80 p-5 backdrop-blur"
     >
       <h2 className="text-xl font-extrabold text-ink">Get your free inspection</h2>
+      {/* The easy question first. A dropdown costs one tap and gets somebody
+          into the form before a stranger asks for their name and address.
+          The two options that shared value="" made the default state
+          ambiguous; the prompt is the empty one, and "not sure" is a real
+          answer with a value of its own. */}
       <div className="mt-4 space-y-3">
+        <select name="trade" defaultValue="" className={FIELD} aria-label="What needs work">
+          <option value="">What needs work?</option>
+          {TRADES.map((trade) => (
+            <option key={trade.value} value={trade.value}>
+              {trade.label}
+            </option>
+          ))}
+          <option value="NOT_SURE">Not sure — come and look</option>
+        </select>
         <input name="customerName" required placeholder="Name" autoComplete="name" className={FIELD} />
         <input
           name="customerPhone"
@@ -102,15 +116,6 @@ export default function InspectionForm({
           autoComplete="street-address"
           className={FIELD}
         />
-        <select name="trade" defaultValue="" className={FIELD} aria-label="What needs work">
-          <option value="">What needs work?</option>
-          {TRADES.map((trade) => (
-            <option key={trade.value} value={trade.value}>
-              {trade.label}
-            </option>
-          ))}
-          <option value="">Not sure / something else</option>
-        </select>
       </div>
 
       {error && (

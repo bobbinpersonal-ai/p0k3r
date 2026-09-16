@@ -10,6 +10,18 @@ const config: Config = {
       // near-black reads as an intentional colour on every screen, and on
       // OLED it still looks near-black. It also avoids the halation you get
       // from white-on-pure-black text.
+      keyframes: {
+        // Half the distance, because the track is rendered twice — at -50% the
+        // second copy sits exactly where the first started and the loop has no
+        // visible seam.
+        marquee: {
+          from: { transform: "translateX(0)" },
+          to: { transform: "translateX(-100%)" },
+        },
+      },
+      animation: {
+        marquee: "marquee 38s linear infinite",
+      },
       colors: {
         brand: {
           DEFAULT: "#F0455A",

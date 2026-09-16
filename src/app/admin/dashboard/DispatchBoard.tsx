@@ -188,6 +188,18 @@ export default function DispatchBoard({
             Door knock
           </a>
           <a
+            href="/admin/tx/leads"
+            className="rounded-full border border-brand/40 bg-brand/10 px-4 py-2 text-sm font-semibold text-brand-cyan hover:border-brand"
+          >
+            Texas leads
+          </a>
+          <a
+            href="/admin/tx/products"
+            className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-neutral-200 hover:border-brand hover:text-brand-cyan"
+          >
+            Products
+          </a>
+          <a
             href="/admin/services"
             className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-neutral-200 hover:border-brand hover:text-brand-cyan"
           >

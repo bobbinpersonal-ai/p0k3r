@@ -33,6 +33,7 @@ export default async function ProductsPage() {
       )}
 
       <div className="mt-4 flex flex-wrap gap-4 font-mono text-xs uppercase tracking-widest">
+        <Link href="/admin/tx/leads" className="text-neutral-300 underline">Texas leads</Link>
         <Link href="/admin/dashboard" className="text-neutral-300 underline">Dispatch board</Link>
         <Link href="/admin/services" className="text-neutral-300 underline">California services</Link>
       </div>

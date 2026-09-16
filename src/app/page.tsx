@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import TxHeader from "@/components/tx/TxHeader";
 import TxFooter from "@/components/tx/TxFooter";
 import InspectionForm from "@/components/tx/InspectionForm";
-import { COMPANY, PHONE_DIGITS, PROOF } from "@/lib/texas/brand";
+import TradeMarquee from "@/components/tx/TradeMarquee";
+import { COMPANY, FINANCING_ENABLED, FINANCING_PARTNER, PHONE_DIGITS, PROOF } from "@/lib/texas/brand";
 import { TRADES } from "@/lib/texas/trades";
 
 // The Texas landing page.
@@ -20,11 +21,11 @@ import { TRADES } from "@/lib/texas/trades";
 // statutory cancellation notice that has to stay reachable.
 
 export const metadata: Metadata = {
-  title: `Roofing, Siding & Windows in Texas | ${COMPANY.name}`,
+  title: `Home Exterior Remodeling in Texas | ${COMPANY.name}`,
   description:
-    "Free roof inspection, a written price the same day, and a crew that shows up when we " +
-    "say. Roofing, siding, windows, gutters and fence across Dallas–Fort Worth, Houston, " +
-    "Austin and San Antonio.",
+    "Roofing, siding, windows, gutters, garage doors, fence and exterior paint across " +
+    "Dallas–Fort Worth, Houston, Austin and San Antonio. Free inspection and a written " +
+    "price the same day.",
 };
 
 const STEPS = [
@@ -48,8 +49,8 @@ const FAQ = [
     a: "For the inspection, no — we can walk the roof and call you. For the appointment where you get the price, yes, and so does anyone else who'd be part of the decision. We'd rather do it once properly than twice.",
   },
   {
-    q: "Are you licensed?",
-    a: "Texas doesn't license roofing or general contractors — there is no state licence to hold, and anyone telling you they have one is telling you something odd. What we do carry is general liability insurance, city registration where we pull permits, and references in your neighbourhood. Ask for all three, from us and from anyone else you're talking to.",
+    q: "How do I know you're the real thing?",
+    a: "Ask us for three things and ask everyone else for them too: a certificate of general liability insurance with your name on it, the permit we pulled for your city, and two addresses in your neighbourhood you can drive past. We'll hand all three over without being chased. A company that hesitates on any of them is telling you something.",
   },
   {
     q: "What if my insurance denies the claim?",
@@ -73,6 +74,7 @@ export default function HomePage() {
   return (
     <>
       <TxHeader />
+      <TradeMarquee />
       <main>
         {/* Hero — form above the fold on a phone, which is where this traffic is. */}
         <section className="relative overflow-hidden border-b border-white/10">
@@ -85,11 +87,12 @@ export default function HomePage() {
                 Booking inspections across Texas
               </p>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                Your roof is older than your last three cars.
+                The outside of your house is the part you stopped looking at.
               </h1>
               <p className="mt-4 text-lg text-neutral-200">
-                Free inspection, a written price the same day, and a crew that shows up when we
-                say. Roofing, siding, windows and fence across North Texas.
+                Roof, siding, windows, gutters, garage doors, fence, paint — one crew, one
+                number, one company that answers the phone afterwards. Free inspection, a
+                written price the same day, and we show up when we said we would.
               </p>
 
               {/* Promises about how we work, not claims about how long we have
@@ -166,6 +169,24 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+
+        {FINANCING_ENABLED && (
+          <section className="border-b border-white/10 bg-surface">
+            <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+              <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                Financing
+              </p>
+              <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">
+                Most people do this on a monthly payment.
+              </h2>
+              <p className="mt-3 text-neutral-200">
+                We finance through {FINANCING_PARTNER}. Your rep can run the approval at the
+                kitchen table in a few minutes and tell you the monthly number before you decide
+                anything. Approval and terms come from {FINANCING_PARTNER}, not from us.
+              </p>
+            </div>
+          </section>
+        )}
 
         {/* How it works */}
         <section id="how" className="scroll-mt-20 border-b border-white/10">

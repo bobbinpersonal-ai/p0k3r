@@ -63,6 +63,41 @@ export const PROOF = {
 } as const;
 
 /**
+ * The scrolling strip under the nav.
+ *
+ * Deliberately longer and more specific than the seven trades: a homeowner
+ * scanning a header is looking for their own job, and "roofing" does not catch
+ * somebody whose soffit is rotting. The list is what we actually do, said the
+ * way a customer would say it.
+ */
+export const WHAT_WE_DO = [
+  "Roof replacement",
+  "Storm & hail damage",
+  "Siding",
+  "Windows",
+  "Gutters",
+  "Garage doors",
+  "Fencing",
+  "Exterior paint",
+  "Soffit & fascia",
+  "Patio covers",
+  "Insurance claims",
+  "Free inspections",
+] as const;
+
+/**
+ * Financing, which is half of residential construction.
+ *
+ * Off until a lender is actually signed. A payment figure on a website is a
+ * promise about credit we cannot keep on somebody else's behalf, and naming a
+ * partner we have no agreement with is worse — so this shows nothing until
+ * NEXT_PUBLIC_TX_FINANCING_PARTNER is set. See docs/texas-launch.md for who to
+ * sign with.
+ */
+export const FINANCING_PARTNER = process.env.NEXT_PUBLIC_TX_FINANCING_PARTNER || "";
+export const FINANCING_ENABLED = Boolean(FINANCING_PARTNER);
+
+/**
  * The consent sentence under the form button.
  *
  * The most legally important text on the site: it is what turns somebody who
