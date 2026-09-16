@@ -13,6 +13,12 @@ import {
 } from "@/lib/texas/contracts";
 import { repAgreement } from "@/lib/texas/repAgreement";
 import { crewAgreement, lienWaiver, type WaiverKind } from "@/lib/texas/crewAgreement";
+import {
+  OPENING_FEE_RATE,
+  PRESENT_FEE_RATE,
+  referralAgreement,
+  TERM_LIMIT_DAYS,
+} from "@/lib/texas/referralAgreement";
 import { RAILS, feeFor, paymentSchedule, depositFor, TRUST_RULE, CANCEL_HOLD_RULE } from "@/lib/texas/payments";
 import { TRADES } from "@/lib/texas/trades";
 
@@ -28,6 +34,7 @@ const DOCS = [
   { key: "homeowner", label: "Homeowner contract" },
   { key: "rep", label: "Sales rep agreement (1099)" },
   { key: "crew", label: "Subcontractor agreement" },
+  { key: "referral", label: "Referral deal with a contractor" },
   { key: "waivers", label: "Lien waivers" },
   { key: "payments", label: "Getting paid" },
 ] as const;
@@ -192,6 +199,7 @@ export default function PaperworkPage({
       {(!doc || doc === "homeowner") && <HomeownerDoc />}
       {(!doc || doc === "rep") && <RepDoc />}
       {(!doc || doc === "crew") && <CrewDoc />}
+      {(!doc || doc === "referral") && <ReferralDoc />}
       {(!doc || doc === "waivers") && <WaiverDocs />}
       {(!doc || doc === "payments") && <PaymentsDoc />}
     </main>
@@ -324,6 +332,33 @@ function CrewDoc() {
   return (
     <DocShell title={agreement.title}>
       <Warnings warnings={agreement.warnings} />
+      {agreement.sections.map((s) => (
+        <Section key={s.heading} heading={s.heading} body={s.body} />
+      ))}
+      <Signatures lines={agreement.signatureLines} />
+    </DocShell>
+  );
+}
+
+function ReferralDoc() {
+  // SET_AND_PRESENT by default. Being in the room is worth more than the extra
+  // points: you see the close rather than being told about it, and you learn
+  // what the objections actually are before you have crews of your own.
+  const agreement = referralAgreement({
+    contractorName: "[Contractor name]",
+    trades: ["exterior paint", "fence"],
+    mode: "SET_AND_PRESENT",
+    effective: new Date(),
+  });
+  return (
+    <DocShell title={agreement.title}>
+      <Warnings warnings={agreement.warnings} />
+      <p className="mt-3 rounded-xl border border-white/10 bg-white/[0.04] p-3 text-xs leading-relaxed text-neutral-300 print:hidden">
+        For the phase before you have crews. You book the appointments, somebody else builds the
+        work, and you take {Math.round(PRESENT_FEE_RATE * 100)}% for running the appointment —
+        or {Math.round(OPENING_FEE_RATE * 100)}% if you only set it and stay away. Review it
+        after {TERM_LIMIT_DAYS} days: it is written to be outgrown.
+      </p>
       {agreement.sections.map((s) => (
         <Section key={s.heading} heading={s.heading} body={s.body} />
       ))}
