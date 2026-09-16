@@ -12,7 +12,7 @@
 // standing between us and a job we lose money on. Same reasoning as the crew
 // wage floor on the California side: the rule lives in code, not in a memo.
 
-import { priceJob, type MeasuredLine } from "@/lib/texas/trades";
+import { priceJob, type MeasuredLine, type Trade } from "@/lib/texas/trades";
 
 /** The rep's share of everything sold above base. */
 export const OVERAGE_RATE = 0.6;
@@ -94,8 +94,9 @@ export function dealForLines(
   lines: readonly MeasuredLine[],
   sold: number,
   terms: CommissionTerms = DEFAULT_TERMS,
+  book?: readonly Trade[],
 ): Deal | undefined {
-  const { cost, base } = priceJob(lines);
+  const { cost, base } = priceJob(lines, book);
   return dealAt({ cost, base }, sold, terms);
 }
 

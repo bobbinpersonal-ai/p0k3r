@@ -579,3 +579,38 @@ model Appointment {
   @@index([repId, startsAt])
   @@index([status])
 }
+
+/// A product added or edited at /admin/tx/products.
+///
+/// Overlays the price book in src/lib/texas/trades.ts the same way
+/// ServiceConfig overlays the California catalogue: a row matching a seeded
+/// option replaces it, a row with a new value adds one, and deleting a row
+/// reverts rather than deletes. Signing a new supplier is a form, not a deploy.
+model ProductConfig {
+  id            String   @id @default(cuid())
+  /// Which trade it belongs to — ROOFING, SIDING, WINDOWS, GUTTERS, FENCE, PAINT.
+  trade         String
+  value         String
+
+  label         String
+  description   String
+  brand         String?
+  line          String?
+  /// GOOD, BETTER or BEST — where it sits in the three a rep lays out.
+  tier          String   @default("BETTER")
+  /// Copied verbatim from the manufacturer's dealer materials, or null.
+  warranty      String?
+  sellingPoints String[]
+
+  costPerUnit   Float
+  basePerUnit   Float
+
+  active        Boolean  @default(true)
+  sortOrder     Int      @default(100)
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([trade, value])
+  @@index([trade])
+}
