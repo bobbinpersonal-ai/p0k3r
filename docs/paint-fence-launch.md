@@ -1,6 +1,6 @@
 # Launching on paint and fence
 
-The roofing script in `docs/texas-launch.md` does not work for these trades and
+The roofing script in `docs/launch-playbook.md` does not work for these trades and
 should not be adapted. It runs on an event the homeowner already knows about —
 a storm — and on somebody else's money. Paint and fence have neither. Nobody
 wakes up with a fence emergency.
@@ -237,7 +237,7 @@ Then 2–4 photos. Not twelve. Before-and-after pairs beat hero shots.
 - Supply houses: Sherwin-Williams and Kelly-Moore commercial desks know every
   painter in the area and who pays their bills. Same for fence at a lumber
   yard.
-- Facebook contractor groups, same ones in `docs/texas-recruiting.md`.
+- Facebook contractor groups, same ones in `docs/partner-recruiting.md`.
 - Ask for: proof of general liability, two customers you can call, and a
   written price list you can quote from.
 

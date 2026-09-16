@@ -14,9 +14,9 @@ const GTAG_ID = GOOGLE_ADS_ID || GA_MEASUREMENT_ID;
 export const metadata: Metadata = {
   // Keyword first, brand last: this is the line in a search result and in a
   // Marketplace ad preview, and "movers" is what anyone is actually scanning for.
-  // The site is the Texas construction business now; the California pages
+  // The site is the multi-state contractor network now; the California pages
   // that remain (/manage, /agreement, /yard) set their own titles.
-  title: `Roofing, Siding & Windows in Texas | ${SITE_NAME}`,
+  title: `Free Exterior Inspections · Vetted Local Contractors | ${SITE_NAME}`,
   description:
     "Free roof inspection, a written price the same day, and a crew that shows up when we " +
     "say. Roofing, siding, windows, gutters and fence across Dallas–Fort Worth, Houston, " +

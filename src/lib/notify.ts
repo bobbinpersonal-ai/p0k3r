@@ -375,7 +375,7 @@ export async function notifyDriverAssigned(booking: Booking & { driver: Driver |
 }
 
 
-// --- Texas -------------------------------------------------------------------
+// --- Network -------------------------------------------------------------------
 
 /**
  * A homeowner filled in the form on the website.
@@ -384,7 +384,7 @@ export async function notifyDriverAssigned(booking: Booking & { driver: Driver |
  * table nobody read. A lead nobody is told about is a lead lost, and on a
  * five-figure job the cost of missing one dwarfs everything else in this file.
  */
-export async function notifyNewTexasLead(lead: {
+export async function notifyNewLead(lead: {
   customerName: string;
   customerPhone: string;
   address: string;

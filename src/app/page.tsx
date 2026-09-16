@@ -1,19 +1,31 @@
 import type { Metadata } from "next";
-import TxHeader from "@/components/tx/TxHeader";
-import TxFooter from "@/components/tx/TxFooter";
-import InspectionForm from "@/components/tx/InspectionForm";
-import TradeMarquee from "@/components/tx/TradeMarquee";
-import StickyHeroVideo from "@/components/tx/StickyHeroVideo";
-import { COMPANY, FINANCING_ENABLED, FINANCING_PARTNER, PHONE_DIGITS, PROOF } from "@/lib/texas/brand";
-import { TRADES } from "@/lib/texas/trades";
+import NetworkHeader from "@/components/network/NetworkHeader";
+import NetworkFooter from "@/components/network/NetworkFooter";
+import InspectionForm from "@/components/network/InspectionForm";
+import TradeMarquee from "@/components/network/TradeMarquee";
+import StickyHeroVideo from "@/components/network/StickyHeroVideo";
+import { COMPANY, FINANCING_ENABLED, FINANCING_PARTNER, PHONE_DIGITS, PROOF } from "@/lib/regions/brand";
+import { NETWORK_DISCLOSURE, NETWORK_DISCLOSURE_SHORT } from "@/lib/regions/compliance";
+import { REGIONS } from "@/lib/regions/states";
+import { TRADES } from "@/lib/regions/trades";
 
-// The Texas landing page.
+// The homeowner landing page for the partner network.
 //
-// It has one job at the top and one at the bottom. At the top: look like a
-// company that has done this two hundred times, because most of this traffic
-// is a homeowner googling us mid-phone-call to decide whether we're real. At
-// the bottom: capture consent to contact, which is what turns a stranger into
-// someone we may lawfully call and text.
+// The pitch changed with the model. It is no longer "we will build your roof"
+// — we do not build anything. It is "we will get somebody honest onto your
+// roof this week, for free, and you are under no obligation to any of them."
+// That is a weaker promise on its face and a stronger one in practice,
+// because the thing a homeowner is actually frightened of in this trade is
+// not price. It is picking the wrong contractor.
+//
+// So the page sells the vetting, not the trade. Trust signals are about how
+// somebody gets into the network rather than about how many roofs we have
+// done, which is the correct claim to make and also the only true one.
+//
+// The disclosure matters as much as the pitch. A homeowner who believes we
+// employ the crews has a grievance against us for work we never touched, so
+// NETWORK_DISCLOSURE appears above the fold and again in the footer, from one
+// constant.
 //
 // What used to be here — the California yard business — is on the
 // lovemeafter-v1 branch. Its customer-facing record links (/manage/<token>
@@ -22,59 +34,104 @@ import { TRADES } from "@/lib/texas/trades";
 // statutory cancellation notice that has to stay reachable.
 
 export const metadata: Metadata = {
-  title: `Home Exterior Remodeling in Texas | ${COMPANY.name}`,
+  title: `Free Roof & Exterior Inspections | Vetted Local Contractors | ${COMPANY.name}`,
   description:
-    "Roofing, siding, windows, gutters, garage doors, fence and exterior paint across " +
-    "Dallas–Fort Worth, Houston, Austin and San Antonio. Free inspection and a written " +
-    "price the same day.",
+    "Free inspection, written scope, and a match with a vetted local contractor. Roofing, " +
+    "siding, fencing, gutters and exterior paint across Colorado, Missouri, Kansas, Indiana " +
+    "and Wyoming. No obligation.",
 };
 
 const STEPS = [
   {
-    title: "We inspect, free",
-    body: "Forty minutes on the roof and around the house. Photographs of everything we find.",
+    title: "Tell us what needs looking at",
+    body:
+      "Thirty seconds and a ZIP code. We check we actually have contractors near you before " +
+      "we take anything else.",
   },
   {
-    title: "You get a number that day",
-    body: "In writing, at your kitchen table. Not a range, not a callback, not a brochure.",
+    title: "A free inspection, booked",
+    body:
+      "Forty minutes on the roof and around the house, photographs of everything found, and a " +
+      "written scope whether there is damage or not.",
   },
   {
-    title: "We build it",
-    body: "Material on site, crew on time, and the site swept every evening before they leave.",
+    title: "We match you to a vetted contractor",
+    body:
+      "Local, independent, insured, and checked against whatever your state and county " +
+      "require. You get their name before they turn up.",
+  },
+  {
+    title: "You decide, or you don't",
+    body:
+      "They quote, you choose. No obligation to use them, no fee to you either way, and " +
+      "nobody chases you if the answer is no.",
   },
 ];
 
 const FAQ = [
   {
+    q: "So do you actually do the work?",
+    a:
+      "No, and it matters that you know it. We are a referral network: we market, we book the " +
+      "inspection, and we match you with an independent local contractor who does the work " +
+      "under their own insurance and their own contract with you. We are not a party to that " +
+      "contract and we never hold your money. What we are responsible for is who we put in " +
+      "front of you.",
+  },
+  {
+    q: "What does it cost me?",
+    a:
+      "Nothing. The inspection is free, the match is free, and you are under no obligation to " +
+      "hire anyone. We are paid by the contractors in the network, not by you — which you " +
+      "should know, because it is the sort of thing you would want disclosed.",
+  },
+  {
     q: "Do I need to be home?",
     a: "For the inspection, no — we can walk the roof and call you. For the appointment where you get the price, yes, and so does anyone else who'd be part of the decision. We'd rather do it once properly than twice.",
   },
   {
-    q: "How do I know you're the real thing?",
-    a: "Ask us for three things and ask everyone else for them too: a certificate of general liability insurance with your name on it, the permit we pulled for your city, and two addresses in your neighbourhood you can drive past. We'll hand all three over without being chased. A company that hesitates on any of them is telling you something.",
+    q: "How do you check the contractors?",
+    a:
+      "Current general liability insurance, a W-9, two customers we ring ourselves, and " +
+      "whatever their state or county requires — which varies more than people expect. Kansas " +
+      "roofers have to be registered with the Attorney General. Most Colorado Front Range " +
+      "cities license locally. Indiana dictates what a home improvement contract has to say. " +
+      "We check the one that applies and we re-check it. Ask us for any of it and we will hand " +
+      "it over without being chased.",
   },
   {
     q: "What if my insurance denies the claim?",
-    a: "Then you have a written scope and a photographed inspection, at no cost, and you decide what to do next. We'll quote the work retail if you want it done anyway.",
+    a:
+      "You still have a written scope and a photographed inspection, at no cost, and you decide " +
+      "what to do next. The contractor can quote the work retail if you want it done anyway. " +
+      "In Colorado a denial also gives you a right to rescind a signed roofing contract and get " +
+      "any deposit back.",
   },
   {
     q: "How long does a roof take?",
     a: "Most houses are a single day — tear-off in the morning, dried in by lunch, finished by evening. Bigger or steeper roofs run to two.",
   },
   {
-    q: "Do you pull permits?",
-    a: "Yes, where the city requires one, and it's included in the price rather than added afterwards.",
+    q: "Who pulls the permit?",
+    a:
+      "The contractor, where the city or county requires one, and it should be in their price " +
+      "rather than added afterwards. Ask before you sign — a contractor who wants you to pull " +
+      "your own permit is telling you something about their licensing.",
   },
   {
     q: "What happens if something's wrong afterwards?",
-    a: `Call us. Workmanship is warranted for ${PROOF.workmanshipWarrantyYears} years and the shingle manufacturer warrants the material separately. We come back.`,
+    a:
+      `Call the contractor first — the warranty is theirs and every contractor in the network ` +
+      `commits to at least ${PROOF.workmanshipWarrantyYears} years on workmanship before we let ` +
+      `them in. Then call us, because a contractor who will not come back is a contractor we ` +
+      `want out of the network, and that is the only real leverage a referral network has.`,
   },
 ];
 
 export default function HomePage() {
   return (
     <>
-      <TxHeader />
+      <NetworkHeader />
       <TradeMarquee />
       <main>
         {/* Hero and trades scroll over the footage — see StickyHeroVideo.
@@ -90,26 +147,39 @@ export default function HomePage() {
             <div className="min-w-0">
               <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
-                Booking inspections across Texas
+                Free inspections · {REGIONS.map((r) => r.code).join(" · ")}
               </p>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                The outside of your house is the part you stopped looking at.
+                The hard part isn&apos;t the roof. It&apos;s knowing who to let near it.
               </h1>
               <p className="mt-4 text-lg text-neutral-200">
-                Roof, siding, windows, gutters, garage doors, fence, paint — one crew, one
-                number, one company that answers the phone afterwards. Free inspection, a
-                written price the same day, and we show up when we said we would.
+                Roofing, siding, fencing, gutters and exterior paint. We book you a free
+                inspection and match you with a local contractor we&apos;ve actually checked —
+                insurance, registration, and two customers we rang ourselves. You get a written
+                scope either way, and you&apos;re under no obligation to anyone.
+              </p>
+              <p className="mt-3 text-sm leading-relaxed text-neutral-400">
+                Now booking across{" "}
+                <strong className="text-neutral-300">
+                  {REGIONS.slice(0, -1).map((r) => r.name).join(", ")} and{" "}
+                  {REGIONS[REGIONS.length - 1].name}
+                </strong>
+                , including the rural counties most contractors won&apos;t drive to.
+              </p>
+              <p className="mt-2 text-sm leading-relaxed text-neutral-400">
+                {NETWORK_DISCLOSURE_SHORT}
               </p>
 
-              {/* Promises about how we work, not claims about how long we have
-                  been working. Anything historical here has to be true and
-                  evidenced before it goes on a page a homeowner reads. */}
+              {/* What we actually do, not claims about how long we have been
+                  doing it. Under the network model the product IS the vetting,
+                  so the trust strip describes that rather than a build history
+                  we do not have and could not evidence. */}
               <dl className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
                 {[
                   ["The inspection", "Free, no obligation"],
-                  ["Your price", "In writing, same day"],
-                  ["Insurance paperwork", "We handle it"],
-                  ["Workmanship warranty", `${PROOF.workmanshipWarrantyYears} years`],
+                  ["Every contractor", "Insured & checked"],
+                  ["Costs you", "Nothing, ever"],
+                  ["Minimum workmanship", `${PROOF.workmanshipWarrantyYears} years`],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
                     <dt className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
@@ -130,7 +200,9 @@ export default function HomePage() {
         {/* Trades */}
         <section id="trades" className="scroll-mt-20">
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
-            <h2 className="text-3xl font-extrabold tracking-tight text-ink">What we do</h2>
+            <h2 className="text-3xl font-extrabold tracking-tight text-ink">
+              What we&apos;ll get looked at
+            </h2>
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {TRADES.map((trade) => (
                 <div
@@ -147,8 +219,8 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Storm. The highest-intent segment in Texas, and the only honest
-            version of this pitch — see src/lib/texas/compliance.ts.
+        {/* Storm. The highest-intent segment in this trade, and the only honest
+            version of this pitch — see src/lib/regions/compliance.ts.
             No background of its own: it is inside the pinned run, and an
             opaque one would put a wall in front of the footage. */}
         <section id="storm" className="scroll-mt-20 border-b border-white/10">
@@ -161,18 +233,19 @@ export default function HomePage() {
             </h2>
             <div className="mt-5 space-y-4 text-neutral-200">
               <p>
-                We climb the roof, photograph what we find, and give you a written scope. If
-                there&apos;s a claim worth filing, we&apos;ll meet your adjuster up there and show
-                them the same damage we showed you.
+                A contractor from the network climbs the roof, photographs what they find, and
+                gives you a written scope. If there&apos;s a claim worth filing they&apos;ll meet
+                your adjuster up there and show them the same damage they showed you.
               </p>
               <p>
-                You pay your deductible. We bill your carrier for the rest.
+                You pay your deductible. Your carrier is billed for the rest.
               </p>
               <p className="rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm leading-relaxed text-neutral-300">
-                We&apos;re roofing contractors, not public insurance adjusters. We can&apos;t
-                negotiate your claim for you — and anyone who offers to cover or waive your
-                deductible is offering you something Texas law makes a crime. If you hear it,
-                walk away, from us included.
+                Nobody in this network is a public insurance adjuster, and nobody in it will
+                negotiate your claim for you — that is licensed work in most states. And anyone
+                who offers to cover, waive or absorb your deductible is offering you something
+                Colorado, Kansas, Missouri and Indiana all prohibit. If you hear it, walk away —
+                from us included.
               </p>
             </div>
           </div>
@@ -202,7 +275,7 @@ export default function HomePage() {
         <section id="how" className="scroll-mt-20 border-b border-white/10">
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
             <h2 className="text-3xl font-extrabold tracking-tight text-ink">How it works</h2>
-            <ol className="mt-8 grid gap-6 sm:grid-cols-3">
+            <ol className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {STEPS.map((step, i) => (
                 <li key={step.title}>
                   <p className="font-mono text-2xl font-bold text-brand-cyan">
@@ -252,8 +325,8 @@ export default function HomePage() {
                 Find out what it actually costs.
               </h2>
               <p className="mt-3 text-lg text-neutral-200">
-                Free inspection, written scope, and a price the same day. No obligation and
-                nothing charged.
+                Free inspection, a written scope, and a contractor we&apos;ve checked. No
+                obligation to hire anyone and nothing charged to you at any point.
               </p>
               <p className="mt-6">
                 <a
@@ -269,8 +342,20 @@ export default function HomePage() {
             </div>
           </div>
         </section>
+        <section className="border-t border-white/10 bg-surface">
+          <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+            <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
+              How this works, plainly
+            </p>
+            <p className="mt-3 text-sm leading-relaxed text-neutral-300">{NETWORK_DISCLOSURE}</p>
+            <p className="mt-3 text-sm leading-relaxed text-neutral-400">
+              Contractors pay us for introductions. You never do. We think you should know which
+              way the money runs before you take our recommendation.
+            </p>
+          </div>
+        </section>
       </main>
-      <TxFooter />
+      <NetworkFooter />
     </>
   );
 }

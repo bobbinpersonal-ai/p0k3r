@@ -242,7 +242,7 @@ model ServiceConfig {
   updatedAt DateTime @updatedAt
 }
 
-// --- Texas: in-home residential construction sales ---------------------------
+// --- Network: residential exterior contracting ---------------------------
 //
 // A different business on the same platform. The California side sells small
 // jobs online at a flat price; this one sells roofs at a kitchen table, for
@@ -315,6 +315,10 @@ model Lead {
   /// RETAIL (homeowner pays) or INSURANCE (carrier pays, homeowner pays the
   /// deductible). Decides which contract gets generated and which rules apply.
   jobKind       String   @default("RETAIL")
+
+  /// Two-letter state code. The routing key under the network model: it picks
+  /// the rules that apply and the partners eligible for the introduction.
+  state         String?
 
   source        String?
   notes         String?
@@ -463,13 +467,25 @@ model Worker {
   /// does roofing and gutters is one crew with two trades, not two rows.
   trades        String?
   city          String?
+  /// Two-letter state code. A partner works one primary state; a second state
+  /// is a second row, because licensing and registration are per-state.
+  state         String?
+  /// ZIP they work out of, which the radius is measured from.
+  baseZip       String?
+  /// How far they will actually drive. The single most useful routing field in
+  /// a rural network — a 40-mile radius in Wyoming covers a different number of
+  /// homes than the same radius in Johnson County.
+  serviceRadiusMiles Int?
+  /// State registration number where the state requires one, e.g. the Kansas
+  /// Attorney General roofing registration. Stored so it can be verified.
+  registrationNumber String?
   /// How many people turn up. Decides which jobs they can be given.
   crewSize      Int?
   /// Squares a day on a straightforward roof — their number, not ours, and
   /// treated as a claim until a job proves it.
   dailyCapacity Int?
   experience    String?
-  /// Crews on Texas roofs are very often Spanish-first. Knowing before the
+  /// Roofing crews are very often Spanish-first. Knowing before the
   /// phone screen is the difference between a call that works and one that
   /// wastes both sides' time.
   language      String?
@@ -485,7 +501,7 @@ model Worker {
   ///
   /// General liability is what stands between a crew putting a ladder through
   /// a customer's window and that bill landing on us. Workers' comp is not
-  /// required in Texas — that is exactly why it is stored as a fact rather
+  /// required in every state in the network — that is exactly why it is stored as a fact rather
   /// than assumed: a crew without it means an injured worker has nowhere to go
   /// but a personal-injury claim against whoever is nearest. Both feed the
   /// warnings on the subcontractor agreement in src/lib/texas/crewAgreement.ts.
@@ -527,7 +543,7 @@ model WorkerPayout {
   @@index([workerId, taxYear])
 }
 
-// --- Texas: the calling pipeline ---------------------------------------------
+// --- Network: the calling pipeline ---------------------------------------------
 //
 // Purchased lists come in as a LeadList, get scrubbed, and feed a queue of
 // Leads that setters work by hand. Every dial is recorded as a CallAttempt
@@ -545,7 +561,7 @@ model LeadList {
   /// What we paid, so cost per booked appointment is computable.
   costCents     Int?
 
-  /// When it was last run against the national and Texas registries. Null
+  /// When it was last run against the national and state registries. Null
   /// means never, and never means nobody may dial it.
   scrubbedAt    DateTime?
   /// How many rows the scrub removed — a number worth watching, because a
