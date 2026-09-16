@@ -3,6 +3,7 @@ import TxHeader from "@/components/tx/TxHeader";
 import TxFooter from "@/components/tx/TxFooter";
 import InspectionForm from "@/components/tx/InspectionForm";
 import TradeMarquee from "@/components/tx/TradeMarquee";
+import StickyHeroVideo from "@/components/tx/StickyHeroVideo";
 import { COMPANY, FINANCING_ENABLED, FINANCING_PARTNER, PHONE_DIGITS, PROOF } from "@/lib/texas/brand";
 import { TRADES } from "@/lib/texas/trades";
 
@@ -76,11 +77,16 @@ export default function HomePage() {
       <TxHeader />
       <TradeMarquee />
       <main>
-        {/* Hero — form above the fold on a phone, which is where this traffic is. */}
-        <section className="relative overflow-hidden border-b border-white/10">
-          <div className="absolute inset-0 -z-10 bg-grid-fade" />
-          <div className="glow-blob absolute left-1/2 top-0 h-[480px] w-[860px] -translate-x-1/2 rounded-full" />
-          <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_minmax(0,380px)] lg:py-16">
+        {/* Hero and trades scroll over the footage — see StickyHeroVideo.
+            Neither section carries a background of its own, or the video would
+            be behind a wall. */}
+        <StickyHeroVideo>
+        {/* The hero fills the first screen on desktop (110px is the header
+            plus the marquee). Two columns make it short otherwise — barely
+            650px — and the footage would be gone before anyone had finished
+            reading the headline. */}
+        <section className="relative">
+          <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:min-h-[calc(100svh-110px)] lg:grid-cols-[1.05fr_minmax(0,380px)] lg:items-center lg:py-16">
             <div className="min-w-0">
               <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
@@ -122,7 +128,7 @@ export default function HomePage() {
         </section>
 
         {/* Trades */}
-        <section id="trades" className="scroll-mt-20 border-b border-white/10">
+        <section id="trades" className="scroll-mt-20">
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
             <h2 className="text-3xl font-extrabold tracking-tight text-ink">What we do</h2>
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -142,8 +148,10 @@ export default function HomePage() {
         </section>
 
         {/* Storm. The highest-intent segment in Texas, and the only honest
-            version of this pitch — see src/lib/texas/compliance.ts. */}
-        <section id="storm" className="scroll-mt-20 border-b border-white/10 bg-surface">
+            version of this pitch — see src/lib/texas/compliance.ts.
+            No background of its own: it is inside the pinned run, and an
+            opaque one would put a wall in front of the footage. */}
+        <section id="storm" className="scroll-mt-20 border-b border-white/10">
           <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6">
             <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">
               Hail &amp; wind
@@ -188,7 +196,9 @@ export default function HomePage() {
           </section>
         )}
 
-        {/* How it works */}
+        {/* How it works. Inside the pinned run on purpose: it is the last
+            block that travels over the footage, and three steps about crews
+            turning up read better over crews turning up. */}
         <section id="how" className="scroll-mt-20 border-b border-white/10">
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
             <h2 className="text-3xl font-extrabold tracking-tight text-ink">How it works</h2>
@@ -206,8 +216,12 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* FAQ */}
-        <section className="border-b border-white/10">
+        </StickyHeroVideo>
+
+        {/* FAQ. First section on solid ground — the sticky block's bottom
+            gradient fades to bg-paper, so whatever lands under it has to be
+            bg-paper too or there is a visible seam. */}
+        <section className="border-b border-white/10 bg-paper">
           <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
             <h2 className="text-3xl font-extrabold tracking-tight text-ink">
               Questions people actually ask
