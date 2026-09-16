@@ -1,11 +1,22 @@
-# Recruiting 1099 sales reps: Craigslist, Facebook, Marketplace
+# Recruiting: sales reps and crews
 
 Paste-ready copy, plus the rules that decide whether a post survives and
 whether it quietly costs you a misclassification finding later.
 
-Everything here points at **lovemeafter.com/sell**, which is live and writes an
-applicant straight into the `Rep` table as `APPLIED`. Applications show up at
-`/admin/tx/leads`.
+Two funnels, two completely different pitches:
+
+| | Sales reps | Crews / installers |
+|---|---|---|
+| Page | **lovemeafter.com/sell** | **lovemeafter.com/crew** |
+| Lands in | `Rep`, status `APPLIED` | `Worker`, status `APPLIED` |
+| Review at | `/admin/tx/leads` | `/admin/tx/crews` |
+| What they want | Uncapped upside | To get paid, fast, without chasing |
+| What kills it | Vague comp | Any hint you're a slow payer |
+
+A rep reads an ad asking *what can I make?*. A crew reads it asking *will this
+guy actually pay me?* — because being strung out sixty days by a general
+contractor is the defining experience of that trade. Lead with money for the
+rep and with **payment terms** for the crew, and don't mix them up.
 
 ---
 
@@ -235,3 +246,204 @@ Ask these on the phone screen. They're on the application at `/sell` too.
 - [ ] `NEXT_PUBLIC_TX_PHONE` and `NEXT_PUBLIC_BUSINESS_ADDRESS` set, or the
       homeowner contract you hand them is defective
 - [ ] A crew who can actually build what they sell
+
+
+---
+
+# Part 2: crews and installers
+
+Points at **lovemeafter.com/crew**. Applications land in `Worker` as `APPLIED`
+and show up at `/admin/tx/crews`.
+
+## What actually recruits a crew
+
+Not the company, not the growth story. Three things, in this order:
+
+1. **How fast you pay.** The subcontractor agreement says within 3 days of
+   sign-off and waiver. That is the single strongest sentence you own — most
+   GCs in this trade pay in 30 to 60 and everyone in it has been burned.
+2. **No retainage.** Holding back 10% "until the end" is normal and hated.
+   Not doing it is a differentiator worth saying out loud.
+3. **Material and permit supplied, scope in writing before they mobilise.**
+   Crews lose money on jobs that grow after the phone call.
+
+Do not lead with trade variety, company size, or "join our team". A crew is a
+business, not a team member — and saying otherwise is also the language that
+gets you a misclassification finding.
+
+## Craigslist
+
+**Category:** `gigs → labor` **or** `jobs → skilled trades/artisan`. Skilled
+trades is the better fit for an ongoing subcontract relationship; labor gigs
+gets more volume and lower quality. Post to one metro at a time.
+
+### Title
+
+```
+Roofing Crews Wanted — Paid in 3 Days, No Retainage (Dallas–Fort Worth)
+```
+
+### Body
+
+```
+We're a residential exteriors company working DFW and we need subcontract
+crews. Roofing first, plus siding, windows, gutters, garage doors, fence and
+exterior paint.
+
+HOW WE PAY
+
+- Within 3 days of the job being walked, signed off and the waiver signed.
+- No retainage. The price on the work order is the price, paid in full.
+- Zelle or Apple Cash. Same week, not next month.
+
+We know what the going rate is for getting paid in this business and we're
+not interested in running it that way.
+
+WHAT WE SUPPLY
+
+- Material, delivered to the property before you mobilise.
+- The permit, where the city requires one.
+- A written work order with the property, scope, material, dates and price
+  on it before you commit to anything.
+
+WHAT YOU BRING
+
+- Your own crew, tools, ladders, fall protection and transport.
+- A certificate of general liability naming us as additional insured.
+- A W-9.
+
+Those last two are not negotiable and there's no point applying without a
+plan for them.
+
+WORKERS' COMP
+
+Texas doesn't require it and we don't either — but we will ask, and if you
+don't carry it we put that in writing in the agreement, because it means
+nobody on your crew has anywhere to turn if they get hurt. Your call to make
+knowingly.
+
+HOW IT WORKS
+
+You run your own crew, your own hours inside the agreed dates, and your own
+call on how the work gets done. Work for anyone else you want at the same
+time, including our competitors. We're buying a finished roof, not your week.
+
+Every payment comes with a lien waiver — conditional when we issue it,
+unconditional once it clears. Standard. Any crew that's worked for a real
+contractor has signed hundreds.
+
+APPLY
+
+lovemeafter.com/crew — two minutes, and we call the same day.
+```
+
+## Spanish
+
+A large share of Texas roofing crews are Spanish-first, and almost nobody
+bothers to post in Spanish. This is the cheapest edge in the whole recruiting
+plan. The application at `/crew` asks which language they'd rather be called
+in and it shows on the admin screen, so make sure whoever makes the call can
+actually hold it.
+
+```
+SE BUSCAN CUADRILLAS DE TECHOS — Pago en 3 días, sin retención (DFW)
+
+Somos una compañía de exteriores residenciales en Dallas–Fort Worth y
+buscamos cuadrillas por subcontrato. Techos principalmente, también siding,
+ventanas, canaletas, puertas de garaje, cercas y pintura exterior.
+
+CÓMO PAGAMOS
+- Dentro de 3 días de terminado, revisado el trabajo y firmada la exención.
+- Sin retención. El precio de la orden de trabajo es el precio, completo.
+- Zelle o Apple Cash. La misma semana, no el próximo mes.
+
+LO QUE NOSOTROS PONEMOS
+- El material, entregado en la propiedad antes de que usted empiece.
+- El permiso, donde la ciudad lo requiera.
+- Una orden de trabajo por escrito con la propiedad, el alcance, el
+  material, las fechas y el precio — antes de que usted se comprometa.
+
+LO QUE USTED PONE
+- Su propia cuadrilla, herramienta, escaleras, protección contra caídas y
+  transporte.
+- Un certificado de seguro de responsabilidad civil (general liability) que
+  nos nombre como asegurado adicional.
+- Una forma W-9.
+
+Esos dos últimos son obligatorios.
+
+SEGURO DE TRABAJADORES (WORKERS' COMP)
+Texas no lo exige y nosotros tampoco, pero vamos a preguntar. Si usted no lo
+tiene, lo ponemos por escrito en el acuerdo, porque significa que nadie de su
+cuadrilla tiene a dónde acudir si se lastima.
+
+Usted maneja su propia cuadrilla y sus propios horarios dentro de las fechas
+acordadas. Puede trabajar para quien quiera al mismo tiempo.
+
+SOLICITE AQUÍ
+lovemeafter.com/crew — dos minutos, y le llamamos el mismo día.
+```
+
+## Facebook groups for crews
+
+Different groups from the sales ones:
+
+- `Roofers of DFW` / `Houston Roofers`
+- `Techeros` / `Techos` / `Roofing en Español` and similar Spanish-language
+  trade groups — these are where the crews actually are
+- `[Metro] Construction Workers` / `Trabajos de construcción [metro]`
+- Supplier and distributor groups (ABC Supply, SRS, Beacon branches often
+  have local groups)
+
+### Short group post
+
+```
+DFW — buscando cuadrillas de techos por subcontrato.
+
+Pago en 3 días después de terminar y firmar. Sin retención. Material y
+permiso los ponemos nosotros.
+
+Necesita seguro de responsabilidad civil y W-9.
+
+lovemeafter.com/crew
+```
+
+## Where else crews actually are
+
+Better than any ad:
+
+- **Supply houses.** ABC Supply, SRS, Beacon. Stand in the yard at 6:30am.
+  Every crew in the metro comes through, and the counter staff know who is
+  good and who does not pay their bills. This is how established contractors
+  find crews and it costs nothing.
+- **Job sites.** A crew tearing off a roof three streets from yours is a crew
+  you can talk to at lunch.
+- **Referral from the first good crew you engage.** Crews know crews. Pay the
+  first one fast and on time and ask.
+
+## Screening a crew: five questions
+
+1. **"How many squares do you do in a day, and with how many guys?"**
+   Cross-check against what they put on the application. A 4-man crew doing
+   30 squares a day is a claim, not a crew.
+2. **"Can you send me your GL certificate today?"**
+   The only answer that matters. *"I'll get it"* means they don't have one.
+   Ask for the certificate holder to be added as additional insured and see
+   whether they know what that means.
+3. **"Who did you work for last, and why did you stop?"**
+   Call the previous GC. In this trade people answer.
+4. **"Do you carry workers' comp?"**
+   No is an acceptable answer. Not knowing is not.
+5. **"Walk me through how you handle a tear-off when it starts raining at
+   noon."** Real crews have a dry-in answer immediately. It is the single
+   most revealing question on the list.
+
+## Before the first crew steps on a roof
+
+- [ ] Certificate of general liability in hand, naming you as additional
+      insured — then flip `generalLiabilityOnFile` on the crew's row
+- [ ] W-9 collected — then flip `w9OnFile`. **No W-9, no payout.**
+- [ ] Workers' comp answered deliberately, either way
+- [ ] Subcontractor agreement signed — `/admin/tx/paperwork?doc=crew`
+- [ ] Lien waiver forms ready to go out with the first payment
+- [ ] A written work order for the job, before they mobilise

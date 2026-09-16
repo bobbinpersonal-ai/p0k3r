@@ -176,6 +176,7 @@ export default function PaperworkPage({
         <div className="mt-4 flex flex-wrap gap-4 font-mono text-xs uppercase tracking-widest">
           <Link href="/admin/tx/products" className="text-neutral-300 underline">Products &amp; pricing</Link>
           <Link href="/admin/tx/leads" className="text-neutral-300 underline">Texas leads</Link>
+        <Link href="/admin/tx/crews" className="text-neutral-300 underline">Crews</Link>
           <Link href="/admin/dashboard" className="text-neutral-300 underline">Dispatch board</Link>
         </div>
 

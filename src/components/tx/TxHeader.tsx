@@ -18,7 +18,8 @@ export default function TxHeader({ ctaHref = "#inspection" }: { ctaHref?: string
           <a href="#trades" className="hover:text-ink">Services</a>
           <a href="#storm" className="hover:text-ink">Storm damage</a>
           <a href="#how" className="hover:text-ink">How it works</a>
-          <Link href="/sell" className="hover:text-ink">Careers</Link>
+          <Link href="/sell" className="hover:text-ink">Sales jobs</Link>
+          <Link href="/crew" className="hover:text-ink">Crews</Link>
         </nav>
 
         {/* On a phone this is the conversion event, not the form: most of this

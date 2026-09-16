@@ -46,6 +46,7 @@ export default async function TexasLeadsPage() {
 
       <div className="mt-4 flex flex-wrap gap-4 font-mono text-xs uppercase tracking-widest">
         <Link href="/admin/tx/products" className="text-brand-cyan underline">Products &amp; pricing</Link>
+        <Link href="/admin/tx/crews" className="text-neutral-300 underline">Crews</Link>
         <Link href="/admin/dashboard" className="text-neutral-300 underline">Dispatch board</Link>
         {applicants > 0 && (
           <span className="text-brand-cyan">{applicants} sales applicant{applicants === 1 ? "" : "s"} waiting</span>

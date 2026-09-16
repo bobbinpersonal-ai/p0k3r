@@ -443,7 +443,12 @@ model EstimateLine {
   @@index([estimateId])
 }
 
-/// Somebody on a crew. Paid per job, by Zelle or Apple Cash, on a 1099.
+/// A crew. Paid per job, by Zelle or Apple Cash, on a 1099.
+///
+/// Same shape as Rep: an applicant is a crew we have not engaged yet rather
+/// than a different kind of thing, so /crew writes an APPLIED row here instead
+/// of filling a second table that would have to be copied across on the day
+/// they start.
 model Worker {
   id            String   @id @default(cuid())
   name          String
@@ -451,19 +456,50 @@ model Worker {
   email         String?
   active        Boolean  @default(true)
 
+  /// APPLIED, ACTIVE or INACTIVE.
+  status        String   @default("ACTIVE")
+
+  /// Trades they actually do, comma-separated against Trade.value. A crew that
+  /// does roofing and gutters is one crew with two trades, not two rows.
+  trades        String?
+  city          String?
+  /// How many people turn up. Decides which jobs they can be given.
+  crewSize      Int?
+  /// Squares a day on a straightforward roof — their number, not ours, and
+  /// treated as a claim until a job proves it.
+  dailyCapacity Int?
+  experience    String?
+  /// Crews on Texas roofs are very often Spanish-first. Knowing before the
+  /// phone screen is the difference between a call that works and one that
+  /// wastes both sides' time.
+  language      String?
+  notes         String?
+  source        String?
+
   /// The IRS wants a 1099-NEC for anyone paid $600 or more in a calendar
   /// year, and it wants a W-9 on file to fill it in. The flag gates payouts;
   /// the identifier itself is not stored here.
   w9OnFile      Boolean  @default(false)
 
-  /// ZELLE or APPLE_PAY, and the phone or email the money goes to.
-  payoutMethod  String?
-  payoutHandle  String?
+  /// Insurance, which is the whole ballgame on a roof.
+  ///
+  /// General liability is what stands between a crew putting a ladder through
+  /// a customer's window and that bill landing on us. Workers' comp is not
+  /// required in Texas — that is exactly why it is stored as a fact rather
+  /// than assumed: a crew without it means an injured worker has nowhere to go
+  /// but a personal-injury claim against whoever is nearest. Both feed the
+  /// warnings on the subcontractor agreement in src/lib/texas/crewAgreement.ts.
+  generalLiabilityOnFile Boolean @default(false)
+  workersCompOnFile      Boolean @default(false)
+  /// So an expired certificate is visible rather than remembered.
+  insuranceExpiresAt     DateTime?
 
   payouts       WorkerPayout[]
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+
+  @@index([status])
 }
 
 /// One payment to one worker. The 1099 total is the sum of these by year.

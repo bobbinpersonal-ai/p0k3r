@@ -17,6 +17,9 @@ export default function TxFooter() {
           <Link href="/sell" className="text-sm text-neutral-300 hover:text-ink">
             Sales careers
           </Link>
+          <Link href="/crew" className="text-sm text-neutral-300 hover:text-ink">
+            Crews &amp; installers
+          </Link>
         </div>
 
         {/* Named cities, not "the greater metroplex". This list is most of the

@@ -413,6 +413,33 @@ export async function notifyNewTexasLead(lead: {
 }
 
 /** Somebody applied to sell for us. */
+export async function notifyNewCrewApplication(worker: {
+  name: string;
+  phone: string | null;
+  city: string | null;
+  trades: string | null;
+  crewSize: number | null;
+  dailyCapacity: number | null;
+  language: string | null;
+  experience: string | null;
+  notes: string | null;
+}): Promise<void> {
+  await notifyOwner({
+    subject: `Crew applicant — ${worker.name}${worker.city ? ` — ${worker.city}` : ""}`,
+    lines: [
+      `${worker.name} — ${worker.phone ?? "no phone"}`,
+      worker.trades ? `Trades: ${worker.trades.split(",").join(", ")}` : null,
+      worker.city ? `City: ${worker.city}` : null,
+      worker.crewSize ? `Crew size: ${worker.crewSize}` : null,
+      worker.dailyCapacity ? `Says they do ${worker.dailyCapacity} squares a day` : null,
+      worker.language ? `Language: ${worker.language}` : null,
+      worker.experience ? `Experience: ${worker.experience}` : null,
+      worker.notes ? `Insurance (their claim): ${worker.notes}` : null,
+      "→ Ask for a certificate of general liability before anything else. No certificate, no job.",
+    ].filter((line): line is string => Boolean(line)),
+  });
+}
+
 export async function notifyNewRepApplication(rep: {
   name: string;
   phone: string;
