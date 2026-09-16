@@ -63,6 +63,29 @@ export type Region = {
     localLicensingCommon: boolean;
     note: string;
   };
+  /**
+   * What it takes to lawfully cold call in this state.
+   *
+   * Researched from the statutes and state agency pages in September 2026 and
+   * cited below. Read it before dialling, and re-check anything marked
+   * `confirm` — telemarketing rules move, and a wrong reading here is a
+   * $5,000-per-call mistake in some of these states.
+   */
+  calling: {
+    /** Can this state be cold called today with modest setup? */
+    posture: "GREEN" | "AMBER" | "RED";
+    /** State-level registration for a seller making solicitation calls. */
+    registration: string | null;
+    /** The state's own do-not-call list, where it keeps one. */
+    stateDncList: string | null;
+    /** Local-time window, narrower of state and federal. */
+    hours: { open: number; close: number };
+    /** The exemption, if any, that a set-the-appointment model can rely on. */
+    appointmentExemption: string | null;
+    notes: readonly string[];
+    source: string;
+  };
+
   rules: {
     /** Business days a homeowner may cancel a sale agreed at their home. */
     coolingOffBusinessDays: number;
@@ -137,6 +160,22 @@ export const REGIONS: readonly Region[] = [
         rural: true,
       },
     ],
+  calling: {
+    posture: "GREEN",
+    registration:
+      "Commercial telephone seller registration with the AG, $200 — BUT see appointmentExemption, which is likely to put this model outside the definition entirely.",
+    stateDncList:
+      "Colorado No-Call List, run by the PUC through Data Protection Group. Annual fee is tiered by employee count and is $0 for 0–4 employees.",
+    hours: { open: 8, close: 20 },
+    appointmentExemption:
+      "C.R.S. 6-1-302(1)(h) excludes from 'commercial telephone seller' a person who solicits without intent to complete, and does not complete, the sale during the call, and completes it only at a later face-to-face meeting — excluding a meeting whose sole purpose is collecting payment or delivering goods.",
+    notes: [
+      "This is the cleanest fit in the network for an appointment-setting model: the exemption describes it almost exactly.",
+      "Register for the Colorado No-Call list anyway — at 0–4 employees it costs nothing and scrubbing it is required regardless of the seller exemption.",
+      "Confirm the exemption before relying on it. It is the linchpin, and it fails the moment anyone quotes a firm price or takes money on the phone.",
+    ],
+    source: "https://puc.colorado.gov/coloradonocalltelemarketer",
+  },
     licensing: {
       stateContractorLicense: false,
       roofingRegistration: null,
@@ -194,6 +233,20 @@ export const REGIONS: readonly Region[] = [
         rural: true,
       },
     ],
+  calling: {
+    posture: "AMBER",
+    registration: "No general seller registration found. Confirm.",
+    stateDncList:
+      "Missouri No-Call list from the Attorney General — $50 per area code per quarter.",
+    hours: { open: 8, close: 20 },
+    appointmentExemption:
+      "RSMo 407.1098 exempts a call by a natural person responding to a referral, or working from their primary residence, or by a person LICENSED BY MISSOURI in a trade who is setting an appointment for that trade. The licensed-trade limb does not fit an unlicensed referral network; the others may.",
+    notes: [
+      "Penalties run to $5,000 per violation, so the exemption has to actually fit rather than nearly fit.",
+      "Buying the list per area code per quarter is a real running cost — pick one metro rather than the state.",
+    ],
+    source: "https://ago.mo.gov/get-help/no-call/faqs-for-telemarketers/",
+  },
     licensing: {
       stateContractorLicense: false,
       roofingRegistration: null,
@@ -250,6 +303,20 @@ export const REGIONS: readonly Region[] = [
         rural: true,
       },
     ],
+  calling: {
+    posture: "AMBER",
+    registration: "No separate state registration found in K.S.A. 50-670/50-670a. Confirm with the AG.",
+    stateDncList:
+      "None of its own — Kansas designates the federal National Do Not Call Registry as the Kansas no-call list.",
+    hours: { open: 8, close: 20 },
+    appointmentExemption: null,
+    notes: [
+      "Simplest scrubbing story in the network: one list, the federal one.",
+      "The statute requires consulting it before calling and at least every 30 days after.",
+      "Separate from calling: a roofing PARTNER here still needs Attorney General roofing registration.",
+    ],
+    source: "https://www.ag.ks.gov/divisions/public-protection/consumer-protection/your-communication",
+  },
     licensing: {
       stateContractorLicense: false,
       roofingRegistration:
@@ -307,6 +374,21 @@ export const REGIONS: readonly Region[] = [
         rural: true,
       },
     ],
+  calling: {
+    posture: "RED",
+    registration:
+      "Annual registration with the Attorney General required before doing business, $50, renewed before 1 August. No bond. Failure to register is itself a deceptive act.",
+    stateDncList: "Indiana Do Not Call list, administered by the Attorney General.",
+    hours: { open: 8, close: 20 },
+    appointmentExemption: null,
+    notes: [
+      "The strictest state in the network and the one to leave alone while starting out.",
+      "Indiana's exemptions do NOT include the ordinary established-business-relationship that federal rules allow — a past enquiry does not buy you a call.",
+      "Civil penalties up to $5,000 per violation.",
+      "Inbound leads who filled in the form and consented are a different matter. Cold calling is the part to avoid.",
+    ],
+    source: "https://www.in.gov/attorneygeneral/consumer-protection-division/id-theft-prevention/do-not-call/telephone-solicitors/telephone-solicitor-registration/",
+  },
     licensing: {
       stateContractorLicense: false,
       roofingRegistration: null,
@@ -364,6 +446,22 @@ export const REGIONS: readonly Region[] = [
         rural: true,
       },
     ],
+  calling: {
+    posture: "GREEN",
+    registration:
+      "A notice-of-activity filing with the Attorney General designating an agent for service of process. No annual renewal. No bond found.",
+    stateDncList: "None of its own — the federal registry does the work.",
+    hours: { open: 8, close: 20 },
+    appointmentExemption:
+      "The state do-not-call provisions bite at more than 225 unsolicited sales calls a year, so a small operation starting out may sit under the threshold entirely.",
+    notes: [
+      "The lightest-touch state in the network by a distance.",
+      "Wyoming sets 8am–8pm local, tighter than the federal 8am–9pm — so the network window is 8–8 everywhere.",
+      "Still scrub the federal registry: numbers must come off within 60 days of listing.",
+      "Confirm the 225-call threshold and the filing before the first dial; both are cheap to get right.",
+    ],
+    source: "https://attorneygeneral.wyo.gov/law-office-division/consumer-protection-and-antitrust-unit/telephone-solicitation-for-businesses",
+  },
     licensing: {
       stateContractorLicense: false,
       roofingRegistration: null,
@@ -450,6 +548,50 @@ export const DEDUCTIBLE_PROHIBITION_STATES = REGIONS.filter(
 export const CONTRACT_STATUTE_STATES = REGIONS.filter(
   (r) => r.rules.writtenContractStatute,
 ).map((r) => r.code);
+
+/** States we can cold call today with modest setup, best first. */
+export const CALLABLE_STATES = REGIONS.filter((r) => r.calling.posture === "GREEN").map(
+  (r) => r.code,
+);
+
+/** States to leave alone for cold calling until registered. */
+export const DO_NOT_COLD_CALL_STATES = REGIONS.filter((r) => r.calling.posture === "RED").map(
+  (r) => r.code,
+);
+
+/**
+ * Whether a cold call to this state is a good idea today.
+ *
+ * Deliberately blunt and deliberately conservative. Returns the reason as well
+ * as the answer, because a setter who is told "no" without being told why will
+ * dial it anyway.
+ */
+export function coldCallPosture(code: string): {
+  ok: boolean;
+  posture: "GREEN" | "AMBER" | "RED" | "UNKNOWN";
+  reason: string;
+} {
+  const region = getRegion(code);
+  if (!region) {
+    return { ok: false, posture: "UNKNOWN", reason: `${code} is not a state in the network.` };
+  }
+  const { posture, registration, stateDncList } = region.calling;
+  if (posture === "RED") {
+    return {
+      ok: false,
+      posture,
+      reason: `${region.name}: ${registration ?? "registration required"} Do not cold call here until that is done.`,
+    };
+  }
+  return {
+    ok: true,
+    posture,
+    reason:
+      posture === "GREEN"
+        ? `${region.name} is workable today. ${stateDncList ?? "No state list."}`
+        : `${region.name} is workable with care. ${stateDncList ?? "No state list."}`,
+  };
+}
 
 /** Trades needing a state registration before a partner may take work. */
 export function registrationRequired(code: string, trade: string): string | null {
