@@ -1,3 +1,4 @@
+import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import LandscapingFlow from "./LandscapingFlow";
@@ -21,6 +22,23 @@ export default async function YardPage({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  // TURNED OFF: this is the California yard-service business, retired when
+  // the site became the multi-state contractor-partner network. Kept in the
+  // codebase rather than deleted — everything below still works — so it can
+  // come back by deleting this block.
+  //
+  // The `: boolean` annotation is load-bearing, not decoration: a bare
+  // `notFound()` here makes TypeScript treat every line after it as
+  // provably unreachable, and it then stops applying the narrowing the rest
+  // of this page depends on (the `searchParams.x` guards below), turning
+  // back on a wall of "possibly undefined" errors that have nothing to do
+  // with this change. Routing the same call through a condition TypeScript
+  // can't fold at compile time keeps it an ordinary runtime guard instead.
+  const RETIRED: boolean = true;
+  if (RETIRED) {
+    notFound();
+  }
+
   // Every one of these is answered by a card or a link somewhere else on the
   // site, so someone who arrives having already told us something isn't asked
   // again.

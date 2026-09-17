@@ -1,6 +1,5 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
-import SiteHeader from "@/components/SiteHeader";
-import SiteFooter from "@/components/SiteFooter";
 import { prisma } from "@/lib/prisma";
 import { getServiceTypeLabel } from "@/lib/serviceTypes";
 import { getServiceLine, isLandscaping } from "@/lib/serviceLines";
@@ -13,10 +12,23 @@ import { balanceAfter } from "@/lib/deposit";
 import { getPaymentMethodLabel, isPaidMethod } from "@/lib/payments";
 import ManageActions from "./ManageActions";
 
+const SITE_NAME = process.env.NEXT_PUBLIC_SITE_NAME || "LoveMeAfter";
+const SUPPORT_PHONE = process.env.NEXT_PUBLIC_SUPPORT_PHONE || "(424) 426-0760";
+const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "hello@lovemeafter.com";
+
 // The link every booking-confirmation message includes. Looked up by the
 // random manageToken (see src/lib/manageToken.ts), never the booking's own
 // id — this page can write to the booking (cancel it), so the id used to
 // reach it has to actually resist guessing.
+//
+// This page is a customer-service utility, not marketing, and it has to keep
+// working regardless of which business is live on the rest of the site — an
+// existing customer's cancellation rights don't expire when the product line
+// does. So it renders its own minimal header and footer rather than
+// SiteHeader/SiteFooter: those carry nav to /moving, /yard, /drive and the
+// rest of the California marketing pages, which are turned off (see
+// src/app/moving/page.tsx and siblings), and a customer looking up an old
+// booking should not land on a page full of dead links.
 
 export default async function ManageBookingPage({
   params,
@@ -34,7 +46,19 @@ export default async function ManageBookingPage({
 
   return (
     <>
-      <SiteHeader />
+      <header className="border-b border-white/10 bg-paper">
+        <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-4 sm:px-6">
+          <Link href="/" className="text-lg font-extrabold tracking-tight text-ink">
+            {SITE_NAME}
+          </Link>
+          <a
+            href={`tel:${SUPPORT_PHONE.replace(/[^\d+]/g, "")}`}
+            className="font-mono text-sm text-neutral-300 hover:text-brand-cyan"
+          >
+            {SUPPORT_PHONE}
+          </a>
+        </div>
+      </header>
       <main className="mx-auto max-w-2xl px-4 py-16 sm:px-6">
         <h1 className="text-3xl font-extrabold tracking-tight text-ink">
           Your {noun}
@@ -153,7 +177,21 @@ export default async function ManageBookingPage({
 
         {!isFinal && <ManageActions token={booking.manageToken} noun={noun} />}
       </main>
-      <SiteFooter />
+      <footer className="border-t border-white/10 bg-surface">
+        <div className="mx-auto max-w-2xl px-4 py-8 text-sm text-neutral-300 sm:px-6">
+          <p>
+            Questions about this booking? Call or text{" "}
+            <a href={`tel:${SUPPORT_PHONE.replace(/[^\d+]/g, "")}`} className="font-medium text-brand-cyan">
+              {SUPPORT_PHONE}
+            </a>{" "}
+            or email{" "}
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="font-medium text-brand-cyan">
+              {SUPPORT_EMAIL}
+            </a>
+            .
+          </p>
+        </div>
+      </footer>
     </>
   );
 }

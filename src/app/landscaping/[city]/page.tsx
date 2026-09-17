@@ -59,6 +59,21 @@ export function generateMetadata({ params }: { params: { city: string } }): Meta
 }
 
 export default async function LandscapingCityPage({ params }: { params: { city: string } }) {
+  // TURNED OFF: these are the California per-city landscaping pages, retired
+  // when the site became the multi-state contractor-partner network. Kept
+  // in the codebase rather than deleted — everything below still works —
+  // so it can come back by deleting this block.
+  //
+  // The `: boolean` annotation matters: a bare `notFound()` makes TypeScript
+  // treat the rest of the function as unreachable and stop narrowing `city`
+  // below (the `if (!city) notFound()` guard right after this), which
+  // reopens an unrelated "possibly null" error. This form keeps it an
+  // ordinary runtime check instead — see src/app/yard/page.tsx.
+  const RETIRED: boolean = true;
+  if (RETIRED) {
+    notFound();
+  }
+
   const city = getCity(params.city);
   if (!city) notFound();
   const bare = bareCityName(city);

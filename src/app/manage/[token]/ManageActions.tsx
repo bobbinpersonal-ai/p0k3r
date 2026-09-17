@@ -49,11 +49,8 @@ export default function ManageActions({
   if (done === "canceled") {
     return (
       <p className="mt-6 rounded-2xl border border-white/10 bg-white/[0.04] p-4 text-sm text-neutral-300">
-        This booking is canceled. Need a new one?{" "}
-        <a href="/book" className="font-semibold text-brand-cyan">
-          Book again
-        </a>
-        .
+        This booking is canceled. Need something else? Call or text us and we&apos;ll sort it
+        out.
       </p>
     );
   }

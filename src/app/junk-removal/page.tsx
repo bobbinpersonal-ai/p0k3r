@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AutoplayVideo from "@/components/AutoplayVideo";
@@ -75,6 +76,18 @@ const WHAT_WE_CANT = [
 ];
 
 export default function JunkRemovalPage() {
+  // TURNED OFF: this is the California junk-removal business, retired when
+  // the site became the multi-state contractor-partner network. Kept in the
+  // codebase rather than deleted — everything below still works — so it can
+  // come back by deleting this block. (No narrowing-dependent code follows
+  // on this particular page, so a bare notFound() would work too — kept in
+  // the same `: boolean` form as its siblings for consistency; see
+  // src/app/yard/page.tsx for why that form matters elsewhere.)
+  const RETIRED: boolean = true;
+  if (RETIRED) {
+    notFound();
+  }
+
   return (
     <>
       {/* Its own CTA — someone here wants a haul-away price, not the yard

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import SiteHeader from "@/components/SiteHeader";
 import SiteFooter from "@/components/SiteFooter";
 import AutoplayVideo from "@/components/AutoplayVideo";
@@ -134,6 +135,20 @@ export default function MovingPage({
 }: {
   searchParams: { [key: string]: string | string[] | undefined };
 }) {
+  // TURNED OFF: this is the California moving business, retired when the
+  // site became the multi-state contractor-partner network. Kept in the
+  // codebase rather than deleted — everything below still works — so it can
+  // come back by deleting this block.
+  //
+  // The `: boolean` annotation matters: a bare `notFound()` makes TypeScript
+  // treat the rest of the function as unreachable and stop narrowing the
+  // `searchParams` guards below, which reopens unrelated type errors. This
+  // form keeps it an ordinary runtime check instead — see src/app/yard/page.tsx.
+  const RETIRED: boolean = true;
+  if (RETIRED) {
+    notFound();
+  }
+
   const cityParam = searchParams.city;
   const targetCity = typeof cityParam === "string" ? getCity(cityParam) : undefined;
 

@@ -29,6 +29,22 @@ export default async function ConfirmationPage({
 }: {
   searchParams: { id?: string };
 }) {
+  // TURNED OFF: this is the California moving/yard confirmation page,
+  // retired when the site became the multi-state contractor-partner
+  // network. Only ever reached right after booking via /book or /yard —
+  // both are off, so nothing new can land here — kept in the codebase
+  // rather than deleted so it can come back by deleting this block.
+  //
+  // The `: boolean` annotation matters: a bare `notFound()` makes TypeScript
+  // treat the rest of the function as unreachable and stop narrowing
+  // `booking` below (the `if (!booking) notFound()` guard right after this),
+  // which reopens unrelated "possibly null" errors. This form keeps it an
+  // ordinary runtime check instead — see src/app/yard/page.tsx.
+  const RETIRED: boolean = true;
+  if (RETIRED) {
+    notFound();
+  }
+
   if (!searchParams.id) notFound();
 
   const booking = await prisma.booking.findUnique({
