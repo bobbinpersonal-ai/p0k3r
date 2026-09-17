@@ -580,6 +580,17 @@ model ChannelPartner {
   notes         String?
   source        String?
 
+  /// A link to the list they're sharing — a Google Sheet, Drive file or
+  /// equivalent, held as a URL rather than as an import.
+  ///
+  /// Deliberately a link and not a copy. Their customers' contact details are
+  /// other people's personal data, and a URL we read when we need it is one
+  /// we can stop reading the day the partnership ends; rows we imported are
+  /// ours to leak forever. It also means the partner can revoke access
+  /// themselves without asking us to delete anything.
+  customerListUrl String?
+  listSharedAt    DateTime?
+
   /// The IRS wants a 1099-NEC for anyone paid $600 or more in a calendar
   /// year, same reasoning as Worker.w9OnFile.
   w9OnFile      Boolean  @default(false)

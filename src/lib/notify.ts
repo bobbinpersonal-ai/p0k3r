@@ -476,3 +476,24 @@ export async function notifyNewChannelPartnerApplication(
     ].filter((line): line is string => Boolean(line)),
   });
 }
+
+/**
+ * A partner attached their customer list.
+ *
+ * The highest-value notification in this file. Everything upstream of it is a
+ * conversation; this is the first moment there is something to actually work,
+ * and a list sitting unopened for a week is the whole partnership going cold.
+ */
+export async function notifyChannelPartnerListShared(
+  partner: ChannelPartner,
+): Promise<void> {
+  await notifyOwner({
+    subject: `LIST SHARED — ${partner.businessName}`,
+    lines: [
+      `${partner.businessName} — ${partner.contactName} — ${partner.phone}`,
+      partner.customerListUrl ? `List: ${partner.customerListUrl}` : null,
+      "→ Open it today. Check the link actually opens for us, check what columns it has, and " +
+        "confirm with them what the customers were told before anyone is dialed.",
+    ].filter((line): line is string => Boolean(line)),
+  });
+}

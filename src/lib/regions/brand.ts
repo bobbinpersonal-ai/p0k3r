@@ -95,18 +95,23 @@ export const PROOF = {
  * scanning a header is looking for their own job, and "roofing" does not catch
  * somebody whose soffit is rotting. The list is what we actually do, said the
  * way a customer would say it.
+ *
+ * Order matters and roofing is no longer first. This is a home improvement
+ * company that happens to do a lot of roofs, not a roofer with a side
+ * business — a homeowner who needs windows should not have to scroll past
+ * three roofing items to find out we do them.
  */
 export const WHAT_WE_DO = [
-  "Free roof inspections",
-  "Roof replacement",
-  "Storm & hail damage",
+  "Free estimates",
+  "Windows",
   "Siding",
+  "Roof replacement",
+  "Garage doors",
   "Fencing",
   "Gutters",
   "Exterior paint",
   "Soffit & fascia",
-  "Windows",
-  "Vetted local contractors",
+  "Storm & hail damage",
   "No obligation",
   "Five states",
 ] as const;

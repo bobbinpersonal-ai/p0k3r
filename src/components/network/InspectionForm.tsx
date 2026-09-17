@@ -90,9 +90,9 @@ export default function InspectionForm({
         <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Got it</p>
         <h3 className="mt-2 text-xl font-extrabold text-ink">We&apos;ll call you today.</h3>
         <p className="mt-2 text-sm text-neutral-200">
-          We&apos;ll ring to set a time and send a crew we&apos;ve vetted in your area. The
-          inspection takes about forty minutes and you&apos;ll have a written scope whether
-          there&apos;s damage or not — with no obligation to hire us.
+          We&apos;ll ring to set a time and send a crew we&apos;ve vetted in your area. It takes
+          about forty minutes and you&apos;ll have a written scope and a real number either way —
+          with no obligation to hire us.
         </p>
       </div>
     );
@@ -104,7 +104,7 @@ export default function InspectionForm({
       id={id}
       className="scroll-mt-20 rounded-2xl border border-white/10 bg-paper/80 p-5 backdrop-blur"
     >
-      <h2 className="text-xl font-extrabold text-ink">Get your free inspection</h2>
+      <h2 className="text-xl font-extrabold text-ink">Get your free estimate</h2>
       {/* The easy question first. A dropdown costs one tap and gets somebody
           into the form before a stranger asks for their name and address.
           The two options that shared value="" made the default state
@@ -175,7 +175,7 @@ export default function InspectionForm({
         disabled={submitting || outOfArea}
         className="mt-4 w-full rounded-xl bg-brand px-4 py-4 text-base font-bold text-white disabled:opacity-60"
       >
-        {submitting ? "Sending…" : outOfArea ? "Not in our area yet" : "Book my free inspection"}
+        {submitting ? "Sending…" : outOfArea ? "Not in our area yet" : "Book my free estimate"}
       </button>
 
       {/* Never pre-ticked. An unticked box is a lead we may work by other

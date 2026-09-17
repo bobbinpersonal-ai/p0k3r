@@ -24,24 +24,25 @@ import { TRADES } from "@/lib/regions/trades";
 // statutory cancellation notice that has to stay reachable.
 
 export const metadata: Metadata = {
-  title: `Free Roof & Exterior Inspections | ${COMPANY.name}`,
+  title: `Home Improvement Done Properly | Free Estimates | ${COMPANY.name}`,
   description:
-    "Free inspection, written scope, and a vetted crew. Roofing, siding, fencing, gutters and " +
-    "exterior paint across Colorado, Missouri, Kansas, Indiana and Wyoming. No obligation.",
+    "Windows, siding, roofing, garage doors, fencing, gutters and exterior paint. Free estimate, " +
+    "written scope and a vetted crew across Colorado, Missouri, Kansas, Indiana and Wyoming. " +
+    "No obligation.",
 };
 
 const STEPS = [
   {
-    title: "Tell us what needs looking at",
+    title: "Tell us what needs doing",
     body:
       "Thirty seconds and a ZIP code. We check we're already working near you before we take " +
       "anything else.",
   },
   {
-    title: "A free inspection, booked",
+    title: "A free estimate, booked",
     body:
-      "Forty minutes on the roof and around the house, photographs of everything found, and a " +
-      "written scope whether there is damage or not.",
+      "We walk the house, photograph everything we find, and give you a written scope and a " +
+      "real number — whether it's one window or the whole exterior.",
   },
   {
     title: "We send a vetted crew",
@@ -61,12 +62,20 @@ const FAQ = [
   {
     q: "What does it cost me?",
     a:
-      "Nothing to start. The inspection is free and the written scope is free, and you are " +
+      "Nothing to start. The estimate is free and the written scope is free, and you are " +
       "under no obligation to hire us. You only pay if you decide to go ahead with the work.",
   },
   {
+    q: "Can you do more than one thing at once?",
+    a:
+      "That's usually the cheaper way to do it. Siding and windows share scaffolding, gutters " +
+      "go on after a roof, and paint goes last — doing them together saves you a mobilisation " +
+      "each time. Ask for a price on everything you're thinking about, even the parts you'd " +
+      "put off; we'll tell you honestly what can wait.",
+  },
+  {
     q: "Do I need to be home?",
-    a: "For the inspection, no — we can walk the roof and call you. For the appointment where you get the price, yes, and so does anyone else who'd be part of the decision. We'd rather do it once properly than twice.",
+    a: "For the walk-round, no — we can look at the outside and call you. For the appointment where you get the price, yes, and so does anyone else who'd be part of the decision. We'd rather do it once properly than twice.",
   },
   {
     q: "How do you check the crews you send?",
@@ -87,8 +96,12 @@ const FAQ = [
       "back.",
   },
   {
-    q: "How long does a roof take?",
-    a: "Most houses are a single day — tear-off in the morning, dried in by lunch, finished by evening. Bigger or steeper roofs run to two.",
+    q: "How long does the work take?",
+    a:
+      "Most roofs are a single day — tear-off in the morning, dried in by lunch, finished by " +
+      "evening. Windows are usually a day for a houseful. Siding and exterior paint run three " +
+      "to five days depending on the house. Gutters, fencing and a garage door are same-day " +
+      "jobs. You get the real number in writing before you sign, not an optimistic one.",
   },
   {
     q: "Who pulls the permit?",
@@ -123,16 +136,17 @@ export default function HomePage() {
             <div className="min-w-0">
               <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
-                Free inspections · {REGIONS.map((r) => r.code).join(" · ")}
+                Free estimates · {REGIONS.map((r) => r.code).join(" · ")}
               </p>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                The hard part isn&apos;t the roof. It&apos;s knowing who to let near it.
+                The hard part isn&apos;t the work. It&apos;s knowing who to let near your house.
               </h1>
               <p className="mt-4 text-lg text-neutral-200">
-                Roofing, siding, fencing, gutters and exterior paint. We book you a free
-                inspection and send a crew we&apos;ve actually checked — insurance, registration,
-                and two customers we rang ourselves. You get a written scope either way, and
-                you&apos;re under no obligation to anyone.
+                Windows, siding, roofing, garage doors, fencing, gutters and exterior paint —
+                whatever the outside of your house needs. We book you a free estimate and send a
+                crew we&apos;ve actually checked: insurance, registration, and two customers we
+                rang ourselves. You get a written scope either way, and you&apos;re under no
+                obligation to anyone.
               </p>
               <p className="mt-3 text-sm leading-relaxed text-neutral-400">
                 Now booking across{" "}
@@ -149,7 +163,7 @@ export default function HomePage() {
                   we do not have yet and could not evidence. */}
               <dl className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
                 {[
-                  ["The inspection", "Free, no obligation"],
+                  ["The estimate", "Free, no obligation"],
                   ["Every crew", "Insured & checked"],
                   ["Costs you", "Nothing, ever"],
                   ["Minimum workmanship", `${PROOF.workmanshipWarrantyYears} years`],
@@ -174,8 +188,12 @@ export default function HomePage() {
         <section id="trades" className="scroll-mt-20">
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
             <h2 className="text-3xl font-extrabold tracking-tight text-ink">
-              What we&apos;ll get looked at
+              What we do
             </h2>
+            <p className="mt-2 max-w-2xl text-neutral-300">
+              The whole outside of the house, and any part of it on its own. One job or all of
+              them — we&apos;d rather price the lot and tell you what can wait.
+            </p>
             <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {TRADES.map((trade) => (
                 <div
@@ -297,7 +315,7 @@ export default function HomePage() {
                 Find out what it actually costs.
               </h2>
               <p className="mt-3 text-lg text-neutral-200">
-                Free inspection, a written scope, and a crew we&apos;ve checked. No obligation
+                Free estimate, a written scope, and a crew we&apos;ve checked. No obligation
                 to hire us and nothing charged to you at any point.
               </p>
               <p className="mt-6">

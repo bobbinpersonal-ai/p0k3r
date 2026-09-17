@@ -15,7 +15,7 @@ export default function NetworkHeader({ ctaHref = "#inspection" }: { ctaHref?: s
         </Link>
 
         <nav className="ml-auto hidden items-center gap-6 text-sm font-medium text-neutral-300 md:flex">
-          <a href="#trades" className="hover:text-ink">Services</a>
+          <a href="#trades" className="hover:text-ink">What we do</a>
           <a href="#storm" className="hover:text-ink">Storm damage</a>
           <a href="#how" className="hover:text-ink">How it works</a>
           <Link href="/partners" className="hover:text-ink">Contractors</Link>
@@ -34,7 +34,7 @@ export default function NetworkHeader({ ctaHref = "#inspection" }: { ctaHref?: s
           href={ctaHref}
           className="hidden rounded-full bg-brand px-4 py-2 text-sm font-bold text-white hover:opacity-90 sm:block"
         >
-          Free inspection
+          Free estimate
         </a>
       </div>
     </header>

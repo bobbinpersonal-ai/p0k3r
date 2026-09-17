@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { notifyNewChannelPartnerApplication } from "@/lib/notify";
+import { checkListUrl } from "@/lib/regions/channelPartners";
 import { getRegion, regionForZip, REGIONS } from "@/lib/regions/states";
 
 // A business applying to hand over its customer list rather than do labor.
@@ -46,11 +47,24 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Sharing the list on the first form is optional and uncommon — most people
+  // want the phone call first. A bad link is worth rejecting rather than
+  // dropping, because somebody who pasted one meant to share it.
+  const rawListUrl = clean(body.customerListUrl, 600);
+  let customerListUrl: string | null = null;
+  if (rawListUrl) {
+    const check = checkListUrl(rawListUrl);
+    if (!check.ok) return NextResponse.json({ error: check.reason }, { status: 400 });
+    customerListUrl = check.url;
+  }
+
   const partner = await prisma.channelPartner.create({
     data: {
       businessName,
       contactName,
       phone,
+      customerListUrl,
+      listSharedAt: customerListUrl ? new Date() : null,
       email: clean(body.email, 160) || null,
       industry: clean(body.industry, 80) || null,
       city: clean(body.city, 80) || null,

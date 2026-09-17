@@ -3,6 +3,7 @@ import NetworkHeader from "@/components/network/NetworkHeader";
 import NetworkFooter from "@/components/network/NetworkFooter";
 import { prisma } from "@/lib/prisma";
 import { CHANNEL_PARTNER_FEE_CENTS, formatFee } from "@/lib/regions/channelPartners";
+import ShareListCard from "./ShareListCard";
 
 // A channel partner's own view of what happened to the customers they gave
 // us — the "you'll see the lead, and what happens to it" promise made on
@@ -74,6 +75,14 @@ export default async function ChannelPartnerPortalPage({
                 <p className="font-mono text-2xl font-bold text-brand-cyan">{partner.leads.length}</p>
                 <p className="mt-1 text-sm text-neutral-300">customers from your list</p>
               </div>
+            </div>
+
+            <div className="mt-8">
+              <ShareListCard
+                token={partner.portalToken}
+                currentUrl={partner.customerListUrl}
+                sharedAt={partner.listSharedAt?.toISOString() ?? null}
+              />
             </div>
           </div>
         </section>

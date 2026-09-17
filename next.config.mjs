@@ -13,6 +13,13 @@ const nextConfig = {
     return [
       { source: "/sell", destination: "/partners", permanent: true },
       { source: "/crew", destination: "/partners", permanent: true },
+
+      // Short aliases for /channel-partners, which is a mouthful to say down a
+      // phone and gets texted to somebody mid-cold-call. Temporary rather than
+      // permanent on purpose: a 308 is cached by the browser more or less
+      // forever, and these are vanity links we may well want to repoint.
+      { source: "/partner", destination: "/channel-partners", permanent: false },
+      { source: "/refer", destination: "/channel-partners", permanent: false },
     ];
   },
 };

@@ -47,9 +47,9 @@ export default function NetworkFooter() {
         </div>
 
         <p className="mt-8 text-xs leading-relaxed text-neutral-400">
-          &copy; {new Date().getFullYear()} {COMPANY.legalName}. Roofing, siding, fencing,
-          gutters and exterior paint across {REGIONS.length} states and {ALL_CITIES.length}{" "}
-          communities.
+          &copy; {new Date().getFullYear()} {COMPANY.legalName}. Home improvement — windows,
+          siding, roofing, garage doors, fencing, gutters and exterior paint — across{" "}
+          {REGIONS.length} states and {ALL_CITIES.length} communities.
         </p>
 
         <p className="mt-4 max-w-4xl border-t border-white/5 pt-4 text-xs leading-relaxed text-neutral-400">
