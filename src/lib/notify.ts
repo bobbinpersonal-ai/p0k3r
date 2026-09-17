@@ -18,7 +18,7 @@
 // it's the channel that actually works out of the box for anyone who isn't
 // the account owner.
 
-import type { Booking, ContractorLead, Driver, DriverApplication } from "@prisma/client";
+import type { Booking, ChannelPartner, ContractorLead, Driver, DriverApplication } from "@prisma/client";
 import { getCity } from "./cities";
 import { getServiceTypeLabel } from "./serviceTypes";
 import { getApplicantRoleLabel } from "./applicantRoles";
@@ -453,6 +453,26 @@ export async function notifyNewRepApplication(rep: {
       rep.city ? `City: ${rep.city}` : null,
       rep.experience ? `Experience: ${rep.experience}` : null,
       "→ Phone screen same day. Ask them to walk you through the last thing they sold in someone's house.",
+    ].filter((line): line is string => Boolean(line)),
+  });
+}
+
+/** A business applied to hand over its customer list as a channel partner. */
+export async function notifyNewChannelPartnerApplication(
+  partner: ChannelPartner,
+): Promise<void> {
+  await notifyOwner({
+    subject: `Channel partner applicant — ${partner.businessName}`,
+    lines: [
+      `${partner.businessName} — ${partner.contactName} — ${partner.phone}`,
+      partner.industry ? `Industry: ${partner.industry}` : null,
+      partner.city || partner.state
+        ? `Location: ${[partner.city, partner.state].filter(Boolean).join(", ")}`
+        : null,
+      partner.approxListSize ? `Says roughly ${partner.approxListSize} customers on their list` : null,
+      partner.notes ? partner.notes : null,
+      "→ Call them back before you ask for the list. Confirm they actually have the right to hand " +
+        "their customers' contact info to us before anything gets dialed.",
     ].filter((line): line is string => Boolean(line)),
   });
 }

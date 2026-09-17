@@ -17,6 +17,9 @@ export default function NetworkFooter() {
           <Link href="/partners" className="text-sm text-neutral-300 hover:text-ink">
             Contractor partners
           </Link>
+          <Link href="/channel-partners" className="text-sm text-neutral-300 hover:text-ink">
+            Channel partners
+          </Link>
         </div>
 
         {/* Named towns and counties, by state. Most of the local search this

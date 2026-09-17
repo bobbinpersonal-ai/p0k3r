@@ -332,6 +332,12 @@ model Lead {
   leadListId    String?
   leadList      LeadList? @relation(fields: [leadListId], references: [id])
 
+  /// Set when this customer came off a channel partner's list rather than a
+  /// purchased list or the website. Drives both the payout when it sells and
+  /// what the partner sees on their own portal.
+  channelPartnerId String?
+  channelPartner   ChannelPartner? @relation(fields: [channelPartnerId], references: [id])
+
   /// E.164, and unique across the whole table: the same homeowner turning up
   /// in two purchased lists is one lead with one call history, not two.
   phoneKey      String?   @unique
@@ -365,6 +371,7 @@ model Lead {
 
   @@index([status])
   @@index([repId])
+  @@index([channelPartnerId])
 }
 
 /// What the rep built at the kitchen table, and what the customer signed.
@@ -541,6 +548,77 @@ model WorkerPayout {
   createdAt     DateTime @default(now())
 
   @@index([workerId, taxYear])
+}
+
+/// A business that hands over its own customer list instead of doing labor.
+///
+/// Different shape from Worker on purpose: a Worker gets paid a labor rate
+/// because they show up and do the job. A ChannelPartner does none of the
+/// work — they get paid a flat fee (see CHANNEL_PARTNER_FEE_CENTS) for every
+/// job that closes off a list they handed us. The list itself never lives
+/// here as data; this row is the business relationship and the payout
+/// history, not an import of their customers.
+model ChannelPartner {
+  id            String   @id @default(cuid())
+  /// APPLIED, ACTIVE or INACTIVE — same lifecycle shape as Worker.
+  status        String   @default("APPLIED")
+
+  businessName  String
+  contactName   String
+  phone         String
+  email         String?
+  /// What trade their own business is in — tells us how warm their
+  /// customer relationship actually is, not what they'll do for us (nothing).
+  industry      String?
+  city          String?
+  state         String?
+
+  /// Roughly how many customers are on the list they're offering. Their
+  /// number, unverified, useful only for triage.
+  approxListSize Int?
+
+  notes         String?
+  source        String?
+
+  /// The IRS wants a 1099-NEC for anyone paid $600 or more in a calendar
+  /// year, same reasoning as Worker.w9OnFile.
+  w9OnFile      Boolean  @default(false)
+
+  /// Their own link to see what happened with the customers they gave us —
+  /// see /channel-partners/[token]. Unguessable, same reasoning as
+  /// Estimate.token and Booking.manageToken.
+  portalToken   String   @unique @default(dbgenerated("gen_random_uuid()"))
+
+  leads         Lead[]
+  payouts       ChannelPartnerPayout[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+}
+
+/// One flat-fee payout to one channel partner for one closed job.
+model ChannelPartnerPayout {
+  id                String   @id @default(cuid())
+  channelPartnerId  String
+  channelPartner    ChannelPartner @relation(fields: [channelPartnerId], references: [id])
+
+  amount            Int
+  method            String
+  handle            String?
+  memo              String?
+
+  /// Which lead/job it was for. Null for a payment that isn't job-specific.
+  leadId            String?
+
+  paidAt            DateTime @default(now())
+  /// Denormalised so a year's 1099 totals are one indexed query.
+  taxYear           Int
+
+  createdAt         DateTime @default(now())
+
+  @@index([channelPartnerId, taxYear])
 }
 
 // --- Network: the calling pipeline ---------------------------------------------

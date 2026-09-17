@@ -19,6 +19,7 @@ export default function NetworkHeader({ ctaHref = "#inspection" }: { ctaHref?: s
           <a href="#storm" className="hover:text-ink">Storm damage</a>
           <a href="#how" className="hover:text-ink">How it works</a>
           <Link href="/partners" className="hover:text-ink">Contractors</Link>
+          <Link href="/channel-partners" className="hover:text-ink">Refer &amp; earn</Link>
         </nav>
 
         {/* On a phone this is the conversion event, not the form: most of this
