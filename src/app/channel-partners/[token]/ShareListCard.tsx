@@ -68,10 +68,29 @@ export default function ShareListCard({
         <p className="mt-2 text-sm text-neutral-300">
           Put your customers in a Google Sheet, set it to{" "}
           <strong className="text-neutral-200">Anyone with the link can view</strong>, and paste
-          the link here. Name and phone number is enough — anything else you have (address, what
-          you did for them, when) makes the call go better.
+          the link here.
         </p>
       )}
+
+      {/* The address ask, given its own block rather than buried in a list of
+          nice-to-haves. It is the single field that changes what a crew can
+          do with the row — see the columns note below. */}
+      <div className="mt-4 rounded-xl border border-white/10 bg-paper/40 p-4">
+        <p className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
+          Columns that help
+        </p>
+        <p className="mt-2 text-sm leading-relaxed text-neutral-300">
+          <strong className="text-ink">Name and phone</strong> is enough to start.{" "}
+          <strong className="text-ink">Add the address if you have it</strong> — we can look at
+          the property before we ring, price the job properly on the first call, and catch the
+          houses near one we&apos;re already working on. It is the difference between a call and
+          a booked appointment more often than anything else on the sheet.
+        </p>
+        <p className="mt-2 text-sm leading-relaxed text-neutral-400">
+          Anything else you have — what you did for them, and roughly when — makes the
+          conversation land better.
+        </p>
+      </div>
 
       <form onSubmit={submit} className="mt-4">
         <label htmlFor="list-url" className="sr-only">

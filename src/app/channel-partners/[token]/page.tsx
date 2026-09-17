@@ -2,30 +2,27 @@ import { notFound } from "next/navigation";
 import NetworkHeader from "@/components/network/NetworkHeader";
 import NetworkFooter from "@/components/network/NetworkFooter";
 import { prisma } from "@/lib/prisma";
-import { CHANNEL_PARTNER_FEE_CENTS, formatFee } from "@/lib/regions/channelPartners";
+import {
+  CHANNEL_PARTNER_FEE_CENTS,
+  JOURNEY_STEPS,
+  formatFee,
+  journeyStage,
+} from "@/lib/regions/channelPartners";
 import ShareListCard from "./ShareListCard";
 
-// A channel partner's own view of what happened to the customers they gave
-// us — the "you'll see the lead, and what happens to it" promise made on
-// /channel-partners, kept literally rather than left as a marketing line.
+// A channel partner's own view of where every customer they gave us has got
+// to — the "you'll see what stage we're at" promise made on /channel-partners,
+// kept literally rather than left as a marketing line.
 //
 // Looked up by the unguessable portalToken (see ChannelPartner.portalToken
 // in prisma/schema.prisma), the same reasoning as /manage/[token]: this is a
 // customer-service utility a partner might come back to for months, not
 // something that should need a login system before it exists.
-
-const STATUS_LABEL: Record<string, string> = {
-  NEW: "Just added, not called yet",
-  ASSIGNED: "Being worked",
-  APPOINTMENT_SET: "Appointment booked",
-  SOLD: "Closed — job sold",
-  NO_SALE: "Quoted, no sale",
-  DEAD: "Couldn't reach, or not interested",
-};
-
-function statusLabel(status: string): string {
-  return STATUS_LABEL[status] ?? status;
-}
+//
+// Earned and paid are shown as separate numbers on purpose. Money is owed at
+// SOLD and released at COMPLETED, and a partner who sees one figure labelled
+// "earned" and then waits three weeks for it thinks they are being stalled.
+// Two numbers and a plain sentence is the whole fix.
 
 export default async function ChannelPartnerPortalPage({
   params,
@@ -41,8 +38,19 @@ export default async function ChannelPartnerPortalPage({
   });
   if (!partner) notFound();
 
-  const totalEarnedCents = partner.payouts.reduce((sum, p) => sum + p.amount, 0);
+  const paidCents = partner.payouts.reduce((sum, p) => sum + p.amount, 0);
   const soldCount = partner.leads.filter((l) => l.status === "SOLD").length;
+  const completedCount = partner.leads.filter((l) => l.status === "COMPLETED").length;
+
+  // What is owed but not yet released. Only the flat fee is knowable here —
+  // the profit share depends on what the job actually sold for, which is not
+  // on this row — so it is described as "at least" rather than guessed at.
+  const pendingFloorCents = soldCount * CHANNEL_PARTNER_FEE_CENTS;
+
+  const counts = new Map<string, number>();
+  for (const lead of partner.leads) {
+    counts.set(lead.status, (counts.get(lead.status) ?? 0) + 1);
+  }
 
   return (
     <>
@@ -57,25 +65,43 @@ export default async function ChannelPartnerPortalPage({
               {partner.businessName}
             </h1>
             <p className="mt-2 text-neutral-300">
-              Every customer you&apos;ve given us, and what happened with each one.
+              Every customer you&apos;ve sent us, where each one has got to, and what it&apos;s
+              paid you.
             </p>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-3">
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                 <p className="font-mono text-2xl font-bold text-brand-cyan">
-                  {formatFee(totalEarnedCents)}
+                  {formatFee(paidCents)}
                 </p>
-                <p className="mt-1 text-sm text-neutral-300">earned so far</p>
+                <p className="mt-1 text-sm text-neutral-300">paid to you</p>
+                <p className="mt-1 text-xs text-neutral-400">
+                  {completedCount} finished {completedCount === 1 ? "job" : "jobs"}
+                </p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                <p className="font-mono text-2xl font-bold text-brand-cyan">{soldCount}</p>
-                <p className="mt-1 text-sm text-neutral-300">jobs closed</p>
+                <p className="font-mono text-2xl font-bold text-ink">
+                  {pendingFloorCents > 0 ? `${formatFee(pendingFloorCents)}+` : formatFee(0)}
+                </p>
+                <p className="mt-1 text-sm text-neutral-300">earned, in progress</p>
+                <p className="mt-1 text-xs text-neutral-400">
+                  {soldCount} sold, pays when finished
+                </p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                <p className="font-mono text-2xl font-bold text-brand-cyan">{partner.leads.length}</p>
+                <p className="font-mono text-2xl font-bold text-ink">{partner.leads.length}</p>
                 <p className="mt-1 text-sm text-neutral-300">customers from your list</p>
               </div>
             </div>
+
+            {soldCount > 0 && (
+              <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm leading-relaxed text-neutral-300">
+                Sold jobs show as &ldquo;earned&rdquo; the day the customer signs and pay out
+                once the work is finished. Your share of the profit is added then, so the
+                final figure is usually higher than the {formatFee(CHANNEL_PARTNER_FEE_CENTS)}{" "}
+                floor shown here.
+              </p>
+            )}
 
             <div className="mt-8">
               <ShareListCard
@@ -87,24 +113,67 @@ export default async function ChannelPartnerPortalPage({
           </div>
         </section>
 
+        {/* The pipeline at a glance, before the per-customer list. A partner
+            checking in from a phone wants "how many are close" answered in one
+            look, not counted off a list of two hundred rows. */}
         <section className="border-b border-white/10 bg-surface">
+          <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+            <h2 className="text-xl font-extrabold text-ink">Where everyone is</h2>
+            <ol className="mt-5 grid gap-3 sm:grid-cols-5">
+              {JOURNEY_STEPS.map((stage) => (
+                <li
+                  key={stage.status}
+                  className="rounded-xl border border-white/10 bg-white/[0.04] p-4"
+                >
+                  {/* No step number here, unlike the marketing page: next to a
+                      count of customers, a second small number is just two
+                      numbers to read instead of one. Order carries it. */}
+                  <p className="font-mono text-2xl font-bold text-brand-cyan">
+                    {counts.get(stage.status) ?? 0}
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-ink">{stage.label}</p>
+                  <p className="mt-1 text-xs leading-relaxed text-neutral-400">{stage.hint}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section className="border-b border-white/10">
           <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
             <h2 className="text-xl font-extrabold text-ink">Your customers</h2>
             {partner.leads.length === 0 ? (
               <p className="mt-3 text-sm text-neutral-300">
-                Nothing here yet — once we&apos;ve called anyone off your list, they&apos;ll show up here.
+                Nothing here yet — once we&apos;ve called anyone off your list, they&apos;ll show
+                up here with where they got to.
               </p>
             ) : (
               <div className="mt-4 space-y-2">
-                {partner.leads.map((lead) => (
-                  <div
-                    key={lead.id}
-                    className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[0.04] p-4"
-                  >
-                    <span className="font-medium text-ink">{lead.customerName}</span>
-                    <span className="text-sm text-neutral-300">{statusLabel(lead.status)}</span>
-                  </div>
-                ))}
+                {partner.leads.map((lead) => {
+                  const stage = journeyStage(lead.status);
+                  return (
+                    <div
+                      key={lead.id}
+                      className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 rounded-xl border border-white/10 bg-white/[0.04] p-4"
+                    >
+                      <div className="min-w-0">
+                        <p className="font-medium text-ink">{lead.customerName}</p>
+                        {(lead.city || lead.zip) && (
+                          <p className="text-xs text-neutral-400">
+                            {[lead.city, lead.zip].filter(Boolean).join(" · ")}
+                          </p>
+                        )}
+                      </div>
+                      <span
+                        className={`shrink-0 text-sm ${
+                          stage.earning ? "font-semibold text-brand-cyan" : "text-neutral-300"
+                        }`}
+                      >
+                        {stage.label}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -115,7 +184,8 @@ export default async function ChannelPartnerPortalPage({
             <h2 className="text-xl font-extrabold text-ink">Your payouts</h2>
             {partner.payouts.length === 0 ? (
               <p className="mt-3 text-sm text-neutral-300">
-                Nothing paid out yet — the first {formatFee(CHANNEL_PARTNER_FEE_CENTS)} shows up here the day a job closes.
+                Nothing paid out yet. The first one lands the day a job off your list is
+                finished — {formatFee(CHANNEL_PARTNER_FEE_CENTS)} plus your half of the profit.
               </p>
             ) : (
               <div className="mt-4 space-y-2">

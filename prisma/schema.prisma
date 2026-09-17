@@ -300,7 +300,11 @@ model Rep {
 /// Somebody who wants a price. Assigned to a rep by the owner, by hand.
 model Lead {
   id            String   @id @default(cuid())
-  /// NEW, ASSIGNED, APPOINTMENT_SET, SOLD, NO_SALE, DEAD.
+  /// NEW, ASSIGNED, APPOINTMENT_SET, SOLD, COMPLETED, NO_SALE, DEAD.
+  ///
+  /// COMPLETED is distinct from SOLD because it is what releases a channel
+  /// partner's payout — a signed job that cancels or never finishes has
+  /// produced nothing to share. See src/lib/regions/channelPartners.ts.
   status        String   @default("NEW")
 
   customerName  String
@@ -609,12 +613,18 @@ model ChannelPartner {
   @@index([status])
 }
 
-/// One flat-fee payout to one channel partner for one closed job.
+/// One payout to one channel partner for one completed job.
+///
+/// Written only once the job is COMPLETE, not when it sells: a signed job that
+/// cancels has produced nothing to share. See src/lib/regions/channelPartners.ts
+/// for what the amount is made of — a flat fee plus half the gross profit.
 model ChannelPartnerPayout {
   id                String   @id @default(cuid())
   channelPartnerId  String
   channelPartner    ChannelPartner @relation(fields: [channelPartnerId], references: [id])
 
+  /// CENTS, not dollars — the partner portal divides by 100 to display it.
+  /// Storing dollars here pays somebody a hundredth of what they are owed.
   amount            Int
   method            String
   handle            String?

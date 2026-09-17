@@ -4,7 +4,12 @@ import NetworkFooter from "@/components/network/NetworkFooter";
 import ChannelPartnerForm from "./ChannelPartnerForm";
 import EarningsEstimator from "./EarningsEstimator";
 import { COMPANY, PHONE_DIGITS } from "@/lib/regions/brand";
-import { CHANNEL_PARTNER_FEE_CENTS, formatFee } from "@/lib/regions/channelPartners";
+import {
+  CHANNEL_PARTNER_FEE_CENTS,
+  CHANNEL_PARTNER_PROFIT_SHARE,
+  JOURNEY_STEPS,
+  formatFee,
+} from "@/lib/regions/channelPartners";
 import { REGIONS } from "@/lib/regions/states";
 import { TRADES } from "@/lib/regions/trades";
 
@@ -22,13 +27,16 @@ import { TRADES } from "@/lib/regions/trades";
 // channel partner does no work at all. See src/lib/regions/channelPartners.ts.
 
 const FEE = formatFee(CHANNEL_PARTNER_FEE_CENTS);
+const SPLIT = `${Math.round(CHANNEL_PARTNER_PROFIT_SHARE * 100)}/${Math.round(
+  (1 - CHANNEL_PARTNER_PROFIT_SHARE) * 100,
+)}`;
 
 export const metadata: Metadata = {
-  title: `Partner With Us — ${FEE} Per Job, No Work | ${COMPANY.name}`,
+  title: `Partner With Us — ${FEE} Per Job Plus Half the Profit | ${COMPANY.name}`,
   description:
     `Your past customers are worth money you're not collecting. Share your list, we do the ` +
-    `calling and the work, and you get ${FEE} every time a job closes. No selling, no labour, ` +
-    `no cost to join.`,
+    `calling and the work, and you get ${FEE} per job plus a ${SPLIT} split of the profit. ` +
+    `No selling, no labour, no cost to join.`,
   robots: { index: true, follow: true },
 };
 
@@ -56,10 +64,10 @@ const HOW_IT_WORKS = [
   },
   {
     step: "04",
-    title: `You get paid ${FEE}`,
+    title: `You get ${FEE} plus half the profit`,
     body:
-      `Every single time a job closes off your list. No cap, no expiry, and nothing owed by you ` +
-      `if a call goes nowhere.`,
+      `${FEE} on every job, and on anything our people sell above our price threshold you take ` +
+      `${SPLIT} of the profit. Paid once the work is finished.`,
   },
 ];
 
@@ -112,8 +120,8 @@ const PROMISES = [
   {
     title: "You can see everything",
     body:
-      "You get a private page showing every customer we called, what came of it, and every " +
-      "dollar you've earned. No login, no chasing, no invoices.",
+      "A private page showing every customer we called, the stage they're at right now, and " +
+      "every dollar earned and paid. No login, no chasing, no invoices.",
   },
 ];
 
@@ -124,6 +132,14 @@ const FAQ = [
       "There isn't a clever one. We need warm introductions and you have hundreds sitting in a " +
       "spreadsheet doing nothing. We'd rather pay you well per job than buy cold lists that " +
       "close at a fraction of the rate. That's the whole trade.",
+  },
+  {
+    q: `How does the ${SPLIT} split actually work?`,
+    a:
+      `Every job in our price book has a threshold — the lowest number we'll do that work for. ` +
+      `Whatever our salesperson sells it for above that threshold is profit, and after the job ` +
+      `costs and their commission come out, you take half of what's left. The ${FEE} is on top ` +
+      `of that, on every job, whether it sold high or landed near the threshold.`,
   },
   {
     q: "Do I have to do any work at all?",
@@ -147,10 +163,19 @@ const FAQ = [
       "Licensed work — electrical, plumbing, HVAC — we don't touch at all.",
   },
   {
-    q: `When do I actually get the ${FEE}?`,
+    q: "When do I actually get paid?",
     a:
-      "After the customer signs and their job is under way — not on a vague promise of " +
-      "completion that never quite arrives. It lands on your private page the day we pay it.",
+      "Once the job is finished. It shows as earned on your page the day the customer signs, so " +
+      "you can see it coming, and it pays out when the work is complete — we don't pay on a " +
+      "signature that might still cancel, and we don't make you chase it either.",
+  },
+  {
+    q: "Can I see what's happening with my customers?",
+    a:
+      "Yes, and it's the part partners end up using most. You get a private page showing every " +
+      "customer you sent us and exactly which stage they're at — not called yet, being called, " +
+      "appointment booked, sold, finished. Plus what's earned and what's been paid. No login, " +
+      "no asking us for an update.",
   },
   {
     q: "What if my customers are all over the place?",
@@ -168,8 +193,11 @@ const FAQ = [
   {
     q: "What do I actually need to send?",
     a:
-      "Name and phone number is enough to start. Address, what you did for them and roughly " +
-      "when makes the call much better. If it's in your CRM, an export takes about two minutes.",
+      "Name and phone number is enough to start — but send the address if you have it. It lets " +
+      "us look at the property before we ring, quote properly on the first call, and spot the " +
+      "houses sitting near a job we're already on. It moves the needle more than anything else " +
+      "on the sheet. What you did for them and roughly when helps too. If it's in your CRM, an " +
+      "export takes about two minutes.",
   },
 ];
 
@@ -187,20 +215,21 @@ export default function ChannelPartnersPage() {
                 Partner program · {REGIONS.map((r) => r.code).join(" · ")}
               </p>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                Your old customers are worth {FEE} each. You&apos;re not collecting it.
+                Your old customers are worth {FEE} each — and half the profit on top.
               </h1>
               <p className="mt-4 text-lg text-neutral-200">
                 Share the list of people you&apos;ve already done work for. We call them, sell
-                the home improvement work you don&apos;t do, and hand you {FEE} every time a job
-                closes. You do nothing — no selling, no labour, no cost to join.
+                the home improvement work you don&apos;t do, and pay you {FEE} a job plus a{" "}
+                {SPLIT} split of the profit on anything sold above our threshold. You do nothing
+                — no selling, no labour, no cost to join.
               </p>
 
               <dl className="mt-8 grid gap-4 sm:grid-cols-2">
                 {[
-                  [`${FEE} per job`, "Every time one of your customers becomes a job. No cap."],
+                  [`${FEE} + ${SPLIT} split`, "A flat fee on every job, and half the profit above our threshold."],
                   ["Zero work", "We call, quote, contract and build. You share a spreadsheet."],
-                  ["Zero liability", "Our contract, our crews, our insurance, our warranty."],
-                  ["Zero cost", "No fee to join, nothing to buy, not exclusive."],
+                  ["You watch it happen", "See every customer's stage, live, on your own page."],
+                  ["Paid on completion", "Money lands when the job is finished, not when it's promised."],
                 ].map(([title, body]) => (
                   <div key={title} className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
                     <dt className="text-sm font-bold text-ink">{title}</dt>
@@ -234,7 +263,7 @@ export default function ChannelPartnersPage() {
               Drag it to the size of your customer list.
             </p>
             <div className="mt-8">
-              <EarningsEstimator feeCents={CHANNEL_PARTNER_FEE_CENTS} />
+              <EarningsEstimator feeCents={CHANNEL_PARTNER_FEE_CENTS} splitLabel={SPLIT} />
             </div>
           </div>
         </section>
@@ -254,7 +283,42 @@ export default function ChannelPartnersPage() {
           </div>
         </section>
 
+        {/* Visibility, sold as a feature rather than mentioned in a FAQ. It is
+            the answer to the unspoken objection behind every one of these
+            calls — "I hand over my customers and then hear nothing ever
+            again" — so it gets a section with the actual stages in it. */}
         <section className="border-b border-white/10 bg-surface">
+          <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
+            <h2 className="text-3xl font-extrabold tracking-tight text-ink">
+              You watch the whole thing happen
+            </h2>
+            <p className="mt-2 max-w-2xl text-neutral-300">
+              You get your own private page. Every customer you send us shows up on it with
+              exactly where they&apos;ve got to — and what they&apos;ve earned you. You never
+              have to ring us for an update.
+            </p>
+            <ol className="mt-8 grid gap-3 sm:grid-cols-5">
+              {JOURNEY_STEPS.map((stage) => (
+                <li
+                  key={stage.status}
+                  className={`rounded-2xl border p-5 ${
+                    stage.earning
+                      ? "border-brand/30 bg-brand/10"
+                      : "border-white/10 bg-white/[0.04]"
+                  }`}
+                >
+                  <p className="font-mono text-2xl font-bold text-brand-cyan">
+                    {String(stage.step).padStart(2, "0")}
+                  </p>
+                  <h3 className="mt-2 text-base font-bold text-ink">{stage.label}</h3>
+                  <p className="mt-1 text-sm leading-relaxed text-neutral-300">{stage.hint}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <section className="border-b border-white/10">
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
             <h2 className="text-3xl font-extrabold tracking-tight text-ink">
               Who this works best for
@@ -277,7 +341,7 @@ export default function ChannelPartnersPage() {
         {/* The trust section. On a texted link from a stranger this is the part
             that decides it, so it is specific commitments rather than
             adjectives about integrity. */}
-        <section className="border-b border-white/10">
+        <section className="border-b border-white/10 bg-surface">
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
             <h2 className="text-3xl font-extrabold tracking-tight text-ink">
               What we do with your list
@@ -296,7 +360,7 @@ export default function ChannelPartnersPage() {
           </div>
         </section>
 
-        <section className="border-b border-white/10 bg-surface">
+        <section className="border-b border-white/10">
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6">
             <h2 className="text-3xl font-extrabold tracking-tight text-ink">
               What we sell your customers
@@ -318,7 +382,7 @@ export default function ChannelPartnersPage() {
           </div>
         </section>
 
-        <section className="border-b border-white/10">
+        <section className="border-b border-white/10 bg-surface">
           <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6">
             <h2 className="text-3xl font-extrabold tracking-tight text-ink">
               Questions people actually ask

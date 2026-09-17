@@ -170,8 +170,9 @@ export default function ChannelPartnerForm() {
             className={FIELD}
           />
           <p id="list-url-note" className="mt-1.5 text-xs text-neutral-400">
-            Set it to &ldquo;anyone with the link can view&rdquo;. You can also do this later from
-            your own private page.
+            Set it to &ldquo;anyone with the link can view&rdquo;. Name, phone and{" "}
+            <strong className="text-neutral-300">address if you have it</strong>. You can also do
+            this later from your own private page.
           </p>
         </div>
       </div>
