@@ -57,6 +57,19 @@ export type ReferralFacts = {
   feePerAppointment?: number;
   /** Days after the customer signs that the fee falls due. */
   payDays?: number;
+  /**
+   * True when calls are placed in the Contractor's name rather than ours.
+   *
+   * This is not a branding preference, it is the switch that decides who is
+   * the "seller". Once we say "calling on behalf of ABC Roofing", ABC is the
+   * seller under the Telemarketing Sales Rule and carries TCPA liability for
+   * our calls whether or not they knew what we dialled — vicarious liability
+   * is settled law here. A partner who understands that will ask about it, and
+   * a partner who does not should be told.
+   */
+  callsInContractorName?: boolean;
+  /** Trades the calls will offer. Solar is treated separately — see below. */
+  offersSolar?: boolean;
   effective: Date;
 };
 
@@ -105,6 +118,29 @@ export const QUALIFIED_APPOINTMENT = [
 const pct = (rate: number) => `${Math.round(rate * 1000) / 10}%`;
 const money = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
 
+/**
+ * Why solar gets its own warning rather than being one more trade.
+ *
+ * Solar telemarketing is the most litigated corner of the TCPA. Statutory
+ * damages are $500 a call and $1,500 where a violation is wilful, which turns
+ * an ordinary dialling week into a company-ending number without anybody
+ * intending harm. Regulators have been active too: the FTC has permanently
+ * banned operators for running consent farms, and state agencies have issued
+ * emergency cease-and-desists with six-figure fines against solar lead
+ * generators. Solar is also electrical work, which is licensed in every state
+ * in this network.
+ *
+ * None of that makes it impossible. It makes it the last thing to add, not the
+ * first, and never the thing you learn on.
+ */
+export const SOLAR_WARNING =
+  "Solar is the highest-risk trade to telemarket in the United States. Damages run to $500 " +
+  "per call and $1,500 where a violation is wilful, regulators have shut down solar lead " +
+  "generators with emergency orders and six-figure fines, and the installation itself is " +
+  "licensed electrical work in every state in this network. Do not add solar until the " +
+  "calling operation has a clean record on ordinary exterior work and a lawyer has read the " +
+  "consent trail.";
+
 export function referralAgreement(facts: ReferralFacts): AgreementDocument {
   const warnings: string[] = [];
   const flat = facts.feePerAppointment ?? null;
@@ -135,6 +171,18 @@ export function referralAgreement(facts: ReferralFacts): AgreementDocument {
         "dependent on the contractor telling you the truth about what closed. Worth the extra " +
         "points to be there.",
     );
+  }
+  if (facts.callsInContractorName) {
+    warnings.push(
+      `Calls will be placed in ${facts.contractorName}'s name, which makes them the seller ` +
+        `and puts TCPA liability for our dialling on them as well as us. They must agree to ` +
+        `that knowingly, in writing, and hand over their own do-not-call list before the first ` +
+        `call. Where a state requires a filing naming who we call for — Wyoming asks for it ` +
+        `expressly — that filing has to be supplemented before dialling, not after.`,
+    );
+  }
+  if (facts.offersSolar) {
+    warnings.push(SOLAR_WARNING);
   }
 
   const sections: ContractSection[] = [
@@ -211,6 +259,63 @@ export function referralAgreement(facts: ReferralFacts): AgreementDocument {
         "agreement rather than a courtesy. A Contractor who will not report closes is a " +
         "Contractor the Marketer should stop sending appointments to.",
     },
+    ...(facts.callsInContractorName
+      ? [
+          {
+            heading: "Calls made in the Contractor's name",
+            body:
+              `The Marketer will identify itself on each call as calling on behalf of ` +
+              `${facts.contractorName}. Both parties understand what that means: the ` +
+              `Contractor is the seller for the purposes of the Telemarketing Sales Rule and ` +
+              `the Telephone Consumer Protection Act, and is liable for calls made on its ` +
+              `behalf whether or not it directed the particular call.\n\n` +
+              `Because of that, and before any call is made:\n\n` +
+              `\u2022 The Contractor approves the script in writing, and approves any change to it.\n` +
+              `\u2022 The Contractor gives the Marketer its own internal do-not-call list, and ` +
+              `keeps it updated. The Marketer honours it alongside the national and state registries.\n` +
+              `\u2022 Any do-not-call request received on a call is added to BOTH parties' lists ` +
+              `within one business day and honoured permanently.\n` +
+              `\u2022 The Contractor confirms it holds every licence, registration and permit its ` +
+              `state, city and county require, and supplies the numbers. The Marketer will not ` +
+              `say a contractor's name on a call it cannot evidence.\n` +
+              `\u2022 Where a state requires a filing naming the party on whose behalf calls are ` +
+              `made, the Marketer makes or supplements that filing before dialling and gives ` +
+              `the Contractor a copy.`,
+          },
+          {
+            heading: "Who carries what, on the calling",
+            body:
+              "The Marketer is responsible for how it dials: manual dialling only, no " +
+              "automatic dialling announcing device, calling hours in the consumer's own local " +
+              "time, scrubbing the national and any applicable state registry before calling " +
+              "and at least every thirty days, prompt identification of the caller and the " +
+              "purpose, and immediate permanent honouring of a do-not-call request. The " +
+              "Marketer keeps records of every call and every consent and produces them to the " +
+              "Contractor on request.\n\n" +
+              "The Marketer indemnifies the Contractor for a claim arising from the Marketer " +
+              "departing from the approved script or from the calling practices above. The " +
+              "Contractor indemnifies the Marketer for a claim arising from the Contractor's " +
+              "own list, its own prior contacts, its work, its pricing or its licensing.\n\n" +
+              "Either party may suspend calling immediately, by notice, on a complaint or a " +
+              "regulator contact, and calling stays suspended until both agree it resumes.",
+          },
+        ]
+      : []),
+    ...(facts.offersSolar
+      ? [
+          {
+            heading: "Solar",
+            body:
+              SOLAR_WARNING +
+              "\n\nWhere solar is offered under this agreement, the Contractor confirms it " +
+              "holds the electrical licensing solar installation requires in the state of the " +
+              "work, and that any financing presented to a homeowner is offered by a lender " +
+              "the Contractor is authorised to represent. The Marketer does not present " +
+              "financing terms, savings estimates, utility-bill offset figures or tax-credit " +
+              "eligibility on a call, and the script contains none.",
+          },
+        ]
+      : []),
     {
       heading: "Not going around each other",
       body:
