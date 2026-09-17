@@ -15,14 +15,31 @@
 // is truthful about who's calling and why, and if the partner actually had
 // the right to hand that list over in the first place. See docs/regions.md.
 //
-// The deal has two halves. A flat fee on every closed job, so there is a
-// number to say on a cold call that does not need a spreadsheet to explain,
-// and half the gross profit on anything sold above the price-book threshold,
-// so a partner with good customers earns like it. Paid only once the job is
-// complete — not at signing, because a signed job that cancels or never
-// finishes has produced nothing to share.
+// The deal has two halves. Half the gross profit on every job sold above the
+// price-book threshold, which scales with the job and so is always affordable,
+// plus a flat bonus on jobs big enough to carry one — a number to say on a
+// cold call that does not need a spreadsheet to explain. Paid only once the
+// job is complete, not at signing: a signed job that cancels or never finishes
+// has produced nothing to share.
+//
+// One known sharp edge, left in deliberately because the alternative is an
+// offer nobody can say out loud. The bonus is a cliff, not a ramp, so a job
+// sold at the minimum earns the company less than one sold a dollar under it,
+// and it takes roughly another $10,000 of contract value to climb back. Reps
+// are paid on overage and so push upward anyway, which keeps the dead zone
+// theoretical, but it is real and it is here rather than in a spreadsheet
+// nobody reads.
 
-/** The flat fee, in cents, paid per job that closes off a partner's list. */
+/**
+ * The bonus, in cents, on a job big enough to carry it.
+ *
+ * Conditional rather than universal, and that condition is the whole reason
+ * this file is shaped the way it is. A flat fee is a fixed cost; a profit
+ * split is a variable one. Stack a fixed cost on top of a variable one with no
+ * floor under it and small jobs go underwater — at a 50% split the company
+ * keeps half the gross profit less the fee, which is negative on anything under
+ * twice the fee. So the bonus only attaches to jobs that can pay for it.
+ */
 export const CHANNEL_PARTNER_FEE_CENTS = 200_000;
 
 /**
@@ -35,71 +52,99 @@ export const CHANNEL_PARTNER_FEE_CENTS = 200_000;
  */
 export const CHANNEL_PARTNER_PROFIT_SHARE = 0.5;
 
+/**
+ * Contract value at which the bonus starts applying.
+ *
+ * Stated as a contract value rather than as gross profit because it is a
+ * number a partner can check against their own job. Gross profit is ours and
+ * they cannot see it; "over $20,000" is a promise they can hold us to.
+ */
+export const CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS = 2_000_000;
+
+/**
+ * What the company must still clear after paying the bonus.
+ *
+ * The contract-value rule above is the one we say out loud, but contract value
+ * is a proxy: a big job sold at the floor with thin margin can clear $20,000
+ * and still not carry a $2,000 bonus. This is the backstop that actually holds
+ * the line, and it is checked on real profit rather than on the proxy.
+ */
+export const CHANNEL_PARTNER_MIN_COMPANY_NET = 100_000;
+
 export function formatFee(cents: number): string {
   return `$${Math.round(cents / 100).toLocaleString("en-US")}`;
 }
 
 export type ChannelPartnerPayout = {
-  /** The flat fee, paid on every closed job. */
-  flat: number;
+  /** The bonus, where the job qualified for it. Zero where it did not. */
+  bonus: number;
   /** Half the gross profit, on jobs sold above the threshold. Zero at base. */
   profitShare: number;
   /** What the partner is owed once the job is complete. */
   total: number;
-  /** What is left for the company after paying them. */
+  /** What is left for the company after paying them. Never negative. */
   companyNet: number;
-  /**
-   * Set when the payout exceeds the profit on the job.
-   *
-   * The flat fee is paid on top of the split rather than out of it, so the
-   * company keeps grossProfit/2 less the flat fee — which goes negative on any
-   * job whose gross profit is under twice the fee. That is a deliberate choice
-   * (a floor a partner can be promised on a cold call is worth paying for),
-   * but it is not one anybody should discover from a bank balance, so small
-   * jobs say so out loud.
-   */
-  warning: string | null;
+  /** True when the job was big enough to carry the bonus. */
+  bonusApplied: boolean;
+  /** Why the bonus did not apply, for the admin screen. Null when it did. */
+  bonusWithheldReason: string | null;
 };
 
 /**
- * What a channel partner earns on one closed job.
+ * What a channel partner earns on one completed job.
  *
  * Takes the deal rather than the raw numbers so the profit being split is
  * exactly the profit the estimator showed the rep — one definition of profit,
  * computed once, in commission.ts.
+ *
+ * The order matters: the split is worked out first, because it is always
+ * affordable (half of what is there can never exceed what is there), and the
+ * bonus is added only if what remains still clears the floor. That ordering is
+ * what makes every job profitable by construction rather than by luck.
  */
 export function channelPartnerPayout(deal: {
   base: number;
   sold: number;
   grossProfit: number;
 }): ChannelPartnerPayout {
-  const flat = Math.round(CHANNEL_PARTNER_FEE_CENTS / 100);
+  const grossProfit = Math.max(Math.round(deal.grossProfit), 0);
+  const bonus = Math.round(CHANNEL_PARTNER_FEE_CENTS / 100);
+  const minContract = Math.round(CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS / 100);
+  const minNet = Math.round(CHANNEL_PARTNER_MIN_COMPANY_NET / 100);
 
   // Above the threshold, not merely at it: a job sold at base has no overage,
   // and the split is the reward for selling past the floor.
-  const soldAboveThreshold = deal.sold > deal.base;
-  const profitShare = soldAboveThreshold
-    ? Math.round(Math.max(deal.grossProfit, 0) * CHANNEL_PARTNER_PROFIT_SHARE)
-    : 0;
+  const profitShare =
+    deal.sold > deal.base ? Math.round(grossProfit * CHANNEL_PARTNER_PROFIT_SHARE) : 0;
+  const afterShare = grossProfit - profitShare;
 
-  const total = flat + profitShare;
-  const companyNet = Math.round(deal.grossProfit - total);
+  const bigEnough = deal.sold >= minContract;
+  const affordable = afterShare - bonus >= minNet;
+  const bonusApplied = bigEnough && affordable;
+
+  let bonusWithheldReason: string | null = null;
+  if (!bigEnough) {
+    bonusWithheldReason =
+      `Contract is $${deal.sold.toLocaleString("en-US")}, under the ` +
+      `$${minContract.toLocaleString("en-US")} the bonus starts at. Profit split only.`;
+  } else if (!affordable) {
+    bonusWithheldReason =
+      `Job cleared $${minContract.toLocaleString("en-US")} but only made ` +
+      `$${grossProfit.toLocaleString("en-US")} gross. Paying the bonus would leave under ` +
+      `$${minNet.toLocaleString("en-US")}, so it is the split only. Worth a look at how this one was priced.`;
+  }
+
+  const total = profitShare + (bonusApplied ? bonus : 0);
 
   return {
-    flat,
+    bonus: bonusApplied ? bonus : 0,
     profitShare,
     total,
-    companyNet,
-    warning:
-      companyNet < 0
-        ? `This job pays the partner $${total.toLocaleString("en-US")} and earns $${deal.grossProfit.toLocaleString("en-US")}. ` +
-          `The company is down $${Math.abs(companyNet).toLocaleString("en-US")} on it.`
-        : null,
+    companyNet: grossProfit - total,
+    bonusApplied,
+    bonusWithheldReason,
   };
 }
-
-/** Gross profit a job needs before the company keeps anything at all. */
-export const CHANNEL_PARTNER_BREAK_EVEN = (CHANNEL_PARTNER_FEE_CENTS / 100) * 2;
 
 /**
  * The customer journey, as a partner sees it.

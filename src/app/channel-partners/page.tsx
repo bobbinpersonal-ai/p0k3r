@@ -5,6 +5,7 @@ import ChannelPartnerForm from "./ChannelPartnerForm";
 import EarningsEstimator from "./EarningsEstimator";
 import { COMPANY, PHONE_DIGITS } from "@/lib/regions/brand";
 import {
+  CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS,
   CHANNEL_PARTNER_FEE_CENTS,
   CHANNEL_PARTNER_PROFIT_SHARE,
   JOURNEY_STEPS,
@@ -27,16 +28,17 @@ import { TRADES } from "@/lib/regions/trades";
 // channel partner does no work at all. See src/lib/regions/channelPartners.ts.
 
 const FEE = formatFee(CHANNEL_PARTNER_FEE_CENTS);
+const BIG_JOB = formatFee(CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS);
 const SPLIT = `${Math.round(CHANNEL_PARTNER_PROFIT_SHARE * 100)}/${Math.round(
   (1 - CHANNEL_PARTNER_PROFIT_SHARE) * 100,
 )}`;
 
 export const metadata: Metadata = {
-  title: `Partner With Us — ${FEE} Per Job Plus Half the Profit | ${COMPANY.name}`,
+  title: `Partner With Us — Half the Profit on Every Job | ${COMPANY.name}`,
   description:
     `Your past customers are worth money you're not collecting. Share your list, we do the ` +
-    `calling and the work, and you get ${FEE} per job plus a ${SPLIT} split of the profit. ` +
-    `No selling, no labour, no cost to join.`,
+    `calling and the work, and you take a ${SPLIT} split of the profit on every job — plus a ` +
+    `${FEE} bonus on jobs over ${BIG_JOB}. No selling, no labour, no cost to join.`,
   robots: { index: true, follow: true },
 };
 
@@ -64,10 +66,10 @@ const HOW_IT_WORKS = [
   },
   {
     step: "04",
-    title: `You get ${FEE} plus half the profit`,
+    title: "You take half the profit",
     body:
-      `${FEE} on every job, and on anything our people sell above our price threshold you take ` +
-      `${SPLIT} of the profit. Paid once the work is finished.`,
+      `A ${SPLIT} split of the profit on every job our people sell above our price threshold, ` +
+      `plus a ${FEE} bonus on anything over ${BIG_JOB}. Paid once the work is finished.`,
   },
 ];
 
@@ -134,12 +136,14 @@ const FAQ = [
       "close at a fraction of the rate. That's the whole trade.",
   },
   {
-    q: `How does the ${SPLIT} split actually work?`,
+    q: "How does the split actually work?",
     a:
       `Every job in our price book has a threshold — the lowest number we'll do that work for. ` +
-      `Whatever our salesperson sells it for above that threshold is profit, and after the job ` +
-      `costs and their commission come out, you take half of what's left. The ${FEE} is on top ` +
-      `of that, on every job, whether it sold high or landed near the threshold.`,
+      `Whatever our salesperson sells it for above that threshold is profit, and once the job ` +
+      `costs and their commission come out, you take half of what's left. On top of that, any ` +
+      `job over ${BIG_JOB} carries a flat ${FEE} bonus. Big jobs are where this gets good for ` +
+      `both of us, which is why the bonus sits there rather than being spread thin across ` +
+      `everything.`,
   },
   {
     q: "Do I have to do any work at all?",
@@ -215,18 +219,18 @@ export default function ChannelPartnersPage() {
                 Partner program · {REGIONS.map((r) => r.code).join(" · ")}
               </p>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                Your old customers are worth {FEE} each — and half the profit on top.
+                Your old customers are worth half the profit on every job they send us.
               </h1>
               <p className="mt-4 text-lg text-neutral-200">
                 Share the list of people you&apos;ve already done work for. We call them, sell
-                the home improvement work you don&apos;t do, and pay you {FEE} a job plus a{" "}
-                {SPLIT} split of the profit on anything sold above our threshold. You do nothing
-                — no selling, no labour, no cost to join.
+                the home improvement work you don&apos;t do, and split the profit {SPLIT} with
+                you — plus a {FEE} bonus on every job over {BIG_JOB}. You do nothing: no
+                selling, no labour, no cost to join.
               </p>
 
               <dl className="mt-8 grid gap-4 sm:grid-cols-2">
                 {[
-                  [`${FEE} + ${SPLIT} split`, "A flat fee on every job, and half the profit above our threshold."],
+                  [`${SPLIT} on every job`, `Half the profit, every time — plus a ${FEE} bonus over ${BIG_JOB}.`],
                   ["Zero work", "We call, quote, contract and build. You share a spreadsheet."],
                   ["You watch it happen", "See every customer's stage, live, on your own page."],
                   ["Paid on completion", "Money lands when the job is finished, not when it's promised."],
@@ -263,7 +267,11 @@ export default function ChannelPartnersPage() {
               Drag it to the size of your customer list.
             </p>
             <div className="mt-8">
-              <EarningsEstimator feeCents={CHANNEL_PARTNER_FEE_CENTS} splitLabel={SPLIT} />
+              <EarningsEstimator
+                feeCents={CHANNEL_PARTNER_FEE_CENTS}
+                splitLabel={SPLIT}
+                bigJobLabel={BIG_JOB}
+              />
             </div>
           </div>
         </section>
@@ -408,7 +416,7 @@ export default function ChannelPartnersPage() {
           <div className="absolute inset-0 -z-10 bg-grid-fade" />
           <div className="mx-auto max-w-4xl px-4 py-16 text-center sm:px-6">
             <h2 className="text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">
-              Get your first {FEE}.
+              Get your first cheque.
             </h2>
             <p className="mx-auto mt-3 max-w-2xl text-neutral-200">
               Two minutes to apply. We call you the same day, and nothing about your list moves

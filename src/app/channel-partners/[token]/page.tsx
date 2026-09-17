@@ -3,6 +3,7 @@ import NetworkHeader from "@/components/network/NetworkHeader";
 import NetworkFooter from "@/components/network/NetworkFooter";
 import { prisma } from "@/lib/prisma";
 import {
+  CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS,
   CHANNEL_PARTNER_FEE_CENTS,
   JOURNEY_STEPS,
   formatFee,
@@ -19,10 +20,12 @@ import ShareListCard from "./ShareListCard";
 // customer-service utility a partner might come back to for months, not
 // something that should need a login system before it exists.
 //
-// Earned and paid are shown as separate numbers on purpose. Money is owed at
+// Paid money and in-progress work are separated on purpose. A job is owed at
 // SOLD and released at COMPLETED, and a partner who sees one figure labelled
 // "earned" and then waits three weeks for it thinks they are being stalled.
-// Two numbers and a plain sentence is the whole fix.
+// The in-progress tile counts jobs rather than showing dollars, because what
+// a sold job pays depends on what it sold for — a number here would be a
+// guess, and a guess revised downward later is worse than no number.
 
 export default async function ChannelPartnerPortalPage({
   params,
@@ -42,10 +45,11 @@ export default async function ChannelPartnerPortalPage({
   const soldCount = partner.leads.filter((l) => l.status === "SOLD").length;
   const completedCount = partner.leads.filter((l) => l.status === "COMPLETED").length;
 
-  // What is owed but not yet released. Only the flat fee is knowable here —
-  // the profit share depends on what the job actually sold for, which is not
-  // on this row — so it is described as "at least" rather than guessed at.
-  const pendingFloorCents = soldCount * CHANNEL_PARTNER_FEE_CENTS;
+  // Nothing owed is knowable from these rows — both halves of the deal depend
+  // on what each job actually sold for, and that lives on the estimate, not
+  // here. So the tile counts jobs rather than inventing a number, which is
+  // also the honest thing: a figure we later revise downward is worse than no
+  // figure at all.
 
   const counts = new Map<string, number>();
   for (const lead of partner.leads) {
@@ -80,13 +84,11 @@ export default async function ChannelPartnerPortalPage({
                 </p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-                <p className="font-mono text-2xl font-bold text-ink">
-                  {pendingFloorCents > 0 ? `${formatFee(pendingFloorCents)}+` : formatFee(0)}
+                <p className="font-mono text-2xl font-bold text-ink">{soldCount}</p>
+                <p className="mt-1 text-sm text-neutral-300">
+                  sold, {soldCount === 1 ? "job" : "jobs"} in progress
                 </p>
-                <p className="mt-1 text-sm text-neutral-300">earned, in progress</p>
-                <p className="mt-1 text-xs text-neutral-400">
-                  {soldCount} sold, pays when finished
-                </p>
+                <p className="mt-1 text-xs text-neutral-400">pays when finished</p>
               </div>
               <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-5">
                 <p className="font-mono text-2xl font-bold text-ink">{partner.leads.length}</p>
@@ -96,10 +98,10 @@ export default async function ChannelPartnerPortalPage({
 
             {soldCount > 0 && (
               <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm leading-relaxed text-neutral-300">
-                Sold jobs show as &ldquo;earned&rdquo; the day the customer signs and pay out
-                once the work is finished. Your share of the profit is added then, so the
-                final figure is usually higher than the {formatFee(CHANNEL_PARTNER_FEE_CENTS)}{" "}
-                floor shown here.
+                A job is yours the day the customer signs, and pays out once the work is
+                finished. The amount is worked out then — half the profit on the job, plus a{" "}
+                {formatFee(CHANNEL_PARTNER_FEE_CENTS)} bonus if it came in over{" "}
+                {formatFee(CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS)}.
               </p>
             )}
 
@@ -185,7 +187,8 @@ export default async function ChannelPartnerPortalPage({
             {partner.payouts.length === 0 ? (
               <p className="mt-3 text-sm text-neutral-300">
                 Nothing paid out yet. The first one lands the day a job off your list is
-                finished — {formatFee(CHANNEL_PARTNER_FEE_CENTS)} plus your half of the profit.
+                finished — half the profit on it, plus a {formatFee(CHANNEL_PARTNER_FEE_CENTS)}{" "}
+                bonus on anything over {formatFee(CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS)}.
               </p>
             ) : (
               <div className="mt-4 space-y-2">

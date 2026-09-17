@@ -12,10 +12,10 @@ import { useState } from "react";
 // is a partner who tells other people we lied, and this program only works if
 // they talk to each other well.
 //
-// The flat fee and the profit share are shown as separate rows rather than one
-// total, because only one of them is guaranteed. The fee is arithmetic; the
-// share depends on what our salesperson gets for the job, which nobody knows
-// on the day somebody reads this page.
+// The share and the bonus are shown as separate rows rather than one total,
+// because they behave differently. The share lands on every job; the bonus
+// only on jobs big enough to carry it, and how many of those a given list
+// throws off is the thing nobody can know on the day they read this page.
 
 type Rates = { reach: number; interested: number; close: number };
 
@@ -32,6 +32,16 @@ const HIGH: Rates = { reach: 0.5, interested: 0.22, close: 0.35 };
 const SHARE_PER_JOB_LOW = 800;
 const SHARE_PER_JOB_HIGH = 3000;
 
+/**
+ * Share of jobs big enough to carry the bonus.
+ *
+ * Most jobs off a warm list are repairs and single trades, not full roofs, so
+ * the low end assumes almost none of them qualify. Overstating this is the
+ * easiest way to make the estimate a lie.
+ */
+const BONUS_RATE_LOW = 0.15;
+const BONUS_RATE_HIGH = 0.4;
+
 function jobsFrom(listSize: number, rates: Rates): number {
   return Math.floor(listSize * rates.reach * rates.interested * rates.close);
 }
@@ -39,9 +49,11 @@ function jobsFrom(listSize: number, rates: Rates): number {
 export default function EarningsEstimator({
   feeCents,
   splitLabel,
+  bigJobLabel,
 }: {
   feeCents: number;
   splitLabel: string;
+  bigJobLabel: string;
 }) {
   const [listSize, setListSize] = useState(400);
   const fee = Math.round(feeCents / 100);
@@ -50,10 +62,10 @@ export default function EarningsEstimator({
   const highJobs = jobsFrom(listSize, HIGH);
   const money = (n: number) => `$${n.toLocaleString("en-US")}`;
 
-  const feeLow = lowJobs * fee;
-  const feeHigh = highJobs * fee;
   const shareLow = lowJobs * SHARE_PER_JOB_LOW;
   const shareHigh = highJobs * SHARE_PER_JOB_HIGH;
+  const bonusLow = Math.floor(lowJobs * BONUS_RATE_LOW) * fee;
+  const bonusHigh = Math.floor(highJobs * BONUS_RATE_HIGH) * fee;
 
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-8">
@@ -84,27 +96,16 @@ export default function EarningsEstimator({
           What that could pay you
         </p>
         <p className="mt-2 text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
-          {money(feeLow + shareLow)} – {money(feeHigh + shareHigh)}
+          {money(shareLow + bonusLow)} – {money(shareHigh + bonusHigh)}
         </p>
         <p className="mt-2 text-sm text-neutral-300">
           from {lowJobs}–{highJobs} jobs
         </p>
       </div>
 
-      {/* Split out, because one of these two numbers is a promise and the
-          other is an estimate, and a partner deserves to see which is which. */}
+      {/* Split out so a partner can see which half is the reliable one. The
+          share lands on every job; the bonus only on the big ones. */}
       <dl className="mt-4 grid gap-3 sm:grid-cols-2">
-        <div className="rounded-xl border border-white/10 bg-paper/40 p-4">
-          <dt className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
-            Flat fee — guaranteed
-          </dt>
-          <dd className="mt-1 text-lg font-bold text-ink">
-            {money(feeLow)} – {money(feeHigh)}
-          </dd>
-          <dd className="text-xs leading-relaxed text-neutral-400">
-            {money(fee)} per job, every job
-          </dd>
-        </div>
         <div className="rounded-xl border border-white/10 bg-paper/40 p-4">
           <dt className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
             Your {splitLabel} profit share
@@ -113,7 +114,18 @@ export default function EarningsEstimator({
             {money(shareLow)} – {money(shareHigh)}
           </dd>
           <dd className="text-xs leading-relaxed text-neutral-400">
-            depends what each job sells for
+            on every job, whatever the size
+          </dd>
+        </div>
+        <div className="rounded-xl border border-white/10 bg-paper/40 p-4">
+          <dt className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
+            Big-job bonuses
+          </dt>
+          <dd className="mt-1 text-lg font-bold text-ink">
+            {money(bonusLow)} – {money(bonusHigh)}
+          </dd>
+          <dd className="text-xs leading-relaxed text-neutral-400">
+            {money(fee)} each, on jobs over {bigJobLabel}
           </dd>
         </div>
       </dl>
