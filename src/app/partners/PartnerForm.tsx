@@ -239,8 +239,8 @@ export default function PartnerForm() {
         {submitting ? "Sending…" : outOfArea ? "Not in your state yet" : "Apply to the network"}
       </button>
       <p className="mt-3 text-xs text-neutral-400">
-        You stay an independent business. You set your own rates, contract with the homeowner
-        directly and run your own crew.
+        You stay an independent business and run your own crew. We hold the homeowner contract
+        and pay you your rate for the work.
       </p>
     </form>
   );

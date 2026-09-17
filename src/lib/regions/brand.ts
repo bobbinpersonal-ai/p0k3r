@@ -44,15 +44,9 @@ export const COMPANY = {
   address: process.env.NEXT_PUBLIC_BUSINESS_ADDRESS || "",
 } as const;
 
-/**
- * What the business actually is, in one line, for metadata and schema.org.
- *
- * Not a construction company. Getting this wrong in structured data is how a
- * search engine — and then a homeowner — forms the wrong idea about who is
- * liable for the work.
- */
+/** What the business is, in one line, for metadata and schema.org. */
 export const BUSINESS_MODEL =
-  "Home improvement referral network — free inspections, matched to vetted local contractors";
+  "General contractor — free inspections, roofing, siding, fencing, gutters and exterior paint";
 
 export const PHONE_DIGITS = COMPANY.phone.replace(/[^\d+]/g, "");
 
@@ -139,17 +133,15 @@ export const FINANCING_ENABLED = Boolean(FINANCING_PARTNER);
  * that lives only in JSX cannot be produced two years later.
  */
 export const CONTACT_CONSENT_TEXT =
-  `By submitting, I agree that ${COMPANY.name} and the independent local contractors in its ` +
-  `network may call and text me at the number provided, including by automated means, about my ` +
-  `project. Consent is not a condition of purchase. Message and data rates may apply. Reply ` +
-  `STOP to opt out.`;
+  `By submitting, I agree that ${COMPANY.name} and the crews working with us may call and text ` +
+  `me at the number provided, including by automated means, about my project. Consent is not a ` +
+  `condition of purchase. Message and data rates may apply. Reply STOP to opt out.`;
 
 /**
  * Version the wording so a later edit doesn't retroactively rewrite old records.
  *
- * Bumped for the network model: the old wording only covered contact from us.
- * A homeowner who consented to that did not consent to a contractor ringing
- * them, and the whole point of storing the sentence verbatim is that it means
- * what it said on the day.
+ * A homeowner who consented to one wording did not consent to a different set
+ * of callers, and the whole point of storing the sentence verbatim is that it
+ * means what it said on the day.
  */
-export const CONSENT_VERSION = "2026-11-01-network";
+export const CONSENT_VERSION = "2026-09-17-gc";

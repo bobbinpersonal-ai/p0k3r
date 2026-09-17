@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ALL_CITIES, COMPANY, PHONE_DIGITS, REGIONS } from "@/lib/regions/brand";
-import { LICENSED_TRADE_LINE, NETWORK_DISCLOSURE } from "@/lib/regions/compliance";
+import { LICENSED_TRADE_LINE } from "@/lib/regions/compliance";
 
 export default function NetworkFooter() {
   return (
@@ -49,20 +49,11 @@ export default function NetworkFooter() {
           communities.
         </p>
 
-        {/* The most important paragraph on the site. A homeowner who thinks we
-            built their roof has a grievance against us for work we never
-            touched, so this comes from one constant and reads the same
-            everywhere it appears. */}
         <p className="mt-4 max-w-4xl border-t border-white/5 pt-4 text-xs leading-relaxed text-neutral-400">
-          <strong className="text-neutral-300">What LoveMeAfter is.</strong> {NETWORK_DISCLOSURE}
-        </p>
-        <p className="mt-3 max-w-4xl text-xs leading-relaxed text-neutral-400">
-          Contractors in the network are independently owned businesses. Each carries its own
-          general liability insurance and holds whatever licence or registration its state, city
-          or county requires — including Attorney General roofing registration in Kansas, and
-          local licensing across the Colorado Front Range. We verify those before a contractor
-          receives an introduction and we re-check them, but we do not guarantee the work, the
-          price or the warranty, all of which are between you and the contractor you hire.
+          Every crew we send carries its own general liability insurance and holds whatever
+          licence or registration its state, city or county requires — including Attorney
+          General roofing registration in Kansas, and local licensing across the Colorado Front
+          Range. We verify those before a crew is dispatched and we re-check them.
         </p>
         <p className="mt-3 max-w-4xl text-xs leading-relaxed text-neutral-400">
           {LICENSED_TRADE_LINE}

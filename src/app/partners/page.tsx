@@ -7,23 +7,24 @@ import { NEC_THRESHOLD } from "@/lib/regions/crewAgreement";
 import { REGIONS } from "@/lib/regions/states";
 import { TRADES } from "@/lib/regions/trades";
 
-// Contractor partner onboarding.
+// Crew partner onboarding.
 //
-// This page used to recruit commission-only sales reps. Under the network
-// model there is nothing for a rep to sell — the contractor quotes their own
-// work at their own rates — so the whole secondary funnel is now one thing:
-// finding local trade businesses to take the demand we generate.
+// We hold the contract with the homeowner and collect payment — we're the
+// general contractor on the job. A crew partner here is paid a set labor
+// rate for the work, not chasing homeowners for a price or a check. The
+// whole secondary funnel is finding local trade businesses to take the
+// demand we generate and put crews on the appointments we book.
 //
-// A contractor reads this asking two questions, in order: what does it cost me,
-// and are these leads real. Answer both above the fold or lose them. Everything
-// else — trade list, coverage, paperwork — is below.
+// A crew reads this asking two questions, in order: what does it pay, and
+// are these appointments real. Answer both above the fold or lose them.
+// Everything else — trade list, coverage, paperwork — is below.
 
 export const metadata: Metadata = {
-  title: `Contractor Partner Network — Exclusive Booked Appointments | ${COMPANY.name}`,
+  title: `Crew Partners — Exclusive Booked Appointments | ${COMPANY.name}`,
   description:
-    "We generate the homeowners and book the inspections. You quote your own rates and do the " +
-    "work. Roofing, siding, fencing, gutters and painting across Colorado, Missouri, Kansas, " +
-    "Indiana and Wyoming.",
+    "We generate the homeowners, book the inspections, and hold the contract. You show up and " +
+    "do the work, and we pay your rate. Roofing, siding, fencing, gutters and painting across " +
+    "Colorado, Missouri, Kansas, Indiana and Wyoming.",
   robots: { index: true, follow: true },
 };
 
@@ -44,17 +45,17 @@ const HOW_IT_WORKS = [
   },
   {
     step: "03",
-    title: "You quote your own rates",
+    title: "You tell us your rate",
     body:
-      "You give us your baseline rate sheet so we know what you charge and can talk sensibly " +
-      "to a homeowner. What you quote on the day is yours to decide — we do not set your prices.",
+      "Give us your labor rate — per square, per linear foot, per opening, however you price " +
+      "your work. We build the homeowner's price around it. We do not mark down what you're paid.",
   },
   {
     step: "04",
-    title: "You do the work, on your paper",
+    title: "You do the work, we handle the rest",
     body:
-      "The homeowner contracts with you, under your insurance, with your warranty. We are not " +
-      "a party to it and we never touch the customer's money.",
+      "We hold the contract with the homeowner and collect payment. You get paid your rate, on " +
+      "schedule, without chasing anyone for a check.",
   },
 ];
 
@@ -75,9 +76,9 @@ const WHAT_WE_ASK = [
   {
     q: "Your baseline rate sheet",
     a:
-      "Per square, per linear foot, per opening — however you price. Not so we can mark you " +
-      "up, but so we can tell a homeowner a realistic range on the phone instead of sending " +
-      "you to someone whose budget is half your number.",
+      "Per square, per linear foot, per opening — however you price your labor. This is what " +
+      "we pay you, and it's what we build the homeowner's price around, so we can quote them a " +
+      "realistic number on the phone instead of sending you to a job that doesn't cover your rate.",
   },
   {
     q: "A W-9",
@@ -109,15 +110,14 @@ export default function PartnersPage() {
               </h1>
               <p className="mt-4 text-lg text-neutral-200">
                 We run the marketing, take the calls and book the inspection. You turn up to a
-                confirmed appointment, quote your own rates, and contract with the homeowner
-                directly. No lead fees, no bidding against three other contractors, no shared
-                lists.
+                confirmed appointment, do the work, and get paid your rate. No lead fees, no
+                bidding against three other contractors, no chasing the homeowner for a check.
               </p>
 
               <dl className="mt-8 grid gap-4 sm:grid-cols-2">
                 {[
-                  ["You keep your own prices", "We never set or mark up your rates."],
-                  ["You own the customer", "Your contract, your insurance, your warranty."],
+                  ["Paid your rate", "A set labor rate, paid on schedule — every time."],
+                  ["No selling required", "We quote and contract with the homeowner. You build."],
                   ["No pay-per-lead", "You are not buying anything up front."],
                   ["Booked, not bought", "A confirmed time with the decision-makers there."],
                 ].map(([title, body]) => (

@@ -8,9 +8,8 @@ import { REGIONS, regionForZip } from "@/lib/regions/states";
 // The form the whole page exists to feed.
 //
 // Few fields, because every extra one costs conversions. The trade dropdown
-// earns its place by routing the lead; the ZIP earns its place twice over
-// under the network model, because it decides which state's rules apply and
-// which partner gets the introduction.
+// earns its place by routing the lead; the ZIP earns its place twice over,
+// because it decides which state's rules apply and which crew gets sent.
 //
 // ZIP is asked for rather than the state, and the state is inferred from it.
 // Homeowners type their own ZIP accurately and reliably; they scroll past a
@@ -91,9 +90,9 @@ export default function InspectionForm({
         <p className="font-mono text-xs uppercase tracking-widest text-brand-cyan">Got it</p>
         <h3 className="mt-2 text-xl font-extrabold text-ink">We&apos;ll call you today.</h3>
         <p className="mt-2 text-sm text-neutral-200">
-          We&apos;ll ring to set a time and match you with a contractor we&apos;ve vetted in your
-          area. The inspection takes about forty minutes and you&apos;ll have a written scope
-          whether there&apos;s damage or not — with no obligation to use anyone.
+          We&apos;ll ring to set a time and send a crew we&apos;ve vetted in your area. The
+          inspection takes about forty minutes and you&apos;ll have a written scope whether
+          there&apos;s damage or not — with no obligation to hire us.
         </p>
       </div>
     );
@@ -157,9 +156,9 @@ export default function InspectionForm({
             className={`mt-1.5 text-xs ${outOfArea ? "text-brand-cyan" : "text-neutral-400"}`}
           >
             {region
-              ? `${region.name} — we have contractors there.`
+              ? `${region.name} — we're already working there.`
               : outOfArea
-                ? `We don't cover that ZIP yet. Right now the network is ${REGIONS.map((r) => r.name).join(", ")}.`
+                ? `We don't cover that ZIP yet. Right now we're in ${REGIONS.map((r) => r.name).join(", ")}.`
                 : `We cover ${REGIONS.map((r) => r.code).join(", ")}.`}
           </p>
         </div>

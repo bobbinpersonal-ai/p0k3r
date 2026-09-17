@@ -190,13 +190,12 @@ export function checkInsurancePricing({
   return { ok: true };
 }
 
-// --- What anyone in the network may and may not say --------------------------
+// --- What we may and may not say about insurance claims ----------------------
 
 export const ADJUSTER_LINE =
-  "We are a referral network and our partners are roofing and exterior contractors. Neither " +
-  "we nor they are public insurance adjusters. A contractor can show you damage, meet your " +
-  "adjuster on site and give you a written scope. Negotiating your claim on your behalf is " +
-  "licensed work in most states and is not something anyone in this network does.";
+  "We are not a public insurance adjuster. We can show you damage, meet your adjuster on site " +
+  "and give you a written scope. Negotiating your claim on your behalf is licensed work in " +
+  "most states and is not something we do.";
 
 /** The cancellation statement that belongs next to a signature. */
 export function cancellationProximityNotice(state?: string | null): string {
@@ -264,7 +263,7 @@ export function vettingRequirements(state?: string | null, trades: readonly stri
   return out;
 }
 
-/** Trades that are licensed essentially everywhere, which the network does not broker. */
+/** Trades that are licensed essentially everywhere, and are outside our scope of work. */
 export const LICENSED_TRADES = [
   "Electrical",
   "Plumbing",
@@ -273,26 +272,6 @@ export const LICENSED_TRADES = [
 ] as const;
 
 export const LICENSED_TRADE_LINE =
-  "Electrical, plumbing, HVAC and irrigation work is licensed in every state we operate in and " +
-  "is not part of what this network brokers. Where a project needs one of those, it goes to a " +
-  "licensed contractor who contracts with the homeowner directly.";
-
-/**
- * What LoveMeAfter is, said the same way everywhere it appears.
- *
- * The single most important paragraph on the site now. Under this model we do
- * not build anything, do not employ the crews, and are not a party to the
- * construction contract — and a homeowner who misunderstands that has a
- * grievance against us for work we never touched. So it appears in the footer,
- * on the intake form and in the partner agreement, from one constant.
- */
-export const NETWORK_DISCLOSURE =
-  "LoveMeAfter is a marketing, inspection-booking and referral network. We are not a " +
-  "construction contractor. We do not perform construction work, employ the crews who do, or " +
-  "hold your payment. Work is performed by independent local contractors who are vetted by us " +
-  "and who contract with you directly, on their own paperwork, under their own insurance and " +
-  "licensing. We are not a party to that contract.";
-
-export const NETWORK_DISCLOSURE_SHORT =
-  "A referral network, not a contractor. Work is performed by independent, vetted local " +
-  "contractors who contract with you directly.";
+  "Electrical, plumbing, HVAC and irrigation work is licensed in every state we operate in. " +
+  "Where a project needs one of those, it's handled by a licensed specialist who contracts " +
+  "with the homeowner directly for that portion of the work.";

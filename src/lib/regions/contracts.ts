@@ -45,7 +45,6 @@
 import {
   ADJUSTER_LINE,
   LICENSED_TRADE_LINE,
-  NETWORK_DISCLOSURE,
   REFUND_DAYS,
   cancellationDeadline,
   cancellationProximityNotice,
@@ -354,7 +353,7 @@ export function residentialContract(facts: ContractFacts): ContractDocument {
           .join(" ") +
         "\n\nYou pay your deductible. We invoice your carrier for the rest. " +
         "Your deductible is your obligation under your own policy and we will not pay, " +
-        "rebate, credit or absorb any part of it — most states in this network prohibit it " +
+        "rebate, credit or absorb any part of it — most states we work in prohibit it " +
         "outright, and anyone in this trade who offers it is telling you something about how " +
         "they do business.\n\n" +
         ADJUSTER_LINE +
@@ -407,8 +406,8 @@ export function residentialContract(facts: ContractFacts): ContractDocument {
   sections.push({
     heading: "If you think something is wrong",
     body:
-      "Tell the contractor first, in writing, and give them a chance to come and look at it. " +
-      "Most states require that notice and an opportunity to repair before you can sue over a " +
+      "Tell us first, in writing, and give us a chance to come and look at it. Most states " +
+      "require that notice and an opportunity to repair before you can sue over a " +
       "construction defect, and every state gives a contractor who wants to put something " +
       "right the chance to do so. Keep a copy of what you sent and when.",
   });
