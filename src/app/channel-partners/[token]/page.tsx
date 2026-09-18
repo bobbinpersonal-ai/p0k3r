@@ -8,6 +8,7 @@ import {
   CHANNEL_PARTNER_FEE_CENTS,
   JOURNEY_STEPS,
   MILESTONES,
+  channelPartnerPayout,
   formatFee,
   journeyStage,
   parseServices,
@@ -48,7 +49,14 @@ export default async function ChannelPartnerPortalPage({
     include: {
       leads: {
         orderBy: { createdAt: "desc" },
-        include: { noSaleReport: true },
+        include: {
+          noSaleReport: true,
+          // Only what the split is worked out from. This is a server
+          // component, so these figures are used to decide a label and
+          // never rendered — a partner must not see our cost or what the
+          // rep made on their referral.
+          estimate: { select: { costTotal: true, baseTotal: true, soldPrice: true, commission: true } },
+        },
       },
       payouts: { orderBy: { paidAt: "desc" } },
     },
@@ -247,6 +255,25 @@ export default async function ChannelPartnerPortalPage({
                   const stage = journeyStage(lead.status);
                   const payout = payoutByLead.get(lead.id);
                   const report = lead.noSaleReport;
+
+                  // A finished job with no payout row yet is either waiting on
+                  // us to send it or was sold at the base price, where there is
+                  // no overage to split and nothing is coming. Saying "pays when
+                  // finished" on a job that is already finished and owes nothing
+                  // is the kind of quiet promise that costs a partner later —
+                  // they wait, then call, then stop sending names.
+                  let pendingLabel = stage.earning ? "Pays when finished" : stage.label;
+                  if (lead.status === "COMPLETED") {
+                    const e = lead.estimate;
+                    const owes = e
+                      ? channelPartnerPayout({
+                          base: e.baseTotal,
+                          sold: e.soldPrice,
+                          grossProfit: e.soldPrice - e.costTotal - e.commission,
+                        }).total > 0
+                      : true;
+                    pendingLabel = owes ? "Settling up" : "No overage to split";
+                  }
                   return (
                     <div
                       key={lead.id}
@@ -259,11 +286,7 @@ export default async function ChannelPartnerPortalPage({
                             stage.earning ? "font-bold text-brand-cyan" : "text-neutral-300"
                           }`}
                         >
-                          {payout
-                            ? formatFee(payout.amount)
-                            : stage.earning
-                              ? "Pays when finished"
-                              : stage.label}
+                          {payout ? formatFee(payout.amount) : pendingLabel}
                         </span>
                       </div>
                       {(lead.city || lead.zip) && (
