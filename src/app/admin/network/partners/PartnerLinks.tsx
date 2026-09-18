@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 // The links for one partner, with the buttons that get them out of here and
@@ -17,27 +18,74 @@ import { useEffect, useState } from "react";
 type Row = { label: string; path: string; primary?: boolean };
 
 export default function PartnerLinks({
+  id,
   portalToken,
   businessName,
   contactName,
+  hasPassword,
 }: {
+  id: string;
   portalToken: string;
   businessName: string;
   contactName: string;
+  /** Whether they've claimed the account. Decides which links are useful. */
+  hasPassword: boolean;
 }) {
+  const router = useRouter();
   const [origin, setOrigin] = useState("");
   const [copied, setCopied] = useState<string | null>(null);
+  const [resetting, setResetting] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
+
+  // Clearing a password locks the partner out of an account that authorises
+  // payments, so it asks twice. The second tap is the one that does it.
+  async function resetPassword() {
+    setResetting(true);
+    setResetError(null);
+    try {
+      const res = await fetch("/api/admin/channel-partners", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, action: "reset-password" }),
+      });
+      const body = await res.json().catch(() => null);
+      if (!res.ok) throw new Error(body?.error || "Couldn't reset it.");
+      setConfirmReset(false);
+      router.refresh();
+    } catch (err) {
+      setResetError(err instanceof Error ? err.message : "Couldn't reset it.");
+    } finally {
+      setResetting(false);
+    }
+  }
 
   useEffect(() => setOrigin(window.location.origin), []);
 
-  const rows: Row[] = [
-    { label: "Their portal", path: `/channel-partners/${portalToken}`, primary: true },
-    { label: "Marketing kit", path: `/channel-partners/${portalToken}/marketing` },
-    {
-      label: "Printable leave-behind",
-      path: `/channel-partners/${portalToken}/marketing/leave-behind`,
-    },
-  ];
+  // Once they've set a password the token stops opening anything, so offering
+  // "their portal" as a link would be handing over a dead URL. They get the
+  // sign-in page instead, which is the one they actually need read to them.
+  const rows: Row[] = hasPassword
+    ? [
+        { label: "Sign-in page", path: `/channel-partners/login`, primary: true },
+        { label: "Marketing kit", path: `/channel-partners/${portalToken}/marketing` },
+        {
+          label: "Printable leave-behind",
+          path: `/channel-partners/${portalToken}/marketing/leave-behind`,
+        },
+      ]
+    : [
+        { label: "Their portal", path: `/channel-partners/${portalToken}`, primary: true },
+        {
+          label: "Set-a-password link",
+          path: `/channel-partners/${portalToken}/claim`,
+        },
+        { label: "Marketing kit", path: `/channel-partners/${portalToken}/marketing` },
+        {
+          label: "Printable leave-behind",
+          path: `/channel-partners/${portalToken}/marketing/leave-behind`,
+        },
+      ];
 
   function copy(key: string, text: string) {
     const done = () => {
@@ -70,11 +118,16 @@ export default function PartnerLinks({
   }
 
   // What you'd actually send, rather than a bare URL they have to guess at.
-  const message =
-    `Hi ${contactName} — here's your own page for ${businessName}. It shows every customer ` +
-    `you send us, what stage they're at and what you've earned, and it's where you share ` +
-    `your list:\n\n${origin}/channel-partners/${portalToken}\n\nSave that link — it's the ` +
-    `only way back in.`;
+  // Different message depending on whether they have an account yet: telling
+  // somebody to "save this link" after they've set a password is telling them
+  // to save one that no longer works.
+  const message = hasPassword
+    ? `Hi ${contactName} — sign in for ${businessName} here: ${origin}/channel-partners/login\n\n` +
+      `It shows every customer you send us, what stage they're at and what you've earned.`
+    : `Hi ${contactName} — here's your own page for ${businessName}. It shows every customer ` +
+      `you send us, what stage they're at and what you've earned, and it's where you share ` +
+      `your list:\n\n${origin}/channel-partners/${portalToken}\n\nThere's a button on it to ` +
+      `set a password, so you're not relying on this text.`;
 
   return (
     <div className="mt-3 space-y-2">
@@ -119,6 +172,49 @@ export default function PartnerLinks({
       >
         {copied === "message" ? "Copied — paste it into Messages" : "Copy the whole text message"}
       </button>
+
+      {hasPassword && (
+        <div className="pt-1">
+          {confirmReset ? (
+            <div className="rounded-lg border border-brand/40 bg-brand/[0.08] p-3">
+              <p className="text-xs text-ink">
+                This clears {businessName}&apos;s password and signs them out everywhere. They
+                set a new one from the link that appears here afterwards.
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={resetting}
+                  onClick={resetPassword}
+                  className="rounded-md bg-brand px-3 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+                >
+                  {resetting ? "Resetting…" : "Yes, reset it"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirmReset(false)}
+                  className="rounded-md border border-white/15 px-3 py-1.5 text-xs font-bold text-neutral-300"
+                >
+                  Cancel
+                </button>
+              </div>
+              {resetError && (
+                <p role="alert" className="mt-2 text-xs text-ink">
+                  {resetError}
+                </p>
+              )}
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setConfirmReset(true)}
+              className="text-xs font-semibold text-neutral-400 underline hover:text-ink"
+            >
+              Reset their password
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

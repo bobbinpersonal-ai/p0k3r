@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ADMIN_COOKIE_NAME, isValidAdminSessionCookie } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatFee, parseServices } from "@/lib/regions/channelPartners";
+import CreatePartner from "./CreatePartner";
 import PartnerLinks from "./PartnerLinks";
 
 // The channel partner roster, and the only place their portal links live.
@@ -105,6 +106,8 @@ export default async function ChannelPartnersAdminPage() {
         </Link>
       </p>
 
+      <CreatePartner />
+
       {rows.length === 0 ? (
         <p className="mt-10 rounded-2xl border border-dashed border-white/15 p-8 text-center text-sm text-neutral-300">
           Nobody has signed up yet. They arrive here from the form on{" "}
@@ -158,6 +161,23 @@ export default async function ChannelPartnersAdminPage() {
                     {partner.status}
                   </span>
                 </div>
+
+                {/* Whether they can actually get in. A partner still on their
+                    text link is one lost phone away from losing the portal. */}
+                <p className="mt-2 text-xs">
+                  {partner.passwordHash ? (
+                    <span className="text-brand-cyan">
+                      Has a login
+                      {partner.lastLoginAt
+                        ? ` · last signed in ${ago(partner.lastLoginAt, now)}`
+                        : " · never signed in"}
+                    </span>
+                  ) : (
+                    <span className="text-neutral-400">
+                      No password yet — still using the link we texted them
+                    </span>
+                  )}
+                </p>
 
                 {/* The numbers that decide whether this partner is working. */}
                 <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -225,9 +245,11 @@ export default async function ChannelPartnersAdminPage() {
                 )}
 
                 <PartnerLinks
+                  id={partner.id}
                   portalToken={partner.portalToken}
                   businessName={partner.businessName}
                   contactName={partner.contactName}
+                  hasPassword={Boolean(partner.passwordHash)}
                 />
               </article>
             );
