@@ -4,7 +4,7 @@ import NetworkHeader from "@/components/network/NetworkHeader";
 import NetworkFooter from "@/components/network/NetworkFooter";
 import { prisma } from "@/lib/prisma";
 import {
-  CHANNEL_PARTNER_MAX_PAYOUT,
+  CHANNEL_PARTNER_TOP_LINE_RATE,
   JOURNEY_STEPS,
   MILESTONES,
   channelPartnerPayout,
@@ -101,6 +101,20 @@ export default async function PortalView({
 
   // Payouts carry a loose leadId rather than a relation (same shape as
   // WorkerPayout.estimateId), so the ledger joins them here.
+  // Where the backstop reduced a payout below 10%, the reason in the partner's
+  // own words. Computed from the same function that decided the figure.
+  const clampNotes = new Map<string, string>();
+  for (const lead of partner.leads) {
+    const e = lead.estimate;
+    if (!e) continue;
+    const result = channelPartnerPayout({
+      base: e.baseTotal,
+      sold: e.soldPrice,
+      grossProfit: e.soldPrice - e.costTotal - e.commission,
+    });
+    if (result.clampReason) clampNotes.set(lead.id, result.clampReason);
+  }
+
   const payoutByLead = new Map(
     partner.payouts.filter((p) => p.leadId).map((p) => [p.leadId as string, p]),
   );
@@ -151,7 +165,7 @@ export default async function PortalView({
               <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm leading-relaxed text-neutral-300">
                 A job is yours the day the customer signs, and pays out once the work is
                 finished. The amount is worked out then — half the profit on the job, plus a{" "}
-                up to {formatMoney(CHANNEL_PARTNER_MAX_PAYOUT)} a job.
+                {Math.round(CHANNEL_PARTNER_TOP_LINE_RATE * 100)}% of what each job sells for.
               </p>
             )}
 
@@ -323,6 +337,16 @@ export default async function PortalView({
                       {(lead.city || lead.zip) && (
                         <p className="text-xs text-neutral-400">
                           {[lead.city, lead.zip].filter(Boolean).join(" · ")}
+                        </p>
+                      )}
+
+                      {/* When the thin-job backstop bit, the partner is told, because the
+                          agreement says they will be and because a payout that is
+                          silently under 10% is exactly the thing this formula was
+                          chosen to avoid. */}
+                      {payout && clampNotes.get(lead.id) && (
+                        <p className="mt-2 rounded-lg border border-brand/30 bg-brand/[0.08] px-3 py-2 text-xs leading-relaxed text-neutral-200">
+                          {clampNotes.get(lead.id)}
                         </p>
                       )}
 

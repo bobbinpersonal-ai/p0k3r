@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
       amount: payout.total * 100,
       method,
       handle,
-      memo: `${lead.customerName} — profit split${payout.capped ? " (capped)" : ""}`,
+      memo: `${lead.customerName} — 10% of contract${payout.clamped ? " (thin job, clamped)" : ""}`,
       taxYear: new Date().getFullYear(),
     },
   });
@@ -100,10 +100,10 @@ export async function POST(req: NextRequest) {
       id: created.id,
       total: payout.total,
 
-      profitShare: payout.profitShare,
+      topLine: payout.topLine,
       companyNet: payout.companyNet,
-      capped: payout.capped,
-      cappedBy: payout.cappedBy,
+      clamped: payout.clamped,
+      clampReason: payout.clampReason,
     },
     { status: 201 },
   );

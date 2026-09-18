@@ -12,10 +12,12 @@ import { useState } from "react";
 // is a partner who tells other people we lied, and this program only works if
 // they talk to each other well.
 //
-// The cap is shown rather than hidden. A partner who works out for themselves
-// that a huge job pays the same as a merely large one — after we advertised
-// "half the profit" — is a partner who stops trusting every other number we
-// showed them. It is on the page, next to the figure it limits.
+// The figure a partner can check themselves.
+//
+// Since the payout is a percentage of the contract, the only guesswork left is
+// how many jobs a list throws off and what they sell for — both of which are
+// stated as assumptions rather than buried. Nobody can promise what somebody
+// else's list will do, and a single confident number here is a promise.
 
 type Rates = { reach: number; interested: number; close: number };
 
@@ -23,36 +25,34 @@ const LOW: Rates = { reach: 0.3, interested: 0.12, close: 0.25 };
 const HIGH: Rates = { reach: 0.5, interested: 0.22, close: 0.35 };
 
 /**
- * The partner's half of gross profit on a typical job, in dollars.
+ * What a job off a warm list typically sells for, in dollars.
  *
- * A range because job size and how far above the threshold it sells both move
- * it a long way — a garage door and a full re-side are not the same cheque.
- * Deliberately conservative at the bottom end.
+ * A range because a gutter repair and a full re-roof are not the same job.
+ * Deliberately conservative at the bottom: most of what comes off a list like
+ * this is single-trade work, not whole-house.
  */
-const SHARE_PER_JOB_LOW = 800;
-const SHARE_PER_JOB_HIGH = 3000;
+const JOB_VALUE_LOW = 4_000;
+const JOB_VALUE_HIGH = 22_000;
 
 function jobsFrom(listSize: number, rates: Rates): number {
   return Math.floor(listSize * rates.reach * rates.interested * rates.close);
 }
 
 export default function EarningsEstimator({
-  splitLabel,
-  maxPerJob,
+  rate,
 }: {
-  splitLabel: string;
-  /** The per-job cap, in dollars. Applied to the high end, not just printed. */
-  maxPerJob: number;
+  /** The partner's share of the contract, 0–1. */
+  rate: number;
 }) {
   const [listSize, setListSize] = useState(400);
 
   const lowJobs = jobsFrom(listSize, LOW);
   const highJobs = jobsFrom(listSize, HIGH);
-  // The cap is applied to the maths, not just mentioned underneath it.
-  const perJobHigh = Math.min(SHARE_PER_JOB_HIGH, maxPerJob);
+  const perJobLow = Math.round(JOB_VALUE_LOW * rate);
+  const perJobHigh = Math.round(JOB_VALUE_HIGH * rate);
   const money = (n: number) => `$${n.toLocaleString("en-US")}`;
 
-  const shareLow = lowJobs * SHARE_PER_JOB_LOW;
+  const shareLow = lowJobs * perJobLow;
   const shareHigh = highJobs * perJobHigh;
 
   return (
@@ -96,7 +96,7 @@ export default function EarningsEstimator({
       <dl className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="rounded-xl border border-white/10 bg-paper/40 p-4">
           <dt className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
-            Your {splitLabel} profit share
+            Your {Math.round(rate * 100)}% of each contract
           </dt>
           <dd className="mt-1 text-lg font-bold text-ink">
             {money(shareLow)} – {money(shareHigh)}
@@ -107,11 +107,13 @@ export default function EarningsEstimator({
         </div>
         <div className="rounded-xl border border-white/10 bg-paper/40 p-4">
           <dt className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
-            Most any one job pays
+            Per job
           </dt>
-          <dd className="mt-1 text-lg font-bold text-ink">{money(maxPerJob)}</dd>
+          <dd className="mt-1 text-lg font-bold text-ink">
+            {money(perJobLow)} – {money(perJobHigh)}
+          </dd>
           <dd className="text-xs leading-relaxed text-neutral-400">
-            the cap, whatever the job sells for
+            on jobs selling {money(JOB_VALUE_LOW)} – {money(JOB_VALUE_HIGH)}
           </dd>
         </div>
       </dl>

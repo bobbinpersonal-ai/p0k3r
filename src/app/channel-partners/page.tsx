@@ -6,8 +6,7 @@ import ChannelPartnerForm from "./ChannelPartnerForm";
 import EarningsEstimator from "./EarningsEstimator";
 import { COMPANY, PHONE_DIGITS } from "@/lib/regions/brand";
 import {
-  CHANNEL_PARTNER_MAX_PAYOUT,
-  CHANNEL_PARTNER_PROFIT_SHARE,
+  CHANNEL_PARTNER_TOP_LINE_RATE,
   JOURNEY_STEPS,
   formatFee,
   formatMoney,
@@ -28,17 +27,14 @@ import { TRADES } from "@/lib/regions/trades";
 // Different audience from /partners, which recruits crews who do labour. A
 // channel partner does no work at all. See src/lib/regions/channelPartners.ts.
 
-const CAP = formatMoney(CHANNEL_PARTNER_MAX_PAYOUT);
-const SPLIT = `${Math.round(CHANNEL_PARTNER_PROFIT_SHARE * 100)}/${Math.round(
-  (1 - CHANNEL_PARTNER_PROFIT_SHARE) * 100,
-)}`;
+const RATE = `${Math.round(CHANNEL_PARTNER_TOP_LINE_RATE * 100)}%`;
 
 export const metadata: Metadata = {
   title: `Partner With Us — Half the Profit on Every Job | ${COMPANY.name}`,
   description:
     `Your past customers are worth money you're not collecting. Share your list, we do the ` +
-    `calling and the work, and you take a ${SPLIT} split of the profit on every job, up to ` +
-    `${CAP} a job. No selling, no labour, no cost to join.`,
+    `calling and the work, and you take ${RATE} of what every job sells for. No ceiling, no ` +
+    `selling, no labour, no cost to join.`,
   robots: { index: true, follow: true },
 };
 
@@ -66,10 +62,10 @@ const HOW_IT_WORKS = [
   },
   {
     step: "04",
-    title: "You take half the profit",
+    title: "You take 10% of the contract",
     body:
-      `A ${SPLIT} split of the profit on every job our people sell above our price threshold, ` +
-      `up to ${CAP} a job. Paid once the work is finished.`,
+      `${RATE} of whatever each job sells for, whatever the size. Paid once the work is ` +
+      `finished and the customer has paid us.`,
   },
 ];
 
@@ -136,14 +132,17 @@ const FAQ = [
       "close at a fraction of the rate. That's the whole trade.",
   },
   {
-    q: "How does the split actually work?",
+    q: "How does the money actually work?",
     a:
-      `Every job in our price book has a threshold — the lowest number we'll do that work for. ` +
-      `Whatever the person selling it gets above that threshold is profit, and once the job ` +
-      `costs and their commission come out, you take half of what's left — up to ${CAP} on any ` +
-      `one job. The cap is there because past a point an introduction is worth what it's worth, ` +
-      `and the margin above it is what carries the warranty and the insurance on the work. ` +
-      `Most jobs land well under it.`,
+      `You get ${RATE} of whatever the job sells for. Sell a roof at $28,000 and that's $2,800 ` +
+      `to you. Sell a $60,000 job and it's $6,000 — there is no ceiling on it.\n\n` +
+      `We moved to this from a share of our profit for one reason: you can check it. You can't ` +
+      `see what a job cost us or what the salesperson earned, so a share of profit is a number ` +
+      `you would have to take our word for every time. ${RATE} of the contract is a number you ` +
+      `can work out yourself, and confirm with your own customer if you ever want to.\n\n` +
+      `One exception: a job that barely made anything. If ${RATE} would be more than the whole ` +
+      `profit on it, you get 45% of that profit instead — and your page tells you when that ` +
+      `happened and why.`,
   },
   {
     q: "Do I have to do any work at all?",
@@ -229,18 +228,17 @@ export default function ChannelPartnersPage() {
                 </Link>
               </div>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                Your old customers are worth half the profit on every job they send us.
+                Your old customers are worth 10% of every job they send us.
               </h1>
               <p className="mt-4 text-lg text-neutral-200">
                 Share the list of people you&apos;ve already done work for. We call them, sell
-                the home improvement work you don&apos;t do, and split the profit {SPLIT} with
-                you, up to {CAP} a job. You do nothing: no selling, no labour, no cost to
-                join.
+                the home improvement work you don&apos;t do, and pay you {RATE} of whatever it
+                sells for. You do nothing: no selling, no labour, no cost to join.
               </p>
 
               <dl className="mt-8 grid gap-4 sm:grid-cols-2">
                 {[
-                  [`${SPLIT} on every job`, `Half the profit, every time, up to ${CAP} a job.`],
+                  [`${RATE} of every job`, `Of the contract price, whatever it is. No ceiling.`],
                   ["Zero work", "We call, quote, contract and build. You share a spreadsheet."],
                   ["You watch it happen", "See every customer's stage, live, on your own page."],
                   ["Paid on completion", "Money lands when the job is finished, not when it's promised."],
@@ -277,7 +275,7 @@ export default function ChannelPartnersPage() {
               Drag it to the size of your customer list.
             </p>
             <div className="mt-8">
-              <EarningsEstimator splitLabel={SPLIT} maxPerJob={CHANNEL_PARTNER_MAX_PAYOUT} />
+              <EarningsEstimator rate={CHANNEL_PARTNER_TOP_LINE_RATE} />
             </div>
           </div>
         </section>

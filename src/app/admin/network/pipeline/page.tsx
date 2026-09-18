@@ -68,8 +68,8 @@ export default async function PipelinePage() {
       quote = {
         sold: soldPrice,
         payout: result.total,
-        capped: result.capped,
-        cappedBy: result.cappedBy,
+        clamped: result.clamped,
+        topLine: result.topLine,
         margin: check.margin,
         marginOk: check.ok,
       };

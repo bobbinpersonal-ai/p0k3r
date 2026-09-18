@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import NetworkHeader from "@/components/network/NetworkHeader";
 import NetworkFooter from "@/components/network/NetworkFooter";
 import {
-  CHANNEL_PARTNER_MAX_PAYOUT,
+  CHANNEL_PARTNER_TOP_LINE_RATE,
   formatFee,
   formatMoney,
 } from "@/lib/regions/channelPartners";
@@ -30,7 +30,7 @@ export default async function PartnerSignupPage() {
         </h1>
         <p className="mt-3 text-neutral-300">
           Half the profit on every job we sell to a customer you introduce us to, plus a{" "}
-          up to {formatMoney(CHANNEL_PARTNER_MAX_PAYOUT)} a job. Paid when the work is finished.
+          {Math.round(CHANNEL_PARTNER_TOP_LINE_RATE * 100)}% of what each job sells for, no ceiling. Paid when the work is finished.
           You don&apos;t touch any of it.
         </p>
 

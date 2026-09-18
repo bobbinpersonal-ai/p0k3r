@@ -1,9 +1,8 @@
 import { COMPANY } from "@/lib/regions/brand";
 import { SELLER } from "@/lib/regions/contracts";
 import {
-  CHANNEL_PARTNER_MAX_PAYOUT,
-  CHANNEL_PARTNER_PROFIT_SHARE,
-  formatMoney,
+  CHANNEL_PARTNER_GROSS_PROFIT_CLAMP,
+  CHANNEL_PARTNER_TOP_LINE_RATE,
 } from "@/lib/regions/channelPartners";
 import type { AgreementDocument } from "@/lib/regions/repAgreement";
 
@@ -27,15 +26,15 @@ import type { AgreementDocument } from "@/lib/regions/repAgreement";
  * something as "they agreed to THIS text" — and the split, the cap and the
  * data terms are all things we might revise.
  */
-export const CHANNEL_PARTNER_TERMS_VERSION = "2026-09-18.1";
+export const CHANNEL_PARTNER_TERMS_VERSION = "2026-09-18.2";
 
 export function channelPartnerAgreement(facts: {
   businessName: string;
   contactName: string;
   state?: string | null;
 }): AgreementDocument {
-  const split = `${Math.round(CHANNEL_PARTNER_PROFIT_SHARE * 100)}%`;
-  const cap = formatMoney(CHANNEL_PARTNER_MAX_PAYOUT);
+  const rate = `${Math.round(CHANNEL_PARTNER_TOP_LINE_RATE * 100)}%`;
+  const clamp = `${Math.round(CHANNEL_PARTNER_GROSS_PROFIT_CLAMP * 100)}%`;
 
   return {
     title: `Channel Partner Agreement — ${COMPANY.name}`,
@@ -62,12 +61,14 @@ export function channelPartnerAgreement(facts: {
         heading: "What the Partner is paid",
         body:
           `On each job the Company completes for a customer from the Partner's list, the ` +
-          `Partner is paid ${split} of the gross profit on that job, up to ${cap} on any one ` +
-          `job.\n\n` +
-          `Gross profit means what the customer paid, less what the job cost the Company to ` +
-          `build, less the commission earned by whoever sold it. There is no payment on a ` +
-          `job sold at or below the Company's floor price, because there is no profit on it ` +
-          `to share.\n\n` +
+          `Partner is paid ${rate} of the price that job sold for. There is no upper limit: a ` +
+          `larger job pays proportionally more.\n\n` +
+          `The Partner can check this figure without relying on the Company — it is a ` +
+          `percentage of a contract price the customer also knows.\n\n` +
+          `One exception. Where a job's gross profit is so small that ${rate} of the contract ` +
+          `would exceed it, the Partner is paid ${clamp} of that job's gross profit instead. ` +
+          `Where that happens the Company tells the Partner on their own page, with the ` +
+          `figures, rather than paying a reduced amount without explanation.\n\n` +
           `Payment is made after the job is finished and the customer has paid the Company in ` +
           `full. Nothing is paid on a signature, a deposit or a promise.`,
       },

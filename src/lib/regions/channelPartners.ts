@@ -31,29 +31,35 @@
 // nobody reads.
 
 /**
- * The partner's share of gross profit.
+ * The partner's cut, as a share of the contract the customer signed.
  *
- * "Gross profit" is the one from src/lib/regions/commission.ts — sold price
- * less job cost less what the seller earned — so this can never collide with
- * seller comp the way a share of the raw overage would. The seller is paid
- * first and the partner splits what is actually left.
+ * This replaced half-of-gross-profit-capped-at-$3,500, and the reason is
+ * trust rather than arithmetic. A partner cannot check our gross profit —
+ * they never see what the job cost us or what the seller earned, so half of
+ * it is a number they have to take on faith every single time. Ten percent of
+ * the contract is a number they can work out on the back of an envelope, and
+ * can confirm with their own customer if they ever doubt us.
+ *
+ * In a program whose entire product is "you will be able to see what happened
+ * to your people", a payout they can verify is worth more than a bigger one
+ * they cannot.
  */
-export const CHANNEL_PARTNER_PROFIT_SHARE = 0.5;
+export const CHANNEL_PARTNER_TOP_LINE_RATE = 0.1;
 
 /**
- * The most a partner earns on any one job.
+ * The most of a job's gross profit the partner may take, whatever 10% says.
  *
- * Added when the uncapped split was doing something the pitch never intended:
- * on a large job half the gross profit ran past what an introduction is
- * actually worth, and it came straight out of the margin that has to carry the
- * warranty, the insurance and everyone else on the job.
+ * A backstop, not a term of the deal. On a normally priced job it never binds:
+ * it needs gross margin under 22.2%, and the worst trade in the price book
+ * sold at its floor still makes 35%. What it prevents is the catastrophic
+ * case — a job so thin that 10% of the contract exceeds the profit on it, and
+ * the introduction costs more than the work earned.
  *
- * It is a real change to the deal and the pitch page says so now — "half the
- * profit, up to $3,500 a job" rather than "half the profit". A cap we apply
- * quietly while advertising an uncapped split would be the kind of thing that
- * ends a partnership on the first big cheque.
+ * Because it costs the partner the thing this whole change bought them — a
+ * figure they can check — a job where it bites says so on their own page
+ * rather than quietly paying short. See `clamped` on the result.
  */
-export const CHANNEL_PARTNER_MAX_PAYOUT = 3_500;
+export const CHANNEL_PARTNER_GROSS_PROFIT_CLAMP = 0.45;
 
 /**
  * The share of a contract the company has to keep after everyone is paid.
@@ -74,27 +80,25 @@ export function formatMoney(dollars: number): string {
 }
 
 export type ChannelPartnerPayout = {
-  /** Half the gross profit, before the cap. */
-  profitShare: number;
+  /** Ten percent of the contract — what the partner expects to see. */
+  topLine: number;
   /** What the partner is owed once the job is complete. */
   total: number;
   /** What is left for the company after paying them. Never negative. */
   companyNet: number;
-  /** True when the cap bit — the split would have paid more. */
-  capped: boolean;
-  /** What the cap held back, for the admin screen. Zero when it did not bite. */
-  cappedBy: number;
+  /** True when the thin-job backstop reduced the payout below 10%. */
+  clamped: boolean;
+  /** Why it was reduced, in words a partner can read. Null when it was not. */
+  clampReason: string | null;
 };
 
 /**
  * What a channel partner earns on one completed job.
  *
- * Takes the deal rather than the raw numbers so the profit being split is
- * exactly the profit the estimator showed the seller — one definition of
- * profit, computed once, in commission.ts.
- *
- * Half of what exists can never exceed what exists, so this is affordable by
- * construction; the cap only ever makes the company's side larger.
+ * Ten percent of the contract, unless the job was too thin to carry it, in
+ * which case 45% of whatever profit there was. No cap: a partner who sends a
+ * $60,000 job earns $6,000, and that is the point — the old $3,500 ceiling
+ * meant their best referral paid the same as a middling one.
  */
 export function channelPartnerPayout(deal: {
   base: number;
@@ -102,19 +106,24 @@ export function channelPartnerPayout(deal: {
   grossProfit: number;
 }): ChannelPartnerPayout {
   const grossProfit = Math.max(Math.round(deal.grossProfit), 0);
+  const sold = Math.max(Math.round(deal.sold), 0);
 
-  // Above the threshold, not merely at it: a job sold at base has no overage,
-  // and the split is the reward for selling past the floor.
-  const uncapped =
-    deal.sold > deal.base ? Math.round(grossProfit * CHANNEL_PARTNER_PROFIT_SHARE) : 0;
-  const total = Math.min(uncapped, CHANNEL_PARTNER_MAX_PAYOUT);
+  const topLine = Math.round(sold * CHANNEL_PARTNER_TOP_LINE_RATE);
+  const ceiling = Math.round(grossProfit * CHANNEL_PARTNER_GROSS_PROFIT_CLAMP);
+  const total = Math.min(topLine, ceiling);
 
+  const clamped = total < topLine;
   return {
-    profitShare: uncapped,
+    topLine,
     total,
     companyNet: grossProfit - total,
-    capped: uncapped > total,
-    cappedBy: uncapped - total,
+    clamped,
+    clampReason: clamped
+      ? `This one sold for $${sold.toLocaleString("en-US")} but made very little on it, so ` +
+        `10% would have been more than the job earned. You're on ` +
+        `${Math.round(CHANNEL_PARTNER_GROSS_PROFIT_CLAMP * 100)}% of the profit instead — ` +
+        `$${total.toLocaleString("en-US")}.`
+      : null,
   };
 }
 
