@@ -316,6 +316,11 @@ model Lead {
 
   /// What they called about, if we know. Null is normal on a cold lead.
   trade         String?
+  /// Everything they asked for, comma separated, when a partner submits a
+  /// referral naming more than one. `trade` stays the primary for routing and
+  /// for every screen that assumes one; this is the full ask, so a rep going
+  /// out for a roof knows the gutters were mentioned too.
+  requestedTrades String?
   /// RETAIL (homeowner pays) or INSURANCE (carrier pays, homeowner pays the
   /// deductible). Decides which contract gets generated and which rules apply.
   jobKind       String   @default("RETAIL")
@@ -369,6 +374,7 @@ model Lead {
   appointments  Appointment[]
 
   estimate      Estimate?
+  noSaleReport  NoSaleReport?
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -581,6 +587,23 @@ model ChannelPartner {
   /// number, unverified, useful only for triage.
   approxListSize Int?
 
+  /// Which of our services they want offered to their customers, comma
+  /// separated against CROSS_SELL_SERVICES in src/lib/regions/channelPartners.ts.
+  ///
+  /// Selected by them rather than assumed by us, because the answer is
+  /// usually "everything except what I already do" and getting that wrong
+  /// means quoting a fencing company's customer for a fence.
+  services      String?
+
+  /// Trades to keep away from — normally their own. Stored separately from
+  /// `services` because "don't sell this" is a promise with teeth and should
+  /// not be inferred from the absence of a tick.
+  excludedTrades String?
+
+  /// What kind of customers they have, in their words. Feeds the call script
+  /// more than it feeds any routing logic.
+  clientBase    String?
+
   notes         String?
   source        String?
 
@@ -611,6 +634,46 @@ model ChannelPartner {
   updatedAt     DateTime @updatedAt
 
   @@index([status])
+}
+
+/// Why an appointment off a partner's list didn't close, written down.
+///
+/// The trust mechanism of the whole program. A partner who hands over their
+/// customers and then hears "didn't work out" on the ones that mattered
+/// assumes they were skimmed, and they are right to — there is no way for
+/// them to check. So a rep files this from the kitchen table, it is stamped
+/// with who filed it and when, and the partner reads the same words we did.
+///
+/// One row per lead: a second visit that also fails updates the first rather
+/// than stacking, because a list of three near-identical notes reads as
+/// excuses rather than as a record.
+model NoSaleReport {
+  id            String   @id @default(cuid())
+  leadId        String   @unique
+  lead          Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  /// A code from NO_SALE_REASONS, so these are countable rather than only
+  /// readable — "how often is it price" is the question this answers.
+  reason        String
+  /// The rep's own words. What the partner actually reads.
+  detail        String
+
+  /// Who was in the house. Stored by name rather than by relation so the
+  /// record survives them leaving, same reasoning as CallAttempt.calledBy.
+  filedBy       String
+  /// What we quoted, where we got that far. Null when we never priced it.
+  quotedAmount  Int?
+  /// True when the homeowner acknowledged the visit and the decision on the
+  /// spot. An unacknowledged report is still a report, just a weaker one.
+  customerAcknowledged Boolean @default(false)
+
+  /// Whether this one is worth another try later, and when.
+  revisitAt     DateTime?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([reason])
 }
 
 /// One payout to one channel partner for one completed job.

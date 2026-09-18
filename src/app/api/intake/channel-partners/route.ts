@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { notifyNewChannelPartnerApplication } from "@/lib/notify";
-import { checkListUrl } from "@/lib/regions/channelPartners";
+import { checkListUrl, serializeServices } from "@/lib/regions/channelPartners";
 import { getRegion, regionForZip, REGIONS } from "@/lib/regions/states";
 
 // A business applying to hand over its customer list rather than do labor.
@@ -70,6 +70,8 @@ export async function POST(req: NextRequest) {
       city: clean(body.city, 80) || null,
       state: region.code,
       approxListSize: parseCount(body.approxListSize, 100_000),
+      services: serializeServices(Array.isArray(body.services) ? body.services : []),
+      clientBase: clean(body.clientBase, 200) || null,
       notes: clean(body.notes, 600) || null,
       source: clean(body.source, 40) || "website",
       status: "APPLIED",

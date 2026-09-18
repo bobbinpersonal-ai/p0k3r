@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CROSS_SELL_SERVICES } from "@/lib/regions/channelPartners";
 import { REGIONS, regionForZip } from "@/lib/regions/states";
 
 const FIELD =
@@ -17,9 +18,24 @@ export default function ChannelPartnerForm() {
   const [portalToken, setPortalToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [zip, setZip] = useState("");
+  // Default to everything live. A contractor who wants the lot is the common
+  // case, and pre-ticking turns the question into "untick what you already do"
+  // — which is the answer we actually need and the shorter path to it.
+  const [services, setServices] = useState<string[]>(
+    CROSS_SELL_SERVICES.filter((s) => s.status === "LIVE").map((s) => s.value),
+  );
 
   const region = regionForZip(zip);
   const outOfArea = zip.replace(/\D/g, "").length >= 5 && !region;
+  const gatedPicked = CROSS_SELL_SERVICES.filter(
+    (s) => s.status === "GATED" && services.includes(s.value),
+  );
+
+  function toggleService(value: string) {
+    setServices((cur) =>
+      cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value],
+    );
+  }
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -40,6 +56,8 @@ export default function ChannelPartnerForm() {
           zip: zip.replace(/\D/g, "").slice(0, 5),
           state: region?.code ?? null,
           approxListSize: form.get("approxListSize"),
+          clientBase: form.get("clientBase"),
+          services,
           notes: form.get("notes"),
           customerListUrl: form.get("customerListUrl"),
         }),
@@ -147,6 +165,59 @@ export default function ChannelPartnerForm() {
           min={1}
           inputMode="numeric"
           placeholder="Roughly how many customers?"
+          className={FIELD}
+        />
+
+        <fieldset>
+          <legend className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+            What should we offer them?
+          </legend>
+          <p className="mt-1 text-xs text-neutral-400">
+            Untick anything you already do — we won&apos;t quote your own trade to your own
+            customer.
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {CROSS_SELL_SERVICES.map((service) => {
+              const on = services.includes(service.value);
+              return (
+                <button
+                  key={service.value}
+                  type="button"
+                  onClick={() => toggleService(service.value)}
+                  aria-pressed={on}
+                  title={service.pitch}
+                  className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${
+                    on
+                      ? "border-brand-cyan bg-brand-cyan/15 text-ink"
+                      : "border-white/15 text-neutral-300 hover:text-ink"
+                  }`}
+                >
+                  {service.label}
+                  {service.status === "GATED" && (
+                    <span className="ml-1.5 font-mono text-[10px] uppercase text-neutral-400">
+                      soon
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          {/* Said here rather than after they have been told yes. A partner who
+              signs up for solar and finds out later is a partner who stops
+              trusting the rest of it. */}
+          {gatedPicked.map((service) => (
+            <p
+              key={service.value}
+              className="mt-3 rounded-xl border border-white/15 bg-white/[0.04] p-3 text-xs leading-relaxed text-neutral-300"
+            >
+              <strong className="text-ink">{service.label}:</strong> {service.gatedReason}
+            </p>
+          ))}
+        </fieldset>
+
+        <input
+          name="clientBase"
+          placeholder="Who are your customers? (homeowners, HOAs, rentals...)"
           className={FIELD}
         />
 

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import NetworkHeader from "@/components/network/NetworkHeader";
 import NetworkFooter from "@/components/network/NetworkFooter";
@@ -6,10 +7,14 @@ import {
   CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS,
   CHANNEL_PARTNER_FEE_CENTS,
   JOURNEY_STEPS,
+  MILESTONES,
   formatFee,
   journeyStage,
+  parseServices,
 } from "@/lib/regions/channelPartners";
+import { noSaleShort } from "@/lib/regions/noSale";
 import ShareListCard from "./ShareListCard";
+import SubmitLeadCard from "./SubmitLeadCard";
 
 // A channel partner's own view of where every customer they gave us has got
 // to — the "you'll see what stage we're at" promise made on /channel-partners,
@@ -26,6 +31,12 @@ import ShareListCard from "./ShareListCard";
 // The in-progress tile counts jobs rather than showing dollars, because what
 // a sold job pays depends on what it sold for — a number here would be a
 // guess, and a guess revised downward later is worse than no number.
+//
+// The no-sale notes are the part that earns the rest of it. Everything above
+// is us reporting our own wins; the reason a deal died is the thing a partner
+// cannot verify and most needs to see.
+
+const LEDGER_STATUSES = ["APPOINTMENT_SET", "SOLD", "COMPLETED", "NO_SALE"];
 
 export default async function ChannelPartnerPortalPage({
   params,
@@ -35,7 +46,10 @@ export default async function ChannelPartnerPortalPage({
   const partner = await prisma.channelPartner.findUnique({
     where: { portalToken: params.token },
     include: {
-      leads: { orderBy: { createdAt: "desc" } },
+      leads: {
+        orderBy: { createdAt: "desc" },
+        include: { noSaleReport: true },
+      },
       payouts: { orderBy: { paidAt: "desc" } },
     },
   });
@@ -44,17 +58,33 @@ export default async function ChannelPartnerPortalPage({
   const paidCents = partner.payouts.reduce((sum, p) => sum + p.amount, 0);
   const soldCount = partner.leads.filter((l) => l.status === "SOLD").length;
   const completedCount = partner.leads.filter((l) => l.status === "COMPLETED").length;
-
-  // Nothing owed is knowable from these rows — both halves of the deal depend
-  // on what each job actually sold for, and that lives on the estimate, not
-  // here. So the tile counts jobs rather than inventing a number, which is
-  // also the honest thing: a figure we later revise downward is worse than no
-  // figure at all.
+  const services = parseServices(partner.services);
 
   const counts = new Map<string, number>();
   for (const lead of partner.leads) {
     counts.set(lead.status, (counts.get(lead.status) ?? 0) + 1);
   }
+
+  const reachedAppointment = partner.leads.some((l) =>
+    ["APPOINTMENT_SET", "SOLD", "COMPLETED", "NO_SALE"].includes(l.status),
+  );
+  const everSold = soldCount + completedCount > 0;
+  const earned: Record<string, boolean> = {
+    LIST: Boolean(partner.customerListUrl) || partner.leads.length > 0,
+    FIRST_APPOINTMENT: reachedAppointment,
+    FIRST_SALE: everSold,
+    FIRST_PAID: partner.payouts.length > 0,
+    FIVE: completedCount >= 5,
+    TEN: completedCount >= 10,
+  };
+  const earnedCount = MILESTONES.filter((m) => earned[m.value]).length;
+
+  // Payouts carry a loose leadId rather than a relation (same shape as
+  // WorkerPayout.estimateId), so the ledger joins them here.
+  const payoutByLead = new Map(
+    partner.payouts.filter((p) => p.leadId).map((p) => [p.leadId as string, p]),
+  );
+  const ledger = partner.leads.filter((l) => LEDGER_STATUSES.includes(l.status));
 
   return (
     <>
@@ -105,12 +135,71 @@ export default async function ChannelPartnerPortalPage({
               </p>
             )}
 
+            {/* Progress markers. Weighted to the early ones because the doubt
+                lives in the gap between sharing a list and the first cheque. */}
             <div className="mt-8">
-              <ShareListCard
+              <div className="flex items-baseline justify-between gap-3">
+                <h2 className="text-xl font-extrabold text-ink">Your progress</h2>
+                <span className="font-mono text-xs uppercase tracking-widest text-neutral-400">
+                  {earnedCount} of {MILESTONES.length}
+                </span>
+              </div>
+              <ol className="mt-4 grid gap-3 sm:grid-cols-3">
+                {MILESTONES.map((milestone) => {
+                  const done = earned[milestone.value];
+                  return (
+                    <li
+                      key={milestone.value}
+                      className={`rounded-xl border p-4 ${
+                        done
+                          ? "border-brand-cyan/40 bg-brand-cyan/10"
+                          : "border-white/10 bg-white/[0.02]"
+                      }`}
+                    >
+                      <p
+                        className={`text-sm font-bold ${done ? "text-brand-cyan" : "text-neutral-400"}`}
+                      >
+                        {done ? "Done" : "Not yet"}
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-ink">{milestone.label}</p>
+                      <p className="mt-1 text-xs leading-relaxed text-neutral-400">
+                        {milestone.hint}
+                      </p>
+                    </li>
+                  );
+                })}
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-white/10 bg-surface">
+          <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+            <div className="grid gap-6 lg:grid-cols-2">
+              <SubmitLeadCard
                 token={partner.portalToken}
-                currentUrl={partner.customerListUrl}
-                sharedAt={partner.listSharedAt?.toISOString() ?? null}
+                offeredServices={services.map((s) => s.value)}
               />
+              <div className="space-y-6">
+                <ShareListCard
+                  token={partner.portalToken}
+                  currentUrl={partner.customerListUrl}
+                  sharedAt={partner.listSharedAt?.toISOString() ?? null}
+                />
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+                  <h2 className="text-xl font-extrabold text-ink">Pitch it to your customers</h2>
+                  <p className="mt-2 text-sm text-neutral-300">
+                    Ready-made emails, texts and a printable one-pager for each service, with
+                    your name on the introduction.
+                  </p>
+                  <Link
+                    href={`/channel-partners/${partner.portalToken}/marketing`}
+                    className="mt-4 inline-block rounded-xl border border-white/15 px-5 py-3 text-sm font-bold text-ink hover:border-brand hover:text-brand-cyan"
+                  >
+                    Open the marketing kit
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -118,7 +207,7 @@ export default async function ChannelPartnerPortalPage({
         {/* The pipeline at a glance, before the per-customer list. A partner
             checking in from a phone wants "how many are close" answered in one
             look, not counted off a list of two hundred rows. */}
-        <section className="border-b border-white/10 bg-surface">
+        <section className="border-b border-white/10">
           <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
             <h2 className="text-xl font-extrabold text-ink">Where everyone is</h2>
             <ol className="mt-5 grid gap-3 sm:grid-cols-5">
@@ -141,13 +230,109 @@ export default async function ChannelPartnerPortalPage({
           </div>
         </section>
 
-        <section className="border-b border-white/10">
+        {/* The ledger: every referral that got far enough to be worth money,
+            what happened to it, and what it paid. This is the screen a partner
+            opens when they are deciding whether to send us more. */}
+        <section className="border-b border-white/10 bg-surface">
           <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-            <h2 className="text-xl font-extrabold text-ink">Your customers</h2>
+            <h2 className="text-xl font-extrabold text-ink">Deals and payouts</h2>
+            {ledger.length === 0 ? (
+              <p className="mt-3 text-sm text-neutral-300">
+                Nothing has reached an appointment yet. As soon as one does, it shows here with
+                what happened and what it paid.
+              </p>
+            ) : (
+              <div className="mt-4 space-y-3">
+                {ledger.map((lead) => {
+                  const stage = journeyStage(lead.status);
+                  const payout = payoutByLead.get(lead.id);
+                  const report = lead.noSaleReport;
+                  return (
+                    <div
+                      key={lead.id}
+                      className="rounded-xl border border-white/10 bg-white/[0.04] p-4"
+                    >
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                        <p className="font-semibold text-ink">{lead.customerName}</p>
+                        <span
+                          className={`text-sm ${
+                            stage.earning ? "font-bold text-brand-cyan" : "text-neutral-300"
+                          }`}
+                        >
+                          {payout
+                            ? formatFee(payout.amount)
+                            : stage.earning
+                              ? "Pays when finished"
+                              : stage.label}
+                        </span>
+                      </div>
+                      {(lead.city || lead.zip) && (
+                        <p className="text-xs text-neutral-400">
+                          {[lead.city, lead.zip].filter(Boolean).join(" · ")}
+                        </p>
+                      )}
+
+                      {/* Why it died, in the rep's own words. The whole point. */}
+                      {report && (
+                        <div className="mt-3 rounded-lg border border-white/10 bg-paper/40 p-3">
+                          <p className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
+                            No sale — {noSaleShort(report.reason)}
+                          </p>
+                          <p className="mt-1.5 text-sm leading-relaxed text-neutral-300">
+                            {report.detail}
+                          </p>
+                          <p className="mt-2 text-xs text-neutral-400">
+                            {report.quotedAmount != null
+                              ? `We quoted ${formatFee(report.quotedAmount * 100)}. `
+                              : "We didn't reach a price. "}
+                            Filed by {report.filedBy} on{" "}
+                            {report.createdAt.toLocaleDateString(undefined, {
+                              month: "short",
+                              day: "numeric",
+                              year: "numeric",
+                            })}
+                            {report.revisitAt
+                              ? ` · worth another go after ${report.revisitAt.toLocaleDateString(
+                                  undefined,
+                                  { month: "short", year: "numeric" },
+                                )}`
+                              : ""}
+                            .
+                          </p>
+                          <Link
+                            href={`/channel-partners/${partner.portalToken}/no-sale/${lead.id}`}
+                            className="mt-2 inline-block text-xs font-semibold text-brand-cyan hover:text-ink"
+                          >
+                            Open the written confirmation →
+                          </Link>
+                        </div>
+                      )}
+
+                      {payout && (
+                        <p className="mt-2 text-xs text-neutral-400">
+                          Paid{" "}
+                          {payout.paidAt.toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                          {payout.memo ? ` — ${payout.memo}` : ""}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section>
+          <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+            <h2 className="text-xl font-extrabold text-ink">Everyone you&apos;ve sent</h2>
             {partner.leads.length === 0 ? (
               <p className="mt-3 text-sm text-neutral-300">
-                Nothing here yet — once we&apos;ve called anyone off your list, they&apos;ll show
-                up here with where they got to.
+                Nothing here yet. Send us one above, or share your whole list.
               </p>
             ) : (
               <div className="mt-4 space-y-2">
@@ -176,40 +361,6 @@ export default async function ChannelPartnerPortalPage({
                     </div>
                   );
                 })}
-              </div>
-            )}
-          </div>
-        </section>
-
-        <section>
-          <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-            <h2 className="text-xl font-extrabold text-ink">Your payouts</h2>
-            {partner.payouts.length === 0 ? (
-              <p className="mt-3 text-sm text-neutral-300">
-                Nothing paid out yet. The first one lands the day a job off your list is
-                finished — half the profit on it, plus a {formatFee(CHANNEL_PARTNER_FEE_CENTS)}{" "}
-                bonus on anything over {formatFee(CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS)}.
-              </p>
-            ) : (
-              <div className="mt-4 space-y-2">
-                {partner.payouts.map((payout) => (
-                  <div
-                    key={payout.id}
-                    className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/[0.04] p-4"
-                  >
-                    <span className="text-sm text-neutral-300">
-                      {payout.paidAt.toLocaleDateString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                      {payout.memo ? ` — ${payout.memo}` : ""}
-                    </span>
-                    <span className="font-mono font-bold text-brand-cyan">
-                      {formatFee(payout.amount)}
-                    </span>
-                  </div>
-                ))}
               </div>
             )}
           </div>

@@ -253,6 +253,240 @@ const LIST_HOSTS = [
   "app.box.com",
 ] as const;
 
+// --- What a partner can put in front of their own customers -------------------
+
+export type CrossSellService = {
+  value: string;
+  label: string;
+  /** One line, read while they are ticking a box. Their customer's problem. */
+  pitch: string;
+  /** The price-book trade this sells as, where one exists. */
+  trade: string | null;
+  /**
+   * LIVE means a rep can quote it today. GATED means we are not selling it
+   * yet and saying otherwise to a partner is a promise we would break.
+   */
+  status: "LIVE" | "GATED";
+  gatedReason?: string;
+};
+
+/**
+ * The menu a contractor picks from at signup.
+ *
+ * Not the same list as TRADES, and deliberately so. TRADES is a price book
+ * organised the way an estimator measures; this is organised the way a partner
+ * thinks about their own customers, which is why Cool Wall has its own row
+ * despite being a product inside PAINT — it is sold as its own thing at a
+ * kitchen table and a partner who has heard of it will not find it under
+ * "exterior paint".
+ */
+export const CROSS_SELL_SERVICES: readonly CrossSellService[] = [
+  {
+    value: "ROOFING",
+    label: "Roofing",
+    pitch: "The one with the shortest path from a storm to a signature.",
+    trade: "ROOFING",
+    status: "LIVE",
+  },
+  {
+    value: "WINDOWS",
+    label: "Windows",
+    pitch: "Anybody complaining about a draught or a summer power bill.",
+    trade: "WINDOWS",
+    status: "LIVE",
+  },
+  {
+    value: "SIDING",
+    label: "Siding",
+    pitch: "Biggest ticket on the list, and the one that changes the house.",
+    trade: "SIDING",
+    status: "LIVE",
+  },
+  {
+    value: "COOL_WALL",
+    label: "Cool Wall coating",
+    pitch: "TexCote COOLWALL — sold as the last time they do the outside.",
+    trade: "PAINT",
+    status: "LIVE",
+  },
+  {
+    value: "PAINT",
+    label: "Exterior paint",
+    pitch: "Cheaper entry than siding, and it opens the siding conversation.",
+    trade: "PAINT",
+    status: "LIVE",
+  },
+  {
+    value: "GUTTERS",
+    label: "Gutters",
+    pitch: "Easy add-on. Rarely the whole job, often the reason they say yes.",
+    trade: "GUTTERS",
+    status: "LIVE",
+  },
+  {
+    value: "FENCE",
+    label: "Fencing",
+    pitch: "New dog, new neighbour, or a panel down after wind.",
+    trade: "FENCE",
+    status: "LIVE",
+  },
+  {
+    value: "GARAGE_DOORS",
+    label: "Garage doors",
+    pitch: "A third of the kerb view, and usually the oldest thing on the house.",
+    trade: "GARAGE_DOORS",
+    status: "LIVE",
+  },
+  {
+    // Kept on the menu because partners ask for it by name and hiding it just
+    // means the question arrives on a phone call instead. Held back rather
+    // than quietly sold — see SOLAR_WARNING in referralAgreement.ts.
+    value: "SOLAR",
+    label: "Solar",
+    pitch: "Highest ticket in home improvement, and the most regulated.",
+    trade: null,
+    status: "GATED",
+    gatedReason:
+      "Not live yet. Solar is the most litigated trade in the country to call on — $500 a " +
+      "call, $1,500 where it's wilful — and the install itself is licensed electrical work " +
+      "in every state we cover. Tick it and we'll talk, but we won't quote it until the " +
+      "consent trail has been through a lawyer.",
+  },
+] as const;
+
+export const LIVE_SERVICES = CROSS_SELL_SERVICES.filter((s) => s.status === "LIVE");
+
+export function getService(value: string): CrossSellService | undefined {
+  return CROSS_SELL_SERVICES.find((s) => s.value === value);
+}
+
+/** Parse a stored comma-separated selection back into services we know. */
+export function parseServices(stored: string | null | undefined): CrossSellService[] {
+  if (!stored) return [];
+  return stored
+    .split(",")
+    .map((v) => getService(v.trim().toUpperCase()))
+    .filter((s): s is CrossSellService => Boolean(s));
+}
+
+/** Normalise a submitted selection for storage. Unknown values are dropped. */
+export function serializeServices(values: readonly unknown[]): string | null {
+  const picked = values
+    .map((v) => String(v).trim().toUpperCase())
+    .filter((v) => getService(v));
+  return picked.length ? Array.from(new Set(picked)).join(",") : null;
+}
+
+// --- Which referrals are worth sending ----------------------------------------
+
+/**
+ * What separates a referral that books from one that wastes everybody's time.
+ *
+ * Shown to partners rather than kept internal, because the lead they don't
+ * send is free and the bad lead costs a truck roll. A partner who understands
+ * this sends fewer and better, which is the outcome both sides want.
+ */
+export const PREQUALIFICATION = [
+  {
+    signal: "They own the house",
+    why: "A tenant can't authorise work on it. This is the single most common dead end.",
+  },
+  {
+    signal: "You did work for them, and they were happy",
+    why: "The call opens with your name. A sour customer makes it the worst call of our week.",
+  },
+  {
+    signal: "Within about two years",
+    why: "Longer and they may not place who you are, which turns a warm call cold.",
+  },
+  {
+    signal: "A house with something visibly aging",
+    why: "Original windows, a roof past twenty, chalking paint. You've seen the outside — we haven't.",
+  },
+  {
+    signal: "You have the address",
+    why: "We look at the property before we ring, so the first call carries a real number.",
+  },
+  {
+    signal: "Somewhere we actually work",
+    why: "Colorado, Missouri, Kansas, Indiana, Wyoming. Outside those we can't send anyone.",
+  },
+] as const;
+
+export type LeadQuality = {
+  /** 0–100, and only ever advisory. */
+  score: number;
+  band: "STRONG" | "WORKABLE" | "THIN";
+  /** What is missing, in the partner's words, so they can fix it now. */
+  gaps: string[];
+};
+
+/**
+ * Score a referral as it is typed, to nudge rather than to gate.
+ *
+ * Advisory on purpose: a partner who has a great customer with no address
+ * should still be able to send them. Refusing the submission would cost a real
+ * job to enforce a preference.
+ */
+export function scoreLead(input: {
+  address?: string | null;
+  zip?: string | null;
+  trades?: readonly string[];
+  relationship?: string | null;
+  notes?: string | null;
+}): LeadQuality {
+  let score = 40;
+  const gaps: string[] = [];
+
+  if (input.address && input.address.trim().length > 6) score += 25;
+  else gaps.push("Add the street address — it's worth more than anything else here.");
+
+  if (input.zip && /^\d{5}$/.test(input.zip.trim())) score += 10;
+  else gaps.push("A ZIP code lets us check we cover them before anyone calls.");
+
+  const trades = (input.trades ?? []).filter(Boolean);
+  if (trades.length >= 2) score += 15;
+  else if (trades.length === 1) score += 8;
+  else gaps.push("Tell us what they might need, even if it's a guess.");
+
+  if (input.relationship && input.relationship.trim().length > 2) score += 10;
+  else gaps.push("What did you do for them, and roughly when? It opens the call.");
+
+  if (input.notes && input.notes.trim().length > 12) score += 5;
+
+  score = Math.max(0, Math.min(100, score));
+  const band: LeadQuality["band"] = score >= 80 ? "STRONG" : score >= 55 ? "WORKABLE" : "THIN";
+  return { score, band, gaps };
+}
+
+// --- Milestones ---------------------------------------------------------------
+
+export type Milestone = {
+  value: string;
+  label: string;
+  /** What they had to do. */
+  hint: string;
+  /** Completed jobs required. Zero for the ones that fire on activity. */
+  jobs: number;
+};
+
+/**
+ * Progress markers for a partner who has sent a list and is now waiting.
+ *
+ * The waiting is the problem this solves. Weeks pass between handing over a
+ * spreadsheet and the first cheque, and a partner with nothing to look at in
+ * that gap concludes it went nowhere. These are deliberately weighted toward
+ * the early ones, where the doubt actually lives.
+ */
+export const MILESTONES: readonly Milestone[] = [
+  { value: "LIST", label: "List shared", hint: "You sent us your customers.", jobs: 0 },
+  { value: "FIRST_APPOINTMENT", label: "First appointment", hint: "We got someone to the table.", jobs: 0 },
+  { value: "FIRST_SALE", label: "First job sold", hint: "One of yours signed.", jobs: 1 },
+  { value: "FIRST_PAID", label: "First payout", hint: "Money in your account.", jobs: 1 },
+  { value: "FIVE", label: "Five jobs", hint: "This is a channel now, not a favour.", jobs: 5 },
+  { value: "TEN", label: "Ten jobs", hint: "Top tier. We should be talking about a bigger list.", jobs: 10 },
+] as const;
+
 export type ListUrlCheck =
   | { ok: true; url: string }
   | { ok: false; reason: string };
