@@ -126,6 +126,9 @@ export default async function PipelinePage() {
       )}
 
       <p className="mt-4 flex flex-wrap gap-4 text-sm">
+        <Link href="/admin/network/recruit" className="text-brand-cyan hover:text-ink">
+          Recruit partners
+        </Link>
         <Link href="/admin/network/partners" className="text-brand-cyan hover:text-ink">
           Partners
         </Link>

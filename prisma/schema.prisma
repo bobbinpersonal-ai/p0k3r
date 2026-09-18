@@ -764,6 +764,21 @@ model ChannelPartner {
   /// wrong burns the list once and for good.
   warmupTrack String @default("DESK_1TO1_INTRO")
 
+  // Prospecting state, for partners we are still trying to sign.
+  //
+  // On ChannelPartner rather than a separate Prospect table on purpose: when a
+  // cold call turns into a yes, nothing has to be migrated or copied. The row
+  // flips status from PROSPECT to APPLIED and it already has its portalToken,
+  // its trade and everything said on the call. A separate table would mean a
+  // conversion step, and conversion steps lose data.
+  callDisposition String    @default("NEW")
+  lastCalledAt    DateTime?
+  callCount       Int       @default(0)
+  // Set from the disposition's retry window — see dueAt() in partnerProspects.ts.
+  followUpAt      DateTime?
+
+  calls PartnerCall[]
+
   /// Null until they click through the agreement. Versioned because terms
   /// change, and "they agreed" only means something as "they agreed to THIS
   /// text" — see CHANNEL_PARTNER_TERMS_VERSION.
@@ -896,6 +911,27 @@ model ChannelPartnerSession {
 
   @@index([channelPartnerId])
   @@index([expiresAt])
+}
+
+/// Every prospecting call made to a business we want as a channel partner.
+///
+/// Separate from CallAttempt, which logs calls to homeowners and carries the
+/// curfew machinery those need. This is a B2B call to a business line: outside
+/// the National Do Not Call Registry and outside most of the TSR, so what
+/// matters here is who said what and when to ring back — not a compliance
+/// defence. See src/lib/regions/partnerProspects.ts.
+model PartnerCall {
+  id               String         @id @default(cuid())
+  channelPartnerId String
+  channelPartner   ChannelPartner @relation(fields: [channelPartnerId], references: [id], onDelete: Cascade)
+
+  outcome  String
+  notes    String?
+  calledBy String
+
+  createdAt DateTime @default(now())
+
+  @@index([channelPartnerId, createdAt])
 }
 
 model ChannelPartnerPayout {

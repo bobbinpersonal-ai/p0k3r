@@ -54,7 +54,12 @@ export async function requirePartnerByToken(token: string): Promise<PortalPartne
   });
   if (!partner) notFound();
 
-  if (partner.status === "INACTIVE") {
+  // PROSPECT is a business we cold-called that has agreed to nothing. Such a
+  // row exists on this table so a yes needs no migration, but it must not have
+  // a working portal: its phone number came off Google Maps, so the last-4
+  // check that guards claiming is not a secret for these rows the way it is
+  // for a business that gave us the number themselves.
+  if (partner.status === "INACTIVE" || partner.status === "PROSPECT") {
     // Same answer as a token that was never real. A closed partnership should
     // not be able to tell the difference.
     notFound();

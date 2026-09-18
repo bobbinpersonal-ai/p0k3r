@@ -32,10 +32,11 @@ const SHARE = `${Math.round(CHANNEL_PARTNER_PROFIT_SHARE * 100)}%`;
 /**
  * What the split lands at on a job we see a lot of.
  *
- * A 25-square roof at book price makes about $4,600 and pays $1,850; sold with
- * normal markup it pays $2,600 to $3,800. Quoting the bottom of that range on
- * the pitch page is deliberate — a partner told $2,000 who earns $3,000 tells
- * other people about us, and one told $3,000 who earns $2,000 does not.
+ * A 25-square roof at our book price makes $5,000 and pays exactly $2,000;
+ * sold with normal markup it pays $2,600 to $4,000. Quoting the bottom of that
+ * range on the pitch page is deliberate — a partner told $2,000 who earns
+ * $3,000 tells other people about us, and one told $3,000 who earns $2,000
+ * does not.
  */
 const TYPICAL = "$2,000";
 
@@ -237,22 +238,28 @@ export default function ChannelPartnersPage() {
                   Already a partner? Sign in
                 </Link>
               </div>
-              <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                Your old customers are worth about {TYPICAL} a job to you.
+              {/* Four short lines, in the order a contractor asks them:
+                  how much, for what, what do I have to do, when do I get it.
+                  Everything else on this page is evidence for these four. */}
+              <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-6xl">
+                Get paid {TYPICAL} a job
+                <br />
+                for a list you already have.
               </h1>
-              <p className="mt-4 text-lg text-neutral-200">
-                Share the list of people you&apos;ve already done work for. We call them, sell
-                the home improvement work you don&apos;t do, and pay you {SHARE} of the profit
-                on it — around {TYPICAL} on a typical roof. You do nothing: no selling, no
-                labour, no cost to join.
+              <p className="mt-5 text-xl leading-relaxed text-neutral-200">
+                Send us your old customers. We call them, sell the work you don&apos;t do, and
+                pay you {SHARE} of the profit.
+              </p>
+              <p className="mt-3 text-lg font-semibold text-ink">
+                You do nothing. It costs nothing.
               </p>
 
               <dl className="mt-8 grid gap-4 sm:grid-cols-2">
                 {[
-                  [`${SHARE} of the profit`, `On every job, no cap. Around ${TYPICAL} on a typical roof.`],
-                  ["Zero work", "We call, quote, contract and build. You share a spreadsheet."],
-                  ["You watch it happen", "See every customer's stage, live, on your own page."],
-                  ["Paid on completion", "Money lands when the job is finished, not when it's promised."],
+                  [`${TYPICAL} a job`, `${SHARE} of the profit, every job, no cap.`],
+                  ["Five minutes of work", "Send the list once. That's the whole job."],
+                  ["Nothing to lose", "No fee, no contract to buy, no exclusivity."],
+                  ["Paid when it's done", "Job finished, customer paid, money to you."],
                 ].map(([title, body]) => (
                   <div key={title} className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
                     <dt className="text-sm font-bold text-ink">{title}</dt>

@@ -71,9 +71,23 @@ export async function POST(req: NextRequest) {
   // signup lands when somebody double-taps the button.
   const taken = await prisma.channelPartner.findUnique({
     where: { email },
-    select: { id: true },
+    select: { id: true, status: true, passwordHash: true },
   });
-  if (taken) {
+
+  // A PROSPECT is a business we cold-called and put on the list ourselves. If
+  // they go and sign up on the public page — which is the whole point of
+  // texting them the link — the row is already there under their email, and
+  // refusing it would dead-end the exact person this program is trying to
+  // win: they cannot sign in either, because a prospect has no password.
+  //
+  // So they adopt the row instead. Everything said on the call is kept, the
+  // COLD_CALL source survives so the acquisition stat stays honest, and the
+  // status becomes APPLIED like any other signup. Strictly limited to a
+  // prospect that has never had a password: a real partner's account is never
+  // reachable this way.
+  const adoptable = taken && taken.status === "PROSPECT" && !taken.passwordHash ? taken : null;
+
+  if (taken && !adoptable) {
     return NextResponse.json(
       { error: "There's already an account on that email. Sign in instead, or reset it with us." },
       { status: 409 },
@@ -82,28 +96,39 @@ export async function POST(req: NextRequest) {
 
   const passwordHash = await hashPassword(password);
 
+  const profile = {
+    businessName,
+    contactName,
+    phone,
+    email,
+    passwordHash,
+    passwordSetAt: new Date(),
+    lastLoginAt: new Date(),
+    industry: clean(body.industry, 80) || null,
+    city: clean(body.city, 80) || null,
+    state: region.code,
+    approxListSize: parseCount(body.approxListSize, 100_000),
+    services: serializeServices(Array.isArray(body.services) ? body.services : []),
+    clientBase: clean(body.clientBase, 200) || null,
+    notes: clean(body.notes, 600) || null,
+    source: clean(body.source, 40) || "signup",
+    status: "APPLIED",
+  };
+
   let partner;
   try {
-    partner = await prisma.channelPartner.create({
-      data: {
-        businessName,
-        contactName,
-        phone,
-        email,
-        passwordHash,
-        passwordSetAt: new Date(),
-        lastLoginAt: new Date(),
-        industry: clean(body.industry, 80) || null,
-        city: clean(body.city, 80) || null,
-        state: region.code,
-        approxListSize: parseCount(body.approxListSize, 100_000),
-        services: serializeServices(Array.isArray(body.services) ? body.services : []),
-        clientBase: clean(body.clientBase, 200) || null,
-        notes: clean(body.notes, 600) || null,
-        source: clean(body.source, 40) || "signup",
-        status: "APPLIED",
-      },
-    });
+    partner = adoptable
+      ? await prisma.channelPartner.update({
+          where: { id: adoptable.id },
+          data: {
+            ...profile,
+            // What we recorded while prospecting outranks a blank field on the
+            // form, and the source is how "signed from cold calls" stays true.
+            source: "COLD_CALL",
+            notes: clean(body.notes, 600) || undefined,
+          },
+        })
+      : await prisma.channelPartner.create({ data: profile });
   } catch {
     // Almost certainly the unique index on email doing its job.
     return NextResponse.json(

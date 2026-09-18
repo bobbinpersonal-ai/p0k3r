@@ -34,6 +34,10 @@ export default async function ChannelPartnersAdminPage() {
   if (!isValidAdminSessionCookie(cookies().get(ADMIN_COOKIE_NAME)?.value)) redirect("/admin");
 
   const partners = await prisma.channelPartner.findMany({
+    // Prospects live on the same table so a cold call that says yes needs no
+    // migration — but they are not partners and must never pad this page. The
+    // queue of people we are still chasing is /admin/network/recruit.
+    where: { status: { not: "PROSPECT" } },
     orderBy: { createdAt: "desc" },
     take: 200,
     include: {
@@ -95,6 +99,9 @@ export default async function ChannelPartnersAdminPage() {
       )}
 
       <p className="mt-4 flex flex-wrap gap-4 text-sm">
+        <Link href="/admin/network/recruit" className="text-brand-cyan hover:text-ink">
+          Recruit more partners
+        </Link>
         <Link href="/admin/network/leads" className="text-brand-cyan hover:text-ink">
           Leads
         </Link>

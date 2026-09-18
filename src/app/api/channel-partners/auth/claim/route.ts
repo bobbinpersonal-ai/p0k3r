@@ -63,7 +63,10 @@ export async function POST(req: NextRequest) {
       { status: 409 },
     );
   }
-  if (partner.status === "INACTIVE") {
+  // A cold-call prospect has agreed to nothing and its phone number is public,
+  // so the last-4 check below is not a secret for these rows. Refused outright
+  // until somebody promotes it — see src/lib/partnerAccess.ts.
+  if (partner.status === "INACTIVE" || partner.status === "PROSPECT") {
     return NextResponse.json({ error: "That link isn't valid." }, { status: 404 });
   }
 
