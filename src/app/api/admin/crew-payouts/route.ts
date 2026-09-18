@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminRequest } from "@/lib/auth";
 import { getRail } from "@/lib/regions/payments";
+import { collectedFor } from "@/lib/regions/collections";
 
 // Paying a crew for a finished job.
 //
@@ -35,8 +36,8 @@ export async function POST(req: NextRequest) {
       costTotal: true,
       soldPrice: true,
       commission: true,
-      depositAmount: true,
-      depositPaidAt: true,
+      requiresAdminOverride: true,
+      overrideAt: true,
       lead: {
         select: {
           id: true,
@@ -64,15 +65,37 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // The rule the agreement states, enforced.
-  if (!estimate.depositPaidAt || !estimate.depositAmount) {
+  // The rule the agreement states, enforced — and enforced on the whole
+  // contract rather than on any payment at all. A contractor who took the
+  // deposit properly and then collected the balance in cash looks identical
+  // to a paid job until you ask for the total.
+  const money = await collectedFor(estimate.id, estimate.soldPrice);
+  if (!money.paidInFull) {
     return NextResponse.json(
       {
         error:
-          `No customer payment is recorded against ${estimate.lead.customerName}'s job. ` +
-          `Every dollar goes through our system — find out what was collected and how ` +
-          `before this crew is paid.`,
-        reason: "NO_CUSTOMER_PAYMENT",
+          `${estimate.lead.customerName}'s job has collected ` +
+          `$${money.collected.toLocaleString("en-US")} of ` +
+          `$${money.contractValue.toLocaleString("en-US")} — ` +
+          `$${money.outstanding.toLocaleString("en-US")} outstanding. Crews are paid once the ` +
+          `customer has paid us in full. Every dollar goes through our system.`,
+        reason: "NOT_PAID_IN_FULL",
+        collected: money.collected,
+        outstanding: money.outstanding,
+      },
+      { status: 409 },
+    );
+  }
+
+  // A job flagged under the margin floor is not paid out by a form. Somebody
+  // signs it off first, and the override is recorded on the estimate.
+  if (estimate.requiresAdminOverride && !estimate.overrideAt) {
+    return NextResponse.json(
+      {
+        error:
+          `This job is under the margin floor and hasn't been signed off. ` +
+          `Approve the override before paying anyone on it.`,
+        reason: "NEEDS_MARGIN_OVERRIDE",
       },
       { status: 409 },
     );

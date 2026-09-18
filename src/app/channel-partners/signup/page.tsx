@@ -3,9 +3,9 @@ import { redirect } from "next/navigation";
 import NetworkHeader from "@/components/network/NetworkHeader";
 import NetworkFooter from "@/components/network/NetworkFooter";
 import {
-  CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS,
-  CHANNEL_PARTNER_FEE_CENTS,
+  CHANNEL_PARTNER_MAX_PAYOUT,
   formatFee,
+  formatMoney,
 } from "@/lib/regions/channelPartners";
 import { partnerFromCookies } from "@/lib/partnerAccess";
 import SignupForm from "./SignupForm";
@@ -30,8 +30,7 @@ export default async function PartnerSignupPage() {
         </h1>
         <p className="mt-3 text-neutral-300">
           Half the profit on every job we sell to a customer you introduce us to, plus a{" "}
-          {formatFee(CHANNEL_PARTNER_FEE_CENTS)} bonus on anything over{" "}
-          {formatFee(CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS)}. Paid when the work is finished.
+          up to {formatMoney(CHANNEL_PARTNER_MAX_PAYOUT)} a job. Paid when the work is finished.
           You don&apos;t touch any of it.
         </p>
 

@@ -6,11 +6,11 @@ import ChannelPartnerForm from "./ChannelPartnerForm";
 import EarningsEstimator from "./EarningsEstimator";
 import { COMPANY, PHONE_DIGITS } from "@/lib/regions/brand";
 import {
-  CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS,
-  CHANNEL_PARTNER_FEE_CENTS,
+  CHANNEL_PARTNER_MAX_PAYOUT,
   CHANNEL_PARTNER_PROFIT_SHARE,
   JOURNEY_STEPS,
   formatFee,
+  formatMoney,
 } from "@/lib/regions/channelPartners";
 import { REGIONS } from "@/lib/regions/states";
 import { TRADES } from "@/lib/regions/trades";
@@ -28,8 +28,7 @@ import { TRADES } from "@/lib/regions/trades";
 // Different audience from /partners, which recruits crews who do labour. A
 // channel partner does no work at all. See src/lib/regions/channelPartners.ts.
 
-const FEE = formatFee(CHANNEL_PARTNER_FEE_CENTS);
-const BIG_JOB = formatFee(CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS);
+const CAP = formatMoney(CHANNEL_PARTNER_MAX_PAYOUT);
 const SPLIT = `${Math.round(CHANNEL_PARTNER_PROFIT_SHARE * 100)}/${Math.round(
   (1 - CHANNEL_PARTNER_PROFIT_SHARE) * 100,
 )}`;
@@ -38,8 +37,8 @@ export const metadata: Metadata = {
   title: `Partner With Us — Half the Profit on Every Job | ${COMPANY.name}`,
   description:
     `Your past customers are worth money you're not collecting. Share your list, we do the ` +
-    `calling and the work, and you take a ${SPLIT} split of the profit on every job — plus a ` +
-    `${FEE} bonus on jobs over ${BIG_JOB}. No selling, no labour, no cost to join.`,
+    `calling and the work, and you take a ${SPLIT} split of the profit on every job, up to ` +
+    `${CAP} a job. No selling, no labour, no cost to join.`,
   robots: { index: true, follow: true },
 };
 
@@ -70,7 +69,7 @@ const HOW_IT_WORKS = [
     title: "You take half the profit",
     body:
       `A ${SPLIT} split of the profit on every job our people sell above our price threshold, ` +
-      `plus a ${FEE} bonus on anything over ${BIG_JOB}. Paid once the work is finished.`,
+      `up to ${CAP} a job. Paid once the work is finished.`,
   },
 ];
 
@@ -140,11 +139,11 @@ const FAQ = [
     q: "How does the split actually work?",
     a:
       `Every job in our price book has a threshold — the lowest number we'll do that work for. ` +
-      `Whatever our salesperson sells it for above that threshold is profit, and once the job ` +
-      `costs and their commission come out, you take half of what's left. On top of that, any ` +
-      `job over ${BIG_JOB} carries a flat ${FEE} bonus. Big jobs are where this gets good for ` +
-      `both of us, which is why the bonus sits there rather than being spread thin across ` +
-      `everything.`,
+      `Whatever the person selling it gets above that threshold is profit, and once the job ` +
+      `costs and their commission come out, you take half of what's left — up to ${CAP} on any ` +
+      `one job. The cap is there because past a point an introduction is worth what it's worth, ` +
+      `and the margin above it is what carries the warranty and the insurance on the work. ` +
+      `Most jobs land well under it.`,
   },
   {
     q: "Do I have to do any work at all?",
@@ -235,13 +234,13 @@ export default function ChannelPartnersPage() {
               <p className="mt-4 text-lg text-neutral-200">
                 Share the list of people you&apos;ve already done work for. We call them, sell
                 the home improvement work you don&apos;t do, and split the profit {SPLIT} with
-                you — plus a {FEE} bonus on every job over {BIG_JOB}. You do nothing: no
-                selling, no labour, no cost to join.
+                you, up to {CAP} a job. You do nothing: no selling, no labour, no cost to
+                join.
               </p>
 
               <dl className="mt-8 grid gap-4 sm:grid-cols-2">
                 {[
-                  [`${SPLIT} on every job`, `Half the profit, every time — plus a ${FEE} bonus over ${BIG_JOB}.`],
+                  [`${SPLIT} on every job`, `Half the profit, every time, up to ${CAP} a job.`],
                   ["Zero work", "We call, quote, contract and build. You share a spreadsheet."],
                   ["You watch it happen", "See every customer's stage, live, on your own page."],
                   ["Paid on completion", "Money lands when the job is finished, not when it's promised."],
@@ -278,11 +277,7 @@ export default function ChannelPartnersPage() {
               Drag it to the size of your customer list.
             </p>
             <div className="mt-8">
-              <EarningsEstimator
-                feeCents={CHANNEL_PARTNER_FEE_CENTS}
-                splitLabel={SPLIT}
-                bigJobLabel={BIG_JOB}
-              />
+              <EarningsEstimator splitLabel={SPLIT} maxPerJob={CHANNEL_PARTNER_MAX_PAYOUT} />
             </div>
           </div>
         </section>

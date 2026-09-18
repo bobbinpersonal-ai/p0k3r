@@ -7,6 +7,7 @@ import {
   JOURNEY_STEPS,
   channelPartnerPayout,
   journeyStage,
+  marginCheck,
 } from "@/lib/regions/channelPartners";
 import PipelineControls, { type PipelineRow } from "./PipelineControls";
 
@@ -63,11 +64,14 @@ export default async function PipelinePage() {
         sold: soldPrice,
         grossProfit: soldPrice - costTotal - commission,
       });
+      const check = marginCheck(soldPrice, result.companyNet);
       quote = {
         sold: soldPrice,
         payout: result.total,
-        bonusApplied: result.bonusApplied,
-        withheld: result.bonusWithheldReason,
+        capped: result.capped,
+        cappedBy: result.cappedBy,
+        margin: check.margin,
+        marginOk: check.ok,
       };
     }
     return {

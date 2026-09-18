@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { PARTNER_COOKIE_NAME, partnerFromSessionToken } from "@/lib/partnerAuth";
+import { CHANNEL_PARTNER_TERMS_VERSION } from "@/lib/regions/channelPartnerAgreement";
 
 // Who is allowed to see a channel partner's pages.
 //
@@ -87,5 +88,27 @@ export async function requirePartnerByToken(token: string): Promise<PortalPartne
 export async function requirePartnerSession(): Promise<PortalPartner> {
   const partner = await partnerFromCookies();
   if (!partner) redirect("/channel-partners/login");
+  return partner;
+}
+
+/**
+ * The signed-in partner, who has also agreed to the current terms.
+ *
+ * Kept separate from requirePartnerSession so the terms page itself can use
+ * the plain one — a gate that redirected the gate would loop forever.
+ *
+ * The check is on the version, not just on a timestamp: a partner who agreed
+ * to last year's split has not agreed to this year's cap, and treating those
+ * as the same thing is how somebody ends up bound to terms nobody showed them.
+ */
+export async function requirePartnerWithTerms(): Promise<PortalPartner> {
+  const partner = await requirePartnerSession();
+  const row = await prisma.channelPartner.findUnique({
+    where: { id: partner.id },
+    select: { termsAcceptedAt: true, termsVersion: true },
+  });
+  if (!row?.termsAcceptedAt || row.termsVersion !== CHANNEL_PARTNER_TERMS_VERSION) {
+    redirect("/channel-partners/portal/terms");
+  }
   return partner;
 }

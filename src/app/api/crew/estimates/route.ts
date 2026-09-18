@@ -5,6 +5,8 @@ import { CONTRACTOR_TERMS, dealAt } from "@/lib/regions/commission";
 import { depositFor } from "@/lib/regions/payments";
 import { getRail } from "@/lib/regions/payments";
 import { priceJob, type MeasuredLine } from "@/lib/regions/trades";
+import { channelPartnerPayout, marginCheck } from "@/lib/regions/channelPartners";
+import { scoutOverride } from "@/lib/regions/scouts";
 
 // A contractor selling a job at the kitchen table.
 //
@@ -133,6 +135,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "The deposit is more than the job." }, { status: 400 });
   }
 
+  // The margin floor, checked at the table rather than discovered at payout.
+  //
+  // Every downstream share is modelled here so the number tested is the one
+  // the company actually keeps: the partner's half (capped), then the scout's
+  // override on what remains. A job can be sold above the floor and still land
+  // under 15% once everyone downstream is paid, and that is exactly the case
+  // worth catching before a crew has bought material for it.
+  const grossProfit = deal.sold - priced.cost - deal.commission;
+  const partnerCut = channelPartnerPayout({
+    base: priced.base,
+    sold: deal.sold,
+    grossProfit,
+  });
+  const afterScout = scoutOverride(partnerCut.companyNet);
+  const margin = marginCheck(deal.sold, afterScout.companyNet);
+
   const estimate = await prisma.estimate.create({
     data: {
       leadId: lead.id,
@@ -148,6 +166,8 @@ export async function POST(req: NextRequest) {
       scopeNotes: clean(body.scopeNotes, 2000) || null,
       signedAt: new Date(),
       signerName,
+      requiresAdminOverride: !margin.ok,
+      marginAtSale: margin.margin,
       lines: {
         create: priced.lines.map((l) => ({
           trade: l.trade.value,
@@ -166,6 +186,20 @@ export async function POST(req: NextRequest) {
     select: { id: true, token: true },
   });
 
+  // The deposit is a Payment row, not only the mirror on the estimate. This is
+  // the ledger the crew payout gate counts.
+  if (depositAmount > 0 && rail) {
+    await prisma.payment.create({
+      data: {
+        estimateId: estimate.id,
+        amount: depositAmount,
+        kind: "DEPOSIT",
+        rail: rail.value,
+        recordedBy: crew.name,
+      },
+    });
+  }
+
   // Sold, so the pipeline shows it as sold. The office does not have to be
   // told a job closed by somebody remembering to send a text.
   await prisma.lead.update({ where: { id: lead.id }, data: { status: "SOLD" } });
@@ -180,6 +214,8 @@ export async function POST(req: NextRequest) {
       yourCommission: deal.commission,
       depositDue,
       depositTaken: depositAmount,
+      outstanding: deal.sold - depositAmount,
+      marginFlagged: !margin.ok,
     },
     { status: 201 },
   );

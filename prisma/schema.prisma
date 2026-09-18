@@ -291,6 +291,16 @@ model Rep {
   /// that it exists, not to store a social security number.
   w9OnFile Boolean @default(false)
 
+  /// Null until they click through the agreement. Versioned because terms
+  /// change, and "they agreed" only means something as "they agreed to THIS
+  /// text" — see CHANNEL_PARTNER_TERMS_VERSION.
+  termsAcceptedAt DateTime?
+  termsVersion    String?
+  /// Where they accepted from, so an acceptance is reconstructable later.
+  termsAcceptedIp String?
+  /// Where the signed W-9 lives. w9OnFile stays the gate; this is the file.
+  w9DocumentUrl   String?
+
   /// Per-rep commission terms, overriding the company default when set.
   /// Null means "whatever src/lib/texas/commission.ts says today", so a
   /// company-wide change doesn't have to be written to every row.
@@ -356,6 +366,18 @@ model Lead {
   workerId String?
   worker   Worker? @relation(fields: [workerId], references: [id])
 
+  /// The last call outcome: NEW, CALLED, VOICEMAIL, PITCHED or DEAD.
+  ///
+  /// A different axis to `status`. status is where the JOB has got to; this is
+  /// what happened on the last dial, and a lead can be ASSIGNED and VOICEMAIL
+  /// at the same time. CallAttempt keeps the full history — including the
+  /// local time, which is the curfew defence — and these three are the
+  /// denormalised latest, so the desk queue is one indexed read instead of a
+  /// correlated subquery per row.
+  callDisposition String    @default("NEW")
+  lastCalledAt    DateTime?
+  callCount       Int       @default(0)
+
   assignedAt    DateTime?
   appointmentAt DateTime?
 
@@ -405,6 +427,7 @@ model Lead {
   @@index([repId])
   @@index([workerId])
   @@index([channelPartnerId])
+  @@index([callDisposition, lastCalledAt])
 }
 
 /// What the rep built at the kitchen table, and what the customer signed.
@@ -440,9 +463,26 @@ model Estimate {
   commission Int
 
   /// Taken at the table, the same way the California side does it.
+  ///
+  /// These stay because the partner portal and the crew estimator read them,
+  /// but they are now a mirror of the first Payment row rather than the record.
+  /// Payment is what the crew payout gate counts — a denormalised total and
+  /// the payments behind it drift, and the one that drifts is the one holding
+  /// somebody's money back.
   depositAmount Int?
   depositMethod String?
   depositPaidAt DateTime?
+
+  /// Set when company net divided by soldPrice falls under MARGIN_FLOOR.
+  /// Blocks automated payout processing until a human decides otherwise.
+  requiresAdminOverride Boolean   @default(false)
+  /// The margin as computed on the day, stored rather than recalculated: the
+  /// price book is editable, and a flag raised today has to still explain
+  /// itself next year.
+  marginAtSale          Float?
+  overrideBy            String?
+  overrideAt            DateTime?
+  overrideReason        String?
 
   /// Free text the rep types. Screened for deductible language before it is
   /// allowed to reach a contract — see src/lib/texas/compliance.ts.
@@ -455,7 +495,8 @@ model Estimate {
   /// that is owed can be seen rather than remembered.
   refundDueBy DateTime?
 
-  lines EstimateLine[]
+  lines    EstimateLine[]
+  payments Payment[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -464,6 +505,38 @@ model Estimate {
 }
 
 /// One measured line of an estimate, frozen at the rates that priced it.
+/// Money actually collected against a signed contract.
+///
+/// The contract value is Estimate.soldPrice; this is the other half of the
+/// question the crew payout gate asks. Rows rather than a running total,
+/// because a counter that can disagree with the payments behind it is the
+/// wrong thing to hold somebody's pay against.
+///
+/// There is deliberately no CASH rail. The subcontractor agreement forbids a
+/// contractor taking money directly, and the schema should not offer a column
+/// for a thing the agreement says cannot happen.
+model Payment {
+  id         String   @id @default(cuid())
+  estimateId String
+  estimate   Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+
+  /// Dollars, like every other money column here.
+  amount     Int
+  /// DEPOSIT, PROGRESS or FINAL — which slice of the schedule this is.
+  kind       String  @default("DEPOSIT")
+  /// One of RAILS in src/lib/regions/payments.ts.
+  rail       String
+  /// The processor's own reference, so a disputed payment is findable.
+  reference  String?
+  /// Who keyed it in. Not a relation — the record outlives the employee.
+  recordedBy String
+
+  receivedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
+  @@index([estimateId])
+}
+
 model EstimateLine {
   id         String   @id @default(cuid())
   estimateId String
@@ -665,6 +738,16 @@ model ChannelPartner {
   /// The IRS wants a 1099-NEC for anyone paid $600 or more in a calendar
   /// year, same reasoning as Worker.w9OnFile.
   w9OnFile Boolean @default(false)
+
+  /// Null until they click through the agreement. Versioned because terms
+  /// change, and "they agreed" only means something as "they agreed to THIS
+  /// text" — see CHANNEL_PARTNER_TERMS_VERSION.
+  termsAcceptedAt DateTime?
+  termsVersion    String?
+  /// Where they accepted from, so an acceptance is reconstructable later.
+  termsAcceptedIp String?
+  /// Where the signed W-9 lives. w9OnFile stays the gate; this is the file.
+  w9DocumentUrl   String?
 
   /// The link we text on a cold call, and the invitation to set a password.
   ///

@@ -4,7 +4,6 @@ import NetworkFooter from "@/components/network/NetworkFooter";
 import { COMPANY, PHONE_DIGITS } from "@/lib/regions/brand";
 import {
   DEFAULT_RAMP,
-  SCOUT_ACTIVATION_BOUNTY_CENTS,
   SCOUT_OVERRIDE_RATE,
   SCOUT_RESIDUAL_MONTHS,
   SCOUT_SCOREBOARD,
@@ -42,7 +41,6 @@ export default function ScoutsPage() {
   const ramp = scoutRamp(24);
   const peak = ramp[ramp.length - 1];
   const costShare = Math.round(scoutCostShare() * 100);
-  const bounty = SCOUT_ACTIVATION_BOUNTY_CENTS / 100;
   const maxTotal = peak.total;
 
   return (
@@ -105,9 +103,9 @@ export default function ScoutsPage() {
                   d: "Of company profit on every job your partners produce.",
                 },
                 {
-                  k: money(bounty),
-                  l: "Activation bonus",
-                  d: "When a business you signed has its first job finish.",
+                  k: "$0",
+                  l: "Paid up front",
+                  d: "Nothing moves until a job you created has finished and been paid for.",
                 },
                 {
                   k: `${SCOUT_RESIDUAL_MONTHS} mo`,
@@ -236,7 +234,7 @@ export default function ScoutsPage() {
                 <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr className="border-b border-white/15 text-left">
-                      {["Month", "Partners signed", "Producing", "Jobs / mo", "Bonuses", "Override", "You earn"].map(
+                      {["Month", "Partners signed", "Producing", "Jobs / mo", "Override", "You earn"].map(
                         (h) => (
                           <th
                             key={h}
@@ -266,9 +264,6 @@ export default function ScoutsPage() {
                             {r.jobs}
                           </td>
                           <td className="whitespace-nowrap py-2.5 pr-4 font-mono tabular-nums text-neutral-300">
-                            {money(r.bounties)}
-                          </td>
-                          <td className="whitespace-nowrap py-2.5 pr-4 font-mono tabular-nums text-neutral-300">
                             {money(r.override)}
                           </td>
                           <td className="rc-accent whitespace-nowrap py-2.5 text-right font-mono font-bold tabular-nums">
@@ -288,7 +283,6 @@ export default function ScoutsPage() {
                   `${DEFAULT_RAMP.jobsPerPartnerMonth} jobs per producing partner, per month`,
                   `${money(DEFAULT_RAMP.companyNetPerJob)} average company profit per job`,
                   `${Math.round(SCOUT_OVERRIDE_RATE * 100)}% override on that profit`,
-                  `${money(bounty)} once a partner's first job finishes`,
                 ].map((a) => (
                   <p
                     key={a}

@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
       amount: payout.total * 100,
       method,
       handle,
-      memo: `${lead.customerName}${payout.bonusApplied ? " — split + bonus" : " — profit split"}`,
+      memo: `${lead.customerName} — profit split${payout.capped ? " (capped)" : ""}`,
       taxYear: new Date().getFullYear(),
     },
   });
@@ -99,10 +99,11 @@ export async function POST(req: NextRequest) {
       ok: true,
       id: created.id,
       total: payout.total,
-      bonus: payout.bonus,
+
       profitShare: payout.profitShare,
       companyNet: payout.companyNet,
-      bonusWithheldReason: payout.bonusWithheldReason,
+      capped: payout.capped,
+      cappedBy: payout.cappedBy,
     },
     { status: 201 },
   );

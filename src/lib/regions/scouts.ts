@@ -16,17 +16,15 @@
 // partner's. A partner's deal cannot change because we hired someone — that
 // would be renegotiating a signed arrangement to pay for our own org chart.
 
-/** Share of company net on every job from a partner this scout signed. */
-export const SCOUT_OVERRIDE_RATE = 0.2;
-
 /**
- * Paid once, when a signed partner's FIRST job completes.
+ * Share of company net on every job from a partner this scout signed.
  *
- * Deliberately on activation rather than signature. A bounty for a signature
- * buys signatures; the roster fills with businesses who said yes to get off
- * the phone, and every one of them costs money and produces nothing.
+ * The only thing a scout is paid. There was an activation bonus alongside it
+ * and it is gone: one rule is easier to explain, easier to trust, and there is
+ * no longer any moment in the arrangement where money moves before a job has
+ * finished and been paid for.
  */
-export const SCOUT_ACTIVATION_BOUNTY_CENTS = 25_000;
+export const SCOUT_OVERRIDE_RATE = 0.2;
 
 /** How long the override runs on each partner, from their first finished job. */
 export const SCOUT_RESIDUAL_MONTHS = 24;
@@ -92,29 +90,23 @@ export type RampMonth = {
   producing: number;
   /** Finished jobs this month across their partners. */
   jobs: number;
-  bounties: number;
   override: number;
   total: number;
 };
 
 export function scoutRamp(months: number, a: RampAssumptions = DEFAULT_RAMP): RampMonth[] {
-  const bounty = SCOUT_ACTIVATION_BOUNTY_CENTS / 100;
   const out: RampMonth[] = [];
   for (let m = 1; m <= months; m++) {
     const producing = Math.max(0, m - a.lagMonths) * a.signsPerMonth * a.activationRate;
     const jobs = producing * a.jobsPerPartnerMonth;
     const override = Math.round(jobs * a.companyNetPerJob * SCOUT_OVERRIDE_RATE);
-    // Bounties start landing once the first cohort activates, and hold steady
-    // while the scout keeps signing at the same rate.
-    const bounties = m > a.lagMonths ? Math.round(a.signsPerMonth * a.activationRate * bounty) : 0;
     out.push({
       month: m,
       signed: m * a.signsPerMonth,
       producing: Math.round(producing * 10) / 10,
       jobs: Math.round(jobs * 10) / 10,
-      bounties,
       override,
-      total: bounties + override,
+      total: override,
     });
   }
   return out;

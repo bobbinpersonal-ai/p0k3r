@@ -4,12 +4,12 @@ import NetworkHeader from "@/components/network/NetworkHeader";
 import NetworkFooter from "@/components/network/NetworkFooter";
 import { prisma } from "@/lib/prisma";
 import {
-  CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS,
-  CHANNEL_PARTNER_FEE_CENTS,
+  CHANNEL_PARTNER_MAX_PAYOUT,
   JOURNEY_STEPS,
   MILESTONES,
   channelPartnerPayout,
   formatFee,
+  formatMoney,
   journeyStage,
   parseServices,
 } from "@/lib/regions/channelPartners";
@@ -149,8 +149,7 @@ export default async function PortalView({
               <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm leading-relaxed text-neutral-300">
                 A job is yours the day the customer signs, and pays out once the work is
                 finished. The amount is worked out then — half the profit on the job, plus a{" "}
-                {formatFee(CHANNEL_PARTNER_FEE_CENTS)} bonus if it came in over{" "}
-                {formatFee(CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS)}.
+                up to {formatMoney(CHANNEL_PARTNER_MAX_PAYOUT)} a job.
               </p>
             )}
 

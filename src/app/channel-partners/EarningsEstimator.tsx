@@ -12,10 +12,10 @@ import { useState } from "react";
 // is a partner who tells other people we lied, and this program only works if
 // they talk to each other well.
 //
-// The share and the bonus are shown as separate rows rather than one total,
-// because they behave differently. The share lands on every job; the bonus
-// only on jobs big enough to carry it, and how many of those a given list
-// throws off is the thing nobody can know on the day they read this page.
+// The cap is shown rather than hidden. A partner who works out for themselves
+// that a huge job pays the same as a merely large one — after we advertised
+// "half the profit" — is a partner who stops trusting every other number we
+// showed them. It is on the page, next to the figure it limits.
 
 type Rates = { reach: number; interested: number; close: number };
 
@@ -32,40 +32,28 @@ const HIGH: Rates = { reach: 0.5, interested: 0.22, close: 0.35 };
 const SHARE_PER_JOB_LOW = 800;
 const SHARE_PER_JOB_HIGH = 3000;
 
-/**
- * Share of jobs big enough to carry the bonus.
- *
- * Most jobs off a warm list are repairs and single trades, not full roofs, so
- * the low end assumes almost none of them qualify. Overstating this is the
- * easiest way to make the estimate a lie.
- */
-const BONUS_RATE_LOW = 0.15;
-const BONUS_RATE_HIGH = 0.4;
-
 function jobsFrom(listSize: number, rates: Rates): number {
   return Math.floor(listSize * rates.reach * rates.interested * rates.close);
 }
 
 export default function EarningsEstimator({
-  feeCents,
   splitLabel,
-  bigJobLabel,
+  maxPerJob,
 }: {
-  feeCents: number;
   splitLabel: string;
-  bigJobLabel: string;
+  /** The per-job cap, in dollars. Applied to the high end, not just printed. */
+  maxPerJob: number;
 }) {
   const [listSize, setListSize] = useState(400);
-  const fee = Math.round(feeCents / 100);
 
   const lowJobs = jobsFrom(listSize, LOW);
   const highJobs = jobsFrom(listSize, HIGH);
+  // The cap is applied to the maths, not just mentioned underneath it.
+  const perJobHigh = Math.min(SHARE_PER_JOB_HIGH, maxPerJob);
   const money = (n: number) => `$${n.toLocaleString("en-US")}`;
 
   const shareLow = lowJobs * SHARE_PER_JOB_LOW;
-  const shareHigh = highJobs * SHARE_PER_JOB_HIGH;
-  const bonusLow = Math.floor(lowJobs * BONUS_RATE_LOW) * fee;
-  const bonusHigh = Math.floor(highJobs * BONUS_RATE_HIGH) * fee;
+  const shareHigh = highJobs * perJobHigh;
 
   return (
     <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-8">
@@ -96,7 +84,7 @@ export default function EarningsEstimator({
           What that could pay you
         </p>
         <p className="mt-2 text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
-          {money(shareLow + bonusLow)} – {money(shareHigh + bonusHigh)}
+          {money(shareLow)} – {money(shareHigh)}
         </p>
         <p className="mt-2 text-sm text-neutral-300">
           from {lowJobs}–{highJobs} jobs
@@ -119,13 +107,11 @@ export default function EarningsEstimator({
         </div>
         <div className="rounded-xl border border-white/10 bg-paper/40 p-4">
           <dt className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
-            Big-job bonuses
+            Most any one job pays
           </dt>
-          <dd className="mt-1 text-lg font-bold text-ink">
-            {money(bonusLow)} – {money(bonusHigh)}
-          </dd>
+          <dd className="mt-1 text-lg font-bold text-ink">{money(maxPerJob)}</dd>
           <dd className="text-xs leading-relaxed text-neutral-400">
-            {money(fee)} each, on jobs over {bigJobLabel}
+            the cap, whatever the job sells for
           </dd>
         </div>
       </dl>

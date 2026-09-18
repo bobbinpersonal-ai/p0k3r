@@ -1,4 +1,4 @@
-import { requirePartnerSession } from "@/lib/partnerAccess";
+import { requirePartnerWithTerms } from "@/lib/partnerAccess";
 import PortalView from "../PortalView";
 import PartnerSessionBar from "../PartnerSessionBar";
 
@@ -11,7 +11,7 @@ import PartnerSessionBar from "../PartnerSessionBar";
 export const metadata = { title: "Your partner portal", robots: { index: false, follow: false } };
 
 export default async function PartnerPortalPage() {
-  const partner = await requirePartnerSession();
+  const partner = await requirePartnerWithTerms();
   return (
     <PortalView
       partnerId={partner.id}

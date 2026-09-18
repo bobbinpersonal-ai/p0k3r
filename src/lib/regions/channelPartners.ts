@@ -31,76 +31,70 @@
 // nobody reads.
 
 /**
- * The bonus, in cents, on a job big enough to carry it.
- *
- * Conditional rather than universal, and that condition is the whole reason
- * this file is shaped the way it is. A flat fee is a fixed cost; a profit
- * split is a variable one. Stack a fixed cost on top of a variable one with no
- * floor under it and small jobs go underwater — at a 50% split the company
- * keeps half the gross profit less the fee, which is negative on anything under
- * twice the fee. So the bonus only attaches to jobs that can pay for it.
- */
-export const CHANNEL_PARTNER_FEE_CENTS = 200_000;
-
-/**
- * The partner's share of gross profit on a job sold above the threshold.
+ * The partner's share of gross profit.
  *
  * "Gross profit" is the one from src/lib/regions/commission.ts — sold price
- * less job cost less what the rep earned — so this can never collide with rep
- * comp the way a share of the raw overage would. The rep is paid first and the
- * partner splits what is actually left.
+ * less job cost less what the seller earned — so this can never collide with
+ * seller comp the way a share of the raw overage would. The seller is paid
+ * first and the partner splits what is actually left.
  */
 export const CHANNEL_PARTNER_PROFIT_SHARE = 0.5;
 
 /**
- * Contract value at which the bonus starts applying.
+ * The most a partner earns on any one job.
  *
- * Stated as a contract value rather than as gross profit because it is a
- * number a partner can check against their own job. Gross profit is ours and
- * they cannot see it; "over $20,000" is a promise they can hold us to.
+ * Added when the uncapped split was doing something the pitch never intended:
+ * on a large job half the gross profit ran past what an introduction is
+ * actually worth, and it came straight out of the margin that has to carry the
+ * warranty, the insurance and everyone else on the job.
+ *
+ * It is a real change to the deal and the pitch page says so now — "half the
+ * profit, up to $3,500 a job" rather than "half the profit". A cap we apply
+ * quietly while advertising an uncapped split would be the kind of thing that
+ * ends a partnership on the first big cheque.
  */
-export const CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS = 2_000_000;
+export const CHANNEL_PARTNER_MAX_PAYOUT = 3_500;
 
 /**
- * What the company must still clear after paying the bonus.
+ * The share of a contract the company has to keep after everyone is paid.
  *
- * The contract-value rule above is the one we say out loud, but contract value
- * is a proxy: a big job sold at the floor with thin margin can clear $20,000
- * and still not carry a $2,000 bonus. This is the backstop that actually holds
- * the line, and it is checked on real profit rather than on the proxy.
+ * Below this a job is not worth doing at the price it was sold at, and it
+ * stops being processed automatically — see marginCheck(). It does not block
+ * the sale; it blocks paying it out without somebody looking.
  */
-export const CHANNEL_PARTNER_MIN_COMPANY_NET = 100_000;
+export const MARGIN_FLOOR = 0.15;
 
 export function formatFee(cents: number): string {
   return `$${Math.round(cents / 100).toLocaleString("en-US")}`;
 }
 
+/** Same, for figures already in dollars. */
+export function formatMoney(dollars: number): string {
+  return `$${Math.round(dollars).toLocaleString("en-US")}`;
+}
+
 export type ChannelPartnerPayout = {
-  /** The bonus, where the job qualified for it. Zero where it did not. */
-  bonus: number;
-  /** Half the gross profit, on jobs sold above the threshold. Zero at base. */
+  /** Half the gross profit, before the cap. */
   profitShare: number;
   /** What the partner is owed once the job is complete. */
   total: number;
   /** What is left for the company after paying them. Never negative. */
   companyNet: number;
-  /** True when the job was big enough to carry the bonus. */
-  bonusApplied: boolean;
-  /** Why the bonus did not apply, for the admin screen. Null when it did. */
-  bonusWithheldReason: string | null;
+  /** True when the cap bit — the split would have paid more. */
+  capped: boolean;
+  /** What the cap held back, for the admin screen. Zero when it did not bite. */
+  cappedBy: number;
 };
 
 /**
  * What a channel partner earns on one completed job.
  *
  * Takes the deal rather than the raw numbers so the profit being split is
- * exactly the profit the estimator showed the rep — one definition of profit,
- * computed once, in commission.ts.
+ * exactly the profit the estimator showed the seller — one definition of
+ * profit, computed once, in commission.ts.
  *
- * The order matters: the split is worked out first, because it is always
- * affordable (half of what is there can never exceed what is there), and the
- * bonus is added only if what remains still clears the floor. That ordering is
- * what makes every job profitable by construction rather than by luck.
+ * Half of what exists can never exceed what exists, so this is affordable by
+ * construction; the cap only ever makes the company's side larger.
  */
 export function channelPartnerPayout(deal: {
   base: number;
@@ -108,41 +102,51 @@ export function channelPartnerPayout(deal: {
   grossProfit: number;
 }): ChannelPartnerPayout {
   const grossProfit = Math.max(Math.round(deal.grossProfit), 0);
-  const bonus = Math.round(CHANNEL_PARTNER_FEE_CENTS / 100);
-  const minContract = Math.round(CHANNEL_PARTNER_BONUS_MIN_CONTRACT_CENTS / 100);
-  const minNet = Math.round(CHANNEL_PARTNER_MIN_COMPANY_NET / 100);
 
   // Above the threshold, not merely at it: a job sold at base has no overage,
   // and the split is the reward for selling past the floor.
-  const profitShare =
+  const uncapped =
     deal.sold > deal.base ? Math.round(grossProfit * CHANNEL_PARTNER_PROFIT_SHARE) : 0;
-  const afterShare = grossProfit - profitShare;
-
-  const bigEnough = deal.sold >= minContract;
-  const affordable = afterShare - bonus >= minNet;
-  const bonusApplied = bigEnough && affordable;
-
-  let bonusWithheldReason: string | null = null;
-  if (!bigEnough) {
-    bonusWithheldReason =
-      `Contract is $${deal.sold.toLocaleString("en-US")}, under the ` +
-      `$${minContract.toLocaleString("en-US")} the bonus starts at. Profit split only.`;
-  } else if (!affordable) {
-    bonusWithheldReason =
-      `Job cleared $${minContract.toLocaleString("en-US")} but only made ` +
-      `$${grossProfit.toLocaleString("en-US")} gross. Paying the bonus would leave under ` +
-      `$${minNet.toLocaleString("en-US")}, so it is the split only. Worth a look at how this one was priced.`;
-  }
-
-  const total = profitShare + (bonusApplied ? bonus : 0);
+  const total = Math.min(uncapped, CHANNEL_PARTNER_MAX_PAYOUT);
 
   return {
-    bonus: bonusApplied ? bonus : 0,
-    profitShare,
+    profitShare: uncapped,
     total,
     companyNet: grossProfit - total,
-    bonusApplied,
-    bonusWithheldReason,
+    capped: uncapped > total,
+    cappedBy: uncapped - total,
+  };
+}
+
+export type MarginCheck = {
+  /** Company net as a share of the contract, 0–1. */
+  margin: number;
+  /** True when the job clears MARGIN_FLOOR. */
+  ok: boolean;
+  /** Why it was flagged, for the admin screen. Null when it cleared. */
+  reason: string | null;
+};
+
+/**
+ * Whether a finished job is profitable enough to pay out without a human.
+ *
+ * Deliberately measured against the contract value rather than against gross
+ * profit: a 15% margin on what the customer paid is a number that means the
+ * same thing on every job, and it is the one an owner can hold in their head.
+ */
+export function marginCheck(soldPrice: number, companyNet: number): MarginCheck {
+  if (soldPrice <= 0) {
+    return { margin: 0, ok: false, reason: "No contract value on this job." };
+  }
+  const margin = companyNet / soldPrice;
+  if (margin >= MARGIN_FLOOR) return { margin, ok: true, reason: null };
+
+  return {
+    margin,
+    ok: false,
+    reason:
+      `This job keeps ${(margin * 100).toFixed(1)}% after everyone is paid, under the ` +
+      `${Math.round(MARGIN_FLOOR * 100)}% floor. Somebody has to sign it off before it pays out.`,
   };
 }
 
