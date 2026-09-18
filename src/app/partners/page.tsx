@@ -5,28 +5,39 @@ import NetworkFooter from "@/components/network/NetworkFooter";
 import PartnerForm from "./PartnerForm";
 import { COMPANY } from "@/lib/regions/brand";
 import { CHANNEL_PARTNER_PROFIT_SHARE } from "@/lib/regions/channelPartners";
-import { NEC_THRESHOLD } from "@/lib/regions/crewAgreement";
+import { CREW_PAID_DAYS, NEC_THRESHOLD } from "@/lib/regions/crewAgreement";
+import { CONTRACTOR_OVERAGE_RATE } from "@/lib/regions/commission";
 import { REGIONS } from "@/lib/regions/states";
 import { TRADES } from "@/lib/regions/trades";
 
 // Crew partner onboarding.
 //
-// We hold the contract with the homeowner and collect payment — we're the
-// general contractor on the job. A crew partner here is paid a set labor
-// rate for the work, not chasing homeowners for a price or a check. The
-// whole secondary funnel is finding local trade businesses to take the
-// demand we generate and put crews on the appointments we book.
+// We hold the contract with the homeowner and collect every dollar — we are
+// the general contractor on the job. The contractor measures it, sells it at
+// the kitchen table on our estimate, and builds it. They are paid for the
+// work and keep a share of everything they sell above our price book floor.
+//
+// THIS PAGE DESCRIBED A DIFFERENT JOB UNTIL NOW. It promised "a set labor
+// rate, paid on schedule" and "no selling required", which stopped being true
+// the day contractors started measuring and closing. Recruiting somebody onto
+// a promise the first job contradicts is how you lose them in week two, so
+// every number here is read from the agreement and the comp module rather
+// than written down a second time: see crewAgreement.ts and commission.ts.
 //
 // A crew reads this asking two questions, in order: what does it pay, and
-// are these appointments real. Answer both above the fold or lose them.
-// Everything else — trade list, coverage, paperwork — is below.
+// when do I actually get the money. Answer both above the fold or lose them —
+// being strung out sixty days by a general contractor is the defining
+// experience of this trade, and three days is the strongest thing we have.
+
+const OVERAGE_PCT = Math.round(CONTRACTOR_OVERAGE_RATE * 100);
 
 export const metadata: Metadata = {
-  title: `Crew Partners — Exclusive Booked Appointments | ${COMPANY.name}`,
+  title: `Crew Partners — Booked Appointments, Paid in ${CREW_PAID_DAYS} Days | ${COMPANY.name}`,
   description:
-    "We generate the homeowners, book the inspections, and hold the contract. You show up and " +
-    "do the work, and we pay your rate. Roofing, siding, fencing, gutters and painting across " +
-    "Colorado, Missouri, Kansas, Indiana and Wyoming.",
+    `We generate the homeowners and book the inspections. You measure, sell and build the job, ` +
+    `and keep ${OVERAGE_PCT}% of everything you sell above our price. Paid in full within ` +
+    `${CREW_PAID_DAYS} days, no retainage. Roofing, siding, fencing, gutters and painting ` +
+    `across Colorado, Missouri, Kansas, Indiana and Wyoming.`,
   robots: { index: true, follow: true },
 };
 
@@ -47,17 +58,25 @@ const HOW_IT_WORKS = [
   },
   {
     step: "03",
-    title: "You tell us your rate",
+    title: "You measure it and price it",
     body:
-      "Give us your labor rate — per square, per linear foot, per opening, however you price " +
-      "your work. We build the homeowner's price around it. We do not mark down what you're paid.",
+      "On your phone, off our price book. It shows you the floor you cannot sell below and " +
+      "what you make at every price above it, while you are still standing on the roof.",
   },
   {
     step: "04",
-    title: "You do the work, we handle the rest",
+    title: "You sell it at the table",
     body:
-      "We hold the contract with the homeowner and collect payment. You get paid your rate, on " +
-      "schedule, without chasing anyone for a check.",
+      `Our estimate, our contract, our payment link. Sell above the floor and you keep ` +
+      `${OVERAGE_PCT}% of the difference on top of the price for the work. There is no cap on it.`,
+  },
+  {
+    step: "05",
+    title: "You build it and get paid",
+    body:
+      `Paid in full with no retainage, within ${CREW_PAID_DAYS} days of the work being signed ` +
+      `off and your lien waiver in. You never chase a homeowner for a check, because they ` +
+      `never pay you — they pay us.`,
   },
 ];
 
@@ -79,8 +98,20 @@ const WHAT_WE_ASK = [
     q: "Your baseline rate sheet",
     a:
       "Per square, per linear foot, per opening — however you price your labor. This is what " +
-      "we pay you, and it's what we build the homeowner's price around, so we can quote them a " +
-      "realistic number on the phone instead of sending you to a job that doesn't cover your rate.",
+      "we pay you for the work, and it sets the floor in the price book you sell off, so you " +
+      "are never standing in a driveway working out whether a job covers your own cost.",
+  },
+  {
+    // On the page rather than saved for the agreement. It is a condition that
+    // ends the arrangement if broken, and a contractor who finds that out
+    // after signing is a contractor who feels caught rather than told.
+    q: "Every dollar goes through our payment system",
+    a:
+      "Deposit, progress and final. You do not take cash, a check, a card or a transfer from " +
+      "a homeowner, and you do not ask for anything on the side. We hold the contract, carry " +
+      "the warranty and answer the phone in two years, and money collected outside that leaves " +
+      "a customer paying for work nobody is answerable for. It is also what you are paid out " +
+      "of. Taking payment directly ends the agreement.",
   },
   {
     q: "A W-9",
@@ -133,19 +164,26 @@ export default function PartnersPage() {
                 Partner network · {REGIONS.map((r) => r.code).join(" · ")}
               </p>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                We find the homeowners. You do what you&apos;re good at.
+                We book it. You close it. You keep {OVERAGE_PCT}% of the upside.
               </h1>
               <p className="mt-4 text-lg text-neutral-200">
-                We run the marketing, take the calls and book the inspection. You turn up to a
-                confirmed appointment, do the work, and get paid your rate. No lead fees, no
-                bidding against three other contractors, no chasing the homeowner for a check.
+                We run the marketing, take the calls and book the inspection. You measure the
+                job, price it off our book on your phone, and close it at the table. You get paid
+                for the work — plus {OVERAGE_PCT}% of everything you sell above our price — in
+                full, within {CREW_PAID_DAYS} days.
               </p>
 
               <dl className="mt-8 grid gap-4 sm:grid-cols-2">
                 {[
-                  ["Paid your rate", "A set labor rate, paid on schedule — every time."],
-                  ["No selling required", "We quote and contract with the homeowner. You build."],
-                  ["No pay-per-lead", "You are not buying anything up front."],
+                  [
+                    `${OVERAGE_PCT}% of everything above our price`,
+                    "No cap. Sell it better and you make more on the same roof.",
+                  ],
+                  [
+                    `Paid in ${CREW_PAID_DAYS} days`,
+                    "In full, no retainage. The homeowner pays us, so you never chase a check.",
+                  ],
+                  ["No pay-per-lead", "You are not buying anything up front. Ever."],
                   ["Booked, not bought", "A confirmed time with the decision-makers there."],
                 ].map(([title, body]) => (
                   <div key={title} className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
