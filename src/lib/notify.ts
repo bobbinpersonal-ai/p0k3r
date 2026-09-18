@@ -497,3 +497,67 @@ export async function notifyChannelPartnerListShared(
     ].filter((line): line is string => Boolean(line)),
   });
 }
+
+/**
+ * The warm introduction, sent before the desk is allowed to dial.
+ *
+ * Unlike every other sender in this file, this one reports whether it worked.
+ *
+ * The rest fail open on purpose: a booking confirmation that bounces should
+ * not stop somebody booking. This one is the opposite. If the introduction
+ * did not go out and we mark the customer warmed anyway, the desk rings a
+ * stranger who was promised a heads-up — which is the exact harm the whole
+ * track exists to prevent, and the thing that loses the partner's list.
+ *
+ * Returns which channels actually accepted the message. An empty result means
+ * nothing reached anybody and the lead must stay unwarmed.
+ */
+export async function sendIntroduction(
+  to: { phone?: string | null; email?: string | null },
+  content: { sms: string; emailSubject: string; emailBody: string },
+): Promise<{ sms: boolean; email: boolean }> {
+  const out = { sms: false, email: false };
+
+  const sid = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+  const from = process.env.TWILIO_FROM_NUMBER;
+  if (sid && token && from && to.phone) {
+    try {
+      const res = await fetch(
+        `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Basic ${Buffer.from(`${sid}:${token}`).toString("base64")}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: new URLSearchParams({ From: from, To: to.phone, Body: content.sms }),
+        },
+      );
+      out.sms = res.ok;
+    } catch {
+      out.sms = false;
+    }
+  }
+
+  const apiKey = process.env.RESEND_API_KEY;
+  if (apiKey && to.email) {
+    try {
+      const res = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          from: process.env.NOTIFY_FROM_EMAIL || "LoveMeAfter <onboarding@resend.dev>",
+          to: to.email,
+          subject: content.emailSubject,
+          text: content.emailBody,
+        }),
+      });
+      out.email = res.ok;
+    } catch {
+      out.email = false;
+    }
+  }
+
+  return out;
+}

@@ -5,6 +5,9 @@ import { revalidatePath } from "next/cache";
 import { ADMIN_COOKIE_NAME, isValidAdminSessionCookie } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getDisposition } from "@/lib/regions/dispositions";
+import { COMPANY } from "@/lib/regions/brand";
+import { sendIntroduction } from "@/lib/notify";
+import { PENDING_INTRO, WARMED, introMessage, mayDial } from "@/lib/regions/warmup";
 
 // The desk's writes.
 //
@@ -52,9 +55,28 @@ export async function setDisposition(
 
   const lead = await prisma.lead.findUnique({
     where: { id: leadId },
-    select: { id: true, status: true },
+    select: {
+      id: true,
+      status: true,
+      warmupStatus: true,
+      channelPartner: { select: { warmupTrack: true } },
+    },
   });
   if (!lead) return { ok: false, error: "Lead not found." };
+
+  // The gate, enforced here rather than left to the button being disabled.
+  // A disabled button is a suggestion; this is the rule. DEAD is exempt —
+  // somebody who has asked not to be contacted can always be recorded as
+  // such, whether or not we ever introduced ourselves.
+  if (
+    value !== "DEAD" &&
+    !mayDial(lead.channelPartner?.warmupTrack, lead.warmupStatus, Boolean(lead.channelPartner))
+  ) {
+    return {
+      ok: false,
+      error: "This one hasn't been introduced yet. Send the intro before you dial.",
+    };
+  }
 
   const now = new Date();
 
@@ -84,6 +106,84 @@ export async function setDisposition(
       },
     }),
   ]);
+
+  revalidatePath("/admin/desk");
+  return { ok: true };
+}
+
+
+/**
+ * Send the warm introduction, and unlock the dialer if it actually went.
+ *
+ * The order matters. The lead is marked PENDING_INTRO first, so two operators
+ * pressing the button at once do not both send; it moves to WARMED only on a
+ * channel that reported success, and falls back to UNWARMED if nothing did.
+ * Marking somebody warmed on a message that never arrived is worse than
+ * leaving them in the queue, because the desk then rings a stranger who was
+ * promised a heads-up.
+ */
+export async function sendWarmIntro(leadId: string, sentBy = "desk"): Promise<DeskResult> {
+  try {
+    requireAdmin();
+  } catch {
+    return { ok: false, error: "Not authorised." };
+  }
+
+  const lead = await prisma.lead.findUnique({
+    where: { id: leadId },
+    select: {
+      id: true,
+      customerName: true,
+      customerPhone: true,
+      customerEmail: true,
+      warmupStatus: true,
+      channelPartner: { select: { businessName: true, warmupTrack: true } },
+    },
+  });
+  if (!lead) return { ok: false, error: "Lead not found." };
+  if (!lead.channelPartner) {
+    return { ok: false, error: "No partner behind this one, so there is nobody to introduce." };
+  }
+  if (lead.warmupStatus === WARMED) return { ok: true };
+  if (lead.warmupStatus === PENDING_INTRO) {
+    return { ok: false, error: "Already going out. Give it a second." };
+  }
+  if (!lead.customerPhone && !lead.customerEmail) {
+    return { ok: false, error: "No phone or email on this one — nothing to send to." };
+  }
+
+  await prisma.lead.update({
+    where: { id: lead.id },
+    data: { warmupStatus: PENDING_INTRO },
+  });
+
+  const content = introMessage({
+    customerName: lead.customerName,
+    partnerName: lead.channelPartner.businessName,
+    companyName: COMPANY.name,
+    companyPhone: COMPANY.phone,
+  });
+
+  const sent = await sendIntroduction(
+    { phone: lead.customerPhone, email: lead.customerEmail },
+    content,
+  );
+
+  if (!sent.sms && !sent.email) {
+    await prisma.lead.update({
+      where: { id: lead.id },
+      data: { warmupStatus: "UNWARMED" },
+    });
+    return {
+      ok: false,
+      error: "Nothing sent — check the number and the email, or whether SMS is switched on.",
+    };
+  }
+
+  await prisma.lead.update({
+    where: { id: lead.id },
+    data: { warmupStatus: WARMED, introSentAt: new Date(), introSentBy: sentBy },
+  });
 
   revalidatePath("/admin/desk");
   return { ok: true };

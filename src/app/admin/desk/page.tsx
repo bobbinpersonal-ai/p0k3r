@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { ADMIN_COOKIE_NAME, isValidAdminSessionCookie } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { DISPOSITIONS, OPEN_DISPOSITIONS } from "@/lib/regions/dispositions";
+import { getTrack, mayDial } from "@/lib/regions/warmup";
 import DeskRow, { type DeskLead } from "./DeskRow";
 
 // The desk.
@@ -53,7 +54,8 @@ export default async function DeskPage() {
         callDisposition: true,
         callCount: true,
         lastCalledAt: true,
-        channelPartner: { select: { businessName: true } },
+        warmupStatus: true,
+        channelPartner: { select: { businessName: true, warmupTrack: true } },
       },
     }),
     prisma.lead.groupBy({
@@ -63,16 +65,28 @@ export default async function DeskPage() {
     }),
   ]);
 
-  const rows: DeskLead[] = leads.map((l) => ({
-    id: l.id,
-    customerName: l.customerName,
-    phone: l.customerPhone,
-    city: l.city,
-    partner: l.channelPartner?.businessName ?? null,
-    disposition: l.callDisposition,
-    callCount: l.callCount,
-    lastCalledLabel: ago(l.lastCalledAt, now),
-  }));
+  const rows: DeskLead[] = leads.map((l) => {
+    const track = getTrack(l.channelPartner?.warmupTrack);
+    return {
+      id: l.id,
+      customerName: l.customerName,
+      phone: l.customerPhone,
+      city: l.city,
+      partner: l.channelPartner?.businessName ?? null,
+      disposition: l.callDisposition,
+      callCount: l.callCount,
+      lastCalledLabel: ago(l.lastCalledAt, now),
+      mayDial: mayDial(l.channelPartner?.warmupTrack, l.warmupStatus, Boolean(l.channelPartner)),
+      waitingLabel: track.waitingLabel,
+      warmupStatus: l.warmupStatus,
+    };
+  });
+
+  // Two queues in one screen: who needs an introduction sending, and who is
+  // ready to ring. Counting them separately because they are different jobs
+  // and a desk with forty un-introduced names is not forty calls.
+  const toIntroduce = rows.filter((r) => !r.mayDial).length;
+  const callable = rows.length - toIntroduce;
 
   const countFor = (value: string) =>
     counts.find((c) => c.callDisposition === value)?._count ?? 0;
@@ -85,7 +99,7 @@ export default async function DeskPage() {
             Internal · desk
           </p>
           <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-ink">
-            Call queue <span className="font-mono text-neutral-400">({rows.length})</span>
+            Call queue <span className="font-mono text-neutral-400">({callable})</span>
           </h1>
         </div>
         <p className="flex flex-wrap gap-3 text-sm">
@@ -97,6 +111,13 @@ export default async function DeskPage() {
           </Link>
         </p>
       </div>
+
+      {toIntroduce > 0 && (
+        <p className="mt-4 rounded-xl border border-brand-cyan/40 bg-brand-cyan/10 px-4 py-2 text-sm font-semibold text-ink">
+          {toIntroduce} {toIntroduce === 1 ? "customer needs" : "customers need"} an introduction
+          before anyone rings them.
+        </p>
+      )}
 
       <dl className="mt-4 flex flex-wrap gap-2">
         {DISPOSITIONS.map((d) => (
@@ -144,8 +165,10 @@ export default async function DeskPage() {
       )}
 
       <p className="mt-6 text-xs leading-relaxed text-neutral-500">
-        Oldest first, never-called at the top. Pitched and dead drop off. Every press writes a
-        call record with the time — that log is what answers a curfew complaint later.
+        Oldest first, never-called at the top. Pitched and dead drop off. On a partner&apos;s warm-up
+        track the number stays hidden until the introduction has actually sent — not just been
+        attempted. Every press writes a call record with the time, and that log is what answers a
+        curfew complaint later.
       </p>
     </main>
   );

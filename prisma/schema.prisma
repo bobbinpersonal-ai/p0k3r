@@ -374,6 +374,18 @@ model Lead {
   /// local time, which is the curfew defence — and these three are the
   /// denormalised latest, so the desk queue is one indexed read instead of a
   /// correlated subquery per row.
+  /// UNWARMED, PENDING_INTRO or WARMED — whether this customer has had any
+  /// contact before we ring them.
+  ///
+  /// On the DESK_1TO1_INTRO track this gates the dial: the desk cannot call an
+  /// UNWARMED customer, because the whole promise to the partner is that their
+  /// people hear from them before they hear from us. It is enforced in the
+  /// action rather than left to the caller remembering.
+  warmupStatus String    @default("UNWARMED")
+  introSentAt  DateTime?
+  /// Who sent it. A name rather than a relation, so the record outlives them.
+  introSentBy  String?
+
   callDisposition String    @default("NEW")
   lastCalledAt    DateTime?
   callCount       Int       @default(0)
@@ -428,6 +440,7 @@ model Lead {
   @@index([workerId])
   @@index([channelPartnerId])
   @@index([callDisposition, lastCalledAt])
+  @@index([warmupStatus])
 }
 
 /// What the rep built at the kitchen table, and what the customer signed.
@@ -738,6 +751,18 @@ model ChannelPartner {
   /// The IRS wants a 1099-NEC for anyone paid $600 or more in a calendar
   /// year, same reasoning as Worker.w9OnFile.
   w9OnFile Boolean @default(false)
+
+  /// How this partner wants their customers approached.
+  ///
+  /// PARTNER_BLAST — a co-branded announcement goes out over their name first,
+  /// then we call warm. DESK_1TO1_INTRO — our desk sends a personal
+  /// introduction to each customer and cannot dial until it has gone.
+  /// DIRECT_COLD — they are happy for us to just call.
+  ///
+  /// Their choice, not ours: a solar company with a careful brand and a
+  /// roofing supplier with 4,000 invoices want opposite things, and guessing
+  /// wrong burns the list once and for good.
+  warmupTrack String @default("DESK_1TO1_INTRO")
 
   /// Null until they click through the agreement. Versioned because terms
   /// change, and "they agreed" only means something as "they agreed to THIS

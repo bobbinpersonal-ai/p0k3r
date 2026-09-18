@@ -14,6 +14,7 @@ import {
   parseServices,
 } from "@/lib/regions/channelPartners";
 import { noSaleShort } from "@/lib/regions/noSale";
+import { getTrack } from "@/lib/regions/warmup";
 import ShareListCard from "./[token]/ShareListCard";
 import SubmitLeadCard from "./[token]/SubmitLeadCard";
 
@@ -77,6 +78,7 @@ export default async function PortalView({
   const soldCount = partner.leads.filter((l) => l.status === "SOLD").length;
   const completedCount = partner.leads.filter((l) => l.status === "COMPLETED").length;
   const services = parseServices(partner.services);
+  const currentTrack = getTrack(partner.warmupTrack);
 
   const counts = new Map<string, number>();
   for (const lead of partner.leads) {
@@ -204,6 +206,25 @@ export default async function PortalView({
                   currentUrl={partner.customerListUrl}
                   sharedAt={partner.listSharedAt?.toISOString() ?? null}
                 />
+                {/* The other way in. Some partners would rather hand over a file
+                    once than keep a shared sheet open, and this is also where the
+                    warm-up track gets chosen. */}
+                <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
+                  <h2 className="text-xl font-extrabold text-ink">Or upload a file</h2>
+                  <p className="mt-2 text-sm text-neutral-300">
+                    A CSV with names and phone numbers. You choose how your customers get
+                    approached before anybody rings them.
+                  </p>
+                  <p className="mt-3 text-xs text-neutral-400">
+                    Currently: <span className="text-neutral-200">{currentTrack.label}</span>
+                  </p>
+                  <Link
+                    href="/channel-partners/portal/upload"
+                    className="mt-4 inline-block rounded-xl border border-white/15 px-5 py-3 text-sm font-bold text-ink hover:border-brand hover:text-brand-cyan"
+                  >
+                    Upload a list
+                  </Link>
+                </div>
                 <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-6">
                   <h2 className="text-xl font-extrabold text-ink">Pitch it to your customers</h2>
                   <p className="mt-2 text-sm text-neutral-300">

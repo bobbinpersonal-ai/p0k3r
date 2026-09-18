@@ -2,7 +2,7 @@
 
 import { useTransition, useState } from "react";
 import { DESK_ACTIONS } from "@/lib/regions/dispositions";
-import { setDisposition } from "./actions";
+import { setDisposition, sendWarmIntro } from "./actions";
 
 // One lead, and the five buttons that clear it.
 //
@@ -19,12 +19,18 @@ export type DeskLead = {
   disposition: string;
   callCount: number;
   lastCalledLabel: string | null;
+  /** False while the partner's track says this customer has not been warmed. */
+  mayDial: boolean;
+  /** What the desk sees instead of a number, when they can't call yet. */
+  waitingLabel: string;
+  warmupStatus: string;
 };
 
 export default function DeskRow({ lead }: { lead: DeskLead }) {
   const [pending, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [cleared, setCleared] = useState(false);
+  const [warmed, setWarmed] = useState(false);
 
   function press(value: string) {
     setError(null);
@@ -32,6 +38,15 @@ export default function DeskRow({ lead }: { lead: DeskLead }) {
       const res = await setDisposition(lead.id, value);
       if (!res.ok) setError(res.error);
       else setCleared(true);
+    });
+  }
+
+  function intro() {
+    setError(null);
+    start(async () => {
+      const res = await sendWarmIntro(lead.id);
+      if (!res.ok) setError(res.error);
+      else setWarmed(true);
     });
   }
 
@@ -52,7 +67,11 @@ export default function DeskRow({ lead }: { lead: DeskLead }) {
       </td>
 
       <td className="py-2 pr-3 whitespace-nowrap">
-        {tel ? (
+        {!lead.mayDial && !warmed ? (
+          // The number is withheld rather than shown-and-disabled. A tel: link
+          // on screen next to a "don't call yet" label is a link somebody taps.
+          <span className="font-mono text-xs text-amber-500/80">{lead.waitingLabel}</span>
+        ) : tel ? (
           <a href={`tel:${tel}`} className="font-mono text-sm font-semibold text-brand-cyan">
             {lead.phone}
           </a>
@@ -68,7 +87,18 @@ export default function DeskRow({ lead }: { lead: DeskLead }) {
 
       <td className="py-2">
         <div className="flex flex-wrap justify-end gap-1">
-          {DESK_ACTIONS.map((d) => (
+          {!lead.mayDial && !warmed && (
+            <button
+              type="button"
+              disabled={pending}
+              onClick={intro}
+              className="rounded border border-brand-cyan bg-brand-cyan/15 px-3 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wide text-brand-cyan disabled:opacity-50 hover:bg-brand-cyan/25"
+            >
+              {pending ? "Sending…" : "Send intro"}
+            </button>
+          )}
+          {(lead.mayDial || warmed) &&
+            DESK_ACTIONS.map((d) => (
             <button
               key={d.value}
               type="button"
@@ -83,9 +113,9 @@ export default function DeskRow({ lead }: { lead: DeskLead }) {
                     : "border-white/15 text-neutral-200 hover:border-brand-cyan hover:text-brand-cyan"
               }`}
             >
-              {d.short}
-            </button>
-          ))}
+                {d.short}
+              </button>
+            ))}
         </div>
         {error && (
           <p role="alert" className="mt-1 text-right text-xs text-brand-light">
