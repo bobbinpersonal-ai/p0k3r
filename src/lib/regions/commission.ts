@@ -39,6 +39,30 @@ export const DEFAULT_TERMS: CommissionTerms = {
   overageRate: OVERAGE_RATE,
 };
 
+/**
+ * The contractor's share of everything sold above base.
+ *
+ * Lower than a rep's 60% because a contractor is not only paid for selling the
+ * job — they are paid the cost line to build it as well, and that line is the
+ * largest number on the estimate. A rep who sells and walks away has one source
+ * of income from the deal; a contractor who measures, sells and then does the
+ * work has two, and pricing both at the rep's rate would leave nothing above
+ * them to pay the partner, the scout and the company out of.
+ */
+export const CONTRACTOR_OVERAGE_RATE = 0.3;
+
+/**
+ * Terms for a contractor selling their own job.
+ *
+ * Same shape as a rep's, so everything downstream — the estimate, the channel
+ * partner split, the scout override — keeps reading one `commission` figure and
+ * never has to know who earned it.
+ */
+export const CONTRACTOR_TERMS: CommissionTerms = {
+  baseRate: DEFAULT_BASE_COMMISSION_RATE,
+  overageRate: CONTRACTOR_OVERAGE_RATE,
+};
+
 export type Deal = {
   /** What the job takes out of the company. */
   cost: number;

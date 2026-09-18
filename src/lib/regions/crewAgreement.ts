@@ -26,6 +26,7 @@
 import { COMPANY, PROOF } from "@/lib/regions/brand";
 import { getRegion, type StateCode } from "@/lib/regions/states";
 import { SELLER, sellerAddress, type ContractSection } from "@/lib/regions/contracts";
+import { CONTRACTOR_OVERAGE_RATE } from "@/lib/regions/commission";
 import type { AgreementDocument } from "@/lib/regions/repAgreement";
 
 export type CrewAgreementFacts = {
@@ -180,6 +181,35 @@ export function crewAgreement(facts: CrewAgreementFacts): AgreementDocument {
         `something fails because of how it was installed, the Contractor returns and puts it ` +
         `right at no charge within a reasonable time of being told. If they cannot or will ` +
         `not, the Company may have it put right and set the cost against anything owed.`,
+    },
+    {
+      heading: "Selling the job",
+      body:
+        "The Contractor measures the job and presents the price to the homeowner, on the " +
+        "Company's estimate and the Company's contract. The price book sets a floor and the " +
+        "Contractor cannot sell below it. Where the Contractor sells above the floor, the " +
+        "Contractor keeps " +
+        `${Math.round(CONTRACTOR_OVERAGE_RATE * 100)}% of the difference on top of the price ` +
+        "for the work itself.\n\n" +
+        "The agreement for the work is between the homeowner and the Company. The Contractor " +
+        "does not sign the homeowner up in their own name, present their own paperwork, or " +
+        "quote a price that is not on the Company's estimate.",
+    },
+    {
+      heading: "All the money goes through the Company",
+      body:
+        "Every dollar a homeowner pays for a job sold through the Company is taken on the " +
+        "Company's payment system — deposit, progress payment and final payment alike. The " +
+        "Contractor does not take cash, a cheque, a card, a transfer or any other payment " +
+        "from a homeowner directly, and does not ask one to pay anything on the side.\n\n" +
+        "This is not bookkeeping. The Company holds the contract, carries the warranty and " +
+        "the insurance, and is the one the homeowner can come back to; money collected " +
+        "outside it leaves a customer paying for work nobody is answerable for. It is also " +
+        "what everyone else on the job is paid out of.\n\n" +
+        "If a homeowner hands the Contractor money anyway, the Contractor tells the Company " +
+        "the same day and it is recorded against the job. The Company may set anything " +
+        "collected outside its payment system against what is owed to the Contractor, and " +
+        "taking payment directly is a breach of this agreement that ends it.",
     },
     {
       heading: "Not going around the Company",

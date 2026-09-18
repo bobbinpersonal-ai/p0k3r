@@ -12,7 +12,13 @@ const nextConfig = {
     // handled before rendering and actually work.
     return [
       { source: "/sell", destination: "/partners", permanent: true },
-      { source: "/crew", destination: "/partners", permanent: true },
+
+      // /crew used to redirect here too. It is now the crews' own portal —
+      // their jobs, the price book and the paperwork to close one — so the
+      // redirect is gone. Anyone whose browser cached the old 308 will still
+      // be sent to /partners until that cache expires; the sub-paths
+      // (/crew/login, /crew/jobs/...) were never redirected, so the links we
+      // actually send people are unaffected.
 
       // Short aliases for /channel-partners, which is a mouthful to say down a
       // phone and gets texted to somebody mid-cold-call. Temporary rather than

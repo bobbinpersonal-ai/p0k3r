@@ -267,7 +267,7 @@ model Rep {
   /// of thing — same name, same phone, same commission terms once they start —
   /// so /sell writes an APPLIED row instead of filling a second table that
   /// would have to be copied across on the day they are taken on.
-  status     String  @default("ACTIVE")
+  status String @default("ACTIVE")
 
   /// CLOSER or SCOUT — see src/lib/regions/scouts.ts.
   ///
@@ -344,8 +344,18 @@ model Lead {
   source String?
   notes  String?
 
-  repId         String?
-  rep           Rep?      @relation(fields: [repId], references: [id])
+  repId String?
+  rep   Rep?    @relation(fields: [repId], references: [id])
+
+  /// The crew sent to measure and sell it.
+  ///
+  /// Separate from repId rather than replacing it: a job can still be sold by
+  /// one of our own closers, and the two seats pay differently — see
+  /// CONTRACTOR_TERMS in src/lib/regions/commission.ts. Which of the two is
+  /// set decides who is standing in the kitchen.
+  workerId String?
+  worker   Worker? @relation(fields: [workerId], references: [id])
+
   assignedAt    DateTime?
   appointmentAt DateTime?
 
@@ -393,6 +403,7 @@ model Lead {
 
   @@index([status])
   @@index([repId])
+  @@index([workerId])
   @@index([channelPartnerId])
 }
 
@@ -525,6 +536,23 @@ model Worker {
   /// year, and it wants a W-9 on file to fill it in. The flag gates payouts;
   /// the identifier itself is not stored here.
   w9OnFile Boolean @default(false)
+
+  /// Their way into the field estimator. Same shape and same reasoning as
+  /// ChannelPartner: the link is the invitation, and it stops opening anything
+  /// once a password is set — see src/lib/crewAuth.ts.
+  ///
+  /// A crew login is more powerful than a partner login: it writes estimates
+  /// and takes customer money. That is exactly why it gets a password rather
+  /// than living on a texted URL forever.
+  portalToken   String    @unique @default(dbgenerated("gen_random_uuid()"))
+  passwordHash  String?
+  passwordSetAt DateTime?
+  lastLoginAt   DateTime?
+  failedLogins  Int       @default(0)
+  lockedUntil   DateTime?
+
+  sessions WorkerSession[]
+  leads    Lead[]
 
   /// Insurance, which is the whole ballgame on a roof.
   ///
@@ -713,6 +741,27 @@ model NoSaleReport {
 /// Written only once the job is COMPLETE, not when it sells: a signed job that
 /// cancels has produced nothing to share. See src/lib/regions/channelPartners.ts
 /// for what the amount is made of — a flat fee plus half the gross profit.
+/// A signed-in crew contractor.
+///
+/// Its own table rather than a shared one with ChannelPartnerSession: the two
+/// carry different foreign keys and cascade from different rows, and a single
+/// polymorphic session table would trade a real constraint for a string column
+/// nothing enforces.
+model WorkerSession {
+  id        String @id @default(cuid())
+  tokenHash String @unique
+
+  workerId String
+  worker   Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([workerId])
+  @@index([expiresAt])
+}
+
 /// A signed-in channel partner.
 ///
 /// Sessions live in the database rather than in a signed cookie so they can be
