@@ -10,6 +10,7 @@ import {
   scoutCostShare,
   scoutRamp,
 } from "@/lib/regions/scouts";
+import { CHANNEL_PARTNER_PROFIT_SHARE } from "@/lib/regions/channelPartners";
 import { REGIONS } from "@/lib/regions/states";
 import ScoutForm from "./ScoutForm";
 
@@ -148,7 +149,7 @@ export default function ScoutsPage() {
                 {
                   n: "01",
                   t: "You call a business",
-                  d: "An HVAC company with 1,400 past customers sitting in a spreadsheet doing nothing. You show them they get half the profit on work we sell to those people, and they do none of it.",
+                  d: `An HVAC company with 1,400 past customers sitting in a spreadsheet doing nothing. You show them they get ${Math.round(CHANNEL_PARTNER_PROFIT_SHARE * 100)}% of the profit on work we sell to those people — around $2,000 a job — and they do none of it.`,
                   tag: "Yours",
                   mine: true,
                 },

@@ -20,7 +20,7 @@ export type PipelineRow = {
   partnerName: string | null;
   hasNoSaleNote: boolean;
   /** Present once an estimate exists, so a payout can be worked out. */
-  quote: { sold: number; payout: number; clamped: boolean; topLine: number; margin: number; marginOk: boolean } | null;
+  quote: { sold: number; payout: number; grossProfit: number; margin: number; marginOk: boolean } | null;
   paidCents: number | null;
 };
 
@@ -117,9 +117,7 @@ export default function PipelineControls({ row }: { row: PipelineRow }) {
           {row.quote.payout > 0 ? (
             <>
               Sold {money(row.quote.sold)} ·{" "}
-              {row.quote.clamped
-                ? `thin job — ${money(row.quote.topLine)} at 10% would have beaten the profit`
-                : "10% of the contract"}
+              {`${money(row.quote.grossProfit)} profit · 40% of it to the partner`}
               {` · ${(row.quote.margin * 100).toFixed(1)}% margin`}
               {row.quote.marginOk ? "" : " — under the floor, needs sign-off"}
             </>

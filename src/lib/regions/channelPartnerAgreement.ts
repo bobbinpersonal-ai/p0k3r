@@ -1,9 +1,6 @@
 import { COMPANY } from "@/lib/regions/brand";
 import { SELLER } from "@/lib/regions/contracts";
-import {
-  CHANNEL_PARTNER_GROSS_PROFIT_CLAMP,
-  CHANNEL_PARTNER_TOP_LINE_RATE,
-} from "@/lib/regions/channelPartners";
+import { CHANNEL_PARTNER_PROFIT_SHARE } from "@/lib/regions/channelPartners";
 import type { AgreementDocument } from "@/lib/regions/repAgreement";
 
 // The terms a channel partner clicks through before their portal opens.
@@ -23,18 +20,21 @@ import type { AgreementDocument } from "@/lib/regions/repAgreement";
  * Bumped whenever the text below changes in a way that matters.
  *
  * Stored on the partner at acceptance, because "they agreed" only means
- * something as "they agreed to THIS text" — and the split, the cap and the
- * data terms are all things we might revise.
+ * something as "they agreed to THIS text" — and the split and the data terms
+ * are both things we might revise.
+ *
+ * .3 moved the payout from a tenth of the contract price to 40% of the job's
+ * gross profit, and added the promise to publish the figures behind it. That
+ * is a change to how every partner is paid, so every partner re-accepts.
  */
-export const CHANNEL_PARTNER_TERMS_VERSION = "2026-09-18.2";
+export const CHANNEL_PARTNER_TERMS_VERSION = "2026-09-18.3";
 
 export function channelPartnerAgreement(facts: {
   businessName: string;
   contactName: string;
   state?: string | null;
 }): AgreementDocument {
-  const rate = `${Math.round(CHANNEL_PARTNER_TOP_LINE_RATE * 100)}%`;
-  const clamp = `${Math.round(CHANNEL_PARTNER_GROSS_PROFIT_CLAMP * 100)}%`;
+  const share = `${Math.round(CHANNEL_PARTNER_PROFIT_SHARE * 100)}%`;
 
   return {
     title: `Channel Partner Agreement — ${COMPANY.name}`,
@@ -61,14 +61,17 @@ export function channelPartnerAgreement(facts: {
         heading: "What the Partner is paid",
         body:
           `On each job the Company completes for a customer from the Partner's list, the ` +
-          `Partner is paid ${rate} of the price that job sold for. There is no upper limit: a ` +
-          `larger job pays proportionally more.\n\n` +
-          `The Partner can check this figure without relying on the Company — it is a ` +
-          `percentage of a contract price the customer also knows.\n\n` +
-          `One exception. Where a job's gross profit is so small that ${rate} of the contract ` +
-          `would exceed it, the Partner is paid ${clamp} of that job's gross profit instead. ` +
-          `Where that happens the Company tells the Partner on their own page, with the ` +
-          `figures, rather than paying a reduced amount without explanation.\n\n` +
+          `Partner is paid ${share} of that job's gross profit. Gross profit means the price ` +
+          `the job sold for, less what the job cost the Company to build, less what the person ` +
+          `who measured and sold it earned on it. Nothing else is deducted before the ` +
+          `Partner's share is worked out.\n\n` +
+          `There is no upper limit and no tiers. A larger or better-sold job pays ` +
+          `proportionally more, and a job sold at the Company's book price still pays.\n\n` +
+          `So that this is a figure the Partner can check rather than one they have to trust, ` +
+          `the Company publishes the whole working on the Partner's own page for every job: ` +
+          `what it sold for, what it cost the Company, what the seller earned, what was left, ` +
+          `and the Partner's ${share} of it. The Company is showing the Partner its own costs ` +
+          `on purpose, and asks that they be kept between us.\n\n` +
           `Payment is made after the job is finished and the customer has paid the Company in ` +
           `full. Nothing is paid on a signature, a deposit or a promise.`,
       },

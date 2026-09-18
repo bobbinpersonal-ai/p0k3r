@@ -4,6 +4,7 @@ import NetworkHeader from "@/components/network/NetworkHeader";
 import NetworkFooter from "@/components/network/NetworkFooter";
 import { prisma } from "@/lib/prisma";
 import { requirePartnerWithTerms } from "@/lib/partnerAccess";
+import { CHANNEL_PARTNER_PROFIT_SHARE } from "@/lib/regions/channelPartners";
 import { TRACKS } from "@/lib/regions/warmup";
 import UploadForm from "./UploadForm";
 
@@ -36,7 +37,8 @@ export default async function UploadPage() {
         <h1 className="mt-2 text-3xl font-extrabold tracking-tight text-ink">Upload your list</h1>
         <p className="mt-2 text-neutral-300">
           Customers you&apos;ve already done work for. We call them, sell the work you don&apos;t
-          do, and you take half the profit on anything that sells.
+          do, and you take {Math.round(CHANNEL_PARTNER_PROFIT_SHARE * 100)}% of the profit on
+          anything that sells.
         </p>
 
         <UploadForm

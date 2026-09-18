@@ -15,51 +15,45 @@
 // is truthful about who's calling and why, and if the partner actually had
 // the right to hand that list over in the first place. See docs/regions.md.
 //
-// The deal has two halves. Half the gross profit on every job sold above the
-// price-book threshold, which scales with the job and so is always affordable,
-// plus a flat bonus on jobs big enough to carry one — a number to say on a
-// cold call that does not need a spreadsheet to explain. Paid only once the
-// job is complete, not at signing: a signed job that cancels or never finishes
-// has produced nothing to share.
+// The deal is one sentence: the partner takes 40% of the gross profit on every
+// job that sells off their list, with no cap and no tiers, paid once the job
+// is finished and the customer has paid. On the work we actually sell that is
+// around $2,000 a job, which is the number worth saying out loud.
 //
-// One known sharp edge, left in deliberately because the alternative is an
-// offer nobody can say out loud. The bonus is a cliff, not a ramp, so a job
-// sold at the minimum earns the company less than one sold a dollar under it,
-// and it takes roughly another $10,000 of contract value to climb back. Reps
-// are paid on overage and so push upward anyway, which keeps the dead zone
-// theoretical, but it is real and it is here rather than in a spreadsheet
-// nobody reads.
+// It has been three different formulas and it is worth recording why, because
+// the next person to touch it will be tempted to change it back. Half the
+// profit with a $3,500 ceiling was affordable but the ceiling bit exactly on
+// the jobs a partner would brag about. A tenth of the contract removed the
+// ceiling and was checkable against a number the customer also knows — but on
+// a roof at book price it paid under a fifth of what the job made, and an
+// offer that reads as generous until somebody does the arithmetic is worse
+// than one that reads as modest.
+//
+// So: a share of profit, and we publish the profit. Sold price, our cost, what
+// the seller earned, what was left, and their 40% of it all appear on the
+// partner's own page (see PortalView). That is the trade — we give up the
+// privacy of our margins to buy back the verifiability we lost when we stopped
+// paying on the contract price.
+//
+// Paid on completion, never at signing: a signed job that cancels or never
+// finishes has produced nothing to share.
 
 /**
- * The partner's cut, as a share of the contract the customer signed.
+ * The partner's share of the profit on a job they introduced.
  *
- * This replaced half-of-gross-profit-capped-at-$3,500, and the reason is
- * trust rather than arithmetic. A partner cannot check our gross profit —
- * they never see what the job cost us or what the seller earned, so half of
- * it is a number they have to take on faith every single time. Ten percent of
- * the contract is a number they can work out on the back of an envelope, and
- * can confirm with their own customer if they ever doubt us.
+ * Forty percent, and the reason is that the deal has to survive being read
+ * aloud to a sceptical business owner. A tenth of the contract was defensible
+ * arithmetic and a weak offer — on a roof sold at book price it paid less than
+ * a fifth of what the job actually made, and anybody who worked that out
+ * would have stopped taking the calls.
  *
- * In a program whose entire product is "you will be able to see what happened
- * to your people", a payout they can verify is worth more than a bigger one
- * they cannot.
+ * There is no cap and no clamp. Forty percent of what exists can never exceed
+ * what exists, so this is affordable by construction on every job, at every
+ * size, without a single special case. The previous formula needed a thin-job
+ * backstop precisely because a percentage of the contract can outrun the
+ * profit behind it; a percentage of the profit cannot.
  */
-export const CHANNEL_PARTNER_TOP_LINE_RATE = 0.1;
-
-/**
- * The most of a job's gross profit the partner may take, whatever 10% says.
- *
- * A backstop, not a term of the deal. On a normally priced job it never binds:
- * it needs gross margin under 22.2%, and the worst trade in the price book
- * sold at its floor still makes 35%. What it prevents is the catastrophic
- * case — a job so thin that 10% of the contract exceeds the profit on it, and
- * the introduction costs more than the work earned.
- *
- * Because it costs the partner the thing this whole change bought them — a
- * figure they can check — a job where it bites says so on their own page
- * rather than quietly paying short. See `clamped` on the result.
- */
-export const CHANNEL_PARTNER_GROSS_PROFIT_CLAMP = 0.45;
+export const CHANNEL_PARTNER_PROFIT_SHARE = 0.4;
 
 /**
  * The share of a contract the company has to keep after everyone is paid.
@@ -80,50 +74,56 @@ export function formatMoney(dollars: number): string {
 }
 
 export type ChannelPartnerPayout = {
-  /** Ten percent of the contract — what the partner expects to see. */
-  topLine: number;
-  /** What the partner is owed once the job is complete. */
+  /** What the partner is owed once the job is complete and collected. */
   total: number;
   /** What is left for the company after paying them. Never negative. */
   companyNet: number;
-  /** True when the thin-job backstop reduced the payout below 10%. */
-  clamped: boolean;
-  /** Why it was reduced, in words a partner can read. Null when it was not. */
-  clampReason: string | null;
+  /**
+   * The working, so the partner's own page can show it.
+   *
+   * A share of profit is only checkable if the profit is. The figures that
+   * produced it are published to the partner rather than kept back — see the
+   * ledger on PortalView. A partner who can see our cost and still thinks 40%
+   * is fair is a partner who believes the rest of what we tell them.
+   */
+  breakdown: {
+    sold: number;
+    cost: number;
+    /** What the person who sold it earned. */
+    sellerCommission: number;
+    grossProfit: number;
+  };
 };
 
 /**
  * What a channel partner earns on one completed job.
  *
- * Ten percent of the contract, unless the job was too thin to carry it, in
- * which case 45% of whatever profit there was. No cap: a partner who sends a
- * $60,000 job earns $6,000, and that is the point — the old $3,500 ceiling
- * meant their best referral paid the same as a middling one.
+ * Paid on any job that made a profit, including one sold at the book price —
+ * a job at the floor still earns, and withholding on it would mean a partner's
+ * steady, sensibly-priced work paid nothing while a heavily marked-up job paid
+ * well. That is the opposite of the behaviour worth encouraging.
  */
 export function channelPartnerPayout(deal: {
   base: number;
   sold: number;
   grossProfit: number;
+  /** For the published working. Optional so existing callers keep compiling. */
+  cost?: number;
+  sellerCommission?: number;
 }): ChannelPartnerPayout {
   const grossProfit = Math.max(Math.round(deal.grossProfit), 0);
   const sold = Math.max(Math.round(deal.sold), 0);
+  const total = Math.round(grossProfit * CHANNEL_PARTNER_PROFIT_SHARE);
 
-  const topLine = Math.round(sold * CHANNEL_PARTNER_TOP_LINE_RATE);
-  const ceiling = Math.round(grossProfit * CHANNEL_PARTNER_GROSS_PROFIT_CLAMP);
-  const total = Math.min(topLine, ceiling);
-
-  const clamped = total < topLine;
   return {
-    topLine,
     total,
     companyNet: grossProfit - total,
-    clamped,
-    clampReason: clamped
-      ? `This one sold for $${sold.toLocaleString("en-US")} but made very little on it, so ` +
-        `10% would have been more than the job earned. You're on ` +
-        `${Math.round(CHANNEL_PARTNER_GROSS_PROFIT_CLAMP * 100)}% of the profit instead — ` +
-        `$${total.toLocaleString("en-US")}.`
-      : null,
+    breakdown: {
+      sold,
+      cost: Math.max(Math.round(deal.cost ?? 0), 0),
+      sellerCommission: Math.max(Math.round(deal.sellerCommission ?? 0), 0),
+      grossProfit,
+    },
   };
 }
 

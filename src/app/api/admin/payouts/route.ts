@@ -72,6 +72,8 @@ export async function POST(req: NextRequest) {
     base: baseTotal,
     sold: soldPrice,
     grossProfit,
+    cost: costTotal,
+    sellerCommission: commission,
   });
 
   if (payout.total <= 0) {
@@ -89,7 +91,7 @@ export async function POST(req: NextRequest) {
       amount: payout.total * 100,
       method,
       handle,
-      memo: `${lead.customerName} — 10% of contract${payout.clamped ? " (thin job, clamped)" : ""}`,
+      memo: `${lead.customerName} — 40% of profit`,
       taxYear: new Date().getFullYear(),
     },
   });
@@ -100,10 +102,9 @@ export async function POST(req: NextRequest) {
       id: created.id,
       total: payout.total,
 
-      topLine: payout.topLine,
+      grossProfit: payout.breakdown.grossProfit,
       companyNet: payout.companyNet,
-      clamped: payout.clamped,
-      clampReason: payout.clampReason,
+      breakdown: payout.breakdown,
     },
     { status: 201 },
   );

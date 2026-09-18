@@ -6,7 +6,7 @@ import ChannelPartnerForm from "./ChannelPartnerForm";
 import EarningsEstimator from "./EarningsEstimator";
 import { COMPANY, PHONE_DIGITS } from "@/lib/regions/brand";
 import {
-  CHANNEL_PARTNER_TOP_LINE_RATE,
+  CHANNEL_PARTNER_PROFIT_SHARE,
   JOURNEY_STEPS,
   formatFee,
   formatMoney,
@@ -27,14 +27,24 @@ import { TRADES } from "@/lib/regions/trades";
 // Different audience from /partners, which recruits crews who do labour. A
 // channel partner does no work at all. See src/lib/regions/channelPartners.ts.
 
-const RATE = `${Math.round(CHANNEL_PARTNER_TOP_LINE_RATE * 100)}%`;
+const SHARE = `${Math.round(CHANNEL_PARTNER_PROFIT_SHARE * 100)}%`;
+
+/**
+ * What the split lands at on a job we see a lot of.
+ *
+ * A 25-square roof at book price makes about $4,600 and pays $1,850; sold with
+ * normal markup it pays $2,600 to $3,800. Quoting the bottom of that range on
+ * the pitch page is deliberate — a partner told $2,000 who earns $3,000 tells
+ * other people about us, and one told $3,000 who earns $2,000 does not.
+ */
+const TYPICAL = "$2,000";
 
 export const metadata: Metadata = {
-  title: `Partner With Us — Half the Profit on Every Job | ${COMPANY.name}`,
+  title: `Partner With Us — ${SHARE} of the Profit on Every Job | ${COMPANY.name}`,
   description:
     `Your past customers are worth money you're not collecting. Share your list, we do the ` +
-    `calling and the work, and you take ${RATE} of what every job sells for. No ceiling, no ` +
-    `selling, no labour, no cost to join.`,
+    `calling and the work, and you take ${SHARE} of the profit on every job — around ${TYPICAL} ` +
+    `on a typical roof. No selling, no labour, no cost to join.`,
   robots: { index: true, follow: true },
 };
 
@@ -62,10 +72,10 @@ const HOW_IT_WORKS = [
   },
   {
     step: "04",
-    title: "You take 10% of the contract",
+    title: `You take ${SHARE} of the profit`,
     body:
-      `${RATE} of whatever each job sells for, whatever the size. Paid once the work is ` +
-      `finished and the customer has paid us.`,
+      `${SHARE} of what the job actually made, on every job, with no cap. Paid once the work ` +
+      `is finished and the customer has paid us.`,
   },
 ];
 
@@ -118,8 +128,9 @@ const PROMISES = [
   {
     title: "You can see everything",
     body:
-      "A private page showing every customer we called, the stage they're at right now, and " +
-      "every dollar earned and paid. No login, no chasing, no invoices.",
+      "Your own account showing every customer we called, the stage they're at right now, and " +
+      "every dollar earned and paid — with the working behind each figure. No chasing, no " +
+      "invoices, nothing to ask us for.",
   },
 ];
 
@@ -134,15 +145,14 @@ const FAQ = [
   {
     q: "How does the money actually work?",
     a:
-      `You get ${RATE} of whatever the job sells for. Sell a roof at $28,000 and that's $2,800 ` +
-      `to you. Sell a $60,000 job and it's $6,000 — there is no ceiling on it.\n\n` +
-      `We moved to this from a share of our profit for one reason: you can check it. You can't ` +
-      `see what a job cost us or what the salesperson earned, so a share of profit is a number ` +
-      `you would have to take our word for every time. ${RATE} of the contract is a number you ` +
-      `can work out yourself, and confirm with your own customer if you ever want to.\n\n` +
-      `One exception: a job that barely made anything. If ${RATE} would be more than the whole ` +
-      `profit on it, you get 45% of that profit instead — and your page tells you when that ` +
-      `happened and why.`,
+      `You get ${SHARE} of the profit on every job — what the customer paid, less what the job ` +
+      `cost us to build, less what the person who sold it earned. On a typical roof that lands ` +
+      `around ${TYPICAL}; on a big one it is a good deal more, and there is no cap on it.\n\n` +
+      `You do not have to take our word for any of that. Your page shows the working on every ` +
+      `job — what it sold for, what it cost us, what the salesperson made, what was left, and ` +
+      `what ${SHARE} of it came to. Most companies would not show you their cost. We would ` +
+      `rather you could check.\n\n` +
+      `A job sold at our book price still pays you. There is no threshold to clear.`,
   },
   {
     q: "Do I have to do any work at all?",
@@ -177,8 +187,8 @@ const FAQ = [
     a:
       "Yes, and it's the part partners end up using most. You get a private page showing every " +
       "customer you sent us and exactly which stage they're at — not called yet, being called, " +
-      "appointment booked, sold, finished. Plus what's earned and what's been paid. No login, " +
-      "no asking us for an update.",
+      "appointment booked, sold, finished. Plus what's earned, what's been paid, and the " +
+      "figures each payout was worked out from. You never have to ask us for an update.",
   },
   {
     q: "What if my customers are all over the place?",
@@ -228,17 +238,18 @@ export default function ChannelPartnersPage() {
                 </Link>
               </div>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                Your old customers are worth 10% of every job they send us.
+                Your old customers are worth about {TYPICAL} a job to you.
               </h1>
               <p className="mt-4 text-lg text-neutral-200">
                 Share the list of people you&apos;ve already done work for. We call them, sell
-                the home improvement work you don&apos;t do, and pay you {RATE} of whatever it
-                sells for. You do nothing: no selling, no labour, no cost to join.
+                the home improvement work you don&apos;t do, and pay you {SHARE} of the profit
+                on it — around {TYPICAL} on a typical roof. You do nothing: no selling, no
+                labour, no cost to join.
               </p>
 
               <dl className="mt-8 grid gap-4 sm:grid-cols-2">
                 {[
-                  [`${RATE} of every job`, `Of the contract price, whatever it is. No ceiling.`],
+                  [`${SHARE} of the profit`, `On every job, no cap. Around ${TYPICAL} on a typical roof.`],
                   ["Zero work", "We call, quote, contract and build. You share a spreadsheet."],
                   ["You watch it happen", "See every customer's stage, live, on your own page."],
                   ["Paid on completion", "Money lands when the job is finished, not when it's promised."],
@@ -275,7 +286,7 @@ export default function ChannelPartnersPage() {
               Drag it to the size of your customer list.
             </p>
             <div className="mt-8">
-              <EarningsEstimator rate={CHANNEL_PARTNER_TOP_LINE_RATE} />
+              <EarningsEstimator share={CHANNEL_PARTNER_PROFIT_SHARE} typicalPerJob={2000} />
             </div>
           </div>
         </section>

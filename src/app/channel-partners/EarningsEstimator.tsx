@@ -12,12 +12,12 @@ import { useState } from "react";
 // is a partner who tells other people we lied, and this program only works if
 // they talk to each other well.
 //
-// The figure a partner can check themselves.
-//
-// Since the payout is a percentage of the contract, the only guesswork left is
-// how many jobs a list throws off and what they sell for — both of which are
-// stated as assumptions rather than buried. Nobody can promise what somebody
-// else's list will do, and a single confident number here is a promise.
+// Since the payout is a share of each job's profit, there are two layers of
+// guesswork rather than one — how many jobs a list throws off, and what the
+// profit on them is. Both are stated as assumptions on the page rather than
+// folded into a headline number. The profit band is not invented: it is what
+// the price book actually produces across every trade and every option we
+// sell, from a job at the book price to one marked up half again.
 
 type Rates = { reach: number; interested: number; close: number };
 
@@ -34,23 +34,39 @@ const HIGH: Rates = { reach: 0.5, interested: 0.22, close: 0.35 };
 const JOB_VALUE_LOW = 4_000;
 const JOB_VALUE_HIGH = 22_000;
 
+/**
+ * Gross profit as a share of the contract, before the partner's cut.
+ *
+ * Measured off our own price book rather than guessed. A job sold at the book
+ * price lands at the bottom of this band; one sold with normal markup lands at
+ * the top. Published here because a share of profit is only worth anything to
+ * a partner who can see roughly what the profit is — and the exact figures for
+ * their own jobs are on their portal once they are in.
+ */
+const MARGIN_LOW = 0.34;
+const MARGIN_HIGH = 0.46;
+
 function jobsFrom(listSize: number, rates: Rates): number {
   return Math.floor(listSize * rates.reach * rates.interested * rates.close);
 }
 
 export default function EarningsEstimator({
-  rate,
+  share,
+  typicalPerJob,
 }: {
-  /** The partner's share of the contract, 0–1. */
-  rate: number;
+  /** The partner's share of each job's gross profit, 0–1. */
+  share: number;
+  /** What that share works out to on the job we sell most of, in dollars. */
+  typicalPerJob: number;
 }) {
   const [listSize, setListSize] = useState(400);
 
   const lowJobs = jobsFrom(listSize, LOW);
   const highJobs = jobsFrom(listSize, HIGH);
-  const perJobLow = Math.round(JOB_VALUE_LOW * rate);
-  const perJobHigh = Math.round(JOB_VALUE_HIGH * rate);
+  const perJobLow = Math.round(JOB_VALUE_LOW * MARGIN_LOW * share);
+  const perJobHigh = Math.round(JOB_VALUE_HIGH * MARGIN_HIGH * share);
   const money = (n: number) => `$${n.toLocaleString("en-US")}`;
+  const pct = (n: number) => `${Math.round(n * 100)}%`;
 
   const shareLow = lowJobs * perJobLow;
   const shareHigh = highJobs * perJobHigh;
@@ -91,23 +107,13 @@ export default function EarningsEstimator({
         </p>
       </div>
 
-      {/* Split out so a partner can see which half is the reliable one. The
-          share lands on every job; the bonus only on the big ones. */}
+      {/* The per-job figure and the count of jobs, split out, because they fail
+          for different reasons. The per-job number is ours and we can stand
+          behind it; the job count depends entirely on whose list it is. */}
       <dl className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="rounded-xl border border-white/10 bg-paper/40 p-4">
           <dt className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
-            Your {Math.round(rate * 100)}% of each contract
-          </dt>
-          <dd className="mt-1 text-lg font-bold text-ink">
-            {money(shareLow)} – {money(shareHigh)}
-          </dd>
-          <dd className="text-xs leading-relaxed text-neutral-400">
-            on every job, whatever the size
-          </dd>
-        </div>
-        <div className="rounded-xl border border-white/10 bg-paper/40 p-4">
-          <dt className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
-            Per job
+            Your {pct(share)} of each job&apos;s profit
           </dt>
           <dd className="mt-1 text-lg font-bold text-ink">
             {money(perJobLow)} – {money(perJobHigh)}
@@ -116,11 +122,22 @@ export default function EarningsEstimator({
             on jobs selling {money(JOB_VALUE_LOW)} – {money(JOB_VALUE_HIGH)}
           </dd>
         </div>
+        <div className="rounded-xl border border-white/10 bg-paper/40 p-4">
+          <dt className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
+            On a typical roof
+          </dt>
+          <dd className="mt-1 text-lg font-bold text-ink">
+            about {money(typicalPerJob)}
+          </dd>
+          <dd className="text-xs leading-relaxed text-neutral-400">
+            the job we sell most of, at our book price
+          </dd>
+        </div>
       </dl>
 
       {/* The assumptions, stated. A range with hidden maths behind it is just
           a bigger number wearing a disguise. */}
-      <dl className="mt-3 grid gap-3 sm:grid-cols-3">
+      <dl className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {[
           ["We reach", `${LOW.reach * 100}–${HIGH.reach * 100}%`, "of a list actually picks up"],
           [
@@ -129,6 +146,11 @@ export default function EarningsEstimator({
             "of the people we reach",
           ],
           ["It closes", `${LOW.close * 100}–${HIGH.close * 100}%`, "of the appointments we run"],
+          [
+            "Profit on a job",
+            `${pct(MARGIN_LOW)}–${pct(MARGIN_HIGH)}`,
+            "of the contract, after cost and the person who sold it",
+          ],
         ].map(([label, value, hint]) => (
           <div key={label} className="rounded-xl border border-white/10 bg-paper/40 p-4">
             <dt className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
@@ -142,10 +164,11 @@ export default function EarningsEstimator({
 
       <p className="mt-5 text-xs leading-relaxed text-neutral-400">
         An estimate, not a promise. How recent your list is, how well they remember you, and what
-        kind of houses they own move every one of these numbers. The top of the range needs all
-        four assumptions to land well at once, so treat the bottom as the realistic one. We&apos;d
-        rather show you the range and the maths than a single number we picked because it sounded
-        good.
+        kind of houses they own move every one of these numbers. The top of the range needs all four
+        assumptions to land well at once, so treat the bottom as the realistic one. What we will
+        promise is the {pct(share)}: on every job you are shown what it sold for, what it cost us,
+        what the person who sold it earned, and what was left — so you can check your own figure
+        rather than take ours.
       </p>
     </div>
   );

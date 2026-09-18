@@ -63,13 +63,14 @@ export default async function PipelinePage() {
         base: baseTotal,
         sold: soldPrice,
         grossProfit: soldPrice - costTotal - commission,
+        cost: costTotal,
+        sellerCommission: commission,
       });
       const check = marginCheck(soldPrice, result.companyNet);
       quote = {
         sold: soldPrice,
         payout: result.total,
-        clamped: result.clamped,
-        topLine: result.topLine,
+        grossProfit: result.breakdown.grossProfit,
         margin: check.margin,
         marginOk: check.ok,
       };

@@ -4,7 +4,7 @@ import NetworkHeader from "@/components/network/NetworkHeader";
 import NetworkFooter from "@/components/network/NetworkFooter";
 import { prisma } from "@/lib/prisma";
 import {
-  CHANNEL_PARTNER_TOP_LINE_RATE,
+  CHANNEL_PARTNER_PROFIT_SHARE,
   JOURNEY_STEPS,
   MILESTONES,
   channelPartnerPayout,
@@ -101,9 +101,16 @@ export default async function PortalView({
 
   // Payouts carry a loose leadId rather than a relation (same shape as
   // WorkerPayout.estimateId), so the ledger joins them here.
-  // Where the backstop reduced a payout below 10%, the reason in the partner's
-  // own words. Computed from the same function that decided the figure.
-  const clampNotes = new Map<string, string>();
+  // The arithmetic behind each payout, published rather than summarised.
+  //
+  // A share of profit is only checkable if the profit is. Showing our own cost
+  // and what the seller earned is the price of making 40% verifiable, and it
+  // is worth paying: a partner who can see the working and still thinks the
+  // split is fair is a partner who believes the rest of what we tell them.
+  const workings = new Map<
+    string,
+    { sold: number; cost: number; sellerCommission: number; grossProfit: number; share: number }
+  >();
   for (const lead of partner.leads) {
     const e = lead.estimate;
     if (!e) continue;
@@ -111,8 +118,10 @@ export default async function PortalView({
       base: e.baseTotal,
       sold: e.soldPrice,
       grossProfit: e.soldPrice - e.costTotal - e.commission,
+      cost: e.costTotal,
+      sellerCommission: e.commission,
     });
-    if (result.clampReason) clampNotes.set(lead.id, result.clampReason);
+    workings.set(lead.id, { ...result.breakdown, share: result.total });
   }
 
   const payoutByLead = new Map(
@@ -164,8 +173,9 @@ export default async function PortalView({
             {soldCount > 0 && (
               <p className="mt-4 rounded-xl border border-white/10 bg-white/[0.04] p-4 text-sm leading-relaxed text-neutral-300">
                 A job is yours the day the customer signs, and pays out once the work is
-                finished. The amount is worked out then — half the profit on the job, plus a{" "}
-                {Math.round(CHANNEL_PARTNER_TOP_LINE_RATE * 100)}% of what each job sells for.
+                finished and the customer has paid. The amount is worked out then:{" "}
+                {Math.round(CHANNEL_PARTNER_PROFIT_SHARE * 100)}% of what the job made, with the
+                figures behind it shown against the job so you can check it.
               </p>
             )}
 
@@ -340,14 +350,43 @@ export default async function PortalView({
                         </p>
                       )}
 
-                      {/* When the thin-job backstop bit, the partner is told, because the
-                          agreement says they will be and because a payout that is
-                          silently under 10% is exactly the thing this formula was
-                          chosen to avoid. */}
-                      {payout && clampNotes.get(lead.id) && (
-                        <p className="mt-2 rounded-lg border border-brand/30 bg-brand/[0.08] px-3 py-2 text-xs leading-relaxed text-neutral-200">
-                          {clampNotes.get(lead.id)}
-                        </p>
+                      {/* The working. Every figure that produced their share, including
+                          what the job cost us — see the comment on `workings`. */}
+                      {workings.get(lead.id) && (
+                        <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2.5 text-xs">
+                          {(
+                            [
+                              ["Sold for", workings.get(lead.id)!.sold],
+                              ["What it cost us", -workings.get(lead.id)!.cost],
+                              // Only when somebody actually earned on it. A job
+                              // sold at the book price pays no commission, and a
+                              // row reading "Sold by $0" invites exactly the
+                              // wrong question about a working meant to reassure.
+                              ...(workings.get(lead.id)!.sellerCommission > 0
+                                ? ([
+                                    ["Sold by", -workings.get(lead.id)!.sellerCommission],
+                                  ] as [string, number][])
+                                : []),
+                              ["Profit", workings.get(lead.id)!.grossProfit],
+                            ] as [string, number][]
+                          ).map(([label, value]) => (
+                            <div key={label as string} className="flex justify-between gap-2">
+                              <dt className="text-neutral-500">{label}</dt>
+                              <dd className="font-mono tabular-nums text-neutral-300">
+                                {(value as number) < 0 ? "−" : ""}
+                                {formatMoney(Math.abs(value as number))}
+                              </dd>
+                            </div>
+                          ))}
+                          <div className="col-span-2 mt-1 flex justify-between gap-2 border-t border-white/10 pt-1.5">
+                            <dt className="font-semibold text-ink">
+                              Your {Math.round(CHANNEL_PARTNER_PROFIT_SHARE * 100)}%
+                            </dt>
+                            <dd className="font-mono font-bold tabular-nums text-brand-cyan">
+                              {formatMoney(workings.get(lead.id)!.share)}
+                            </dd>
+                          </div>
+                        </dl>
                       )}
 
                       {/* Why it died, in the rep's own words. The whole point. */}
