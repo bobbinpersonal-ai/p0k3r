@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { requirePartnerByToken } from "@/lib/partnerAccess";
 import { prisma } from "@/lib/prisma";
 import { COMPANY, PHONE_DIGITS } from "@/lib/regions/brand";
 import { LIVE_SERVICES, parseServices } from "@/lib/regions/channelPartners";
@@ -20,6 +21,11 @@ export default async function LeaveBehindPage({
 }: {
   params: { token: string };
 }) {
+  // Same door policy as the portal itself: the texted link works until the
+  // partner sets a password, and a session is required after that. Without
+  // this the front page would lock and the side pages would not.
+  await requirePartnerByToken(params.token);
+
   const partner = await prisma.channelPartner.findUnique({
     where: { portalToken: params.token },
     select: { businessName: true, services: true },

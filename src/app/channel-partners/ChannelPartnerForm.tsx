@@ -81,10 +81,22 @@ export default function ChannelPartnerForm() {
           We&apos;ll walk through what you can share and how before anything changes hands.
           Nothing about your list moves until you say so.
         </p>
-        {/* The one thing they must not lose. It is the only way back to their
-            own numbers, there is no password to reset, and somebody who
-            closes this tab without saving it has to ring us to get it again. */}
-        <p className="mt-4 text-sm font-semibold text-ink">Your private link — save this:</p>
+        {/* Setting a password here is the best moment there will ever be —
+            they are on the page, the account is theirs, and the alternative is
+            a link in a text they have to keep forever. The bare link stays
+            below it for anyone who wants to get on with their day. */}
+        <a
+          href={`/channel-partners/${portalToken}/claim`}
+          className="mt-4 block rounded-xl bg-brand px-5 py-4 text-center text-base font-bold text-white"
+        >
+          Set a password →
+        </a>
+        <p className="mt-2 text-xs leading-relaxed text-neutral-300">
+          Takes ten seconds, and then you can sign in from any phone instead of hunting for a
+          text.
+        </p>
+
+        <p className="mt-4 text-sm font-semibold text-ink">Or just save this link:</p>
         <a
           href={`/channel-partners/${portalToken}`}
           className="mt-1 block break-all rounded-xl border border-white/15 bg-paper/60 px-3 py-3 font-mono text-xs text-brand-cyan hover:border-brand"

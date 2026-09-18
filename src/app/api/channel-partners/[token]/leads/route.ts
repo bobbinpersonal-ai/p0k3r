@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { authorisePartnerToken } from "@/lib/partnerAuth";
 import { getService } from "@/lib/regions/channelPartners";
 import { notifyNewLead } from "@/lib/notify";
 import { getRegion, regionForZip, REGIONS } from "@/lib/regions/states";
@@ -35,8 +36,13 @@ export async function POST(
   const body = await req.json().catch(() => null);
   if (!body) return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
 
+  // The texted link is enough only while the account has no password. After
+  // that this needs a session — see authorisePartnerToken.
+  const authorisedId = await authorisePartnerToken(req, params.token);
+  if (!authorisedId) return NextResponse.json({ error: "Not found." }, { status: 404 });
+
   const partner = await prisma.channelPartner.findUnique({
-    where: { portalToken: params.token },
+    where: { id: authorisedId },
     select: { id: true, businessName: true },
   });
   if (!partner) return NextResponse.json({ error: "Not found." }, { status: 404 });

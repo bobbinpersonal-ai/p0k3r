@@ -26,21 +26,21 @@ datasource db {
 // BIWEEKLY | MONTHLY (all three: see src/lib/landscaping.ts)
 
 model Driver {
-  id            String    @id @default(cuid())
-  name          String
-  phone         String
-  vehicle       String?
-  payoutMethod  String?
-  payoutHandle  String?
-  active        Boolean   @default(true)
-  notes         String?
-  createdAt     DateTime  @default(now())
-  bookings      Booking[]
+  id           String    @id @default(cuid())
+  name         String
+  phone        String
+  vehicle      String?
+  payoutMethod String?
+  payoutHandle String?
+  active       Boolean   @default(true)
+  notes        String?
+  createdAt    DateTime  @default(now())
+  bookings     Booking[]
 }
 
 model DriverApplication {
-  id           String   @id @default(cuid())
-  status       String   @default("PENDING")
+  id     String @id @default(cuid())
+  status String @default("PENDING")
 
   name         String
   phone        String
@@ -59,9 +59,9 @@ model DriverApplication {
   // as moving, so it isn't a separate pool to recruit for). Nullable because
   // every applicant before the two pages were split came through one combined
   // page and genuinely didn't say.
-  line         String?
+  line String?
 
-  createdAt    DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 
 // A request to be introduced to licensed contractors — NOT a job we do.
@@ -75,93 +75,93 @@ model DriverApplication {
 //
 // status: NEW | CONTACTED | MATCHED | CLOSED
 model ContractorLead {
-  id            String   @id @default(cuid())
-  status        String   @default("NEW")
+  id     String @id @default(cuid())
+  status String @default("NEW")
 
-  name          String
-  phone         String
-  email         String?
-  zip           String
-  projectType   String
+  name           String
+  phone          String
+  email          String?
+  zip            String
+  projectType    String
   /// The trade's name as it read when they asked, for the same reason
   /// Booking.landscapingServiceLabel exists: the list is editable now.
-  projectLabel  String?
+  projectLabel   String?
   preferredStart String?
-  details       String?
+  details        String?
 
   // Which marketing channel sent them, same as everywhere else.
-  source        String?
+  source String?
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Booking {
-  id              String    @id @default(cuid())
-  status          String    @default("PENDING")
+  id     String @id @default(cuid())
+  status String @default("PENDING")
 
-  customerName    String
-  customerPhone   String
-  customerEmail   String?
+  customerName  String
+  customerPhone String
+  customerEmail String?
 
-  pickupAddress   String
+  pickupAddress  String
   // Nullable since not every job is a move: a dump run, a donation drop, or
   // help loading a container already in the driveway has one address. See
   // dropoffMode for which kind of job it is.
-  dropoffAddress  String?
-  dropoffMode     String?   @default("ADDRESS")
-  moveDate        DateTime
-  timeWindow      String
-  city            String?
+  dropoffAddress String?
+  dropoffMode    String?  @default("ADDRESS")
+  moveDate       DateTime
+  timeWindow     String
+  city           String?
 
   // Set when the customer books through the map quote flow. Null for phone
   // bookings and for addresses typed as free text rather than picked from the
   // autocomplete, so dispatch can tell a mapped route from a hand-entered one.
-  pickupLat       Float?
-  pickupLng       Float?
-  dropoffLat      Float?
-  dropoffLng      Float?
-  distanceMiles   Float?
-  vehicleTier     String?
+  pickupLat     Float?
+  pickupLng     Float?
+  dropoffLat    Float?
+  dropoffLng    Float?
+  distanceMiles Float?
+  vehicleTier   String?
 
   // Which of the three businesses this job belongs to. It decides which of
   // the fields below mean anything: a yard job has yardSize and no vehicle
   // tier or route, a move has moveSize and a distance. Defaulted rather than
   // nullable so every booking taken before the landscaping pivot reads back
   // as what it was — a move.
-  serviceLine     String    @default("MOVING")
+  serviceLine String @default("MOVING")
 
   // Moving and junk jobs. Nullable since the landscaping pivot: a lawn has no
   // move size.
-  moveSize        String?
-  serviceType     String?
+  moveSize         String?
+  serviceType      String?
   serviceTypeOther String?
-  needsHelper     Boolean   @default(true)
+  needsHelper      Boolean @default(true)
 
   // Landscaping jobs. The price is flat per (service x yard size), so unlike a
   // move there's no range: estimateLow and estimateHigh both hold the per-visit
   // price. frequency is what the customer signed up for — a recurring plan is
   // one Booking row for the first visit, with dispatch repeating it.
-  landscapingService String?
+  landscapingService      String?
   /// The service's name as it read on the day, kept because the catalogue is
   /// editable: renaming a service must not rewrite what a past customer
   /// agreed to on their signed agreement. Null on bookings taken before this
   /// existed, where readers fall back to looking the value up.
   landscapingServiceLabel String?
-  yardSize        String?
-  frequency       String?
+  yardSize                String?
+  frequency               String?
 
-  details         String?
+  details String?
   // Which marketing channel this lead came from, tracked the same way as
   // DriverApplication.source: /book?source=<value>. See src/lib/sources.ts.
-  source          String?
+  source  String?
 
-  estimateLow     Int
-  estimateHigh    Int
+  estimateLow  Int
+  estimateHigh Int
 
-  driverId        String?
-  driver          Driver?   @relation(fields: [driverId], references: [id])
-  dispatchNotes   String?
+  driverId      String?
+  driver        Driver? @relation(fields: [driverId], references: [id])
+  dispatchNotes String?
 
   // An unguessable link so a customer can cancel or ask to reschedule without
   // an account — see /manage/[token]. Generated with crypto.randomBytes, not
@@ -180,7 +180,7 @@ model Booking {
   // two days stale on the last schema that didn't need it. gen_random_uuid()
   // is volatile, so Postgres evaluates it per row and each existing booking
   // gets its own token instead.
-  manageToken     String    @unique @default(dbgenerated("gen_random_uuid()"))
+  manageToken String @unique @default(dbgenerated("gen_random_uuid()"))
 
   // What was collected on the doorstep, if anything.
   //
@@ -190,17 +190,17 @@ model Booking {
   // be a hole worth exactly the deposit. depositMethod is how the money
   // moved — VENMO, APPLE_PAY, CASH — and is never "NONE": nothing collected
   // is recorded as nothing, not as a method.
-  depositAmount   Int?
-  depositMethod   String?
-  depositPaidAt   DateTime?
+  depositAmount Int?
+  depositMethod String?
+  depositPaidAt DateTime?
 
   // Idempotency guards: both are set the moment their notification actually
   // sends, so a retried request or a re-run cron can't double-text someone.
   reminderSentAt      DateTime?
   reviewRequestSentAt DateTime?
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 /// An edit to the service catalogue, made at /admin/services.
@@ -255,11 +255,11 @@ model ServiceConfig {
 
 /// A 1099 sales rep. Runs appointments on leads assigned to them.
 model Rep {
-  id            String   @id @default(cuid())
-  name          String
-  phone         String
-  email         String?
-  active        Boolean  @default(true)
+  id     String  @id @default(cuid())
+  name   String
+  phone  String
+  email  String?
+  active Boolean @default(true)
 
   /// APPLIED, ACTIVE or INACTIVE.
   ///
@@ -267,17 +267,17 @@ model Rep {
   /// of thing — same name, same phone, same commission terms once they start —
   /// so /sell writes an APPLIED row instead of filling a second table that
   /// would have to be copied across on the day they are taken on.
-  status        String   @default("ACTIVE")
+  status     String  @default("ACTIVE")
   /// What they told us on the application. Kept for the phone screen.
-  city          String?
-  experience    String?
-  notes         String?
-  source        String?
+  city       String?
+  experience String?
+  notes      String?
+  source     String?
 
   /// 1099 paperwork. No W-9, no payout — see WorkerPayout for the same rule
   /// on crews. Kept as a flag rather than the form itself: we need to know
   /// that it exists, not to store a social security number.
-  w9OnFile      Boolean  @default(false)
+  w9OnFile Boolean @default(false)
 
   /// Per-rep commission terms, overriding the company default when set.
   /// Null means "whatever src/lib/texas/commission.ts says today", so a
@@ -286,26 +286,26 @@ model Rep {
   overageRate        Float?
 
   /// How this rep gets paid. Same two rails as the crews.
-  payoutMethod  String?
-  payoutHandle  String?
+  payoutMethod String?
+  payoutHandle String?
 
-  leads         Lead[]
-  estimates     Estimate[]
-  appointments  Appointment[]
+  leads        Lead[]
+  estimates    Estimate[]
+  appointments Appointment[]
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 /// Somebody who wants a price. Assigned to a rep by the owner, by hand.
 model Lead {
-  id            String   @id @default(cuid())
+  id     String @id @default(cuid())
   /// NEW, ASSIGNED, APPOINTMENT_SET, SOLD, COMPLETED, NO_SALE, DEAD.
   ///
   /// COMPLETED is distinct from SOLD because it is what releases a channel
   /// partner's payout — a signed job that cancels or never finishes has
   /// produced nothing to share. See src/lib/regions/channelPartners.ts.
-  status        String   @default("NEW")
+  status String @default("NEW")
 
   customerName  String
   customerPhone String
@@ -315,7 +315,7 @@ model Lead {
   zip           String?
 
   /// What they called about, if we know. Null is normal on a cold lead.
-  trade         String?
+  trade           String?
   /// Everything they asked for, comma separated, when a partner submits a
   /// referral naming more than one. `trade` stays the primary for routing and
   /// for every screen that assumes one; this is the full ask, so a rep going
@@ -323,23 +323,23 @@ model Lead {
   requestedTrades String?
   /// RETAIL (homeowner pays) or INSURANCE (carrier pays, homeowner pays the
   /// deductible). Decides which contract gets generated and which rules apply.
-  jobKind       String   @default("RETAIL")
+  jobKind         String  @default("RETAIL")
 
   /// Two-letter state code. The routing key under the network model: it picks
   /// the rules that apply and the partners eligible for the introduction.
-  state         String?
+  state String?
 
-  source        String?
-  notes         String?
+  source String?
+  notes  String?
 
   repId         String?
-  rep           Rep?     @relation(fields: [repId], references: [id])
+  rep           Rep?      @relation(fields: [repId], references: [id])
   assignedAt    DateTime?
   appointmentAt DateTime?
 
   /// Where this row came from, when it was bought rather than inbound.
-  leadListId    String?
-  leadList      LeadList? @relation(fields: [leadListId], references: [id])
+  leadListId String?
+  leadList   LeadList? @relation(fields: [leadListId], references: [id])
 
   /// Set when this customer came off a channel partner's list rather than a
   /// purchased list or the website. Drives both the payout when it sells and
@@ -349,13 +349,13 @@ model Lead {
 
   /// E.164, and unique across the whole table: the same homeowner turning up
   /// in two purchased lists is one lead with one call history, not two.
-  phoneKey      String?   @unique
+  phoneKey   String?   @unique
   /// MOBILE, LANDLINE or UNKNOWN. A bought list's guess, and treated as one.
-  lineType      String?
+  lineType   String?
   /// IANA zone for the property, so the curfew is checked where the phone is.
-  timeZone      String    @default("America/Chicago")
+  timeZone   String    @default("America/Chicago")
   /// Copied from the list at scrub time so screening is one query, not two.
-  scrubbedAt    DateTime?
+  scrubbedAt DateTime?
 
   /// TCPA consent, captured when a lead fills in a form themselves.
   ///
@@ -364,20 +364,20 @@ model Lead {
   /// and a later edit to the copy must not rewrite what an old lead agreed to.
   /// Null on a purchased lead, which is exactly the point: bought rows carry
   /// no consent, so the calling rules treat them differently.
-  consentText   String?
+  consentText    String?
   consentVersion String?
-  consentAt     DateTime?
-  consentIp     String?
-  consentUrl    String?
+  consentAt      DateTime?
+  consentIp      String?
+  consentUrl     String?
 
-  attempts      CallAttempt[]
-  appointments  Appointment[]
+  attempts     CallAttempt[]
+  appointments Appointment[]
 
-  estimate      Estimate?
-  noSaleReport  NoSaleReport?
+  estimate     Estimate?
+  noSaleReport NoSaleReport?
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status])
   @@index([repId])
@@ -386,35 +386,35 @@ model Lead {
 
 /// What the rep built at the kitchen table, and what the customer signed.
 model Estimate {
-  id            String   @id @default(cuid())
+  id    String @id @default(cuid())
   /// The customer's unguessable link to their own copy — same reasoning as
   /// Booking.manageToken on the California side.
-  token         String   @unique @default(dbgenerated("gen_random_uuid()"))
+  token String @unique @default(dbgenerated("gen_random_uuid()"))
 
-  leadId        String   @unique
-  lead          Lead     @relation(fields: [leadId], references: [id])
-  repId         String?
-  rep           Rep?     @relation(fields: [repId], references: [id])
+  leadId String  @unique
+  lead   Lead    @relation(fields: [leadId], references: [id])
+  repId  String?
+  rep    Rep?    @relation(fields: [repId], references: [id])
 
   /// DRAFT, PRESENTED, SIGNED, CANCELED.
-  status        String   @default("DRAFT")
-  jobKind       String   @default("RETAIL")
+  status  String @default("DRAFT")
+  jobKind String @default("RETAIL")
 
   /// Insurance jobs only. carrierScope is the carrier's own number for the
   /// work; with the deductible it sets the floor an insurance job may be sold
   /// at, because selling below it absorbs the deductible by arithmetic and
   /// Bus. & Com. Code § 27.02 makes that a crime.
-  carrier       String?
-  claimNumber   String?
-  carrierScope  Int?
-  deductible    Int?
+  carrier      String?
+  claimNumber  String?
+  carrierScope Int?
+  deductible   Int?
 
   /// The money, all of it stored rather than recomputed: the price book is
   /// editable, and a signed contract must not change when a rate does.
-  costTotal     Int
-  baseTotal     Int
-  soldPrice     Int
-  commission    Int
+  costTotal  Int
+  baseTotal  Int
+  soldPrice  Int
+  commission Int
 
   /// Taken at the table, the same way the California side does it.
   depositAmount Int?
@@ -423,43 +423,43 @@ model Estimate {
 
   /// Free text the rep types. Screened for deductible language before it is
   /// allowed to reach a contract — see src/lib/texas/compliance.ts.
-  scopeNotes    String?
+  scopeNotes String?
 
-  signedAt      DateTime?
-  signerName    String?
-  canceledAt    DateTime?
+  signedAt    DateTime?
+  signerName  String?
+  canceledAt  DateTime?
   /// Set when the buyer cancels inside their three business days, so a refund
   /// that is owed can be seen rather than remembered.
-  refundDueBy   DateTime?
+  refundDueBy DateTime?
 
-  lines         EstimateLine[]
+  lines EstimateLine[]
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status])
 }
 
 /// One measured line of an estimate, frozen at the rates that priced it.
 model EstimateLine {
-  id            String   @id @default(cuid())
-  estimateId    String
-  estimate      Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  estimateId String
+  estimate   Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
 
-  trade         String
-  tradeLabel    String
-  option        String
-  optionLabel   String
-  unit          String
-  quantity      Float
+  trade       String
+  tradeLabel  String
+  option      String
+  optionLabel String
+  unit        String
+  quantity    Float
 
   /// The rates as they read on the day, not as they read now.
-  costPerUnit   Float
-  basePerUnit   Float
-  cost          Int
-  base          Int
+  costPerUnit Float
+  basePerUnit Float
+  cost        Int
+  base        Int
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([estimateId])
 }
@@ -471,24 +471,24 @@ model EstimateLine {
 /// of filling a second table that would have to be copied across on the day
 /// they start.
 model Worker {
-  id            String   @id @default(cuid())
-  name          String
-  phone         String?
-  email         String?
-  active        Boolean  @default(true)
+  id     String  @id @default(cuid())
+  name   String
+  phone  String?
+  email  String?
+  active Boolean @default(true)
 
   /// APPLIED, ACTIVE or INACTIVE.
-  status        String   @default("ACTIVE")
+  status String @default("ACTIVE")
 
   /// Trades they actually do, comma-separated against Trade.value. A crew that
   /// does roofing and gutters is one crew with two trades, not two rows.
-  trades        String?
-  city          String?
+  trades             String?
+  city               String?
   /// Two-letter state code. A partner works one primary state; a second state
   /// is a second row, because licensing and registration are per-state.
-  state         String?
+  state              String?
   /// ZIP they work out of, which the radius is measured from.
-  baseZip       String?
+  baseZip            String?
   /// How far they will actually drive. The single most useful routing field in
   /// a rural network — a 40-mile radius in Wyoming covers a different number of
   /// homes than the same radius in Johnson County.
@@ -497,22 +497,22 @@ model Worker {
   /// Attorney General roofing registration. Stored so it can be verified.
   registrationNumber String?
   /// How many people turn up. Decides which jobs they can be given.
-  crewSize      Int?
+  crewSize           Int?
   /// Squares a day on a straightforward roof — their number, not ours, and
   /// treated as a claim until a job proves it.
-  dailyCapacity Int?
-  experience    String?
+  dailyCapacity      Int?
+  experience         String?
   /// Roofing crews are very often Spanish-first. Knowing before the
   /// phone screen is the difference between a call that works and one that
   /// wastes both sides' time.
-  language      String?
-  notes         String?
-  source        String?
+  language           String?
+  notes              String?
+  source             String?
 
   /// The IRS wants a 1099-NEC for anyone paid $600 or more in a calendar
   /// year, and it wants a W-9 on file to fill it in. The flag gates payouts;
   /// the identifier itself is not stored here.
-  w9OnFile      Boolean  @default(false)
+  w9OnFile Boolean @default(false)
 
   /// Insurance, which is the whole ballgame on a roof.
   ///
@@ -522,40 +522,40 @@ model Worker {
   /// than assumed: a crew without it means an injured worker has nowhere to go
   /// but a personal-injury claim against whoever is nearest. Both feed the
   /// warnings on the subcontractor agreement in src/lib/texas/crewAgreement.ts.
-  generalLiabilityOnFile Boolean @default(false)
-  workersCompOnFile      Boolean @default(false)
+  generalLiabilityOnFile Boolean   @default(false)
+  workersCompOnFile      Boolean   @default(false)
   /// So an expired certificate is visible rather than remembered.
   insuranceExpiresAt     DateTime?
 
-  payouts       WorkerPayout[]
+  payouts WorkerPayout[]
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status])
 }
 
 /// One payment to one worker. The 1099 total is the sum of these by year.
 model WorkerPayout {
-  id            String   @id @default(cuid())
-  workerId      String
-  worker        Worker   @relation(fields: [workerId], references: [id])
+  id       String @id @default(cuid())
+  workerId String
+  worker   Worker @relation(fields: [workerId], references: [id])
 
-  amount        Int
-  method        String
+  amount Int
+  method String
   /// Where it actually went, copied at the time of paying: a worker who
   /// changes their Zelle number later must not rewrite what we already sent.
-  handle        String?
-  memo          String?
+  handle String?
+  memo   String?
 
   /// Which job it was for. Null for a payment that isn't job-specific.
-  estimateId    String?
+  estimateId String?
 
-  paidAt        DateTime @default(now())
+  paidAt  DateTime @default(now())
   /// Denormalised so a year's 1099 totals are one indexed query.
-  taxYear       Int
+  taxYear Int
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([workerId, taxYear])
 }
@@ -569,19 +569,23 @@ model WorkerPayout {
 /// here as data; this row is the business relationship and the payout
 /// history, not an import of their customers.
 model ChannelPartner {
-  id            String   @id @default(cuid())
+  id     String @id @default(cuid())
   /// APPLIED, ACTIVE or INACTIVE — same lifecycle shape as Worker.
-  status        String   @default("APPLIED")
+  status String @default("APPLIED")
 
-  businessName  String
-  contactName   String
-  phone         String
-  email         String?
+  businessName String
+  contactName  String
+  phone        String
+  /// Also their login. Unique because it identifies the account, nullable
+  /// because a partner Kevin met on the phone may not have given one yet —
+  /// Postgres allows any number of NULLs under a unique index, so the two
+  /// facts do not fight.
+  email        String? @unique
   /// What trade their own business is in — tells us how warm their
   /// customer relationship actually is, not what they'll do for us (nothing).
-  industry      String?
-  city          String?
-  state         String?
+  industry     String?
+  city         String?
+  state        String?
 
   /// Roughly how many customers are on the list they're offering. Their
   /// number, unverified, useful only for triage.
@@ -593,7 +597,7 @@ model ChannelPartner {
   /// Selected by them rather than assumed by us, because the answer is
   /// usually "everything except what I already do" and getting that wrong
   /// means quoting a fencing company's customer for a fence.
-  services      String?
+  services String?
 
   /// Trades to keep away from — normally their own. Stored separately from
   /// `services` because "don't sell this" is a promise with teeth and should
@@ -602,10 +606,10 @@ model ChannelPartner {
 
   /// What kind of customers they have, in their words. Feeds the call script
   /// more than it feeds any routing logic.
-  clientBase    String?
+  clientBase String?
 
-  notes         String?
-  source        String?
+  notes  String?
+  source String?
 
   /// A link to the list they're sharing — a Google Sheet, Drive file or
   /// equivalent, held as a URL rather than as an import.
@@ -620,18 +624,34 @@ model ChannelPartner {
 
   /// The IRS wants a 1099-NEC for anyone paid $600 or more in a calendar
   /// year, same reasoning as Worker.w9OnFile.
-  w9OnFile      Boolean  @default(false)
+  w9OnFile Boolean @default(false)
 
-  /// Their own link to see what happened with the customers they gave us —
-  /// see /channel-partners/[token]. Unguessable, same reasoning as
-  /// Estimate.token and Booking.manageToken.
-  portalToken   String   @unique @default(dbgenerated("gen_random_uuid()"))
+  /// The link we text on a cold call, and the invitation to set a password.
+  ///
+  /// It used to be the credential itself. Now it is the first door only: once
+  /// passwordHash is set this token stops opening the portal and sends the
+  /// visitor to the login instead, so a text forwarded six months later is no
+  /// longer a way into somebody's customer list.
+  portalToken String @unique @default(dbgenerated("gen_random_uuid()"))
 
-  leads         Lead[]
-  payouts       ChannelPartnerPayout[]
+  /// scrypt, with its parameters stored alongside it — see
+  /// src/lib/partnerAuth.ts. Null means the account has not been claimed yet.
+  passwordHash  String?
+  passwordSetAt DateTime?
+  lastLoginAt   DateTime?
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  /// Wrong-password counter and the lockout it triggers. Reset on any
+  /// successful login. The alternative is an account whose password can be
+  /// guessed at whatever rate the network allows.
+  failedLogins Int       @default(0)
+  lockedUntil  DateTime?
+
+  leads    Lead[]
+  payouts  ChannelPartnerPayout[]
+  sessions ChannelPartnerSession[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([status])
 }
@@ -648,30 +668,30 @@ model ChannelPartner {
 /// than stacking, because a list of three near-identical notes reads as
 /// excuses rather than as a record.
 model NoSaleReport {
-  id            String   @id @default(cuid())
-  leadId        String   @unique
-  lead          Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  leadId String @unique
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
   /// A code from NO_SALE_REASONS, so these are countable rather than only
   /// readable — "how often is it price" is the question this answers.
-  reason        String
+  reason String
   /// The rep's own words. What the partner actually reads.
-  detail        String
+  detail String
 
   /// Who was in the house. Stored by name rather than by relation so the
   /// record survives them leaving, same reasoning as CallAttempt.calledBy.
-  filedBy       String
+  filedBy              String
   /// What we quoted, where we got that far. Null when we never priced it.
-  quotedAmount  Int?
+  quotedAmount         Int?
   /// True when the homeowner acknowledged the visit and the decision on the
   /// spot. An unacknowledged report is still a report, just a weaker one.
   customerAcknowledged Boolean @default(false)
 
   /// Whether this one is worth another try later, and when.
-  revisitAt     DateTime?
+  revisitAt DateTime?
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([reason])
 }
@@ -681,26 +701,54 @@ model NoSaleReport {
 /// Written only once the job is COMPLETE, not when it sells: a signed job that
 /// cancels has produced nothing to share. See src/lib/regions/channelPartners.ts
 /// for what the amount is made of — a flat fee plus half the gross profit.
+/// A signed-in channel partner.
+///
+/// Sessions live in the database rather than in a signed cookie so they can be
+/// taken away: a partnership that ends, a laptop left at a job site, a
+/// password change. A stateless token is only revocable by rotating a secret
+/// that would sign everybody else out at the same time.
+model ChannelPartnerSession {
+  id String @id @default(cuid())
+
+  /// SHA-256 of the token in the cookie, never the token itself. The token is
+  /// 256 bits of randomness, so there is nothing here worth brute forcing —
+  /// this only makes a leaked database useless for logging in as somebody.
+  tokenHash String @unique
+
+  channelPartnerId String
+  channelPartner   ChannelPartner @relation(fields: [channelPartnerId], references: [id], onDelete: Cascade)
+
+  expiresAt DateTime
+  /// Roughly which device, for a partner looking at their own sessions and
+  /// wondering what that one is. Truncated, never parsed.
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([channelPartnerId])
+  @@index([expiresAt])
+}
+
 model ChannelPartnerPayout {
-  id                String   @id @default(cuid())
-  channelPartnerId  String
-  channelPartner    ChannelPartner @relation(fields: [channelPartnerId], references: [id])
+  id               String         @id @default(cuid())
+  channelPartnerId String
+  channelPartner   ChannelPartner @relation(fields: [channelPartnerId], references: [id])
 
   /// CENTS, not dollars — the partner portal divides by 100 to display it.
   /// Storing dollars here pays somebody a hundredth of what they are owed.
-  amount            Int
-  method            String
-  handle            String?
-  memo              String?
+  amount Int
+  method String
+  handle String?
+  memo   String?
 
   /// Which lead/job it was for. Null for a payment that isn't job-specific.
-  leadId            String?
+  leadId String?
 
-  paidAt            DateTime @default(now())
+  paidAt  DateTime @default(now())
   /// Denormalised so a year's 1099 totals are one indexed query.
-  taxYear           Int
+  taxYear Int
 
-  createdAt         DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([channelPartnerId, taxYear])
 }
@@ -715,47 +763,47 @@ model ChannelPartnerPayout {
 
 /// A batch of leads bought from one broker on one day.
 model LeadList {
-  id            String   @id @default(cuid())
-  name          String
+  id        String  @id @default(cuid())
+  name      String
   /// Who sold it to us. Worth keeping: list quality varies enormously and
   /// this is the only way to find out which broker is worth buying from again.
-  vendor        String?
+  vendor    String?
   /// What we paid, so cost per booked appointment is computable.
-  costCents     Int?
+  costCents Int?
 
   /// When it was last run against the national and state registries. Null
   /// means never, and never means nobody may dial it.
   scrubbedAt    DateTime?
   /// How many rows the scrub removed — a number worth watching, because a
   /// list that loses 40% was sold to you knowing that.
-  scrubbedCount Int      @default(0)
+  scrubbedCount Int       @default(0)
 
-  leads         Lead[]
+  leads Lead[]
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 /// One dial. Logged whether or not anybody picked up.
 model CallAttempt {
-  id            String   @id @default(cuid())
-  leadId        String
-  lead          Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  leadId String
+  lead   Lead   @relation(fields: [leadId], references: [id], onDelete: Cascade)
 
   /// Who dialled — a setter or a rep, by name rather than by relation, so the
   /// record survives them leaving.
-  calledBy      String
-  outcome       String
-  notes         String?
+  calledBy String
+  outcome  String
+  notes    String?
 
   /// The lead's own local time when we rang, stored rather than derived: the
   /// curfew defence is "it was 2pm where they were", and that has to be
   /// answerable years later without re-deriving a time zone.
-  localTime     DateTime
+  localTime DateTime
   /// Only ever true where consent was captured on the recording itself.
-  recorded      Boolean  @default(false)
+  recorded  Boolean  @default(false)
 
-  createdAt     DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([leadId, createdAt])
 }
@@ -766,42 +814,42 @@ model CallAttempt {
 /// number, not to the row it happened to arrive on. Buy the same number again
 /// next year from a different broker and it is still blocked.
 model DncEntry {
-  id            String   @id @default(cuid())
+  id      String   @id @default(cuid())
   /// E.164. The unique key, so re-importing a blocked number cannot un-block it.
-  phone         String   @unique
+  phone   String   @unique
   /// NATIONAL, TEXAS, INTERNAL, LITIGATOR.
-  list          String
+  list    String
   /// What they said, where it was a person asking us directly.
-  note          String?
+  note    String?
   /// Internal requests are honoured forever; registry hits are refreshed.
-  addedAt       DateTime @default(now())
+  addedAt DateTime @default(now())
 
   @@index([list])
 }
 
 /// A booked in-home consultation. What the whole calling operation is for.
 model Appointment {
-  id            String   @id @default(cuid())
-  leadId        String
-  lead          Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  repId         String?
-  rep           Rep?     @relation(fields: [repId], references: [id])
+  id     String  @id @default(cuid())
+  leadId String
+  lead   Lead    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  repId  String?
+  rep    Rep?    @relation(fields: [repId], references: [id])
 
   /// Absolute instant, plus the local wall-clock string the customer was
   /// actually told. Two time zones are involved and only one of them is the
   /// customer's, so the promise is stored as words as well as a timestamp.
-  startsAt      DateTime
-  localLabel    String
+  startsAt   DateTime
+  localLabel String
 
   /// SET, CONFIRMED, SAT, NO_SHOW, CANCELED, RESCHEDULED.
-  status        String   @default("SET")
+  status String  @default("SET")
   /// Who set it, for setter scoreboards and for sat-rate by setter.
-  setBy         String?
-  notes         String?
+  setBy  String?
+  notes  String?
 
-  confirmedAt   DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  confirmedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 
   @@index([repId, startsAt])
   @@index([status])
@@ -814,10 +862,10 @@ model Appointment {
 /// option replaces it, a row with a new value adds one, and deleting a row
 /// reverts rather than deletes. Signing a new supplier is a form, not a deploy.
 model ProductConfig {
-  id            String   @id @default(cuid())
+  id    String @id @default(cuid())
   /// Which trade it belongs to — ROOFING, SIDING, WINDOWS, GUTTERS, FENCE, PAINT.
-  trade         String
-  value         String
+  trade String
+  value String
 
   label         String
   description   String
@@ -829,14 +877,14 @@ model ProductConfig {
   warranty      String?
   sellingPoints String[]
 
-  costPerUnit   Float
-  basePerUnit   Float
+  costPerUnit Float
+  basePerUnit Float
 
-  active        Boolean  @default(true)
-  sortOrder     Int      @default(100)
+  active    Boolean @default(true)
+  sortOrder Int     @default(100)
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@unique([trade, value])
   @@index([trade])

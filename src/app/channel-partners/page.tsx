@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import NetworkHeader from "@/components/network/NetworkHeader";
 import NetworkFooter from "@/components/network/NetworkFooter";
 import ChannelPartnerForm from "./ChannelPartnerForm";
@@ -214,10 +215,20 @@ export default function ChannelPartnersPage() {
           <div className="absolute inset-0 -z-10 bg-grid-fade" />
           <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_minmax(0,440px)] lg:py-16">
             <div className="min-w-0">
-              <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
-                Partner program · {REGIONS.map((r) => r.code).join(" · ")}
-              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <p className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-xs uppercase tracking-widest text-brand-cyan">
+                  <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
+                  Partner program · {REGIONS.map((r) => r.code).join(" · ")}
+                </p>
+                {/* Existing partners land on this page looking for their own
+                    numbers, not for the pitch they already said yes to. */}
+                <Link
+                  href="/channel-partners/login"
+                  className="text-xs font-semibold text-neutral-300 underline underline-offset-4 hover:text-ink"
+                >
+                  Already a partner? Sign in
+                </Link>
+              </div>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
                 Your old customers are worth half the profit on every job they send us.
               </h1>

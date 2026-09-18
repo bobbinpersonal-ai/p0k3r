@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { requirePartnerByToken } from "@/lib/partnerAccess";
 import NetworkHeader from "@/components/network/NetworkHeader";
 import NetworkFooter from "@/components/network/NetworkFooter";
 import { prisma } from "@/lib/prisma";
@@ -29,6 +30,11 @@ export default async function MarketingKitPage({
 }: {
   params: { token: string };
 }) {
+  // Same door policy as the portal itself: the texted link works until the
+  // partner sets a password, and a session is required after that. Without
+  // this the front page would lock and the side pages would not.
+  await requirePartnerByToken(params.token);
+
   const partner = await prisma.channelPartner.findUnique({
     where: { portalToken: params.token },
     select: { businessName: true, contactName: true, services: true, portalToken: true },
