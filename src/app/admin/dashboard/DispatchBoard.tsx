@@ -194,6 +194,18 @@ export default function DispatchBoard({
             Leads
           </a>
           <a
+            href="/admin/network/partners"
+            className="rounded-full border border-brand/40 bg-brand/10 px-4 py-2 text-sm font-semibold text-brand-cyan hover:border-brand"
+          >
+            Partners
+          </a>
+          <a
+            href="/admin/network/no-sale"
+            className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-neutral-200 hover:border-brand hover:text-brand-cyan"
+          >
+            No-sale
+          </a>
+          <a
             href="/admin/network/products"
             className="rounded-full border border-white/15 px-4 py-2 text-sm font-semibold text-neutral-200 hover:border-brand hover:text-brand-cyan"
           >
