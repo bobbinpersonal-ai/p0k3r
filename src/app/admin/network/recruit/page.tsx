@@ -8,6 +8,7 @@ import { REGIONS } from "@/lib/regions/states";
 import {
   OBJECTIONS,
   OPEN_PROSPECT_DISPOSITIONS,
+  PARTNER_SHORT_PATH,
   PROSPECT_TRADES,
   TYPICAL_PER_JOB,
   WHERE_TO_FIND,
@@ -148,7 +149,12 @@ export default async function RecruitPage({
   const conversationsToday = countOf("SENT_LINK") + countOf("CALLBACK") + countOf("NOT_NOW") + countOf("SIGNED_UP");
   const linksToday = countOf("SENT_LINK");
 
-  const signupUrl = `${siteOrigin()}/channel-partners`;
+  // The short alias, not the canonical path.
+  //
+  // This URL is read off a phone screen on a jobsite and, often enough, typed
+  // by hand from something said out loud on the call. See the note on
+  // PARTNER_SHORT_PATH for why it is digits.
+  const signupUrl = `${siteOrigin()}${PARTNER_SHORT_PATH}`;
 
   const rows: Prospect[] = prospects.map((p) => ({
     id: p.id,

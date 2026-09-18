@@ -391,6 +391,14 @@ export function pitch(facts: {
         "while they are still thinking about it. Send it before you hang up " +
         "and tell them you are sending it now.",
     },
+    {
+      heading: "If they ask for the website",
+      say: `${PARTNER_LINK_SPOKEN}. Two thousand, like the money.`,
+      note:
+        "Only if they ask, or if the text will not go through. Say the number " +
+        "twice and tie it to the figure they have just heard — that is what " +
+        "makes it stick without spelling anything out.",
+    },
   ];
 }
 
@@ -655,6 +663,20 @@ export function touchEmail(
       `${facts.url}\n\n${sign}`,
   };
 }
+
+/**
+ * The path to say on the phone, and to put in every message.
+ *
+ * Digits rather than a word. The call says "about two thousand dollars" three
+ * times before this comes up, so the link is the number they have just heard,
+ * and a number survives a bad line and an accent where a word does not. It
+ * redirects to /channel-partners — see next.config.mjs, which also explains
+ * why the obvious choice, /partner, is the riskier one.
+ */
+export const PARTNER_SHORT_PATH = "/2000";
+
+/** The same link, written the way it is read out loud. */
+export const PARTNER_LINK_SPOKEN = "lovemeafter dot com, slash, two thousand";
 
 /** A prospect worth the call: enough of a list for the maths to work. */
 export const MIN_VIABLE_LIST = 150;

@@ -24,6 +24,18 @@ const nextConfig = {
       // phone and gets texted to somebody mid-cold-call. Temporary rather than
       // permanent on purpose: a 308 is cached by the browser more or less
       // forever, and these are vanity links we may well want to repoint.
+      //
+      // /2000 is the one to say out loud, and it is digits on purpose. The
+      // call says "about two thousand dollars" three times, so the link is the
+      // number they have just heard — and a number survives an accent and a
+      // bad line where a word does not. "Slash earn" is heard as "urn" or
+      // "learn"; "slash two thousand" is not heard as anything else.
+      //
+      // It also sidesteps the singular/plural trap: /partner is this page and
+      // /partners is the crew recruiting page, so anybody who guesses the
+      // plural lands on a completely different offer. See the note on that
+      // page, which catches them.
+      { source: "/2000", destination: "/channel-partners", permanent: false },
       { source: "/partner", destination: "/channel-partners", permanent: false },
       { source: "/refer", destination: "/channel-partners", permanent: false },
     ];

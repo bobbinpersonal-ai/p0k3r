@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import NetworkHeader from "@/components/network/NetworkHeader";
 import NetworkFooter from "@/components/network/NetworkFooter";
 import PartnerForm from "./PartnerForm";
 import { COMPANY } from "@/lib/regions/brand";
+import { CHANNEL_PARTNER_PROFIT_SHARE } from "@/lib/regions/channelPartners";
 import { NEC_THRESHOLD } from "@/lib/regions/crewAgreement";
 import { REGIONS } from "@/lib/regions/states";
 import { TRADES } from "@/lib/regions/trades";
@@ -97,6 +99,31 @@ export default function PartnersPage() {
     <>
       <NetworkHeader ctaHref="#apply" />
       <main>
+        {/* The wrong-page catcher.
+            
+            /partner (singular) is the channel partner offer and /partners is
+            this page, so anybody who hears the short link on a call and
+            guesses the plural lands here — on a completely different pitch,
+            for people who do the work rather than people who share a list.
+            Without this they read two paragraphs about labour rates and
+            leave. It sits above the hero because by the time they have
+            scrolled, they have already decided we wasted their time. */}
+        <div className="border-b border-brand-cyan/20 bg-brand-cyan/[0.07]">
+          <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+            <p className="text-sm text-neutral-200">
+              <strong className="text-ink">Looking for the $2,000-a-job offer?</strong> That one
+              pays you {Math.round(CHANNEL_PARTNER_PROFIT_SHARE * 100)}% of the profit for sharing
+              your old customers. You do none of the work.
+            </p>
+            <Link
+              href="/channel-partners"
+              className="shrink-0 rounded-lg border border-brand-cyan bg-brand-cyan/15 px-4 py-1.5 text-sm font-bold text-brand-cyan hover:bg-brand-cyan/25"
+            >
+              Take me there →
+            </Link>
+          </div>
+        </div>
+
         <section className="relative overflow-hidden border-b border-white/10">
           <div className="absolute inset-0 -z-10 bg-grid-fade" />
           <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1.05fr_minmax(0,440px)] lg:py-16">
