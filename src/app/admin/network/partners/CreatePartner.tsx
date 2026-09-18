@@ -141,7 +141,7 @@ export default function CreatePartner() {
         <input name="email" type="email" inputMode="email" placeholder="Email (optional)" className={field} />
         <input name="city" placeholder="City" className={field} />
         <input name="zip" inputMode="numeric" maxLength={10} placeholder="ZIP" className={field} />
-        <select name="state" defaultValue="" className={field}>
+        <select name="state" defaultValue="" className={`${field} [color-scheme:dark]`}>
           <option value="">State (or leave to the ZIP)</option>
           {REGIONS.map((r) => (
             <option key={r.code} value={r.code}>

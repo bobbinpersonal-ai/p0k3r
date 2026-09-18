@@ -268,6 +268,18 @@ model Rep {
   /// so /sell writes an APPLIED row instead of filling a second table that
   /// would have to be copied across on the day they are taken on.
   status     String  @default("ACTIVE")
+
+  /// CLOSER or SCOUT — see src/lib/regions/scouts.ts.
+  ///
+  /// A closer sells work to homeowners and is paid on the overage of the deals
+  /// they close. A scout signs businesses onto the channel-partner program and
+  /// is paid an override on what those partners go on to produce. Same person
+  /// shape — name, phone, W-9, payout rail — and different arithmetic, so it
+  /// is a column rather than a second table that would duplicate all of it.
+  ///
+  /// Defaulted to CLOSER so every rep taken on before scouts existed reads
+  /// back as what they were.
+  role       String  @default("CLOSER")
   /// What they told us on the application. Kept for the phone screen.
   city       String?
   experience String?
