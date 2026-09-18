@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CONTACT_CONSENT_TEXT } from "@/lib/regions/brand";
+import { CONTACT_CONSENT_TEXT, SPEED_PROMISE } from "@/lib/regions/brand";
 import { TRADES } from "@/lib/regions/trades";
 import { REGIONS, regionForZip } from "@/lib/regions/states";
 
@@ -130,10 +130,14 @@ export default function InspectionForm({
           autoComplete="tel"
           className={FIELD}
         />
+        {/* Not required. Form-length testing lands on 3–5 fields, and a full
+            street address is the one a stranger hesitates over — we can get it
+            on the callback, which is a conversation they have already agreed
+            to by then. Left on the form because plenty of people fill it in
+            anyway and it makes the first call much better. */}
         <input
           name="address"
-          required
-          placeholder="Property address"
+          placeholder="Property address (optional)"
           autoComplete="street-address"
           className={FIELD}
         />
@@ -175,8 +179,12 @@ export default function InspectionForm({
         disabled={submitting || outOfArea}
         className="mt-4 w-full rounded-xl bg-brand px-4 py-4 text-base font-bold text-white disabled:opacity-60"
       >
-        {submitting ? "Sending…" : outOfArea ? "Not in our area yet" : "Book my free estimate"}
+        {submitting ? "Sending…" : outOfArea ? "Not in our area yet" : "Get my free estimate"}
       </button>
+
+      <p className="mt-2 text-center text-xs text-neutral-400">
+        {SPEED_PROMISE}. No obligation, and nothing charged for the visit.
+      </p>
 
       {/* Never pre-ticked. An unticked box is a lead we may work by other
           means, not a number we may dial. */}

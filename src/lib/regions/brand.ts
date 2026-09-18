@@ -51,6 +51,23 @@ export const BUSINESS_MODEL =
 export const PHONE_DIGITS = COMPANY.phone.replace(/[^\d+]/g, "");
 
 /**
+ * How fast we answer, said out loud, because it is the whole advantage.
+ *
+ * The research is unusually one-sided here: 78% of homeowners hire whichever
+ * company responds first, a lead answered inside five minutes converts around
+ * 21x better than one answered after thirty, and a study of 466 home service
+ * companies found 95% missed the five-minute mark and 40% never replied at
+ * all. Against a field where the average response is measured in days, "we
+ * call you back today" is both trivially deliverable by one person with a
+ * phone and the single most valuable sentence on the page.
+ *
+ * Deliberately "today" rather than "in five minutes". A promise the business
+ * misses once is worse than the weaker promise it keeps every time, and this
+ * one has to hold on a Saturday afternoon with one person answering.
+ */
+export const SPEED_PROMISE = "We call you back today";
+
+/**
  * Markets, in the order they're worked.
  *
  * Derived from the region registry rather than listed here, so a state's towns

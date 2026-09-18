@@ -45,9 +45,10 @@ export async function POST(req: NextRequest) {
   if (!phoneKey) {
     return NextResponse.json({ error: "That phone number doesn't look right." }, { status: 400 });
   }
-  if (!address) {
-    return NextResponse.json({ error: "We need the address to inspect." }, { status: 400 });
-  }
+  // Address is optional on the form now — it was the field people abandoned
+  // on, and we get it on the callback they have already agreed to. The column
+  // is NOT NULL, so a placeholder goes in rather than a blank that would read
+  // as a real address on a dispatch screen.
 
   // State routing. The ZIP is authoritative and the posted state is a hint:
   // trusting a client-supplied state would let a mistyped or spoofed value
@@ -97,7 +98,7 @@ export async function POST(req: NextRequest) {
       customerName,
       customerPhone: rawPhone,
       customerEmail: clean(body.customerEmail, MAX.name) || null,
-      address,
+      address: address || "Address to confirm on call",
       city: clean(body.city, MAX.name) || null,
       zip: zip || null,
       state: region.code,
@@ -119,7 +120,7 @@ export async function POST(req: NextRequest) {
     // call history or overwriting a consent record with a blank one.
     update: {
       customerName,
-      address,
+      ...(address ? { address } : {}),
       state: region.code,
       timeZone: region.timeZone,
       ...(zip ? { zip } : {}),

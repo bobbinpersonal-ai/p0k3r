@@ -4,7 +4,14 @@ import NetworkFooter from "@/components/network/NetworkFooter";
 import InspectionForm from "@/components/network/InspectionForm";
 import TradeMarquee from "@/components/network/TradeMarquee";
 import StickyHeroVideo from "@/components/network/StickyHeroVideo";
-import { COMPANY, FINANCING_ENABLED, FINANCING_PARTNER, PHONE_DIGITS, PROOF } from "@/lib/regions/brand";
+import {
+  COMPANY,
+  FINANCING_ENABLED,
+  FINANCING_PARTNER,
+  PHONE_DIGITS,
+  PROOF,
+  SPEED_PROMISE,
+} from "@/lib/regions/brand";
 import { REGIONS } from "@/lib/regions/states";
 import { TRADES } from "@/lib/regions/trades";
 
@@ -24,11 +31,11 @@ import { TRADES } from "@/lib/regions/trades";
 // statutory cancellation notice that has to stay reachable.
 
 export const metadata: Metadata = {
-  title: `Home Improvement Done Properly | Free Estimates | ${COMPANY.name}`,
+  title: `Free Home Improvement Estimate — Same-Day Callback | ${COMPANY.name}`,
   description:
-    "Windows, siding, roofing, garage doors, fencing, gutters and exterior paint. Free estimate, " +
-    "written scope and a vetted crew across Colorado, Missouri, Kansas, Indiana and Wyoming. " +
-    "No obligation.",
+    "Windows, siding, roofing, garage doors, fencing, gutters and exterior paint across Colorado, " +
+    "Missouri, Kansas, Indiana and Wyoming. Free written estimate, a vetted crew, and we call you " +
+    "back the same day. No obligation.",
 };
 
 const STEPS = [
@@ -138,15 +145,21 @@ export default function HomePage() {
                 <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
                 Free estimates · {REGIONS.map((r) => r.code).join(" · ")}
               </p>
+              {/* Plain, not clever. Landing-page testing is consistent on this
+                  — straightforward headlines naming the service and the benefit
+                  beat creative ones, and headline changes alone move conversion
+                  by 27–104%. The previous line here ("the hard part isn't the
+                  work...") was the better sentence and the worse headline: a
+                  homeowner scanning for five seconds could not tell from it
+                  what we sell or what they get. */}
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-ink sm:text-5xl">
-                The hard part isn&apos;t the work. It&apos;s knowing who to let near your house.
+                Free home improvement estimate. {SPEED_PROMISE}.
               </h1>
               <p className="mt-4 text-lg text-neutral-200">
-                Windows, siding, roofing, garage doors, fencing, gutters and exterior paint —
-                whatever the outside of your house needs. We book you a free estimate and send a
-                crew we&apos;ve actually checked: insurance, registration, and two customers we
-                rang ourselves. You get a written scope either way, and you&apos;re under no
-                obligation to anyone.
+                Windows, siding, roofing, garage doors, fencing, gutters and exterior paint. We
+                walk the house, put a real number in writing, and send a crew we&apos;ve actually
+                checked — insurance, registration, and two customers we rang ourselves. No
+                obligation either way.
               </p>
               <p className="mt-3 text-sm leading-relaxed text-neutral-400">
                 Now booking across{" "}
@@ -161,12 +174,15 @@ export default function HomePage() {
                   doing it. The product is the vetting and the guarantee, so
                   the trust strip describes that rather than a build history
                   we do not have yet and could not evidence. */}
-              <dl className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {/* Three, not four. The guidance is consistent that a hero wants
+                  a small number of trust signals readable in the first screen,
+                  and the fourth here ("costs you nothing") was saying the same
+                  thing as the first. */}
+              <dl className="mt-8 grid grid-cols-3 gap-4">
                 {[
-                  ["The estimate", "Free, no obligation"],
+                  ["Callback", "Same day"],
                   ["Every crew", "Insured & checked"],
-                  ["Costs you", "Nothing, ever"],
-                  ["Minimum workmanship", `${PROOF.workmanshipWarrantyYears} years`],
+                  ["Workmanship", `${PROOF.workmanshipWarrantyYears}-year warranty`],
                 ].map(([label, value]) => (
                   <div key={label} className="rounded-xl border border-white/10 bg-white/[0.04] p-3">
                     <dt className="font-mono text-[10px] uppercase tracking-widest text-neutral-400">
@@ -315,8 +331,8 @@ export default function HomePage() {
                 Find out what it actually costs.
               </h2>
               <p className="mt-3 text-lg text-neutral-200">
-                Free estimate, a written scope, and a crew we&apos;ve checked. No obligation
-                to hire us and nothing charged to you at any point.
+                Free estimate, a written scope, and a crew we&apos;ve checked. {SPEED_PROMISE} —
+                most companies in this trade take days, and plenty never call back at all.
               </p>
               <p className="mt-6">
                 <a
