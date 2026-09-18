@@ -13,8 +13,7 @@ import {
   WHERE_TO_FIND,
 } from "@/lib/regions/partnerProspects";
 import { CHANNEL_PARTNER_PROFIT_SHARE } from "@/lib/regions/channelPartners";
-import ProspectCard, { type Prospect } from "./ProspectCard";
-import CallScript from "./CallScript";
+import CallConsole, { type Prospect } from "./CallConsole";
 import AddProspects from "./AddProspects";
 
 // The partner acquisition hub.
@@ -81,21 +80,39 @@ export default async function RecruitPage({
   const tradeParam = searchParams?.trade ?? "";
   const trade = PROSPECT_TRADES.some((t) => t.value === tradeParam) ? tradeParam : null;
 
-  const where = {
+  const base = {
     status: "PROSPECT",
     callDisposition: { in: OPEN_PROSPECT_DISPOSITIONS },
     ...(state ? { state } : {}),
     ...(trade ? { industry: trade } : {}),
   };
 
-  const [prospects, todayCalls, signedCount, totalOpen] = await Promise.all([
+  // Only what is actually due.
+  //
+  // This is what makes the cadence a cadence rather than a list with dates on
+  // it. A prospect texted an hour ago with a call booked for Thursday should
+  // not be sitting between two fresh names today — if everything shows at
+  // once, the sequence is just decoration and whoever is calling works the
+  // top of the list until they get bored.
+  //
+  // followUpAt null means untouched, which is due by definition.
+  const where = {
+    ...base,
+    OR: [{ followUpAt: null }, { followUpAt: { lte: new Date() } }],
+  };
+
+  const [prospects, todayCalls, signedCount, totalOpen, scheduledLater] = await Promise.all([
     prisma.channelPartner.findMany({
       where,
-      // Never called first, then whoever has waited longest. A queue somebody
-      // can pick freely through is a queue where the awkward names never get
-      // rung, so the ordering does the choosing.
-      orderBy: [{ lastCalledAt: { sort: "asc", nulls: "first" } }, { createdAt: "asc" }],
-      take: 60,
+      // Longest overdue first, then never-touched, then oldest on the list. A
+      // queue somebody can pick freely through is a queue where the awkward
+      // names never get rung, so the ordering does the choosing.
+      orderBy: [
+        { followUpAt: { sort: "asc", nulls: "last" } },
+        { lastCalledAt: { sort: "asc", nulls: "first" } },
+        { createdAt: "asc" },
+      ],
+      take: 200,
       select: {
         id: true,
         businessName: true,
@@ -109,6 +126,7 @@ export default async function RecruitPage({
         notes: true,
         callDisposition: true,
         callCount: true,
+        cadenceStep: true,
         lastCalledAt: true,
         followUpAt: true,
       },
@@ -119,7 +137,10 @@ export default async function RecruitPage({
       _count: { _all: true },
     }),
     prisma.channelPartner.count({ where: { status: { not: "PROSPECT" }, source: "COLD_CALL" } }),
-    prisma.channelPartner.count({ where: { status: "PROSPECT", callDisposition: { in: OPEN_PROSPECT_DISPOSITIONS } } }),
+    prisma.channelPartner.count({ where: base }),
+    prisma.channelPartner.count({
+      where: { ...base, followUpAt: { gt: new Date() } },
+    }),
   ]);
 
   const dialsToday = todayCalls.reduce((sum, r) => sum + r._count._all, 0);
@@ -142,14 +163,11 @@ export default async function RecruitPage({
     notes: p.notes,
     disposition: p.callDisposition,
     callCount: p.callCount,
+    cadenceStep: p.cadenceStep,
     lastCalledLabel: ago(p.lastCalledAt, now),
     dueLabel: until(p.followUpAt, now),
   }));
 
-  // The script names whoever is about to be rung, so it is built from the top
-  // of the queue. Assembled in the client component because it also needs the
-  // caller's own name, which lives in their browser rather than on the server.
-  const first = rows[0] ?? null;
 
   const stat = (label: string, value: string | number, hint?: string) => (
     <div key={label} className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
@@ -235,49 +253,23 @@ export default async function RecruitPage({
         ))}
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,420px)]">
-        <div className="min-w-0">
-          <div className="flex items-baseline justify-between gap-3">
-            <h2 className="text-xl font-extrabold text-ink">
-              Call these {state ? `· ${state}` : ""}
-            </h2>
-            <span className="font-mono text-xs text-neutral-500">
-              {rows.length} showing · {totalOpen} open
-            </span>
-          </div>
-
-          {rows.length === 0 ? (
-            <div className="mt-4 rounded-2xl border border-dashed border-white/15 p-8 text-center">
-              <p className="font-semibold text-ink">Nobody in the queue.</p>
-              <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-neutral-400">
-                Add contractors below. Twenty names is an hour of calling, and an hour of
-                calling is how this network gets its next list.
-              </p>
-            </div>
-          ) : (
-            <div className="mt-4 space-y-3">
-              {rows.map((p) => (
-                <ProspectCard key={p.id} prospect={p} signupUrl={signupUrl} />
-              ))}
-            </div>
-          )}
+      <div className="mt-6">
+        <div className="flex items-baseline justify-between gap-3">
+          <h2 className="text-xl font-extrabold text-ink">
+            Working {state ? `· ${state}` : "· everywhere"}
+          </h2>
+          <span className="font-mono text-xs text-neutral-500">
+            {rows.length} due now · {scheduledLater} booked later · {totalOpen} in sequence
+          </span>
         </div>
-
-        {/* Sticky so it stays put while the queue scrolls under it. */}
-        <aside className="min-w-0 lg:sticky lg:top-6 lg:self-start">
-          <CallScript
-            prospect={
-              first
-                ? {
-                    businessName: first.businessName,
-                    contactName: first.contactName,
-                    trade: first.trade,
-                  }
-                : null
-            }
+        <div className="mt-4">
+          <CallConsole
+            queue={rows}
+            signupUrl={signupUrl}
             objections={OBJECTIONS}
+            scheduledLater={scheduledLater}
           />
-        </aside>
+        </div>
       </div>
 
       <div className="mt-8 grid gap-6 lg:grid-cols-2">

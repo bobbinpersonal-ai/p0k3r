@@ -774,7 +774,10 @@ model ChannelPartner {
   callDisposition String    @default("NEW")
   lastCalledAt    DateTime?
   callCount       Int       @default(0)
-  // Set from the disposition's retry window — see dueAt() in partnerProspects.ts.
+  // Where they are in the follow-up sequence, 0 meaning untouched. Drives both
+  // what the console tells you to do next and when — see CADENCE in
+  // src/lib/regions/partnerProspects.ts.
+  cadenceStep     Int       @default(0)
   followUpAt      DateTime?
 
   calls PartnerCall[]

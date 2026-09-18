@@ -5,10 +5,13 @@ import { revalidatePath } from "next/cache";
 import { ADMIN_COOKIE_NAME, isValidAdminSessionCookie } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
-  dueAt,
+  CADENCE_LENGTH,
+  CALLBACK_HOURS,
   getProspectDisposition,
   isProspectTrade,
   MIN_VIABLE_LIST,
+  nextTouchDue,
+  NOT_NOW_DAYS,
 } from "@/lib/regions/partnerProspects";
 import { REGIONS } from "@/lib/regions/states";
 
@@ -73,11 +76,36 @@ export async function logCall(
 
   const partner = await prisma.channelPartner.findUnique({
     where: { id: partnerId },
-    select: { id: true, status: true, callCount: true },
+    select: { id: true, status: true, callCount: true, cadenceStep: true },
   });
   if (!partner) return { ok: false, error: "Prospect not found." };
 
   const now = new Date();
+
+  // Where the sequence goes next.
+  //
+  // Most outcomes advance it: a touch happened, so the next one is due after
+  // the next gap. Three do not, and each for its own reason.
+  //
+  //   CALLBACK  — they named a time. Their time beats the sequence, and
+  //               advancing would also skip a touch they already answered.
+  //   NOT_NOW   — a real "not this quarter". Parked long, and the sequence
+  //               holds where it is so it resumes rather than restarts.
+  //   closing   — SIGNED_UP and DEAD end it outright.
+  const closes = disposition.closes;
+  const holds = outcome === "CALLBACK" || outcome === "NOT_NOW";
+  const cadenceStep = closes || holds ? partner.cadenceStep : Math.min(partner.cadenceStep + 1, CADENCE_LENGTH);
+
+  let followUpAt: Date | null = null;
+  if (!closes) {
+    if (outcome === "CALLBACK") {
+      followUpAt = new Date(now.getTime() + CALLBACK_HOURS * 60 * 60 * 1000);
+    } else if (outcome === "NOT_NOW") {
+      followUpAt = new Date(now.getTime() + NOT_NOW_DAYS * 24 * 60 * 60 * 1000);
+    } else {
+      followUpAt = nextTouchDue(cadenceStep, now);
+    }
+  }
 
   await prisma.$transaction([
     prisma.partnerCall.create({
@@ -94,7 +122,8 @@ export async function logCall(
         callDisposition: outcome,
         lastCalledAt: now,
         callCount: partner.callCount + 1,
-        followUpAt: dueAt(outcome, now),
+        cadenceStep,
+        followUpAt,
         // A prospect who signs up leaves the prospect pipeline and joins the
         // real one. Deliberately not the reverse: a DEAD prospect keeps its
         // status so the row is never silently resurrected by a later edit.

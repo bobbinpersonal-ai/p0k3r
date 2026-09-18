@@ -198,22 +198,20 @@ export type ProspectDisposition = {
   short: string;
   /** Whether it leaves the working queue. */
   closes: boolean;
-  /** Hours before it comes back round. Null when it does not. */
-  retryHours: number | null;
   /** How it reads on screen. */
   tone: "GOOD" | "NEUTRAL" | "BAD";
 };
 
 export const PROSPECT_DISPOSITIONS: readonly ProspectDisposition[] = [
-  { value: "NEW", label: "Not called yet", short: "New", closes: false, retryHours: null, tone: "NEUTRAL" },
-  { value: "NO_ANSWER", label: "No answer", short: "No answer", closes: false, retryHours: 4, tone: "NEUTRAL" },
-  { value: "VOICEMAIL", label: "Left a voicemail", short: "Voicemail", closes: false, retryHours: 24, tone: "NEUTRAL" },
-  { value: "GATEKEEPER", label: "Got past reception, owner not in", short: "Gatekeeper", closes: false, retryHours: 20, tone: "NEUTRAL" },
-  { value: "CALLBACK", label: "Owner wants a call back", short: "Call back", closes: false, retryHours: 24, tone: "GOOD" },
-  { value: "SENT_LINK", label: "Pitched, sent the link", short: "Sent link", closes: false, retryHours: 48, tone: "GOOD" },
-  { value: "SIGNED_UP", label: "Signed up", short: "Signed", closes: true, retryHours: null, tone: "GOOD" },
-  { value: "NOT_NOW", label: "Interested, wrong time", short: "Not now", closes: false, retryHours: 24 * 60, tone: "NEUTRAL" },
-  { value: "DEAD", label: "No, and don't call again", short: "Dead", closes: true, retryHours: null, tone: "BAD" },
+  { value: "NEW", label: "Not called yet", short: "New", closes: false, tone: "NEUTRAL" },
+  { value: "NO_ANSWER", label: "No answer", short: "No answer", closes: false, tone: "NEUTRAL" },
+  { value: "VOICEMAIL", label: "Left a voicemail", short: "Voicemail", closes: false, tone: "NEUTRAL" },
+  { value: "GATEKEEPER", label: "Got past reception, owner not in", short: "Gatekeeper", closes: false, tone: "NEUTRAL" },
+  { value: "CALLBACK", label: "Owner wants a call back", short: "Call back", closes: false, tone: "GOOD" },
+  { value: "SENT_LINK", label: "Pitched, sent the link", short: "Sent link", closes: false, tone: "GOOD" },
+  { value: "SIGNED_UP", label: "Signed up", short: "Signed", closes: true, tone: "GOOD" },
+  { value: "NOT_NOW", label: "Interested, wrong time", short: "Not now", closes: false, tone: "NEUTRAL" },
+  { value: "DEAD", label: "No, and don't call again", short: "Dead", closes: true, tone: "BAD" },
 ];
 
 /** What the hub can set. NEW is a starting state, not an outcome. */
@@ -235,17 +233,16 @@ export const OPEN_PROSPECT_DISPOSITIONS = PROSPECT_DISPOSITIONS.filter((d) => !d
 );
 
 /**
- * When a disposition should surface again, given when it was set.
+ * The two outcomes that set their own next date instead of using the cadence.
  *
- * Returns null for the ones that never come back. The hub uses this to decide
- * what is due rather than showing everything at once — a list of four hundred
- * names with no ordering is a list nobody works.
+ * A named callback is the prospect's own appointment and outranks the
+ * sequence. A "not this quarter" is parked long enough to be worth reopening
+ * without being forgotten. Everything else is scheduled by CADENCE, and
+ * keeping these here rather than inline in the action means there is one
+ * place that answers "when do we come back".
  */
-export function dueAt(disposition: string, lastCalledAt: Date): Date | null {
-  const d = DISP_BY_VALUE.get(disposition);
-  if (!d || d.retryHours == null) return null;
-  return new Date(lastCalledAt.getTime() + d.retryHours * 60 * 60 * 1000);
-}
+export const CALLBACK_HOURS = 24;
+export const NOT_NOW_DAYS = 60;
 
 export type PitchStep = {
   heading: string;
@@ -418,48 +415,200 @@ export const OBJECTIONS: readonly Objection[] = [
 ];
 
 /**
- * The text to send while you are still on the phone.
+ * What to call them in a message.
  *
- * Short, because it is read on a jobsite. Their own business name in it stops
- * it reading as a blast.
+ * Half the lists that get pasted in here come off Google Maps and have no
+ * owner's name on them, so the business name has to work as a greeting. It
+ * does, as long as it is tidied first: "Front Range Heating & Air LLC" reads
+ * like a mail merge, "Front Range Heating" reads like somebody typed it.
+ *
+ * The suffix strip is deliberately conservative. Only legal-entity endings and
+ * a trailing ampersand clause go; nothing that could be the actual name of the
+ * shop. Getting this wrong is worse than not trying, because a contractor who
+ * sees their name mangled knows exactly what kind of message they are reading.
  */
-export function followUpText(facts: {
-  callerName: string;
+export function greetingName(facts: {
+  contactName?: string | null;
   businessName: string;
-  url: string;
 }): string {
+  const person = facts.contactName?.trim();
+  if (person) return person.split(/\s+/)[0];
+
   return (
-    `${facts.callerName} from ${COMPANY.name} — just spoke. ` +
-    `${SHARE_PCT}% of the profit on any job we sell to your past customers, ` +
-    `about $${TYPICAL_PER_JOB.toLocaleString("en-US")} a job. ` +
-    `Nothing to pay, you can switch it off any time: ${facts.url}`
+    facts.businessName
+      .trim()
+      .replace(/[,\s]+(inc|llc|l\.l\.c|ltd|co|corp|company|pllc|plc)\.?$/i, "")
+      .replace(/\s*&\s*(son|sons|daughters|co)\.?$/i, "")
+      .trim() || facts.businessName.trim()
   );
 }
 
-/** The version for when you only have an email address. */
-export function followUpEmail(facts: {
+/** True when we are addressing a business rather than a person. */
+export function isBusinessGreeting(facts: { contactName?: string | null }): boolean {
+  return !facts.contactName?.trim();
+}
+
+export type Channel = "CALL" | "TEXT" | "EMAIL";
+
+export type CadenceStep = {
+  /** 1-based, and what gets stored on the prospect. */
+  step: number;
+  /** Days after the first touch that this one is due. */
+  day: number;
+  channel: Channel;
+  /** What the console calls it. */
+  label: string;
+  /** What this touch is for, so it does not repeat the last one. */
+  intent: string;
+};
+
+/**
+ * The follow-up sequence.
+ *
+ * Eight touches over eighteen days across three channels. That is aggressive
+ * by the standards of a contractor who has never been followed up with at all,
+ * and unremarkable by the standards of anybody selling B2B — most of these
+ * businesses are reached on touch four or later, and a sequence that quits at
+ * two is a sequence that pays for the first two and throws away the rest.
+ *
+ * Three things make it aggressive without making it obnoxious. The channel
+ * rotates, so it is never the same interruption twice running. The gaps widen,
+ * so it reads as persistence rather than pestering. And it ends — touch eight
+ * says we are stopping, which is both honest and, reliably, the touch that
+ * gets the most replies.
+ *
+ * A prospect who asks not to be contacted goes DEAD immediately and the
+ * sequence stops, wherever it had got to.
+ */
+export const CADENCE: readonly CadenceStep[] = [
+  { step: 1, day: 0, channel: "CALL", label: "First call", intent: "Reach the owner. If no answer, text straight after." },
+  { step: 2, day: 1, channel: "TEXT", label: "Text after the miss", intent: "The offer in writing, so the next call is not cold." },
+  { step: 3, day: 2, channel: "CALL", label: "Second call", intent: "Different time of day from the first. Mornings if you tried the afternoon." },
+  { step: 4, day: 4, channel: "EMAIL", label: "The full pitch", intent: "Long enough to forward to a partner or a bookkeeper." },
+  { step: 5, day: 7, channel: "CALL", label: "Third call", intent: "A week on. Reference the email rather than starting over." },
+  { step: 6, day: 11, channel: "TEXT", label: "One-line bump", intent: "Short. Easy to reply to with a yes or a no." },
+  { step: 7, day: 15, channel: "CALL", label: "Last call", intent: "Say it is the last one. It changes how the call goes." },
+  { step: 8, day: 18, channel: "TEXT", label: "Closing the file", intent: "Tell them you are stopping. This one gets replies." },
+];
+
+const CADENCE_BY_STEP = new Map(CADENCE.map((c) => [c.step, c]));
+
+/** Where a prospect is now. Step 0 means nobody has touched them. */
+export function currentTouch(step: number): CadenceStep | undefined {
+  return CADENCE_BY_STEP.get(Math.max(step, 1));
+}
+
+/** What comes after the touch just made, or undefined when the sequence is spent. */
+export function nextTouch(step: number): CadenceStep | undefined {
+  return CADENCE_BY_STEP.get(step + 1);
+}
+
+/**
+ * When the next touch is due, from the one just completed.
+ *
+ * Measured forward from now rather than from a stored start date, because a
+ * sequence that is behind should carry on from where the caller actually is —
+ * anchoring to day zero would dump five overdue touches into the queue at once
+ * after any gap, which is how a cadence turns into a backlog nobody works.
+ */
+export function nextTouchDue(completedStep: number, from: Date): Date | null {
+  const done = CADENCE_BY_STEP.get(completedStep);
+  const next = nextTouch(completedStep);
+  if (!next) return null;
+  const gapDays = Math.max(next.day - (done?.day ?? 0), 0);
+  return new Date(from.getTime() + gapDays * 24 * 60 * 60 * 1000);
+}
+
+export const CADENCE_LENGTH = CADENCE.length;
+
+type MessageFacts = {
   callerName: string;
   businessName: string;
   contactName?: string | null;
   url: string;
-}): { subject: string; body: string } {
-  const who = facts.contactName?.trim() || "there";
+};
+
+const money = `$${TYPICAL_PER_JOB.toLocaleString("en-US")}`;
+
+/**
+ * The text message for a given touch.
+ *
+ * Written to be different each time, because the fastest way to get blocked is
+ * to send the same paragraph three times. Each one assumes the ones before it
+ * arrived, which is what a real person's follow-up sounds like.
+ */
+export function touchText(step: number, facts: MessageFacts): string {
+  const who = greetingName(facts);
+  const me = facts.callerName.trim() || "[your name]";
+
+  switch (step) {
+    case 1:
+    case 2:
+      return (
+        `${who} — ${me} from ${COMPANY.name}. Tried you just now. ` +
+        `We pay ${SHARE_PCT}% of the profit on any job we sell to your past customers, ` +
+        `about ${money} a job. You do nothing but send the list. ${facts.url}`
+      );
+    case 6:
+      return (
+        `${who}, still worth a look? ${SHARE_PCT}% of the profit, about ${money} a job, ` +
+        `nothing to pay and you can switch it off whenever. Yes or no is fine: ${facts.url}`
+      );
+    case 8:
+      return (
+        `${who} — closing your file so I stop bothering you. If your old customer list ` +
+        `ever becomes worth ${money} a job to you, the offer stands: ${facts.url}. ` +
+        `Good luck either way. ${me}`
+      );
+    default:
+      return (
+        `${who} — ${me} from ${COMPANY.name} again. ${SHARE_PCT}% of the profit on work we ` +
+        `sell to your past customers, about ${money} a job, no cost to you: ${facts.url}`
+      );
+  }
+}
+
+/** The email for a given touch. Only steps 4 and 8 send one by default. */
+export function touchEmail(
+  step: number,
+  facts: MessageFacts,
+): { subject: string; body: string } {
+  const who = greetingName(facts);
+  const me = facts.callerName.trim() || "[your name]";
+  const sign = `${me}\n${COMPANY.name}\n${COMPANY.phone}`;
+
+  if (step >= 8) {
+    return {
+      subject: `Closing the file — ${facts.businessName}`,
+      body:
+        `Hi ${who},\n\n` +
+        `I have tried you a few times, so I will stop here.\n\n` +
+        `The offer does not expire: share the customers you have already done work for, ` +
+        `we sell them roofing, siding, windows, gutters, paint or fence, and you take ` +
+        `${SHARE_PCT}% of the profit — about ${money} a job. You do none of the work and ` +
+        `it costs you nothing.\n\n` +
+        `${facts.url}\n\n` +
+        `If it is not for you, no hard feelings at all.\n\n${sign}`,
+    };
+  }
+
   return {
     subject: `${facts.businessName} + ${COMPANY.name} — ${SHARE_PCT}% of the profit, no cost to you`,
     body:
       `Hi ${who},\n\n` +
-      `${facts.callerName} from ${COMPANY.name}. Quick version:\n\n` +
-      `You have a list of people you've already done work for. We're a general contractor — ` +
-      `roofing, siding, windows, gutters, paint, fence — and we don't do your trade.\n\n` +
-      `Share the list, we call them, we do the work, and you get ${SHARE_PCT}% of the profit ` +
-      `on anything that sells. That's about $${TYPICAL_PER_JOB.toLocaleString("en-US")} a job. ` +
-      `You don't sell, quote, schedule or show up.\n\n` +
-      `You can check every figure: each job shows what it sold for, what it cost us, and what ` +
-      `was left, so you can see the split is real.\n\n` +
-      `No fee, no contract to buy, no exclusivity, and you can revoke access to your list at ` +
-      `any time.\n\n` +
-      `${facts.url}\n\n` +
-      `${facts.callerName}\n${COMPANY.name}\n${COMPANY.phone}`,
+      `${me} from ${COMPANY.name}. Quick version:\n\n` +
+      `You have a list of people you have already done work for. We are a general ` +
+      `contractor — roofing, siding, windows, gutters, paint, fence — and we do not do ` +
+      `your trade.\n\n` +
+      `Share the list, we call them, we do the work, and you get ${SHARE_PCT}% of the ` +
+      `profit on anything that sells. That is about ${money} a job. You do not sell, quote, ` +
+      `schedule or show up.\n\n` +
+      `You can check every figure: each job shows what it sold for, what it cost us, and ` +
+      `what was left, so you can see the split is real. Most companies would not show you ` +
+      `their cost.\n\n` +
+      `No fee, no contract to buy, no exclusivity, and you can revoke access to your list ` +
+      `at any time.\n\n` +
+      `${facts.url}\n\n${sign}`,
   };
 }
 
