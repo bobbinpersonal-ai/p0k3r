@@ -53,6 +53,16 @@ export type ProspectTrade = {
    * the work.
    */
   shortName: string;
+  /**
+   * The two or three of our trades worth naming to this one, out loud.
+   *
+   * Not the full list. A solar shop's customers all own a roof, so "roofs and
+   * gutters" lands where reciting seven trades does not — and the full list
+   * takes ten seconds that a cold call does not have. Their own trade is
+   * never in here, which matters most for garage doors, where we genuinely
+   * do compete unless we say we do not.
+   */
+  leadWith: string;
   /** Why their list is worth something. The line that opens the call. */
   why: string;
   /** What a shop this size usually has sitting in a spreadsheet. */
@@ -64,6 +74,7 @@ export type ProspectTrade = {
 export const PROSPECT_TRADES: readonly ProspectTrade[] = [
   {
     value: "HVAC",
+    leadWith: "roofs, windows, and siding",
     shortName: "HVAC",
     label: "HVAC & furnace service",
     why: "A service book is the warmest list in home services, and nobody mines it. They have been inside the house, often more than once, and the customer called them — not the other way round.",
@@ -72,6 +83,7 @@ export const PROSPECT_TRADES: readonly ProspectTrade[] = [
   },
   {
     value: "PLUMBING",
+    leadWith: "roofs, windows, and siding",
     shortName: "plumbing",
     label: "Plumbing & drains",
     why: "Same as HVAC: invited in, remembered, and repeat. A plumber who did a water heater knows exactly which houses are tired.",
@@ -80,6 +92,7 @@ export const PROSPECT_TRADES: readonly ProspectTrade[] = [
   },
   {
     value: "SOLAR",
+    leadWith: "roofs and gutters",
     shortName: "solar",
     label: "Solar install & O&M",
     why: "Every single customer owns their roof and has already signed a five-figure contract on the house. The best-qualified list there is, and solar shops are hungry right now.",
@@ -88,6 +101,7 @@ export const PROSPECT_TRADES: readonly ProspectTrade[] = [
   },
   {
     value: "PEST",
+    leadWith: "roofs, siding, and gutters",
     shortName: "pest control",
     label: "Pest control & inspection",
     why: "They are in the crawlspace and on the roofline on a schedule, and they see the damage before the owner does. Recurring contracts mean the relationship is current.",
@@ -96,6 +110,7 @@ export const PROSPECT_TRADES: readonly ProspectTrade[] = [
   },
   {
     value: "SECURITY",
+    leadWith: "windows, doors, and siding",
     shortName: "security systems",
     label: "Security & smart home",
     why: "They have been inside the house and know which ones have original windows and doors. Install lists are well kept because they are tied to monitoring accounts.",
@@ -104,6 +119,7 @@ export const PROSPECT_TRADES: readonly ProspectTrade[] = [
   },
   {
     value: "GARAGE",
+    leadWith: "roofs, siding, and paint",
     shortName: "garage doors",
     label: "Garage doors & openers",
     why: "Exterior work on a house they have already measured. Their customer already paid for something on the outside of the building.",
@@ -112,6 +128,7 @@ export const PROSPECT_TRADES: readonly ProspectTrade[] = [
   },
   {
     value: "LANDSCAPE",
+    leadWith: "roofs, fences, and paint",
     shortName: "landscaping",
     label: "Landscaping & sprinklers",
     why: "Weekly or seasonal contact means the relationship is warm right now, not two years ago. They can see the roof and the paint from the yard.",
@@ -120,6 +137,7 @@ export const PROSPECT_TRADES: readonly ProspectTrade[] = [
   },
   {
     value: "CLEANING",
+    leadWith: "roofs, windows, and gutters",
     shortName: "cleaning",
     label: "Carpet, window & gutter cleaning",
     why: "Cheap, frequent, remembered. A window cleaner has looked at every window in the house and knows which are failing.",
@@ -128,6 +146,7 @@ export const PROSPECT_TRADES: readonly ProspectTrade[] = [
   },
   {
     value: "REALTOR",
+    leadWith: "roofs, paint, and windows",
     shortName: "real estate",
     label: "Realtors & property managers",
     why: "Closed clients with a punch list and no contractor they trust. Careful: some brokerages have their own rules about referral compensation, so ask.",
@@ -255,11 +274,29 @@ export type PitchStep = {
 /**
  * The call.
  *
- * Under ninety seconds to the ask. The structure is deliberate: the reason for
- * calling comes before the offer, because a contractor's first thought is
- * "what are you selling me" and the only way past it is to answer immediately.
- * Nothing here promises a specific outcome for their list, because we cannot
- * substantiate it and because the structure is a better pitch than a number.
+ * WRITTEN FOR SOMEBODY WHOSE FIRST LANGUAGE IS NOT ENGLISH, ON A JOBSITE, ON
+ * A PHONE. That constraint decides every word here, and anybody editing this
+ * has to keep it:
+ *
+ *   - Short sentences. One idea each. Full stops instead of commas.
+ *   - Common words. "We pay you", not "you receive compensation".
+ *   - No idioms. "Sitting in a spreadsheet doing nothing" is invisible to a
+ *     native speaker and a wall to everybody else.
+ *   - Numbers said plainly: "two thousand dollars", not "$2k" or "a couple
+ *     of grand".
+ *   - The offer before the proof before the ask. If they hang up after
+ *     twenty seconds they should still know what was being offered.
+ *
+ * This is deliberately shorter and flatter than a pitch written to sound
+ * clever. A contractor who understands a plain offer signs; one who is
+ * impressed but unsure does not.
+ *
+ * On the claims in step five: they are the caller's own track record, said in
+ * the first person, because that is what is true and substantiable. Do not
+ * rewrite them into "we" or into what LoveMeAfter has done — an earnings
+ * claim a company cannot evidence is the one thing regulators in this
+ * industry reliably act on, and it is also weaker on the phone than a person
+ * saying what they have personally seen.
  */
 export function pitch(facts: {
   /** The person dialling. Their own name, not the company's. */
@@ -271,76 +308,88 @@ export function pitch(facts: {
   const who = facts.contactName?.trim() || "";
   const trade = getProspectTrade(facts.trade);
   const me = facts.callerName.trim() || "[your name]";
+  const weDo = trade ? trade.leadWith : "roofs, siding, windows, and gutters";
 
   return [
     {
-      heading: "Opener",
-      // Two openers, because having a name and not having one are different
-      // calls. Without one you are talking to whoever picked up, and the first
-      // job is to get the owner — asking "is this there?" is how a script
-      // written only for the happy path sounds on the other nine calls.
+      heading: "Who I am",
       say: who
-        ? `Hi, is this ${who}? — ${who}, it's ${me} from ${COMPANY.name}. ` +
-          `I'm not selling you anything, I want to send you money. Have you got sixty seconds?`
-        : `Hi — it's ${me} from ${COMPANY.name}. Who owns ${facts.businessName}? ` +
-          `I'm not selling anything, I want to send them money. Is that you, or can you put me on?`,
-      note: who
-        ? "Name, company, and the reason, in one breath. 'I'm not selling you anything' is " +
-          "true here and it is the only sentence that buys the next twenty seconds from " +
-          "somebody who gets four lead-vendor calls a week."
-        : "No name on the record, so the first job is getting the owner rather than pitching " +
-          "whoever answered. Saying what it is about in the same breath stops it reading as a " +
-          "sales call to be blocked — and get the name for next time.",
+        ? `Hi ${who}. My name is ${me}. I am with ${COMPANY.name}. ` +
+          `We are a construction company.`
+        : `Hi. My name is ${me}. I am with ${COMPANY.name}. We are a ` +
+          `construction company. Are you the owner?`,
+      note:
+        "Name, company, what we are. Three short sentences. With no name on " +
+        "file, ask for the owner here rather than pitching whoever answered.",
     },
     {
-      heading: "The setup",
+      heading: "What we do",
       say:
-        `We're a general contractor — roofing, siding, windows, gutters, paint, fence. ` +
-        `We don't do ${trade ? trade.shortName : "what you do"}, and we never will.`,
+        `We do ${weDo}. We do not do ${trade ? trade.shortName : "your work"}. ` +
+        `I am not your competition.`,
       note:
-        "Establishes we are not a competitor before the offer lands. Skipping this is the " +
-        "single most common reason the call dies: they assume you want their customers.",
+        "Only the trades that matter to their customers, not all seven — ten " +
+        "seconds saved and it lands harder. Saying we are not competition is " +
+        "the sentence that keeps them on the phone.",
     },
     {
-      heading: "The offer",
+      heading: "What I want",
       say:
-        `You've got a list of people you've already done work for. Send it to us. We call ` +
-        `them, we do the work you don't do, and we pay you ${SHARE_PCT}% of the profit on ` +
-        `anything that sells. That's about $${TYPICAL_PER_JOB.toLocaleString("en-US")} a job ` +
-        `to you. You don't sell, you don't quote, you don't show up.`,
+        `I am looking for a partner. You have old customers. I want to call ` +
+        `them and sell them work.`,
       note:
-        "The number goes here and nowhere earlier. Say 'about' — it is an average from our " +
-        "price book, not a promise about their list, and overstating it is how you lose a " +
-        "partner in month three.",
+        "Plain and direct. No jargon. 'Channel partner' means nothing to a " +
+        "contractor — say what it actually is.",
     },
     {
-      heading: "The proof",
+      heading: "What you get",
       say:
-        `And you can check it. Every job shows you what it sold for, what it cost us, and ` +
-        `what was left — so you can see we actually paid you ${SHARE_PCT}% of the real number.`,
+        `You get ${SHARE_PCT} percent of the profit on every job we sell. ` +
+        `That is about two thousand dollars for you. On each job. ` +
+        `You do not sell. You do not work. It costs you nothing.`,
       note:
-        "This is the differentiator and most people will not believe it until you say it " +
-        "plainly. Every lead vendor they have dealt with hid the margin. We publish it.",
+        "The number, then what they do for it, which is nothing. Say 'two " +
+        "thousand dollars' out loud rather than reading a figure — it is " +
+        "understood first time, in any accent.",
     },
     {
-      heading: "The ask",
+      heading: "Why me",
       say:
-        `Roughly how many past customers have you got sitting in a system somewhere?`,
+        `I have done this for three years. My partners made two thousand ` +
+        `dollars or more on each deal. My reps run appointments all day. ` +
+        `We close jobs every day. Now I need more customers to call.`,
       note:
-        "An easy question with a number for an answer, which restarts the conversation on " +
-        "their side. It also qualifies: under about 150 and this will not be worth either " +
-        "of our time yet. Note the answer.",
+        "FIRST PERSON, AND KEEP IT THAT WAY. This is the caller's own record " +
+        "and it is true; the same sentences as 'we' become a claim about " +
+        "this company that cannot be evidenced. It is also the honest answer " +
+        "to the question they are actually asking — why should I trust you.",
+    },
+    {
+      heading: "You can check it",
+      say:
+        `You will see every job on your own page. What it sold for. What it ` +
+        `cost us. Your ${SHARE_PCT} percent. Nothing is hidden.`,
+      note:
+        "The trust line. Every lead vendor they have dealt with hid the " +
+        "margin, so say it simply and let it surprise them.",
+    },
+    {
+      heading: "The question",
+      say: `How many old customers do you have?`,
+      note:
+        "One short question with a number for an answer. It restarts the " +
+        "conversation on their side and it qualifies them. Under about 150 " +
+        "and this is not worth either of your time yet. Write it down.",
     },
     {
       heading: "The close",
       say:
-        `Here's what I'll do — I'll text you a link right now. It shows the maths and you ` +
-        `can sign up on your phone in two minutes. Nothing to pay, nothing to sign today. ` +
-        `What's the best number for that?`,
+        `Good. I will text you a link now. Two minutes on your phone. ` +
+        `Nothing to pay. What is the best number?`,
       note:
-        "Never try to close on the first call. The win is the link in their hand while they " +
-        "are still thinking about it. Send it before you hang up, and say that you are " +
-        "sending it now — a text that arrives while you are still on the phone gets opened.",
+        "Never close on the first call. The win is the link in their hand " +
+        "while they are still thinking about it. Send it before you hang up " +
+        "and tell them you are sending it now.",
     },
   ];
 }
@@ -350,67 +399,58 @@ export type Objection = { says: string; answer: string; note: string };
 /**
  * What they actually say.
  *
- * Six, because a page of thirty is a page nobody reads at the moment they need
- * it. Every one of these is a real thing a contractor says in the first minute,
- * and the answers are short enough to say without reading.
+ * Same rule as the script: short sentences, plain words, no idioms. These get
+ * read off a screen mid-call, so an answer longer than four lines is an
+ * answer nobody uses.
  */
 export const OBJECTIONS: readonly Objection[] = [
   {
-    says: "“I'm not giving you my customer list.”",
+    says: "\u201cI will not give you my customer list.\u201d",
     answer:
-      "Completely fair, and you're not handing it over — you share a Google Sheet you own, " +
-      "we read it, and you switch our access off whenever you want. We never import it, never " +
-      "sell it, and one 'no thanks' from any of them puts that person on our do-not-call list " +
-      "for the whole company, permanently.",
+      "That is fair. You do not give it to us. You share a file. You keep it. " +
+      "You can turn our access off any time. We never copy it and we never " +
+      "sell it. If a customer says no, we never call them again.",
     note:
-      "The number one objection and the one that decides the call. Do not argue with it — " +
-      "agree with it first. The control staying with them is the actual answer.",
+      "The number one objection and the one that decides the call. Agree " +
+      "first. Do not argue. The answer is that they keep control.",
   },
   {
-    says: "“Are you going to compete with me?”",
-    answer:
-      "No. We carve your trade out in writing before you send us a single name, and it's on " +
-      "your account so nobody here can quote it by accident.",
-    note: "Answer in one sentence. Hesitating here reads as a yes.",
+    says: "\u201cWill you compete with me?\u201d",
+    answer: "No. We put your trade in writing as excluded before you send anything.",
+    note: "One sentence. Any hesitation here sounds like a yes.",
   },
   {
-    says: "“What's this going to cost me?”",
-    answer:
-      "Nothing. No fee, no subscription, no minimum, and no exclusivity. You only ever see " +
-      "money going the other way.",
+    says: "\u201cWhat does it cost me?\u201d",
+    answer: "Nothing. No fee. No contract. No minimum. Money only goes to you.",
     note:
-      "They are braced for a setup fee because that is how every lead vendor opens. The " +
-      "flat 'nothing' is disarming precisely because they did not expect it.",
+      "They expect a setup fee, because that is how every lead vendor opens. " +
+      "A flat 'nothing' is disarming.",
   },
   {
-    says: "“How do I know you'll actually pay me?”",
+    says: "\u201cHow do I know you will pay me?\u201d",
     answer:
-      "You watch it on your own page from the day the customer signs, and you see the whole " +
-      "working — sold price, our cost, what's left, your share. We pay when the job is " +
-      "finished and the customer has paid us. If nothing sells, you've lost nothing.",
-    note:
-      "Being shown our own cost is the part that lands. Most people expect to be told the " +
-      "margin is confidential.",
+      "You watch it on your own page. You see what the job sold for. You see " +
+      "what it cost us. You see your share. We pay when the job is finished " +
+      "and the customer has paid us. If nothing sells, you lose nothing.",
+    note: "Being shown our own cost is the part that lands.",
   },
   {
-    says: "“My customers will think I sold them out.”",
+    says: "\u201cMy customers will think I sold them out.\u201d",
     answer:
-      "It's the risk we take most seriously, because your name is the whole asset here. We " +
-      "say who we are, we say we work with you, we make one call, and we stop the second " +
-      "somebody isn't interested. No pressure scripts, no repeat dialling, nobody pretending " +
-      "to be your company.",
+      "Your name matters to us too. We say who we are. We say we work with " +
+      "you. We call one time. If they are not interested, we stop.",
     note:
-      "This is usually the real objection hiding behind 'I'll think about it'. Ask directly " +
-      "if you suspect it: 'Is it the money, or is it how it looks to your customers?'",
+      "Usually the real objection behind 'I will think about it'. Ask " +
+      "directly: is it the money, or how it looks to your customers?",
   },
   {
-    says: "“Send me something and I'll look at it.”",
+    says: "\u201cSend me something and I will look.\u201d",
     answer:
-      "Doing it right now — what's the best number? It's a two-minute read and it's got the " +
-      "maths on it. I'll follow up Thursday.",
+      "Sending it now. What is the best number? It is a two minute read. " +
+      "I will call you Thursday.",
     note:
-      "The brush-off. Convert it into a sent link plus a named day, then actually call on " +
-      "that day. Half of these are real if you follow up once.",
+      "The brush-off. Turn it into a sent link plus a named day, then call " +
+      "on that day. Half of these are real if you follow up once.",
   },
 ];
 
@@ -533,9 +573,10 @@ const money = `$${TYPICAL_PER_JOB.toLocaleString("en-US")}`;
 /**
  * The text message for a given touch.
  *
- * Written to be different each time, because the fastest way to get blocked is
- * to send the same paragraph three times. Each one assumes the ones before it
- * arrived, which is what a real person's follow-up sounds like.
+ * Same reader as the script, so the same rules: short sentences, plain words,
+ * no idioms. Each touch is worded differently, because the fastest way to get
+ * blocked is to send the same paragraph three times, and each one assumes the
+ * ones before it arrived.
  */
 export function touchText(step: number, facts: MessageFacts): string {
   const who = greetingName(facts);
@@ -545,25 +586,28 @@ export function touchText(step: number, facts: MessageFacts): string {
     case 1:
     case 2:
       return (
-        `${who} — ${me} from ${COMPANY.name}. Tried you just now. ` +
-        `We pay ${SHARE_PCT}% of the profit on any job we sell to your past customers, ` +
-        `about ${money} a job. You do nothing but send the list. ${facts.url}`
+        `${who} — this is ${me} from ${COMPANY.name}. I called you just now. ` +
+        `We are a construction company. We want to call your old customers and ` +
+        `sell them work. You get ${SHARE_PCT}% of the profit. That is about ` +
+        `${money} on each job. You do nothing and it costs nothing. ${facts.url}`
       );
     case 6:
       return (
-        `${who}, still worth a look? ${SHARE_PCT}% of the profit, about ${money} a job, ` +
-        `nothing to pay and you can switch it off whenever. Yes or no is fine: ${facts.url}`
+        `${who}, are you interested? ${SHARE_PCT}% of the profit on each job. ` +
+        `About ${money} for you. No cost. You can stop any time. ` +
+        `Yes or no is fine: ${facts.url}`
       );
     case 8:
       return (
-        `${who} — closing your file so I stop bothering you. If your old customer list ` +
-        `ever becomes worth ${money} a job to you, the offer stands: ${facts.url}. ` +
-        `Good luck either way. ${me}`
+        `${who} — I will stop calling you now. If you ever want ${money} a job ` +
+        `from your old customer list, the offer stays open: ${facts.url}. ` +
+        `Good luck. ${me}`
       );
     default:
       return (
-        `${who} — ${me} from ${COMPANY.name} again. ${SHARE_PCT}% of the profit on work we ` +
-        `sell to your past customers, about ${money} a job, no cost to you: ${facts.url}`
+        `${who} — ${me} from ${COMPANY.name} again. ${SHARE_PCT}% of the profit ` +
+        `on work we sell to your old customers. About ${money} each job. ` +
+        `No cost to you: ${facts.url}`
       );
   }
 }
