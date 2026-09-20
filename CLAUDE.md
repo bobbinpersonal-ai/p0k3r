@@ -6,7 +6,7 @@ things are the way they are, not what the code does. Several decisions in this
 codebase look wrong until you know what they are protecting against, and at
 least three of them have already been "fixed" back and then re-broken.
 
-Last updated at commit `2594c89`. See also
+Last updated at commit `649e148`. See also
 `docs/stack-integration-assessment.md` (the audit of the proposed vendor
 stack) and `docs/stack-setup.md` (how to wire each vendor up).
 
@@ -241,12 +241,25 @@ src/app/
   /crew                 crew portal: jobs, field estimator, sell at the table
   /admin/desk           homeowner calling desk (heavily gated)
   /admin/network/recruit  partner acquisition console (B2B, next-call flow)
+  /admin/network/integrations  which vendors are wired up, and what breaks
   /admin/network/*      pipeline, partners, crews, payouts, products, paperwork
+  /crew/offer/[token]   "tap to accept" — no login, the token is the credential
+  /unsubscribe/[token]  opts out on load, company-wide, permanent
+
+  api/dispatch          offer a job to crews · /accept decides the race
+  api/financing/quote   payment + APR + term + disclosure for an estimate
+  api/recruiting        crew and rep applications · /agreement sends for signature
+  api/leads/import      aged-list CSV; records what consent it does NOT have
+  api/campaigns/reengage  email-first sequence; reports SMS as blocked
+  api/crew/stripe/onboard  Connect onboarding; re-reads payoutsEnabled
+  api/webhooks/pandadoc, api/webhooks/callrail, api/cron/offers
+
+tests/                  node:test via tsx. money · compliance · integrations
 ```
 
 ### The database
 
-23 models. The ones that matter:
+24 models. The ones that matter:
 
 - `Lead` → `Estimate` → `Payment` — a homeowner job and its money.
   `Lead` carries **both** `repId` and `workerId`, so a closer and a crew can be
@@ -405,7 +418,46 @@ heard — and digits survive an accent and a bad line where words do not.
 
 ---
 
-## 9. How to work on this
+## 9. Fact-checking this file
+
+Everything here is either checkable against the repo or it is a judgement.
+Worth knowing which is which before taking an outside opinion on it.
+
+**Checkable in about a minute** — run these rather than trusting the prose:
+
+```bash
+grep -c '^model ' prisma/schema.prisma          # the model count above
+npm test                                         # the test count above
+grep -rn 'CHANNEL_PARTNER_PROFIT_SHARE =' src/   # every figure in §2, one by one
+grep -rn 'isAutodialable' src/lib/regions/calling.ts
+git log --oneline -1                             # the commit this file claims
+```
+
+**Judgement calls, argue with them freely** — the four-formula history of the
+partner split, contractors at 30% versus a closer at 60%, prospects sharing a
+table with partners, the deliberately plain recruiting script, `/2000` as the
+spoken link. §8 gives the reasoning for each. None is load-bearing on a fact.
+
+**Legal positions, and the one place to be most careful.** §3 states positions
+on the TCPA, CAN-SPAM, Regulation Z and money transmission. They are reasoned
+and cited where a citation exists, and they are not legal advice. An outside
+model reviewing them is genuinely useful — but note the track record: the last
+external review of this codebase cited **C.R.S. § 6-22-105** as a prohibition
+on taking deposits, which is wrong; that section is the insurance-deductible
+rebate prohibition and this codebase already implements it as such. The
+deposit rule is more likely § 6-22-103. A confident citation is not a correct
+one. Check the statute text itself.
+
+**The trap an outside review falls into here.** Most of `docs/` predates the
+move from Texas to the five-state network (§7 item 4). A model handed those
+files will describe a Texas business, recommend removing a "single-state
+configuration" that does not exist, and list states that drop two live
+markets. That happened. **`src/lib/regions/*` is the truth; where it and
+`docs/` disagree, the code wins.**
+
+---
+
+## 10. How to work on this
 
 - **Read the domain module before the component.** The comments in
   `src/lib/regions/*` carry the reasoning; the components just render it.
