@@ -289,8 +289,17 @@ once took the whole site down by blocking forever on a lock. It forces DDL to
 the direct (non-pooled) Neon endpoint, sets `lock_timeout` and
 `statement_timeout`, and kills itself after 120s.
 
-**There is no test suite.** Verification is done by running the app and
-driving it. This is a real gap — see §7.
+**Tests run on every build.** `npm test` (Node's built-in runner via tsx, no
+extra framework) and `npm run build` will not proceed if they fail. They
+cover the money functions, the compliance gates and the vendor adapters —
+59 of them. The important ones are invariants rather than arithmetic: the
+price book never trips the margin floor, the split never distributes more
+than came in, `splitFor()` agrees with `channelPartnerPayout()`, and a
+typical roof still pays the partner exactly $2,000.
+
+Running the app and driving it in a browser is still required on top. Two
+bugs that shipped in this project were invisible to both typechecking and
+tests.
 
 ### The shipping ritual
 
@@ -335,11 +344,13 @@ console** (`/admin/network/recruit`): paste a list, next-call flow, per-trade
 plain-English script, auto-personalised texts, 8-touch / 18-day cadence.
 
 ### Known gaps, roughly in priority order
-1. **No automated tests at all.** Highest-value thing to add. The money
-   functions in `commission.ts`, `channelPartners.ts` and `collections.ts` are
-   pure and trivially testable, and they decide what people get paid.
-2. **Scouts cannot be paid** — no attribution, no portal, no agreement.
-3. **Colorado deposit question unresolved** (§3).
+1. **Scouts cannot be paid** — no attribution (`signedByScoutId`), no portal,
+   no agreement. The comp maths exists; nothing links a partner to a scout.
+2. **Colorado deposit question unresolved** (§3).
+3. **Every vendor is unconfigured.** The integration layer is built and
+   tested but no credentials are set — `/admin/network/integrations` shows
+   exactly which env vars each one is waiting on, and what breaks without
+   it. Financing additionally needs a real lender rate sheet.
 4. **Most of `docs/` predates the move from Texas to the five-state network.**
    `launch-playbook.md` (29 Texas references), `partner-recruiting.md` (13),
    `regions.md` (12), `trades-and-licensing.md` (10) and
@@ -348,19 +359,12 @@ plain-English script, auto-personalised texts, 8-touch / 18-day cadence.
    replaced by the channel-partner offer. **Treat `docs/` as history, not as
    instructions.** `src/lib/regions/*` is the current truth; where the two
    disagree, the code wins.
-5. **No crew dispatch offer.** Jobs are assigned by an admin; there is no
-   "new job in Denver, tap to accept" flow to a vetted crew. Highest-value
-   remaining feature and it needs no new vendor.
-6. **Financing is built but switched off.** `src/lib/regions/financing.ts` and
-   `src/components/FinancingCalculator.tsx` are done and tested; they need
-   `NEXT_PUBLIC_FINANCING_PLANS` set from a real lender rate sheet. Until
-   then the calculator shows a lawful no-numbers line. Do not hardcode an APR
-   to make it look finished.
-7. **Payouts are recorded but not sent.** Stripe Connect (separate charges and
-   transfers, delayed payouts) is the intended path.
-8. No WhatsApp channel, which several partners will prefer.
-9. No email/SMS sending from the recruit console — it hands off to the
+5. No WhatsApp channel, which several partners will prefer.
+6. No email/SMS sending from the recruit console — it hands off to the
    device's own `sms:` and `mailto:` handlers.
+7. The offer-expiry cron reports stranded jobs but does not re-offer them.
+   Widening the search is a judgement call, and a cron that keeps
+   broadening it eventually texts somebody four states away at 3am.
 
 ---
 

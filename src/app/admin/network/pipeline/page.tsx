@@ -43,7 +43,7 @@ export default async function PipelinePage() {
     orderBy: { updatedAt: "desc" },
     take: 200,
     include: {
-      estimate: true,
+      estimate: { include: { offers: { select: { status: true } } } },
       noSaleReport: { select: { id: true } },
       channelPartner: { select: { id: true, businessName: true } },
     },
@@ -85,6 +85,15 @@ export default async function PipelinePage() {
       hasNoSaleNote: Boolean(lead.noSaleReport),
       quote,
       paidCents: paidByLead.get(lead.id) ?? null,
+      // Offerable only when it is sold, has an estimate to price the crew's
+      // side from, has nobody on it, and is not already out to crews.
+      dispatch:
+        lead.estimate &&
+        lead.status === "SOLD" &&
+        !lead.workerId &&
+        !lead.estimate.offers.some((o) => o.status === "OFFERED" || o.status === "ACCEPTED")
+          ? { estimateId: lead.estimate.id, workAmount: lead.estimate.costTotal }
+          : null,
     };
   });
 

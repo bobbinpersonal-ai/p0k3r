@@ -381,6 +381,14 @@ model Lead {
   // quarantined without touching the rest.
   importBatch String?
 
+  // The unsubscribe link in every campaign email.
+  //
+  // A real token rather than the row id, because an unsubscribe URL is
+  // handed to strangers and an enumerable one lets anybody opt out anybody.
+  // CAN-SPAM requires the opt-out to work, and it is the part of that
+  // statute people actually get wrong.
+  unsubToken String @unique @default(dbgenerated("gen_random_uuid()"))
+
   repId String?
   rep   Rep?    @relation(fields: [repId], references: [id])
 

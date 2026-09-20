@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import DispatchButton from "./DispatchButton";
 import { useState } from "react";
 import { JOURNEY_STEPS } from "@/lib/regions/channelPartners";
 
@@ -22,6 +23,8 @@ export type PipelineRow = {
   /** Present once an estimate exists, so a payout can be worked out. */
   quote: { sold: number; payout: number; grossProfit: number; margin: number; marginOk: boolean } | null;
   paidCents: number | null;
+  /** Set when the job is sold and still has no crew — offerable. */
+  dispatch: { estimateId: string; workAmount: number } | null;
 };
 
 const money = (n: number) => `$${Math.round(n).toLocaleString("en-US")}`;
@@ -77,6 +80,16 @@ export default function PipelineControls({ row }: { row: PipelineRow }) {
 
   return (
     <div className="mt-3">
+      {/* A sold job with no crew is the one that is quietly costing money —
+          the customer has signed and nobody is booked. Offering it is one
+          tap from the row rather than a separate screen. */}
+      {row.dispatch && (
+        <DispatchButton
+          estimateId={row.dispatch.estimateId}
+          workAmount={row.dispatch.workAmount}
+        />
+      )}
+
       <div className="flex flex-wrap gap-2">
         {next && (
           <button type="button" disabled={busy} onClick={() => move(next.status)} className={btn}>

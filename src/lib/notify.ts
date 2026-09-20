@@ -589,3 +589,50 @@ export async function sendTextMessage(to: string, body: string): Promise<boolean
     return false;
   }
 }
+
+/**
+ * A marketing email with the unsubscribe CAN-SPAM requires.
+ *
+ * Separate from every other sender here because of that footer. CAN-SPAM
+ * does not require prior consent — which is what makes email the lawful way
+ * into an aged list — but it does require honest headers, a real postal
+ * address and a working opt-out, and the opt-out is the part people forget.
+ * Building it into the sender means a campaign physically cannot go out
+ * without one.
+ */
+export async function sendCampaignEmail(args: {
+  to: string;
+  subject: string;
+  body: string;
+  unsubscribeUrl: string;
+}): Promise<boolean> {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || !args.to) return false;
+
+  const postal = process.env.NEXT_PUBLIC_BUSINESS_ADDRESS || "";
+  const footer =
+    `\n\n---\n` +
+    (postal ? `${postal}\n` : "") +
+    `Don't want these? Unsubscribe: ${args.unsubscribeUrl}`;
+
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: process.env.NOTIFY_FROM_EMAIL || "LoveMeAfter <onboarding@resend.dev>",
+        to: args.to,
+        subject: args.subject,
+        text: args.body + footer,
+        // The header version, so a mail client can offer one-click opt-out.
+        headers: {
+          "List-Unsubscribe": `<${args.unsubscribeUrl}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
+      }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}

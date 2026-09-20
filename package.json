@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && node scripts/db-push.mjs && next build",
+    "build": "prisma generate && npm test && node scripts/db-push.mjs && next build",
     "start": "next start",
     "lint": "eslint .",
     "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "postinstall": "prisma generate",
-    "db:push:safe": "node scripts/db-push.mjs"
+    "db:push:safe": "node scripts/db-push.mjs",
+    "test": "node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
@@ -30,6 +31,7 @@
     "postcss": "^8.4.47",
     "prisma": "^5.22.0",
     "tailwindcss": "^3.4.14",
+    "tsx": "^4.23.13",
     "typescript": "^5.6.3"
   }
 }

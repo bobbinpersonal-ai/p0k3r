@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { isAdminRequest } from "@/lib/auth";
 import { getRail } from "@/lib/regions/payments";
 import { collectedFor } from "@/lib/regions/collections";
+import { transferToContractor } from "@/lib/integrations/stripeConnect";
 
 // Paying a crew for a finished job.
 //
@@ -44,7 +45,16 @@ export async function POST(req: NextRequest) {
           status: true,
           customerName: true,
           workerId: true,
-          worker: { select: { id: true, name: true, w9OnFile: true, status: true } },
+          worker: {
+            select: {
+              id: true,
+              name: true,
+              w9OnFile: true,
+              status: true,
+              stripeAccountId: true,
+              stripePayoutsEnabled: true,
+            },
+          },
         },
       },
     },
@@ -144,6 +154,22 @@ export async function POST(req: NextRequest) {
   // the same payment rather than arriving separately and confusing everyone.
   const total = workAmount + estimate.commission;
 
+  // STRIPE goes out automatically; every other method is a record of money
+  // somebody moved by hand. Refuse STRIPE up front when the crew has not
+  // finished onboarding, rather than writing a payout row we then cannot
+  // send — a row that says paid when nothing left is worse than an error.
+  if (method === "STRIPE") {
+    if (!crew.stripeAccountId || !crew.stripePayoutsEnabled) {
+      return NextResponse.json(
+        {
+          error: `${crew.name} has not finished connecting their bank with Stripe.`,
+          reason: "STRIPE_NOT_ONBOARDED",
+        },
+        { status: 409 },
+      );
+    }
+  }
+
   const payout = await prisma.workerPayout.create({
     data: {
       workerId: crew.id,
@@ -157,8 +183,48 @@ export async function POST(req: NextRequest) {
           ? ` + selling $${estimate.commission.toLocaleString("en-US")}`
           : ""),
       taxYear: new Date().getFullYear(),
+      // A hand-moved payment is already sent by the time it is recorded.
+      transferStatus: method === "STRIPE" ? "PENDING" : "SENT",
     },
     select: { id: true },
+  });
+
+  if (method !== "STRIPE") {
+    return NextResponse.json(
+      { ok: true, id: payout.id, crew: crew.name, workAmount, commission: estimate.commission, total },
+      { status: 201 },
+    );
+  }
+
+  // The payout row id is the idempotency key. A retried request reuses it,
+  // so Stripe returns the original transfer instead of sending a second one
+  // — which is the difference between a retry and paying somebody twice.
+  const transfer = await transferToContractor({
+    stripeAccountId: crew.stripeAccountId!,
+    amountDollars: total,
+    idempotencyKey: payout.id,
+    description: `${estimate.lead.customerName} — ${crew.name}`,
+  });
+
+  if (!transfer.ok) {
+    await prisma.workerPayout.update({
+      where: { id: payout.id },
+      data: { transferStatus: "FAILED" },
+    });
+    return NextResponse.json(
+      {
+        error: `Recorded, but Stripe refused the transfer: ${transfer.error}`,
+        reason: "TRANSFER_FAILED",
+        retryable: transfer.retryable,
+        id: payout.id,
+      },
+      { status: 502 },
+    );
+  }
+
+  await prisma.workerPayout.update({
+    where: { id: payout.id },
+    data: { stripeTransferId: transfer.transferId, transferStatus: "SENT" },
   });
 
   return NextResponse.json(
@@ -169,6 +235,7 @@ export async function POST(req: NextRequest) {
       workAmount,
       commission: estimate.commission,
       total,
+      transferId: transfer.transferId,
     },
     { status: 201 },
   );

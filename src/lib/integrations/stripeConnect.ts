@@ -214,3 +214,125 @@ export async function createConnectOnboardingLink(args: {
     return { ok: false, error: e instanceof Error ? e.message : "Stripe unreachable" };
   }
 }
+
+/**
+ * Create the crew's connected account.
+ *
+ * Express rather than Custom: Stripe owns the KYC, the bank detail and the
+ * dispute flow, which is a regulated surface we have no reason to take on
+ * for a roofing business. The crew gets a Stripe-hosted onboarding page and
+ * we get an account id we can transfer to.
+ */
+export async function createConnectedAccount(args: {
+  email: string | null;
+  businessName: string;
+  state: string | null;
+}): Promise<{ ok: true; accountId: string } | { ok: false; error: string }> {
+  if (!STRIPE.secretKey) return { ok: false, error: "STRIPE_SECRET_KEY is not set." };
+
+  const body = new URLSearchParams({
+    type: STRIPE.connectAccountType,
+    country: "US",
+    "business_profile[name]": args.businessName.slice(0, 200),
+    "business_profile[mcc]": "1731", // electrical/construction contractors
+    "capabilities[transfers][requested]": "true",
+    ...(args.email ? { email: args.email } : {}),
+  });
+
+  try {
+    const res = await fetch("https://api.stripe.com/v1/accounts", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${STRIPE.secretKey}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body,
+    });
+    const json = (await res.json()) as { id?: string; error?: { message?: string } };
+    if (!res.ok || !json.id) {
+      return { ok: false, error: json.error?.message ?? `Stripe returned ${res.status}` };
+    }
+    return { ok: true, accountId: json.id };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Stripe unreachable" };
+  }
+}
+
+/**
+ * Whether Stripe will actually let us send this account money yet.
+ *
+ * Read from Stripe rather than trusted from our own column, because a crew
+ * can be restricted after onboarding — a failed identity check, an expired
+ * document — and our copy would still say enabled. A transfer to a
+ * restricted account fails after the job is done, which is the worst moment
+ * to find out.
+ */
+export async function refreshPayoutsEnabled(
+  accountId: string,
+): Promise<{ ok: true; payoutsEnabled: boolean } | { ok: false; error: string }> {
+  if (!STRIPE.secretKey) return { ok: false, error: "STRIPE_SECRET_KEY is not set." };
+  try {
+    const res = await fetch(`https://api.stripe.com/v1/accounts/${accountId}`, {
+      headers: { Authorization: `Bearer ${STRIPE.secretKey}` },
+    });
+    const json = (await res.json()) as {
+      payouts_enabled?: boolean;
+      error?: { message?: string };
+    };
+    if (!res.ok) return { ok: false, error: json.error?.message ?? `Stripe returned ${res.status}` };
+    return { ok: true, payoutsEnabled: Boolean(json.payouts_enabled) };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Stripe unreachable" };
+  }
+}
+
+/**
+ * A PaymentIntent for the homeowner, tagged so the webhook can find its job.
+ *
+ * `metadata.estimateId` is not optional. Without it the payment cannot be
+ * matched, the job never looks paid, and the crew payout gate never opens —
+ * a crew finishing work and not being paid because a checkout was built
+ * without one field.
+ */
+export async function createPaymentIntent(args: {
+  estimateId: string;
+  amountDollars: number;
+  kind: "DEPOSIT" | "FINAL";
+  customerEmail: string | null;
+}): Promise<{ ok: true; clientSecret: string; id: string } | { ok: false; error: string }> {
+  if (!STRIPE.secretKey) return { ok: false, error: "STRIPE_SECRET_KEY is not set." };
+  if (!(args.amountDollars > 0)) return { ok: false, error: "Nothing to charge." };
+
+  const body = new URLSearchParams({
+    amount: String(Math.round(args.amountDollars * 100)),
+    currency: "usd",
+    "automatic_payment_methods[enabled]": "true",
+    "metadata[estimateId]": args.estimateId,
+    "metadata[kind]": args.kind,
+    ...(args.customerEmail ? { receipt_email: args.customerEmail } : {}),
+  });
+
+  try {
+    const res = await fetch("https://api.stripe.com/v1/payment_intents", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${STRIPE.secretKey}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      // Idempotent per job and per kind: a double-tapped "take deposit"
+      // button must not create two charges against one homeowner.
+      body,
+    });
+    const json = (await res.json()) as {
+      id?: string;
+      client_secret?: string;
+      error?: { message?: string };
+    };
+    if (!res.ok || !json.client_secret || !json.id) {
+      return { ok: false, error: json.error?.message ?? `Stripe returned ${res.status}` };
+    }
+    return { ok: true, clientSecret: json.client_secret, id: json.id };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : "Stripe unreachable" };
+  }
+}
