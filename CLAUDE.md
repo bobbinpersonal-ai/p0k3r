@@ -6,7 +6,10 @@ things are the way they are, not what the code does. Several decisions in this
 codebase look wrong until you know what they are protecting against, and at
 least three of them have already been "fixed" back and then re-broken.
 
-Last updated at commit `43d0aa0`. If you change something this file describes,
+Last updated at commit `ac20049`. See also
+`docs/stack-integration-assessment.md` — the audit of a proposed
+GoHighLevel/Jobber/Stripe-escrow architecture against this codebase, and the
+integrate-vs-replace decision that is still open. If you change something this file describes,
 update this file in the same commit.
 
 ---
@@ -138,6 +141,12 @@ Breaking any of these is worse than shipping nothing.
    one without review.
 7. **The customer-list URL allowlist exists to stop a phishing vector** aimed at
    the admin. Do not loosen it.
+8. **A payment figure never appears without its APR and term.** Under
+   Regulation Z (12 CFR 1026.24) the amount of a payment is a triggering
+   term: state one and you must state the down payment, repayment terms and
+   APR alongside, with equal prominence. `src/lib/regions/financing.ts`
+   enforces this by refusing to quote without real lender terms. "As low as
+   $89/mo" on its own is the violation, not the goal.
 
 ### Held pending a human decision
 
@@ -316,8 +325,18 @@ plain-English script, auto-personalised texts, 8-touch / 18-day cadence.
    replaced by the channel-partner offer. **Treat `docs/` as history, not as
    instructions.** `src/lib/regions/*` is the current truth; where the two
    disagree, the code wins.
-5. No WhatsApp channel, which several partners will prefer.
-6. No email/SMS sending from the recruit console — it hands off to the
+5. **No crew dispatch offer.** Jobs are assigned by an admin; there is no
+   "new job in Denver, tap to accept" flow to a vetted crew. Highest-value
+   remaining feature and it needs no new vendor.
+6. **Financing is built but switched off.** `src/lib/regions/financing.ts` and
+   `src/components/FinancingCalculator.tsx` are done and tested; they need
+   `NEXT_PUBLIC_FINANCING_PLANS` set from a real lender rate sheet. Until
+   then the calculator shows a lawful no-numbers line. Do not hardcode an APR
+   to make it look finished.
+7. **Payouts are recorded but not sent.** Stripe Connect (separate charges and
+   transfers, delayed payouts) is the intended path.
+8. No WhatsApp channel, which several partners will prefer.
+9. No email/SMS sending from the recruit console — it hands off to the
    device's own `sms:` and `mailto:` handlers.
 
 ---
