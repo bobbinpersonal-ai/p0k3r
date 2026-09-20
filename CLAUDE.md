@@ -6,10 +6,16 @@ things are the way they are, not what the code does. Several decisions in this
 codebase look wrong until you know what they are protecting against, and at
 least three of them have already been "fixed" back and then re-broken.
 
-Last updated at commit `ac20049`. See also
-`docs/stack-integration-assessment.md` — the audit of a proposed
-GoHighLevel/Jobber/Stripe-escrow architecture against this codebase, and the
-integrate-vs-replace decision that is still open. If you change something this file describes,
+Last updated at commit `2594c89`. See also
+`docs/stack-integration-assessment.md` (the audit of the proposed vendor
+stack) and `docs/stack-setup.md` (how to wire each vendor up).
+
+**The owner chose to make GoHighLevel + Jobber the system of record.** The
+integration layer for that is built — `src/lib/integrations/*`, `webhooks/*`,
+`/api/dispatch`, `/api/financing`, `/api/recruiting`. Nothing has been
+deleted: this app still owns the money rules, because GHL and Jobber cannot
+express a price-book floor, a 15% margin floor or a channel partner's 40%.
+Read §2 before changing where any figure comes from. If you change something this file describes,
 update this file in the same commit.
 
 ---
@@ -141,7 +147,12 @@ Breaking any of these is worse than shipping nothing.
    one without review.
 7. **The customer-list URL allowlist exists to stop a phishing vector** aimed at
    the admin. Do not loosen it.
-8. **A payment figure never appears without its APR and term.** Under
+8. **Marketing SMS and consumer dialling pass `consent.ts` first.** An
+   opt-out is permanent and company-wide. A CSV asserting consent is not
+   consent — the uploader's word is not the subscriber's. The lawful
+   aged-list sequence is email → reply → manual dial → text, in that order,
+   and it is written up in `docs/stack-setup.md` §5.
+9. **A payment figure never appears without its APR and term.** Under
    Regulation Z (12 CFR 1026.24) the amount of a payment is a triggering
    term: state one and you must state the down payment, repayment terms and
    APR alongside, with equal prominence. `src/lib/regions/financing.ts`
@@ -194,6 +205,18 @@ Breaking any of these is worse than shipping nothing.
 ### Where things are
 
 ```
+src/lib/integrations/   external vendors. Each is optional.
+  config.ts             typed env for every vendor + integrationHealth()
+  consent.ts            THE GATE. maySms / mayDialConsumer / mayEmail
+  ghl.ts                GoHighLevel: normalise appointments, push stages
+  jobber.ts             Jobber GraphQL: create client + job, pinned version
+  stripeConnect.ts      splitFor(), transfers, webhook signature + replay
+  dispatch.ts           crew eligibility, offer message, TTL
+
+webhooks/               standalone serverless adapters (thin — logic is above)
+  ghl-to-jobber.js      booked appointment -> Jobber job, idempotent
+  stripe-payout-split.js  payments in, contractor transfers out
+
 src/lib/regions/        the domain. Start here.
   brand.ts              company name, phone, warranty terms
   states.ts             the 5 states: markets, licensing, calling rules

@@ -1,0 +1,149 @@
+{
+  "$comment": [
+    "The integration map for LoveMeAfter. NO SECRETS ARE IN THIS FILE AND NONE MAY BE ADDED.",
+    "The brief asked for a config holding 'all API keys'. Keys in a repo file leak through",
+    "clones, forks, CI logs and screen shares, and a later commit cannot un-leak them. So this",
+    "file carries the map — endpoints, webhook paths, field mappings and WHICH ENV VAR holds",
+    "which credential — and the values live only in Vercel. The typed reader is",
+    "src/lib/integrations/config.ts."
+  ],
+  "version": "1.0.0",
+  "systemOfRecord": {
+    "leadsAndPipeline": "gohighlevel",
+    "scheduledJobs": "jobber",
+    "moneyRulesAndPartners": "lovemeafter-app",
+    "$comment": "The app keeps the money rules because neither GHL nor Jobber can express a price-book floor, a 15% margin floor or a channel partner's 40%. See CLAUDE.md §2."
+  },
+  "vendors": {
+    "gohighlevel": {
+      "role": "CRM, pipeline, workflows, web dialer",
+      "apiBase": "https://services.leadconnectorhq.com",
+      "apiVersionHeader": "2021-07-28",
+      "env": {
+        "apiKey": "GHL_API_KEY",
+        "locationId": "GHL_LOCATION_ID",
+        "webhookSecret": "GHL_WEBHOOK_SECRET",
+        "pipelineId": "GHL_PIPELINE_ID",
+        "stageBooked": "GHL_STAGE_BOOKED_APPOINTMENT",
+        "stageSold": "GHL_STAGE_SOLD"
+      },
+      "outboundWebhooks": [
+        {
+          "event": "Appointment booked",
+          "target": "/webhooks/ghl-to-jobber",
+          "method": "POST",
+          "authHeader": "x-ghl-secret",
+          "retryOn": [502, 503, 504]
+        }
+      ]
+    },
+    "jobber": {
+      "role": "Scheduled jobs, crew calendars, on-site invoicing",
+      "apiBase": "https://api.getjobber.com/api/graphql",
+      "apiVersion": "2024-06-10",
+      "$comment": "Jobber pins its GraphQL schema by date. Leaving this unset means breaking on a day nobody deployed.",
+      "env": {
+        "accessToken": "JOBBER_ACCESS_TOKEN",
+        "refreshToken": "JOBBER_REFRESH_TOKEN",
+        "clientId": "JOBBER_CLIENT_ID",
+        "clientSecret": "JOBBER_CLIENT_SECRET",
+        "webhookSecret": "JOBBER_WEBHOOK_SECRET"
+      },
+      "customFields": [
+        { "label": "State", "source": "lead.state" },
+        { "label": "Lender Application Link", "source": "financing.applyUrl" },
+        { "label": "Assigned Contractor", "source": "lead.worker.name" },
+        { "label": "LMA Estimate ID", "source": "estimate.id" },
+        { "label": "Needs Margin Review", "source": "estimate.requiresAdminOverride" }
+      ]
+    },
+    "stripe": {
+      "role": "Deposits, margin retention, contractor payouts via Connect",
+      "mechanism": "separate charges and transfers",
+      "$comment": "NOT escrow. Stripe is not an escrow provider, its terms forbid presenting it as one, and holding third-party money pending a condition is what money-transmitter licensing regulates. We are the GC paying subs from our own funds.",
+      "env": {
+        "secretKey": "STRIPE_SECRET_KEY",
+        "publishableKey": "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY",
+        "webhookSecret": "STRIPE_WEBHOOK_SECRET",
+        "connectAccountType": "STRIPE_CONNECT_ACCOUNT_TYPE"
+      },
+      "inboundWebhooks": [
+        {
+          "target": "/webhooks/stripe-payout-split",
+          "events": ["payment_intent.succeeded", "charge.refunded"],
+          "rawBodyRequired": true,
+          "$comment": "The signature is over the exact bytes. A platform that parses the body first breaks verification."
+        }
+      ],
+      "requiredMetadata": ["estimateId"],
+      "$metadataComment": "A PaymentIntent without estimateId cannot be matched to a job and is ignored."
+    },
+    "twilio": {
+      "role": "Outbound SMS for dispatch offers and consented campaigns",
+      "env": {
+        "accountSid": "TWILIO_ACCOUNT_SID",
+        "authToken": "TWILIO_AUTH_TOKEN",
+        "fromNumber": "TWILIO_FROM_NUMBER",
+        "messagingServiceSid": "TWILIO_MESSAGING_SERVICE_SID"
+      },
+      "gate": "src/lib/integrations/consent.ts",
+      "$gateComment": "maySms() must pass before any marketing text. An opt-out is permanent and beats everything."
+    },
+    "lender": {
+      "role": "Point-of-sale consumer financing (WiseTack or Hearth)",
+      "env": {
+        "provider": "LENDER_PROVIDER",
+        "apiKey": "LENDER_API_KEY",
+        "apiBase": "LENDER_API_BASE",
+        "webhookSecret": "LENDER_WEBHOOK_SECRET",
+        "applyUrlTemplate": "LENDER_APPLY_URL_TEMPLATE"
+      },
+      "publicEnv": {
+        "partnerName": "NEXT_PUBLIC_FINANCING_PARTNER",
+        "plans": "NEXT_PUBLIC_FINANCING_PLANS"
+      },
+      "$plansComment": "Real APRs and terms from the lender's rate sheet. Leaving it unset is safe — the calculator shows a lawful no-numbers line. A wrong APR is a consumer-credit problem, not a display bug."
+    },
+    "pandadoc": {
+      "role": "Remote signature on subcontractor and rep agreements",
+      "apiBase": "https://api.pandadoc.com/public/v1",
+      "env": {
+        "apiKey": "PANDADOC_API_KEY",
+        "webhookSecret": "PANDADOC_WEBHOOK_SECRET",
+        "templateSubcontractor": "PANDADOC_TEMPLATE_SUBCONTRACTOR",
+        "templateRep": "PANDADOC_TEMPLATE_REP",
+        "templateChannelPartner": "PANDADOC_TEMPLATE_CHANNEL_PARTNER"
+      },
+      "$comment": "The agreements are NOT lawyer-reviewed (CLAUDE.md §3.6). Get them reviewed before sending them to strangers at volume."
+    },
+    "callrail": {
+      "role": "Dynamic number insertion and call attribution",
+      "env": {
+        "apiKey": "CALLRAIL_API_KEY",
+        "accountId": "CALLRAIL_ACCOUNT_ID",
+        "webhookSecret": "CALLRAIL_WEBHOOK_SECRET"
+      }
+    },
+    "aircall": {
+      "role": "Offshore team softphone",
+      "env": {
+        "apiId": "AIRCALL_API_ID",
+        "apiToken": "AIRCALL_API_TOKEN",
+        "webhookSecret": "AIRCALL_WEBHOOK_SECRET"
+      }
+    }
+  },
+  "ourEndpoints": {
+    "POST /api/dispatch": "Offer a job to eligible crews. Admin-gated. Work amount read from the estimate, never from the caller.",
+    "POST /api/dispatch/accept": "A crew accepts or declines. Token in the body is the credential. First acceptance wins by conditional update.",
+    "POST /api/financing/quote": "Payment, APR, term and disclosure for an estimate. Amount read from the estimate.",
+    "POST /api/recruiting": "Crew and rep applications, qualified against REGIONS.",
+    "POST /webhooks/ghl-to-jobber": "GHL booked appointment to Jobber job. Idempotent on ghlContactId.",
+    "POST /webhooks/stripe-payout-split": "Stripe payment and refund events. Raw body required."
+  },
+  "operatingStates": {
+    "live": ["CO", "MO", "KS", "IN", "WY"],
+    "source": "src/lib/regions/states.ts",
+    "$comment": "The proposal listed TX, FL, CO, MO, IN, OH, CA. That adds four states with no licensing data here and drops Kansas and Wyoming, which are live and have rules encoded. Widen REGIONS with the licensing research first; everything downstream follows."
+  }
+}

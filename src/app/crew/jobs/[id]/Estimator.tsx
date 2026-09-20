@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import FinancingCalculator from "@/components/FinancingCalculator";
 
 // The kitchen-table estimator.
 //
@@ -303,6 +304,17 @@ export default function Estimator({
             <p className="rc-accent mt-2 font-mono text-sm tabular-nums">
               {money(overage)} over the floor · {money(yours)} of that is yours
             </p>
+          )}
+
+          {/* The monthly figure, at the table, at the moment the number
+              lands. This is where financing changes a close rate — showing
+              it after they have flinched at the total is too late. It
+              renders payment, APR and term together or nothing at all; see
+              the Regulation Z note in src/lib/regions/financing.ts. */}
+          {validSold && (
+            <div className="mt-4">
+              <FinancingCalculator amount={soldNum} compact />
+            </div>
           )}
         </section>
       )}

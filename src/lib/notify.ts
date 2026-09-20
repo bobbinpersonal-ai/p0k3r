@@ -561,3 +561,31 @@ export async function sendIntroduction(
 
   return out;
 }
+
+/**
+ * A plain text message, reporting whether it actually went.
+ *
+ * Like sendIntroduction and unlike everything above it, this does NOT fail
+ * open. A dispatch offer that silently did not send is a crew who never got
+ * the job and a homeowner waiting on a crew nobody told — so the caller gets
+ * a boolean and can widen the net rather than assume.
+ */
+export async function sendTextMessage(to: string, body: string): Promise<boolean> {
+  const sid = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+  const from = process.env.TWILIO_FROM_NUMBER;
+  if (!sid || !token || !from || !to) return false;
+  try {
+    const res = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`, {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${sid}:${token}`).toString("base64")}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ From: from, To: to, Body: body }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}

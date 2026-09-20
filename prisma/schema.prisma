@@ -354,6 +354,33 @@ model Lead {
   source String?
   notes  String?
 
+  // External systems of record.
+  //
+  // GoHighLevel owns the lead pipeline and Jobber owns the scheduled job;
+  // this row stays the join between them and the money rules, because
+  // neither product knows about the price book, the 15% margin floor or the
+  // channel partner's 40%. Nullable because a lead can originate here.
+  ghlContactId     String? @unique
+  ghlOpportunityId String?
+  jobberClientId   String?
+
+  // Consent, which is what decides whether a dialer or an SMS campaign may
+  // touch this person at all. See src/lib/integrations/consent.ts.
+  //
+  // Recording WHEN and HOW consent was given, not just that it was, because
+  // the defence to a TCPA claim is evidence and "true" is not evidence.
+  smsConsentAt      DateTime?
+  smsConsentSource  String?
+  callConsentAt     DateTime?
+  callConsentSource String?
+  // Set when a campaign or an agent records an opt-out. Beats everything.
+  optedOutAt        DateTime?
+  optOutChannel     String?
+
+  // The batch a bulk import arrived in, so one bad list can be found and
+  // quarantined without touching the rest.
+  importBatch String?
+
   repId String?
   rep   Rep?    @relation(fields: [repId], references: [id])
 
@@ -501,6 +528,17 @@ model Estimate {
   /// allowed to reach a contract — see src/lib/texas/compliance.ts.
   scopeNotes String?
 
+  // Jobber is the scheduled job; this is the link back to it.
+  jobberJobId String?
+
+  // Point-of-sale financing. status is a plain string by the convention at
+  // the top of this file: NONE | OFFERED | APPLIED | APPROVED | DECLINED |
+  // FUNDED. The lender owns the decision; we only record it.
+  financingStatus         String  @default("NONE")
+  financingApplicationId  String?
+  financingLender         String?
+  financingApprovedAmount Int?
+
   signedAt    DateTime?
   signerName  String?
   canceledAt  DateTime?
@@ -510,6 +548,7 @@ model Estimate {
 
   lines    EstimateLine[]
   payments Payment[]
+  offers   DispatchOffer[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -654,6 +693,17 @@ model Worker {
   insuranceExpiresAt     DateTime?
 
   payouts WorkerPayout[]
+  offers  DispatchOffer[]
+
+  /// Stripe Connect, for paying them without a human moving money.
+  ///
+  /// The connected account is theirs, not ours: we create transfers to it and
+  /// Stripe handles the bank detail, the KYC and the 1099-K side. Nothing can
+  /// be transferred until payoutsEnabled, which Stripe flips only once they
+  /// have finished onboarding — so this is a gate, not a note.
+  stripeAccountId      String?   @unique
+  stripeOnboardedAt    DateTime?
+  stripePayoutsEnabled Boolean   @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -662,6 +712,41 @@ model Worker {
 }
 
 /// One payment to one worker. The 1099 total is the sum of these by year.
+/// A job offered to a crew, and whether they took it.
+///
+/// "New $4,500 fencing job in Denver. Tap to accept." Offers go to several
+/// vetted crews at once and the first acceptance wins, which is why the win
+/// is recorded by a conditional update rather than by reading then writing —
+/// two crews tapping at the same moment must not both get the job.
+model DispatchOffer {
+  id         String   @id @default(cuid())
+  estimateId String
+  estimate   Estimate @relation(fields: [estimateId], references: [id], onDelete: Cascade)
+
+  workerId String
+  worker   Worker @relation(fields: [workerId], references: [id], onDelete: Cascade)
+
+  /// Opaque, unguessable, and what the SMS link carries.
+  token String @unique @default(dbgenerated("gen_random_uuid()"))
+
+  /// OFFERED | ACCEPTED | DECLINED | EXPIRED | WITHDRAWN
+  status String @default("OFFERED")
+
+  /// What the crew is being offered for the work, in dollars. Snapshotted so
+  /// a later price change cannot alter what somebody already agreed to.
+  workAmount Int
+
+  sentAt        DateTime  @default(now())
+  expiresAt     DateTime
+  respondedAt   DateTime?
+  declineReason String?
+
+  createdAt DateTime @default(now())
+
+  @@unique([estimateId, workerId])
+  @@index([status, expiresAt])
+}
+
 model WorkerPayout {
   id       String @id @default(cuid())
   workerId String
@@ -680,6 +765,13 @@ model WorkerPayout {
   paidAt  DateTime @default(now())
   /// Denormalised so a year's 1099 totals are one indexed query.
   taxYear Int
+
+  /// The Stripe transfer this payout was actually sent as. Null for a payout
+  /// recorded before Connect, or paid by hand. Unique so a retry cannot
+  /// double-pay: the same transfer can only ever be recorded once.
+  stripeTransferId String? @unique
+  /// PENDING | SENT | FAILED — what Stripe last told us.
+  transferStatus   String  @default("PENDING")
 
   createdAt DateTime @default(now())
 
