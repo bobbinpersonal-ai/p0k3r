@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sell Your iPhone for Cash — SPADRA | Sacramento</title>
+<meta name="description" content="Get an instant cash offer for your iPhone. Any model, any condition — even cracked. Same-day payment in Sacramento.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="index.html">SPADRA<span>.</span></a>
+    <button class="burger" aria-label="Menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="repairs.html">Repairs</a>
+      <a href="sell.html" class="active">Sell Your iPhone</a>
+      <a href="shop.html">Shop Refurbished</a>
+      <!-- REPLACE WITH REAL NUMBER -->
+      <a href="tel:+15552345678" class="nav-cta">Call / Text</a>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+  <header class="hero" style="padding:52px 0 32px">
+    <span class="eyebrow">We buy iPhones</span>
+    <h1>Cash for your iPhone. <em>Today.</em></h1>
+    <p class="sub">Any model, any condition — even cracked. Get your instant estimate below, then get paid the same day.</p>
+  </header>
+
+  <section class="section" style="padding-top:0">
+    <h2>Instant cash estimate</h2>
+    <p class="lede">Pick your model and condition for a ballpark cash offer. Final offer confirmed in person after our 6-point check.</p>
+    <div class="form-card">
+      <div class="field-row">
+        <div class="field">
+          <label for="s-model">iPhone model</label>
+          <select id="s-model">
+            <option value="">Select…</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="s-cond">Condition</label>
+          <select id="s-cond">
+            <option value="1">Flawless — like new</option>
+            <option value="0.9">Good — light scratches</option>
+            <option value="0.75">Fair — visible wear</option>
+            <option value="0.55">Cracked screen</option>
+            <option value="0.35">Broken — won't turn on / heavy damage</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary" style="width:100%" onclick="calcOffer()">Get My Estimate</button>
+      <div class="quote-box" id="quote-box">
+        <div class="amount" id="quote-amount">$0</div>
+        <p>Estimated cash offer · final quote confirmed in person after inspection</p>
+        <!-- REPLACE WITH REAL NUMBER -->
+        <a class="btn btn-primary" id="quote-text" href="#" style="margin-top:14px">Text Us to Lock This In</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>How selling works</h2>
+    <div class="steps">
+      <div class="step">
+        <h3>Get your estimate</h3>
+        <p>Use the tool above or text us your model and condition. We'll confirm a firm number fast.</p>
+      </div>
+      <div class="step">
+        <h3>Meet up same-day</h3>
+        <p>We come to you in the Sacramento area, or drop by the shop. Evenings work great.</p>
+      </div>
+      <div class="step">
+        <h3>Get paid on the spot</h3>
+        <p>We run a 6-point verification (iCloud, IMEI, carrier, hardware, battery, paid-off status), factory-reset in front of you, and hand you cash.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>What we check before we buy</h2>
+    <p class="lede">Takes five minutes. If your phone passes, you walk away with cash.</p>
+    <div class="grid-2">
+      <div class="card"><h3>🔓 iCloud removed</h3><p>Signed out of iCloud and Find My iPhone off — no exceptions.</p></div>
+      <div class="card"><h3>🛰️ Clean IMEI</h3><p>Not reported lost or stolen, not blacklisted.</p></div>
+      <div class="card"><h3>📶 Carrier status</h3><p>Unlocked is best; locked phones still considered at adjusted pricing.</p></div>
+      <div class="card"><h3>🔋 Battery & hardware</h3><p>Battery health, screen, cameras, buttons, speakers and charging all tested.</p></div>
+    </div>
+  </section>
+
+  <div class="cta-band">
+    <h2>Ready to sell? Get paid today.</h2>
+    <p>Text your model + condition — we'll reply with a firm offer in minutes.</p>
+    <!-- REPLACE WITH REAL NUMBER -->
+    <a class="btn btn-primary" href="sms:+15552345678?&body=Hi%20SPADRA!%20I%20want%20to%20sell%20my%20iPhone.%20Model:%20__%20Condition:%20__">Text to Sell</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <a class="brand" href="index.html">SPADRA<span>.</span></a>
+      <div>
+        <a href="repairs.html">Repairs</a> ·
+        <a href="sell.html">Sell</a> ·
+        <a href="shop.html">Shop</a>
+      </div>
+      <!-- REPLACE WITH REAL NUMBER / EMAIL -->
+      <div><a href="tel:+15552345678">(555) 234-5678</a> · <a href="mailto:hello@spadrahouse.com">hello@spadrahouse.com</a><br>Sacramento, CA</div>
+    </div>
+    <p class="disclaimer">Estimates are approximate and based on model and self-reported condition. Final offers are confirmed in person after inspection and may differ. We only purchase devices that are fully paid off, iCloud-removed, and not reported lost or stolen. SPADRA is an independent shop and is not affiliated with Apple Inc. iPhone is a trademark of Apple Inc.</p>
+    <p class="disclaimer">© <span id="yr"></span> Spadra. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

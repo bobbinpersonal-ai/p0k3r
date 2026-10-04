@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iPhone Repair — SPADRA | Sacramento</title>
+<meta name="description" content="Same-day iPhone screen, battery, charging port, camera and back glass repair in Sacramento. Upfront pricing, 90-day warranty.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="index.html">SPADRA<span>.</span></a>
+    <button class="burger" aria-label="Menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="repairs.html" class="active">Repairs</a>
+      <a href="sell.html">Sell Your iPhone</a>
+      <a href="shop.html">Shop Refurbished</a>
+      <!-- REPLACE WITH REAL NUMBER -->
+      <a href="tel:+15552345678" class="nav-cta">Call / Text</a>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+  <header class="hero" style="padding:52px 0 32px">
+    <span class="eyebrow">Repairs</span>
+    <h1>Fixed in <em>45 minutes.</em><br>Covered for 90 days.</h1>
+    <p class="sub">Upfront prices below — pick your model and issue, book ahead, and skip the line.</p>
+  </header>
+
+  <section class="section" style="padding-top:0">
+    <h2>Repair price list</h2>
+    <p class="lede">Pro / Pro Max models add $20 to screen prices. Diagnostic is $29, waived with any repair.</p>
+    <div class="table-wrap">
+      <table>
+        <tr><th>Repair</th><th>12 / 13</th><th>14</th><th>15</th><th>16</th></tr>
+        <tr><td>Screen replacement</td><td class="price">$89</td><td class="price">$99</td><td class="price">$119</td><td class="price">$139</td></tr>
+        <tr><td>Battery replacement</td><td class="price">$59</td><td class="price">$59</td><td class="price">$69</td><td class="price">$69</td></tr>
+        <tr><td>Charging port</td><td class="price">$69</td><td class="price">$69</td><td class="price">$79</td><td class="price">$79</td></tr>
+        <tr><td>Back glass</td><td class="price">$99</td><td class="price">$99</td><td class="price">$109</td><td class="price">$119</td></tr>
+        <tr><td>Rear camera</td><td class="price">$79</td><td class="price">$79</td><td class="price">$89</td><td class="price">$99</td></tr>
+        <tr><td>Front camera / Face ID</td><td class="price">$59</td><td class="price">$59</td><td class="price">$69</td><td class="price">$69</td></tr>
+        <tr><td>Water damage diagnostic</td><td class="price">$49</td><td class="price">$49</td><td class="price">$49</td><td class="price">$49</td></tr>
+      </table>
+    </div>
+    <p class="note">Estimates only — final quote confirmed before any work begins. Older models (X, 11, SE): text us for pricing.</p>
+  </section>
+
+  <section class="section">
+    <h2>Book your repair</h2>
+    <p class="lede">Send the booking and we'll confirm your time by text within minutes during business hours.</p>
+    <div class="form-card">
+      <form id="repair-form">
+        <div class="field-row">
+          <div class="field">
+            <label for="r-name">Name</label>
+            <input id="r-name" required placeholder="Your name">
+          </div>
+          <div class="field">
+            <label for="r-phone">Mobile number</label>
+            <input id="r-phone" required type="tel" placeholder="(555) 000-0000">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="r-model">iPhone model</label>
+            <select id="r-model" required>
+              <option value="">Select…</option>
+              <option>iPhone 16 / 16 Plus</option>
+              <option>iPhone 16 Pro / Pro Max</option>
+              <option>iPhone 15 / 15 Plus</option>
+              <option>iPhone 15 Pro / Pro Max</option>
+              <option>iPhone 14 / 14 Plus</option>
+              <option>iPhone 14 Pro / Pro Max</option>
+              <option>iPhone 13 / 13 mini</option>
+              <option>iPhone 13 Pro / Pro Max</option>
+              <option>iPhone 12 series</option>
+              <option>Older (11, X, SE…)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="r-issue">Issue</label>
+            <select id="r-issue" required>
+              <option value="">Select…</option>
+              <option>Cracked screen</option>
+              <option>Battery drains fast</option>
+              <option>Won't charge</option>
+              <option>Back glass cracked</option>
+              <option>Camera not working</option>
+              <option>Water damage</option>
+              <option>Something else</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="r-notes">Anything we should know? (optional)</label>
+          <textarea id="r-notes" rows="3" placeholder="e.g. phone still works, just the glass…"></textarea>
+        </div>
+        <button class="btn btn-primary" type="submit" style="width:100%">Request Booking by Text</button>
+        <p class="note">This opens your messaging app with the booking pre-written — just hit send.</p>
+      </form>
+    </div>
+  </section>
+
+  <div class="cta-band">
+    <h2>Not sure what's wrong?</h2>
+    <p>$29 diagnostic, free with any repair. We'll tell you exactly what it needs and what it costs — no pressure.</p>
+    <!-- REPLACE WITH REAL NUMBER -->
+    <a class="btn btn-primary" href="sms:+15552345678?&body=Hi%20SPADRA!%20I%20need%20a%20diagnostic%20for%20my%20iPhone.">Text for Diagnostic</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <a class="brand" href="index.html">SPADRA<span>.</span></a>
+      <div>
+        <a href="repairs.html">Repairs</a> ·
+        <a href="sell.html">Sell</a> ·
+        <a href="shop.html">Shop</a>
+      </div>
+      <!-- REPLACE WITH REAL NUMBER / EMAIL -->
+      <div><a href="tel:+15552345678">(555) 234-5678</a> · <a href="mailto:hello@spadrahouse.com">hello@spadrahouse.com</a><br>Sacramento, CA</div>
+    </div>
+    <p class="disclaimer">Prices shown are estimates and may vary by exact model, storage and condition. Final quote confirmed before any work begins. SPADRA is an independent repair shop and is not affiliated with Apple Inc. iPhone is a trademark of Apple Inc.</p>
+    <p class="disclaimer">© <span id="yr"></span> Spadra. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

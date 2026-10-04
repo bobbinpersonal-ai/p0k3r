@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Refurbished iPhones — SPADRA | Sacramento</title>
+<meta name="description" content="Certified refurbished iPhones with 90-day warranty. Fully tested, battery health report included. Sacramento, CA.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap nav-inner">
+    <a class="brand" href="index.html">SPADRA<span>.</span></a>
+    <button class="burger" aria-label="Menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">☰</button>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="repairs.html">Repairs</a>
+      <a href="sell.html">Sell Your iPhone</a>
+      <a href="shop.html" class="active">Shop Refurbished</a>
+      <!-- REPLACE WITH REAL NUMBER -->
+      <a href="tel:+15552345678" class="nav-cta">Call / Text</a>
+    </div>
+  </div>
+</nav>
+
+<main class="wrap">
+  <header class="hero" style="padding:52px 0 32px">
+    <span class="eyebrow">Refurbished</span>
+    <h1>Flagship iPhones.<br><em>Without the flagship price.</em></h1>
+    <p class="sub">Every phone is fully tested across 30+ checkpoints, ships with a battery health report, and carries a 90-day warranty.</p>
+  </header>
+
+  <section class="section" style="padding-top:0">
+    <div class="shop-grid" id="shop-grid"><!-- rendered by app.js --></div>
+    <p class="note">Inventory changes fast — text us to confirm availability before coming in. Prices include the 90-day warranty.</p>
+  </section>
+
+  <section class="section">
+    <h2>What "certified refurbished" means here</h2>
+    <div class="grid-3">
+      <div class="card"><div class="icon">✅</div><h3>30-point inspection</h3><p>Screen, cameras, Face ID, speakers, mics, buttons, charging, and every sensor tested.</p></div>
+      <div class="card"><div class="icon">🔋</div><h3>Battery health report</h3><p>You see the exact battery health before you buy. Anything under 85% gets a fresh battery.</p></div>
+      <div class="card"><div class="icon">🛡️</div><h3>90-day warranty</h3><p>Any defect in our work or parts, we fix or replace it. No fine print games.</p></div>
+    </div>
+  </section>
+
+  <div class="cta-band">
+    <h2>Want a model you don't see?</h2>
+    <p>Tell us what you're looking for — we source specific models weekly.</p>
+    <!-- REPLACE WITH REAL NUMBER -->
+    <a class="btn btn-primary" href="sms:+15552345678?&body=Hi%20SPADRA!%20I'm%20looking%20for%20a%20refurbished%20iPhone.%20Model:%20__">Text Your Request</a>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <a class="brand" href="index.html">SPADRA<span>.</span></a>
+      <div>
+        <a href="repairs.html">Repairs</a> ·
+        <a href="sell.html">Sell</a> ·
+        <a href="shop.html">Shop</a>
+      </div>
+      <!-- REPLACE WITH REAL NUMBER / EMAIL -->
+      <div><a href="tel:+15552345678">(555) 234-5678</a> · <a href="mailto:hello@spadrahouse.com">hello@spadrahouse.com</a><br>Sacramento, CA</div>
+    </div>
+    <p class="disclaimer">Inventory and prices subject to change. All refurbished devices are iCloud-removed, IMEI-clean, and factory reset. SPADRA is an independent shop and is not affiliated with Apple Inc. iPhone is a trademark of Apple Inc.</p>
+    <p class="disclaimer">© <span id="yr"></span> Spadra. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
